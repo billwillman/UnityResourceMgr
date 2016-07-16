@@ -1,0 +1,133 @@
+/*----------------------------------------------------------------
+// 模块名：对AsyncOperation异步管理封装
+// 创建者：zengyi
+// 修改者列表：
+// 创建日期：2015年6月1日
+// 模块描述：
+//----------------------------------------------------------------*/
+
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
+{
+	public interface IAsyncOperationItem
+	{
+		void Release();
+		AsyncOperation GetOperation();
+		void Process();
+	}
+
+	public class AsyncOperationItem<T>: IAsyncOperationItem where T: AsyncOperation
+	{
+		internal T opt = null;
+		internal Action<T> onProcess = null;
+		public void Release()
+		{}
+
+		public AsyncOperation GetOperation()
+		{
+			return opt;
+		}
+
+		public void Process()
+		{
+			if ((opt == null) || (onProcess == null))
+				return;
+			onProcess (opt);
+		}
+	}
+
+	#region public function
+	public AsyncOperationItem<T> AddAsyncOperation<T>(T opt, Action<T> onProcess) where T: AsyncOperation
+	{
+		Timer time;
+		if (mDic.TryGetValue (opt, out time)) {
+			if (time == null)
+				return null;
+			AsyncOperationItem<T> old = time.UserData as AsyncOperationItem<T>;
+			if (old == null)
+				return null;
+
+			if (onProcess != null)
+				old.onProcess += onProcess;
+			return old;
+		}
+
+		time = TimerMgr.Instance.CreateTimer (false, 0, true);
+		time.AddListener (OnTimerEvent);
+		AsyncOperationItem<T> item = new AsyncOperationItem<T> ();
+		//AsyncOperationItem item = AsyncOperationItem.NewItem ();
+		item.opt = opt; 
+		item.onProcess = onProcess;
+		time.UserData = item;
+
+		mDic.Add (opt, time);
+
+		return item;
+	}
+
+	public void Clear()
+	{
+		Dictionary<AsyncOperation, Timer>.Enumerator iter = mDic.GetEnumerator ();
+		while (iter.MoveNext()) {
+			if (iter.Current.Value != null)
+			{
+				if (iter.Current.Value.UserData != null)
+				{
+					IAsyncOperationItem item = iter.Current.Value.UserData as IAsyncOperationItem;
+					if (item != null)
+						item.Release();
+				}
+				iter.Current.Value.Dispose();
+			}
+		}
+
+		iter.Dispose ();
+		mDic.Clear ();
+	}
+	                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+	public void RemoveAsyncOperation(IAsyncOperationItem item)
+	{
+		if (item == null)
+			return;
+		
+		Timer time;
+		AsyncOperation opt = item.GetOperation ();
+		if (mDic.TryGetValue (opt, out time) && (time != null)) {
+			mDic.Remove(opt);
+			time.Dispose();
+		}
+		
+		item.Release ();
+	}
+
+	#endregion public function
+
+	#region protected function
+
+	protected  void OnTimerEvent(Timer obj, float timer)
+	{
+		IAsyncOperationItem item = (IAsyncOperationItem)obj.UserData;
+		if (item == null) {
+			obj.Dispose();
+			return;
+		}
+
+		AsyncOperation opt = item.GetOperation ();
+		if (opt == null) {
+			obj.Dispose();
+			return;
+		}
+
+		item.Process ();
+		if (opt.isDone)
+			RemoveAsyncOperation(item);
+
+	}
+	#endregion protected function
+
+	protected Dictionary<AsyncOperation, Timer> mDic = new Dictionary<AsyncOperation, Timer>();
+}
