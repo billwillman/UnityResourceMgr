@@ -239,6 +239,15 @@ public class ResourceMgrMonitorEditor: Editor
 			// 非使用列表
 			DrawCacheMap(mNotUsedAssetRefMap, "未使用列表");
 
+			DrawBtnClearNoUsed();
+		}
+	}
+
+	void DrawBtnClearNoUsed()
+	{
+		if (GUILayout.Button("清空未使用Cache"))
+		{
+			AssetCacheManager.Instance.ClearUnUsed();
 		}
 	}
 
