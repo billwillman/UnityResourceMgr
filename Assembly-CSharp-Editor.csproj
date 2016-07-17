@@ -49,7 +49,6 @@
      <Compile Include="Assets\Scripts\Res\Editor\ResourceMgrMonitorEditor.cs" />
      <None Include="Assets\Resources\@Shaders\Lightmap-Unlit-Wind.shader" />
      <None Include="Assets\Resources\@Shaders\SkyBox-Alpha Blend.shader" />
-     <None Include="Assets\StreamingAssets\Windows\AssetBundles.xml" />
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>D:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>

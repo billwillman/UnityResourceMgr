@@ -52,10 +52,14 @@ public class Test : CachedMonoBehaviour {
 
 	void ChangeScene(bool isAsync)
 	{
+		if (!string.IsNullOrEmpty(m_CurScene))
+			ResourceMgr.Instance.CloseScene(m_CurScene);
+		m_CurScene = "1";
 		if (isAsync)
-			ResourceMgr.Instance.LoadSceneAsync("1", false, null);
+			ResourceMgr.Instance.LoadSceneAsync(m_CurScene, false, null);
 		else
-			ResourceMgr.Instance.LoadScene("1", false);
+			ResourceMgr.Instance.LoadScene(m_CurScene, false);
+
 	}
 
 	void OnLevelWasLoaded (int level)
@@ -65,4 +69,5 @@ public class Test : CachedMonoBehaviour {
 	}
 
 	private GameObject m_CubeObj = null;
+	private string m_CurScene = string.Empty;
 }

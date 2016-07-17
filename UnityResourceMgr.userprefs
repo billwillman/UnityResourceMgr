@@ -1,9 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Editor\ABBuild.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Test.cs">
     <Files>
       <File FileName="Assets\Scripts\Main.cs" Line="18" Column="30" />
-      <File FileName="Assets\Scripts\Test.cs" Line="63" Column="25" />
+      <File FileName="Assets\Scripts\Test.cs" Line="43" Column="9" />
       <File FileName="Assets\Scripts\GameMgr.cs" Line="1" Column="1" />
       <File FileName="Assets\Scripts\Res\AssetLoader.cs" Line="637" Column="9" />
       <File FileName="Assets\Scripts\Res\ResourceMgr.cs" Line="32" Column="25" />

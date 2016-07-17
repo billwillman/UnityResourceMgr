@@ -86,7 +86,6 @@
      <Compile Include="Assets\Scripts\Utils\TimerMgr.cs" />
      <None Include="Assets\Resources\@Shaders\Lightmap-Unlit-Wind.shader" />
      <None Include="Assets\Resources\@Shaders\SkyBox-Alpha Blend.shader" />
-     <None Include="Assets\StreamingAssets\Windows\AssetBundles.xml" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
