@@ -49,6 +49,7 @@
      <Compile Include="Assets\Scripts\Res\Editor\ResourceMgrMonitorEditor.cs" />
      <None Include="Assets\Resources\@Shaders\Lightmap-Unlit-Wind.shader" />
      <None Include="Assets\Resources\@Shaders\SkyBox-Alpha Blend.shader" />
+     <None Include="Assets\StreamingAssets\Windows\AssetBundles.xml" />
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>D:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>
@@ -97,10 +98,6 @@
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
  <HintPath>D:/Program Files/Unity/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
  </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Assembly-CSharp.csproj">
-      <Project>{C9FDEFFB-4FAB-3868-9F69-14816408FD50}</Project>      <Name>Assembly-CSharp</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
