@@ -28,12 +28,12 @@ public class Test : CachedMonoBehaviour {
 		{
 			if (GUI.Button(new Rect(100, 160, 150, 50), "(同步)创建Prefab物体"))
 			{
-				m_CubeObj = ResourceMgr.Instance.CreateGameObject("resources/prefabs/cube.prefab");
+				m_CubeObj = ResourceMgr.Instance.CreateGameObject("resources/prefabs/flag.prefab");
 			}
 
 			if (GUI.Button(new Rect(260, 160, 150, 50), "(异步)创建Prefab物体"))
 			{
-				ResourceMgr.Instance.CreateGameObjectAsync("resources/prefabs/cube.prefab",
+				ResourceMgr.Instance.CreateGameObjectAsync("resources/prefabs/flag.prefab",
 				   delegate (float process, bool isDone, GameObject obj){
 						if (isDone)
 							m_CubeObj = obj;
@@ -52,6 +52,10 @@ public class Test : CachedMonoBehaviour {
 
 	void ChangeScene(bool isAsync)
 	{
+		if (isAsync)
+			ResourceMgr.Instance.LoadSceneAsync("1", false, null);
+		else
+			ResourceMgr.Instance.LoadScene("1", false);
 	}
 
 	void OnLevelWasLoaded (int level)

@@ -18,7 +18,7 @@ public class GameMgr: Singleton<GameMgr>
 		if (isOk)
 		{
 			// 预先加载 Shader的AB, 只需要提供其中一个的文件名即可，自动找到AB，并加载
-			ResourceMgr.Instance.PreLoadAndBuildAssetBundleShaders("resources/@shaders/Lightmap-Unlit-Wind.shader");
+			ResourceMgr.Instance.PreLoadAndBuildAssetBundleShaders("resources/@shaders/lightmap-unlit-wind.shader");
 		}
 	}
 
