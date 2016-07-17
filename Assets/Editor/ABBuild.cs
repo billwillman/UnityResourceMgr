@@ -1052,7 +1052,8 @@ class AssetBundleMgr
             }
 
 			bool isMainFileMode = false;
-			string localFileName = Path.GetFileName(dir);
+		//	string localFileName = Path.GetFileName(dir);
+			string localFileName = Path.GetFileName(abDir);
 			bool isOnly = !localFileName.StartsWith(AssetBundleBuild._MainFileSplit);
 			if (isOnly)
 			{
