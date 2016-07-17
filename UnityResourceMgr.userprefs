@@ -1,19 +1,18 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Editor\ABBuild.cs">
     <Files>
       <File FileName="Assets\Scripts\Main.cs" Line="18" Column="30" />
-      <File FileName="Assets\Scripts\Test.cs" Line="32" Column="5" />
-      <File FileName="Assets\Scripts\GameMgr.cs" Line="21" Column="55" />
-      <File FileName="Assets\Scripts\Res\AssetLoader.cs" Line="675" Column="1" />
-      <File FileName="Assets\Scripts\Res\ResourceMgr.cs" Line="538" Column="25" />
-      <File FileName="Assets\Editor\ABBuild.cs" Line="1062" Column="48" />
+      <File FileName="Assets\Scripts\Test.cs" Line="63" Column="25" />
+      <File FileName="Assets\Scripts\GameMgr.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Res\AssetLoader.cs" Line="637" Column="9" />
+      <File FileName="Assets\Scripts\Res\ResourceMgr.cs" Line="32" Column="25" />
+      <File FileName="Assets\Editor\ABBuild.cs" Line="1059" Column="5" />
+      <File FileName="Assets\Scripts\Res\ResourcesLoader.cs" Line="11" Column="20" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="D:\UnityResourceMgr\UnityResourceMgr\Assets\Editor\ABBuild.cs" line="1051" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
