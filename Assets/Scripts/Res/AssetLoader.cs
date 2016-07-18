@@ -141,68 +141,51 @@ public class AssetInfo
 		get;
 		set;
 	}
-
-
-	private Timer m_WWWTimer = null;
-	private WWW m_WWW = null;
-	private Action<AssetInfo> m_OnWWWEnd;
-	private void ClearWWW()
+	
+	private WWWFileLoadTask m_WWWTask = null;
+	private TaskList m_WWWTaskList = null;
+	internal void ClearWWW()
 	{
-		m_OnWWWEnd = null;
-
-		if (m_WWWTimer != null)
+		if (m_WWWTask != null)
 		{
-			m_WWWTimer.Dispose();
-			m_WWWTimer = null;
+			m_WWWTask.Release();
+			m_WWWTask = null;
 		}
 
-		if (m_WWW != null)
+		if (m_WWWTaskList != null)
 		{
-			m_WWW.Dispose();
-			m_WWW = null;
+			m_WWWTaskList.Clear();
+			m_WWWTaskList = null;
 		}
 	}
 
-	private void OnWWWTimer(Timer obj, float timer)
+	public TaskList CreateWWWTaskList()
 	{
-		if (m_WWW == null)
-		{
-			ClearWWW();
-			return;
-		}
-		
-		if (m_WWW.isDone)
-		{
-			mBundle = m_WWW.assetBundle;
-
-			if (m_OnWWWEnd != null)
-				m_OnWWWEnd(this);
-
-			ClearWWW();
-		}
-
+		if (m_WWWTaskList == null)
+			m_WWWTaskList = new TaskList();
+		return m_WWWTaskList;
 	}
 
-	public bool LoadWWW(Action<AssetInfo> onEnd)
+	public bool LoadWWW(TaskList taskList)
 	{
 		if (IsVaild ())
 			return true;
 		if (string.IsNullOrEmpty (mFileName))
 			return false;
 
-		if (m_WWWTimer != null)
+		if (taskList == null)
+			return false;
+
+		if (m_WWWTask != null)
 		{
-			m_OnWWWEnd += onEnd;
+			taskList.AddTask(m_WWWTask, false);
 			return true;
 		}
 
-		m_WWW = new WWW(mFileName);
-		
-		m_WWWTimer = TimerMgr.Instance.CreateTimer(false, 0, true);
-		if (m_WWWTimer != null)
+		m_WWWTask = WWWFileLoadTask.LoadFileName(mFileName);
+		if (m_WWWTask != null)
 		{
-			m_OnWWWEnd += onEnd;
-			m_WWWTimer.AddListener(OnWWWTimer);
+			taskList.AddTask(m_WWWTask, false);
 		} else
 			return false;
 		
@@ -979,6 +962,49 @@ public class AssetLoader: IResourceLoader
 		return LoadObjectAsync<ShaderVariantCollection> (TransFileName(fileName, ".shaderVar"), cacheType, onProcess);
 	}
 #endif	
+
+	internal bool LoadWWWAsseetInfo(AssetInfo asset, TaskList taskList, ref int addCount)
+	{
+		if (asset == null)
+			return false;
+
+		if (asset.IsVaild () || asset.IsUsing)
+			return true;
+
+		if (taskList == null)
+			taskList = asset.CreateWWWTaskList();
+
+		asset.IsUsing = true;
+		for (int i = 0; i < asset.DependFileCount; ++i)
+		{
+			string fileName = asset.GetDependFileName(i);
+			if (!string.IsNullOrEmpty(fileName))
+			{
+				AssetInfo depend = FindAssetInfo(fileName);
+				if (depend == null)
+				{
+					#if USE_UNITY5_X_BUILD
+					continue;
+					#else
+					asset.IsUsing = false;
+					return false;
+					#endif
+				}
+				if (!LoadWWWAsseetInfo(depend, taskList, ref addCount))
+				{
+					asset.IsUsing = false;
+					return false;
+				}
+			}
+		}
+
+		addCount += 1;
+		AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
+
+		asset.IsUsing = false;
+		bool ret = asset.LoadWWW(taskList);
+		return ret;
+	}
 
 	internal bool LoadAssetInfo(AssetInfo asset, ref int addCount)
 	{
