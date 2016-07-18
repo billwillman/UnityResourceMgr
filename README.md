@@ -10,6 +10,6 @@
    AssetCacheManager.Instance.ClearUnUsed();
    ResourceMgr.Instance.UnloadUnUsed();
 
-具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki
+具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
 
 
