@@ -77,20 +77,27 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 	public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess)
 	{
-		if (mAssetLoader.OnSceneLoad (sceneName)) {
+		if (mAssetLoader.OnSceneLoadAsync (sceneName, 
+		                                   delegate {
+												DoLoadSceneAsync(sceneName, isAdd, onProcess);
+		                                  })) {
 			LogMgr.Instance.Log (string.Format ("Loading AssetBundle Scene: {0}", sceneName));
 		} else {
 #if UNITY_EDITOR
 			if (!Application.CanStreamedLevelBeLoaded (sceneName))
 				return false;
 #endif
-			if (mResLoader.OnSceneLoad(sceneName))
+			if (mResLoader.OnSceneLoadAsync(sceneName,
+			                                delegate {
+												DoLoadSceneAsync(sceneName, isAdd, onProcess);
+											}))
 				LogMgr.Instance.Log(string.Format("Loading Resources Scene: {0}", sceneName));
 			else
 				return false;
 		}
 
-		return DoLoadSceneAsync(sceneName, isAdd, onProcess);
+		//return DoLoadSceneAsync(sceneName, isAdd, onProcess);
+		return true;
 	}
 
 	public void CloseScene(string sceneName)
@@ -517,19 +524,19 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadShaderAsync(fileName, cacheType, onProcess);
 	}
 
-	public bool PreLoadAndBuildAssetBundleShaders(string abFileName)
+	public bool PreLoadAndBuildAssetBundleShaders(string abFileName, Action onEnd = null)
 	{
 
 		System.Type type = typeof(Shader);
 
-		if (!PreLoadAssetBundle(abFileName, type))
+		if (!PreLoadAssetBundle(abFileName, type, onEnd))
 			return false;
 
 		Shader.WarmupAllShaders();
 		return true;
 	}
 
-	public bool PreLoadAssetBundle(string abFileName, System.Type type)
+	public bool PreLoadAssetBundle(string abFileName, System.Type type, Action onEnd = null)
 	{
 		if (mAssetLoader == null || type == null)
 			return false;
@@ -538,7 +545,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if (loader == null)
 			return false;
 
-		if (!loader.PreloadAllType(abFileName, type))
+		if (!loader.PreloadAllType(abFileName, type, onEnd))
 			return false;
 
 		return true;

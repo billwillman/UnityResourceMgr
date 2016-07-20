@@ -20,6 +20,7 @@ public abstract class IResourceLoader
 {
 	#region public function
 	public abstract bool OnSceneLoad(string sceneName);
+	public abstract bool OnSceneLoadAsync(string sceneName, Action onEnd);
 	public abstract bool OnSceneClose(string sceneName);
 	public abstract GameObject LoadPrefab(string fileName, ResourceCacheType cacheType);
 	public abstract bool LoadPrefabAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, GameObject> onProcess);

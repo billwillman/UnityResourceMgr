@@ -689,9 +689,44 @@ public class AssetLoader: IResourceLoader
 		int addCount = 0;
 		if (!LoadAssetInfo (asset, ref addCount))
 			return false;
-
+		
 		AddOrUpdateAssetCache (asset);
 
+		return true;
+	}
+
+	public override bool OnSceneLoadAsync(string sceneName, Action onEnd)
+	{
+		if (string.IsNullOrEmpty (sceneName))
+			return false;
+		#if USE_LOWERCHAR
+		sceneName = sceneName.ToLower();
+		#endif
+		sceneName += ".unity";
+		AssetInfo asset = FindAssetInfo (sceneName);
+		if (asset == null)
+			return false;
+		int addCount = 0;
+		if (asset.CompressType == AssetCompressType.astUnityZip)
+		{
+			return LoadWWWAsseetInfo(asset, null, ref addCount, 
+			                  delegate (bool isOk) {
+								if (isOk)
+								{
+									AddOrUpdateAssetCache (asset);
+									if (onEnd != null)
+										onEnd();
+								}
+							 }
+			);
+		} else
+		{
+			if (!LoadAssetInfo (asset, ref addCount))
+				return false;
+			AddOrUpdateAssetCache (asset);
+			if (onEnd != null)
+				onEnd();
+		}
 		return true;
 	}
 
@@ -717,7 +752,18 @@ public class AssetLoader: IResourceLoader
 			AssetCacheManager.Instance._OnLoadObject(obj, asset.Cache);
 	}
 
-	public bool PreloadAllType(string abFileName, System.Type type)
+	private void DoPreloadAllType(bool isNew, AssetInfo asset, System.Type type)
+	{
+		if (isNew)
+		{
+			AddOrUpdateAssetCache (asset);
+		} else
+			AssetCacheManager.Instance.CacheAddRefCount(asset.Cache);
+		
+		asset.PreLoadAll(type, OnPreaLoadObj);
+	}
+
+	public bool PreloadAllType(string abFileName, System.Type type, Action onEnd = null)
 	{
 		if (type == null || string.IsNullOrEmpty(abFileName))
 			return false;
@@ -728,25 +774,37 @@ public class AssetLoader: IResourceLoader
 
 		bool isNew = !asset.IsVaild ();
 		int addCount = 0;
-		if (!LoadAssetInfo (asset, ref addCount))
-			return false;
-		
-		if (isNew)
+		if (asset.CompressType == AssetCompressType.astUnityZip)
 		{
-			AddOrUpdateAssetCache (asset);
+			return LoadWWWAsseetInfo(asset, null, ref addCount, 
+			                  delegate (bool isOk){
+				if (isOk)
+				{
+					DoPreloadAllType(isNew, asset, type);
+				}
+
+				if (onEnd != null)
+					onEnd();
+			}
+			);
 		} else
-			AssetCacheManager.Instance.CacheAddRefCount(asset.Cache);
+		{
+			if (!LoadAssetInfo (asset, ref addCount))
+				return false;
 		
-		asset.PreLoadAll(type, OnPreaLoadObj);
+			DoPreloadAllType(isNew, asset, type);
+			if (onEnd != null)
+				onEnd();
+		}
 
 		return true;
 	}
 
 	// ab 中包含全部这个类型
-	public bool PreloadAllType<T>(string abFileName) where T: UnityEngine.Object
+	public bool PreloadAllType<T>(string abFileName, Action onEnd = null) where T: UnityEngine.Object
 	{
 		System.Type tt = typeof(T);
-		return PreloadAllType(abFileName, tt);
+		return PreloadAllType(abFileName, tt, onEnd);
 	}
 
 	public AssetInfo FindAssetInfo(string fileName)

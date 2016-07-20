@@ -384,6 +384,13 @@ public class ResourcesLoader: IResourceLoader
 		return true;
 	}
 
+	public override bool OnSceneLoadAsync(string sceneName, Action onEnd)
+	{
+		if (onEnd != null)
+			onEnd();
+		return true;
+	}
+
 	public override bool OnSceneClose(string sceneName)
 	{
 		if (string.IsNullOrEmpty (sceneName))
