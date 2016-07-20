@@ -144,8 +144,18 @@ public class AssetInfo
 	
 	private WWWFileLoadTask m_WWWTask = null;
 	private TaskList m_WWWTaskList = null;
+	private Timer m_WWWTimer = null;
+	private Action<bool> m_WWWEndEvt = null;
 	internal void ClearWWW()
 	{
+		m_WWWEndEvt = null;
+
+		if (m_WWWTimer != null)
+		{
+			m_WWWTimer.Dispose();
+			m_WWWTimer = null;
+		}
+
 		if (m_WWWTask != null)
 		{
 			m_WWWTask.Release();
@@ -159,11 +169,64 @@ public class AssetInfo
 		}
 	}
 
-	public TaskList CreateWWWTaskList()
+	private void OnWWWTimerEvt(Timer obj, float timer)
+	{
+		if (m_WWWTaskList != null)
+		{
+			m_WWWTaskList.Process();
+			if (m_WWWTaskList.IsEmpty)
+			{
+				if (m_WWWEndEvt != null)
+					m_WWWEndEvt(true);
+				ClearWWW();
+			}
+		}
+	}
+
+	internal void OnTaskResult(ITask task)
+	{
+		if (task == null)
+			return;
+		if (task.IsDoing)
+		{
+			if (task.IsFail)
+			{
+				if (m_WWWEndEvt != null)
+					m_WWWEndEvt(false);
+				ClearWWW();
+			}
+		}
+	}
+
+	public TaskList CreateWWWTaskList(Action<bool> onEnd)
 	{
 		if (m_WWWTaskList == null)
+		{
 			m_WWWTaskList = new TaskList();
+			m_WWWTaskList.UserData = this;
+			if (m_WWWTimer == null)
+			{
+				m_WWWTimer = TimerMgr.Instance.CreateTimer(false, 0, true);
+				m_WWWTimer.AddListener(OnWWWTimerEvt);
+			}
+		}
+
+		m_WWWEndEvt += onEnd;
 		return m_WWWTaskList;
+	}
+
+	private static void OnLocalWWWResult(ITask task)
+	{
+		WWWFileLoadTask wwwTask = task as WWWFileLoadTask;
+		if (wwwTask == null)
+			return;
+		AssetInfo info = wwwTask.UserData as AssetInfo;
+		if (info == null)
+			return;
+		if (wwwTask.IsDone && wwwTask.IsOk)
+		{
+			info.mBundle = wwwTask.Bundle;
+		}
 	}
 
 	public bool LoadWWW(TaskList taskList)
@@ -178,14 +241,35 @@ public class AssetInfo
 
 		if (m_WWWTask != null)
 		{
-			taskList.AddTask(m_WWWTask, false);
+			if (!taskList.Contains(m_WWWTask))
+			{
+				taskList.AddTask(m_WWWTask, false);
+				if (taskList.UserData != null)
+				{
+					AssetInfo parent = taskList.UserData as AssetInfo;
+					if (parent != null)
+					{
+						m_WWWTask.AddResultEvent(parent.OnTaskResult);
+					}
+				}
+			}
 			return true;
 		}
 
 		m_WWWTask = WWWFileLoadTask.LoadFileName(mFileName);
 		if (m_WWWTask != null)
 		{
-			taskList.AddTask(m_WWWTask, false);
+			m_WWWTask.UserData = this;
+			m_WWWTask.AddResultEvent(OnLocalWWWResult);
+			taskList.AddTask(m_WWWTask, true);
+			if (taskList.UserData != null)
+			{
+				AssetInfo parent = taskList.UserData as AssetInfo;
+				if (parent != null)
+				{
+					m_WWWTask.AddResultEvent(parent.OnTaskResult);
+				}
+			}
 		} else
 			return false;
 		
@@ -727,20 +811,9 @@ public class AssetLoader: IResourceLoader
 		return ret;
 	}
 
-	public bool LoadObjectAsync<T>(string fileName, ResourceCacheType cacheType, Action<float, bool, T> onProcess) where T: UnityEngine.Object
+	private bool DoLoadObjectAsync<T>(AssetInfo asset, bool isNew, string fileName, ResourceCacheType cacheType, 
+	                                  Action<float, bool, T> onProcess) where T: UnityEngine.Object
 	{
-		#if USE_LOWERCHAR
-		fileName = fileName.ToLower();
-		#endif
-		AssetInfo asset = FindAssetInfo(fileName);
-		if (asset == null)
-			return false;
-
-		bool isNew = !asset.IsVaild ();
-		int addCount = 0;
-		if (!LoadAssetInfo (asset, ref addCount))
-			return false;
-
 		if (isNew) {
 			// 第一次才会这样处理
 			if (cacheType == ResourceCacheType.rctRefAdd)
@@ -763,13 +836,13 @@ public class AssetLoader: IResourceLoader
 				onProcess (1.0f, true, search as T);
 			return true;
 		}
-	
+		
 		return asset.LoadObjectAsync (fileName, typeof(T), 
 		                              delegate (AssetBundleRequest req) {
-
+			
 			if (req.isDone)
 			{
-
+				
 				asset.AddOrgResMap(fileName, req.asset);
 				/*
 				if (cacheType == ResourceCacheType.rctNone)
@@ -790,7 +863,7 @@ public class AssetLoader: IResourceLoader
 					if (asset.Cache != null)
 						AssetCacheManager.Instance._OnLoadObject(req.asset, asset.Cache);
 				}*/
-
+				
 				OnLoadObjectAsync(fileName, asset, isNew, req.asset, cacheType);
 			}
 			
@@ -798,6 +871,32 @@ public class AssetLoader: IResourceLoader
 				onProcess (req.progress, req.isDone, req.asset as T);
 		}
 		);
+	}
+
+	public bool LoadObjectAsync<T>(string fileName, ResourceCacheType cacheType, Action<float, bool, T> onProcess) where T: UnityEngine.Object
+	{
+		#if USE_LOWERCHAR
+		fileName = fileName.ToLower();
+		#endif
+		AssetInfo asset = FindAssetInfo(fileName);
+		if (asset == null)
+			return false;
+
+		bool isNew = !asset.IsVaild ();
+		int addCount = 0;
+		if (asset.CompressType == AssetCompressType.astUnityZip)
+		{
+			return LoadWWWAsseetInfo(asset, null, ref addCount,
+			                  delegate (bool isOk){
+								  if (isOk)
+									DoLoadObjectAsync<T>(asset, isNew, fileName, cacheType, onProcess);
+			                 });
+		} else
+		{
+			if (!LoadAssetInfo (asset, ref addCount))
+				return false;
+			return DoLoadObjectAsync<T>(asset, isNew, fileName, cacheType, onProcess);
+		}
 	}
 
 	private void OnLoadObjectAsync(string fileName, AssetInfo asset, bool isNew, UnityEngine.Object obj, ResourceCacheType cacheType)
@@ -963,16 +1062,23 @@ public class AssetLoader: IResourceLoader
 	}
 #endif	
 
-	internal bool LoadWWWAsseetInfo(AssetInfo asset, TaskList taskList, ref int addCount)
+	internal bool LoadWWWAsseetInfo(AssetInfo asset, TaskList taskList, ref int addCount, Action<bool> onEnd = null)
 	{
 		if (asset == null)
 			return false;
 
-		if (asset.IsVaild () || asset.IsUsing)
+		if (asset.IsVaild ())
+		{
+			if (onEnd != null)
+				onEnd(true);
+			return true;
+		}
+
+		if (asset.IsUsing)
 			return true;
 
 		if (taskList == null)
-			taskList = asset.CreateWWWTaskList();
+			taskList = asset.CreateWWWTaskList(onEnd);
 
 		asset.IsUsing = true;
 		for (int i = 0; i < asset.DependFileCount; ++i)

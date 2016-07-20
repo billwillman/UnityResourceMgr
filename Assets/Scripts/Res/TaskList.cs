@@ -398,12 +398,22 @@ public class LevelLoadTask: ITask
 // 任务列表(为了保证顺序执行)
 public class TaskList
 {
+	public bool Contains(ITask task)
+	{
+		if (task == null)
+			return false;
+		int hashCode = task.GetHashCode();
+		return mTaskIDs.Contains(hashCode);
+	}
+
 	// 保证不要加重复的
 	public void AddTask(ITask task, bool isOwner)
 	{
 		if (task == null)
 			return;
-
+		int hashCode = task.GetHashCode();
+		if (!mTaskIDs.Contains(hashCode))
+			mTaskIDs.Add(hashCode);
 		mTaskList.AddLast (task);
 		if (isOwner)
 			task._Owner = this;
@@ -414,6 +424,9 @@ public class TaskList
 	{
 		if ((node == null) || (node.Value == null))
 			return;
+		int hashCode = node.Value.GetHashCode();
+		if (!mTaskIDs.Contains(hashCode))
+			mTaskIDs.Add(hashCode);
 		mTaskList.AddLast (node);
 		if (isOwner)
 			node.Value._Owner = this;
@@ -426,6 +439,7 @@ public class TaskList
 			if (node.Value.IsDone)
 			{
 				TaskEnd(node.Value);
+				mTaskIDs.Remove(node.Value.GetHashCode());
 				mTaskList.RemoveFirst();
 				return;
 			}
@@ -435,6 +449,7 @@ public class TaskList
 			if (node.Value.IsDone)
 			{
 				TaskEnd(node.Value);
+				mTaskIDs.Remove(node.Value.GetHashCode());
 				mTaskList.RemoveFirst();
 			}
 		}
@@ -445,6 +460,12 @@ public class TaskList
 		get{
 			return mTaskList.Count <= 0;
 		}
+	}
+
+	public System.Object UserData
+	{
+		get;
+		set;
 	}
 
 	// 慎用
@@ -460,6 +481,7 @@ public class TaskList
 		}
 
 		mTaskList.Clear ();
+		mTaskIDs.Clear();
 	}
 
 	private void TaskEnd(ITask task)
@@ -481,4 +503,5 @@ public class TaskList
 	
 	// 任务必须是顺序执行
 	private LinkedList<ITask> mTaskList = new LinkedList<ITask>();
+	private HashSet<int> mTaskIDs = new HashSet<int>();
 }
