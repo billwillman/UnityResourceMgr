@@ -885,8 +885,7 @@ public class AssetLoader: IResourceLoader
 		return ret;
 	}
 
-	private bool DoLoadObjectAsync<T>(AssetInfo asset, bool isNew, string fileName, ResourceCacheType cacheType, 
-	                                  Action<float, bool, T> onProcess) where T: UnityEngine.Object
+	private void AddRefAssetCache(AssetInfo asset, bool isNew, ResourceCacheType cacheType)
 	{
 		if (isNew) {
 			// 第一次才会这样处理
@@ -901,10 +900,17 @@ public class AssetLoader: IResourceLoader
 				AssetCacheManager.Instance.CacheAddRefCount(asset.Cache);
 			}
 		}
+	}
+
+	private bool DoLoadObjectAsync<T>(AssetInfo asset, bool isNew, string fileName, ResourceCacheType cacheType, 
+	                                  Action<float, bool, T> onProcess) where T: UnityEngine.Object
+	{
+		// AddRefAssetCache(asset, isNew, cacheType);
 
 		UnityEngine.Object search;
 		if (asset.GetOrgResMap(fileName, out search))
 		{
+			AddRefAssetCache(asset, isNew, cacheType);
 			OnLoadObjectAsync(fileName, asset, isNew, search, cacheType);
 			if (onProcess != null)
 				onProcess (1.0f, true, search as T);
@@ -916,7 +922,7 @@ public class AssetLoader: IResourceLoader
 			
 			if (req.isDone)
 			{
-				
+				AddRefAssetCache(asset, isNew, cacheType);
 				asset.AddOrgResMap(fileName, req.asset);
 				/*
 				if (cacheType == ResourceCacheType.rctNone)
