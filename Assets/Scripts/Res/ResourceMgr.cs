@@ -46,22 +46,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return true;
 	}
 
-	public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess)
+	private bool DoLoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess)
 	{
-		if (mAssetLoader.OnSceneLoad (sceneName)) {
-			LogMgr.Instance.Log (string.Format ("Loading AssetBundle Scene: {0}", sceneName));
-		} else {
-#if UNITY_EDITOR
-			if (!Application.CanStreamedLevelBeLoaded (sceneName))
-				return false;
-#endif
-			if (mResLoader.OnSceneLoad(sceneName))
-				LogMgr.Instance.Log(string.Format("Loading Resources Scene: {0}", sceneName));
-			else
-				return false;
-		}
-
-
 		if (isAdd) {
 			AsyncOperation opt = Application.LoadLevelAdditiveAsync (sceneName);
 			if (opt == null)
@@ -87,7 +73,24 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			}
 			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation> (opt, onProcess) != null;
 		}
+	}
 
+	public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess)
+	{
+		if (mAssetLoader.OnSceneLoad (sceneName)) {
+			LogMgr.Instance.Log (string.Format ("Loading AssetBundle Scene: {0}", sceneName));
+		} else {
+#if UNITY_EDITOR
+			if (!Application.CanStreamedLevelBeLoaded (sceneName))
+				return false;
+#endif
+			if (mResLoader.OnSceneLoad(sceneName))
+				LogMgr.Instance.Log(string.Format("Loading Resources Scene: {0}", sceneName));
+			else
+				return false;
+		}
+
+		return DoLoadSceneAsync(sceneName, isAdd, onProcess);
 	}
 
 	public void CloseScene(string sceneName)
