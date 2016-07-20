@@ -141,6 +141,14 @@ public class AssetInfo
 		get;
 		set;
 	}
+
+	internal WWWFileLoadTask WWWTask
+	{
+		get
+		{
+			return m_WWWTask;
+		}
+	}
 	
 	private WWWFileLoadTask m_WWWTask = null;
 	private TaskList m_WWWTaskList = null;
@@ -227,6 +235,8 @@ public class AssetInfo
 		{
 			info.mBundle = wwwTask.Bundle;
 		}
+
+		info.IsUsing = false;
 	}
 
 	public bool LoadWWW(TaskList taskList)
@@ -425,6 +435,11 @@ public class AssetInfo
 		}
 
 		return AsyncOperationMgr.Instance.AddAsyncOperation(request, onProcess) != null;
+	}
+
+	public bool IsNew()
+	{
+		return !IsVaild() && !IsUsing;
 	}
 
 	public bool IsVaild()
@@ -772,8 +787,8 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return false;
 
-		bool isNew = !asset.IsVaild ();
 		int addCount = 0;
+		bool isNew = asset.IsNew();
 		if (asset.CompressType == AssetCompressType.astUnityZip)
 		{
 			return LoadWWWAsseetInfo(asset, null, ref addCount, 
@@ -789,6 +804,7 @@ public class AssetLoader: IResourceLoader
 			);
 		} else
 		{
+
 			if (!LoadAssetInfo (asset, ref addCount))
 				return false;
 		
@@ -829,7 +845,7 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return null;
 
-		bool isNew = !asset.IsVaild ();
+		bool isNew = asset.IsNew();
 		int addCount = 0;
 		if (!LoadAssetInfo (asset, ref addCount))
 			return null;
@@ -940,14 +956,16 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return false;
 
-		bool isNew = !asset.IsVaild ();
 		int addCount = 0;
+		bool isNew = asset.IsNew();
 		if (asset.CompressType == AssetCompressType.astUnityZip)
 		{
 			return LoadWWWAsseetInfo(asset, null, ref addCount,
 			                  delegate (bool isOk){
 								  if (isOk)
-									DoLoadObjectAsync<T>(asset, isNew, fileName, cacheType, onProcess);
+							      {
+									 DoLoadObjectAsync<T>(asset, isNew, fileName, cacheType, onProcess);
+				}
 			                 });
 		} else
 		{
@@ -1132,8 +1150,20 @@ public class AssetLoader: IResourceLoader
 			return true;
 		}
 
+
 		if (asset.IsUsing)
+		{
+			if (taskList == null)
+			{
+				var task = asset.WWWTask;
+				if (task != null)
+				{
+					taskList = asset.CreateWWWTaskList(onEnd);
+					taskList.AddTask(task, false);
+				}
+			}
 			return true;
+		}
 
 		if (taskList == null)
 			taskList = asset.CreateWWWTaskList(onEnd);
@@ -1165,7 +1195,7 @@ public class AssetLoader: IResourceLoader
 		addCount += 1;
 		AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 
-		asset.IsUsing = false;
+	//	asset.IsUsing = false;
 		bool ret = asset.LoadWWW(taskList);
 		return ret;
 	}
