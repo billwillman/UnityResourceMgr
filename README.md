@@ -11,7 +11,8 @@
    ResourceMgr.Instance.UnloadUnUsed();
 
 压缩AB，非压缩AB，Resources读取都支持。但同步函数只支持Resources和非压缩AB（后面会支持新压缩格式LZ4）。异步加载均全支持。
-如果要使用非LZ4的压缩AB请使用异步函数
+如果要使用非LZ4的压缩AB请使用异步函数。外部使用接口，并不用关心具体文件是在Resources里还是在StreamAssets还是在下载目录，
+均使用一种方式读取（只有选择同步和非同步的区别）。
 
 具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
 
