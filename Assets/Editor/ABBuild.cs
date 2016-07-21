@@ -1649,7 +1649,9 @@ class AssetBundleMgr
 			return false;
 		}
 
-		string preCmd = string.Format("start /D \"{0}/Data/MonoBleedingEdge/bin\" /B", unityEditorPath);
+		unityEditorPath = unityEditorPath.Replace('/', '\\');
+
+		string preCmd = string.Format("start /D \"{0}\\Data\\MonoBleedingEdge\\bin\" /B", unityEditorPath);
 		//string preCmd = "start /B";
 
 		 ProjFileName = ProjFileName.Replace('/' , '\\');
