@@ -34,6 +34,8 @@ public class GameMgr: Singleton<GameMgr>
 
 	public void OnSceneLoad(int level)
 	{
+		AssetCacheManager.Instance.ClearUnUsed();
+		ResourceMgr.Instance.UnloadUnUsed();
 	}
 
 	public bool IsConfigLoaded

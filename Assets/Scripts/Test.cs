@@ -66,12 +66,6 @@ public class Test : CachedMonoBehaviour {
 
 	}
 
-	void OnLevelWasLoaded (int level)
-	{
-		AssetCacheManager.Instance.ClearUnUsed();
-		ResourceMgr.Instance.UnloadUnUsed();
-	}
-
 	private System.Collections.Generic.List<GameObject> m_ObjList = new System.Collections.Generic.List<GameObject>();
 	private string m_CurScene = string.Empty;
 }
