@@ -70,6 +70,19 @@ public class ResourceAssetCache: AssetCache
 		mIsGameObject = (mTarget as GameObject) != null;
 	}
 
+	public ResourceAssetCache()
+	{}
+
+	public static ResourceAssetCache Create(UnityEngine.Object target)
+	{
+		ResourceAssetCache ret;
+		if (m_PoolUsed)
+			ret = GetPool(target);
+		else
+			ret = new ResourceAssetCache(target);
+		return ret;
+	}
+
 	public UnityEngine.Object Target {
 		get 
 		{
@@ -113,8 +126,36 @@ public class ResourceAssetCache: AssetCache
 		}
 	}
 
+	private static void InitPool() {
+		if (!m_PoolInited) {
+			m_Pool.Init(0);
+			m_PoolInited = true;
+		}
+	}
+	
+	private static void InPool(ResourceAssetCache cache)
+	{
+		if (cache == null)
+			return;
+		InitPool();
+		m_Pool.Store(cache);
+	}
+
+	private static ResourceAssetCache GetPool(UnityEngine.Object target)
+	{
+		InitPool();
+		ResourceAssetCache ret = m_Pool.GetObject();
+		ret.mTarget = target;
+		return ret;
+	}
+
 	private UnityEngine.Object mTarget = null;
 	private bool mIsGameObject = false;
+
+	// 缓冲池
+	private static bool m_PoolUsed = true;
+	private static bool m_PoolInited = false;
+	private static Utils.ObjectPool<ResourceAssetCache> m_Pool = new Utils.ObjectPool<ResourceAssetCache>();
 }
 
 public class ResourcesLoader: IResourceLoader
@@ -403,7 +444,7 @@ public class ResourcesLoader: IResourceLoader
 		if (orgObj == null)
 			return null;
 
-		ResourceAssetCache cache = new ResourceAssetCache(orgObj);
+		ResourceAssetCache cache = ResourceAssetCache.Create(orgObj);
 		return cache;
 	}
 
