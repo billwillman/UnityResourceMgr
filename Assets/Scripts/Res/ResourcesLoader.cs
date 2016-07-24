@@ -124,6 +124,11 @@ public class ResourceAssetCache: AssetCache
 			}
 			mTarget = null;
 		}
+
+		if (m_PoolUsed)
+		{
+			InPool(this);
+		}
 	}
 
 	private static void InitPool() {
