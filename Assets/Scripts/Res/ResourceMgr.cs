@@ -551,6 +551,32 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return true;
 	}
 
+	private void DestroyObjects<T>(T[] objs) where T : UnityEngine.Object {
+		if (objs == null || objs.Length <= 0)
+			return;
+		for (int i = 0; i < objs.Length; ++i) {
+			DestroyObject(objs[i]);
+		}
+	}
+
+	public void DestroySprites(Sprite[] sprites) {
+		DestroyObjects<Sprite>(sprites);
+	}
+
+	public Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType) {
+		Sprite[] ret = mAssetLoader.LoadSprites(fileName, cacheType);
+		if (ret != null)
+			return ret;
+		return mResLoader.LoadSprites(fileName, cacheType);
+	}
+
+	public bool LoadSpritesAsync(string fileName, Action<float, bool, Sprite[]> onProcess, ResourceCacheType cacheType) {
+		bool ret = mAssetLoader.LoadSpritesAsync(fileName, cacheType, onProcess);
+		if (ret)
+			return ret;
+		return mResLoader.LoadSpritesAsync(fileName, cacheType, onProcess);
+	}
+
 #if UNITY_5
 
 	public ShaderVariantCollection LoadShaderVarCollection(string fileName, ResourceCacheType cacheType)

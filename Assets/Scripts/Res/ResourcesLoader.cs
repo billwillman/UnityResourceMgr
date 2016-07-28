@@ -171,8 +171,9 @@ public class ResourcesLoader: IResourceLoader
 	{
 		if (string.IsNullOrEmpty (fileName))
 			return false;
-		if (fileName.StartsWith (cResourcesStartPath, StringComparison.CurrentCultureIgnoreCase)) {
-			fileName = fileName.Remove (0, cResourcesStartPath.Length);
+		int startIdx = fileName.IndexOf (cResourcesStartPath, StringComparison.CurrentCultureIgnoreCase);
+		if (startIdx >= 0) {
+			fileName = fileName.Remove (0, startIdx + cResourcesStartPath.Length);
 #if USE_HAS_EXT
 			int idx = fileName.LastIndexOf('.');
 			if (idx > 0)
@@ -185,6 +186,19 @@ public class ResourcesLoader: IResourceLoader
 		}
 		
 		return false;
+	}
+
+	private void AddRefSprites(AssetCache cache, Sprite[] sprites, ResourceCacheType cacheType) {
+		if (cache == null || sprites == null || sprites.Length <= 0)
+			return;
+		if (cacheType != ResourceCacheType.rctNone) {
+			if (cacheType == ResourceCacheType.rctRefAdd)
+				AssetCacheManager.Instance._AddOrUpdateUsedList(cache, sprites.Length);
+
+			for (int i = 0; i < sprites.Length; ++i) {
+				AssetCacheManager.Instance._OnLoadObject(sprites[i], cache);
+			}
+		}
 	}
 
 	#region public function
@@ -209,7 +223,7 @@ public class ResourcesLoader: IResourceLoader
 					AssetCacheManager.Instance._AddOrUpdateUsedList (cache);
 				AssetCacheManager.Instance._OnLoadObject (ret, cache);
 			}
-		} else if (ret && (cacheType != ResourceCacheType.rctNone)) {
+		} else if (ret && (cacheType == ResourceCacheType.rctNone)) {
 			AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache (ret);
 			if (cache == null)
 			{
@@ -230,22 +244,6 @@ public class ResourcesLoader: IResourceLoader
 			return false;
 
 		if (!IsResLoaderFileName (ref fileName)) {
-			if (!Application.isEditor)
-				return false;
-
-			/*
-			T obj = LoadObject<T>(fileName, cacheType);
-			if (obj == null)
-			{
-				if (onProcess != null)
-					onProcess(0, true, obj);
-				return false;
-			}
-
-			if (onProcess != null)
-				onProcess(1.0f, true, obj);
-
-			return true;*/
 			return false;
 		}
 
@@ -407,6 +405,72 @@ public class ResourcesLoader: IResourceLoader
 	public override bool LoadAnimationClipAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, AnimationClip> onProcess)
 	{
 		return LoadObjectAsync<AnimationClip> (fileName, cacheType, onProcess);
+	}
+
+	public override Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType) {
+		if (string.IsNullOrEmpty(fileName))
+			return null;
+
+		Texture tex = LoadObject<Texture>(fileName, ResourceCacheType.rctTemp);
+		if (tex == null)
+			return null;
+		AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(tex);
+		if (cache == null)
+			return null;
+
+		if (!IsResLoaderFileName(ref fileName))
+			return null;
+		Sprite[] ret = Resources.LoadAll<Sprite>(fileName);
+		if (ret == null || ret.Length <= 0)
+			return null;
+
+		AddRefSprites(cache, ret, cacheType);
+
+		return ret;
+	}
+
+	public override bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Sprite[]> onProcess) {
+		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctTemp,
+			delegate(float process, bool isDone, Texture obj) {
+				if (isDone) {
+					if (obj == null) {
+						if (onProcess != null)
+							onProcess(process, isDone, null);
+						return;
+					}
+
+					AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(obj);
+					if (cache == null) {
+						if (onProcess != null)
+							onProcess(process, isDone, null);
+						return;
+					}
+
+					if (!IsResLoaderFileName(ref fileName)) {
+						if (onProcess != null)
+							onProcess(process, isDone, null);
+						return;
+					}
+
+					Sprite[] ret = Resources.LoadAll<Sprite>(fileName);
+					if (ret == null || ret.Length <= 0) {
+						if (onProcess != null)
+							onProcess(process, isDone, null);
+						return;
+					}
+
+					AddRefSprites(cache, ret, cacheType);
+
+					if (onProcess != null)
+						onProcess(process, isDone, ret);
+
+					return;
+				}
+
+				if (onProcess != null)
+					onProcess(process, isDone, null);
+			}
+		);
 	}
 
 #if UNITY_5

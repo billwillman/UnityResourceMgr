@@ -339,6 +339,21 @@ public class AssetInfo
 		return true;
 	}
 
+	internal T[] LoadSubs<T>(string fileName) where T: UnityEngine.Object {
+		if (string.IsNullOrEmpty(fileName) || (!IsVaild()))
+			return null;
+
+#if USE_LOWERCHAR
+		fileName = fileName.ToLower();
+#endif
+		// int hashCode = Animator.StringToHash (fileName);
+		if (!ContainFileNameHash(fileName))
+			return null;
+
+		string realFileName = Path.GetFileNameWithoutExtension(fileName);
+		return mBundle.LoadAssetWithSubAssets<T>(realFileName);
+	}
+
 	// 所有文件不要重名（不包含后缀的）
 	public UnityEngine.Object LoadObject(string fileName, Type objType)
 	{
@@ -405,7 +420,31 @@ public class AssetInfo
 		else
 			m_OrgResMap.Add(fileName, obj);
 	}
-	
+
+	internal bool LoadSubsAsync<T>(string fileName, Action<AssetBundleRequest> onProcess) where T: UnityEngine.Object {
+		if (string.IsNullOrEmpty(fileName) || (!IsVaild()))
+			return false;
+#if USE_LOWERCHAR
+		fileName = fileName.ToLower();
+#endif
+
+		if (!ContainFileNameHash(fileName))
+			return false;
+		string realFileName = Path.GetFileNameWithoutExtension(fileName);
+		AssetBundleRequest request = mBundle.LoadAssetWithSubAssetsAsync<T>(realFileName);
+		if (request == null)
+			return false;
+
+		if (request.isDone) {
+			if (onProcess != null)
+				onProcess(request);
+
+			return true;
+		}
+
+		return AsyncOperationMgr.Instance.AddAsyncOperation(request, onProcess) != null;
+	}
+
 	public bool LoadObjectAsync(string fileName, Type objType, Action<AssetBundleRequest> onProcess)
 	{
 		if (string.IsNullOrEmpty (fileName) || (!IsVaild()))
@@ -834,6 +873,77 @@ public class AssetLoader: IResourceLoader
 			asset = null;
 
 		return asset;
+	}
+
+	public override bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Sprite[]> onProcess) {
+#if USE_LOWERCHAR
+		fileName = fileName.ToLower();
+#endif
+		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctTemp,
+			delegate(float process, bool isDone, Texture obj) {
+				if (isDone) {
+					if (obj != null) {
+						AssetInfo asset = FindAssetInfo(fileName);
+						if (asset == null || asset.Cache == null) {
+							if (onProcess != null)
+								onProcess(process, isDone, null);
+							return;
+						}
+
+						Sprite[] ret = _LoadSprites(fileName, cacheType);
+						if (ret == null || ret.Length <= 0) {
+							if (onProcess != null)
+								onProcess(process, isDone, null);
+							return;
+						}
+
+						if (onProcess != null)
+							onProcess(process, isDone, ret);
+					}
+					else {
+						if (onProcess != null)
+							onProcess(process, isDone, null);
+					}
+
+					return;
+				}
+
+				if (onProcess != null)
+					onProcess(process, isDone, null);
+			}
+		);
+	}
+
+	private Sprite[] _LoadSprites(string fileName, ResourceCacheType cacheType) {
+		AssetInfo asset = FindAssetInfo(fileName);
+		if (asset == null || asset.Cache == null)
+			return null;
+
+		Sprite[] ret = asset.LoadSubs<Sprite>(fileName);
+
+		if (ret != null && ret.Length > 0 && cacheType == ResourceCacheType.rctRefAdd) {
+			AssetCacheManager.Instance.CacheAddRefCount(asset.Cache, ret.Length);
+			for (int i = 0; i < ret.Length; ++i) {
+				AssetCacheManager.Instance._OnLoadObject(ret[i], asset.Cache);
+			}
+		}
+
+		return ret;
+	}
+
+	// 加载Sprite
+	public override Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType) {
+
+#if USE_LOWERCHAR
+		fileName = fileName.ToLower();
+#endif
+		Texture tex = LoadObject<Texture>(fileName, ResourceCacheType.rctTemp);
+		if (tex == null)
+			return null;
+
+		Sprite[] ret = _LoadSprites(fileName, cacheType);
+
+		return ret;
 	}
 
 	public T LoadObject<T>(string fileName, ResourceCacheType cacheType) where T: UnityEngine.Object

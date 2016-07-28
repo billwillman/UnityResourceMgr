@@ -39,6 +39,8 @@ public abstract class IResourceLoader
 	public abstract bool LoadAnimationClipAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, AnimationClip> onProcess);
 	public abstract Shader LoadShader(string fileName, ResourceCacheType cacheType);
 	public abstract bool LoadShaderAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Shader> onProcess);
+	public abstract Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType);
+	public abstract bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Sprite[]> onProcess);
 #if UNITY_5
 	public abstract ShaderVariantCollection LoadShaderVarCollection(string fileName, ResourceCacheType cacheType);
 	public abstract bool LoadShaderVarCollectionAsync(string fileName, ResourceCacheType ResourceCacheType, Action<float, bool, ShaderVariantCollection> onProcess);
