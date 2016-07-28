@@ -2941,10 +2941,12 @@ public static class AssetBundleBuild
         Cmd_Build(1, true, eBuildPlatform.eBuildWindow);
     }
 
+#if UNITY_5_3
 	[MenuItem("Assets/发布/Win32(Lz4)")]
 	static public void Cmd_BuildWin32_Lz4() {
 		Cmd_Build(2, true, eBuildPlatform.eBuildWindow);
 	}
+#endif
 
 	[MenuItem("Assets/编译CSharp")]
 	static public void Cmd_BuildCSharpProj()
