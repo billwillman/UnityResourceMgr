@@ -3054,10 +3054,12 @@ public static class AssetBundleBuild
         Cmd_Build(1, true, eBuildPlatform.eBuildAndroid);
     }
 
+#if UNITY_5_3
 	[MenuItem("Assets/发布/APK_整包(Lz4)")]
 	static public void Cmd_BuildAPK_Lz4() {
 		Cmd_Build(2, true, eBuildPlatform.eBuildAndroid);
 	}
+#endif
 
 	public static void RunCmd(string command)
 	{
