@@ -1284,8 +1284,12 @@ class AssetBundleMgr
 		BuildAssetBundleOptions buildOpts = BuildAssetBundleOptions.DisableWriteTypeTree |
 											BuildAssetBundleOptions.DeterministicAssetBundle |
 											BuildAssetBundleOptions.ForceRebuildAssetBundle; // 永远重新打包
-		if (compressType != 1)
+		if (compressType == 0)
 			buildOpts |= BuildAssetBundleOptions.UncompressedAssetBundle;
+#if UNITY_5_3
+		else if (compressType == 2)
+			buildOpts |= BuildAssetBundleOptions.ChunkBasedCompression;
+#endif
 		
 		AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(exportDir, buildOpts, target);
 		
@@ -2773,6 +2777,61 @@ public static class AssetBundleBuild
 	{
 		BuildPlatform (eBuildPlatform.eBuildIOS, 1, true);
 	}
+
+#if UNITY_5_3
+
+	[MenuItem("Assets/平台打包/-----------")]
+	static public void OnBuildPlatformNone1() {
+	}
+
+	[MenuItem("Assets/平台打包/-----------", true)]
+	static bool CanBuildPlatformNone1() {
+		return false;
+	}
+
+	[MenuItem("Assets/平台打包/Windows(Lz4)")]
+	static public void OnBuildPlatformWinLz4() {
+		BuildPlatform(eBuildPlatform.eBuildWindow, 2);
+	}
+
+	[MenuItem("Assets/平台打包/Windows Md5(Lz4)")]
+	static public void OnBuildPlatformWinLz4Md5() {
+		BuildPlatform(eBuildPlatform.eBuildWindow, 2, true);
+	}
+
+
+	[MenuItem("Assets/平台打包/OSX(Lz4)")]
+	static public void OnBuildPlatformOSXLz4() {
+		BuildPlatform(eBuildPlatform.eBuildMac, 2);
+	}
+
+	[MenuItem("Assets/平台打包/OSX MD5(Lz4)")]
+	static public void OnBuildPlatformOSXLz4Md5() {
+		BuildPlatform(eBuildPlatform.eBuildMac, 2, true);
+	}
+
+	[MenuItem("Assets/平台打包/Android(Lz4)")]
+	static public void OnBuildPlatformAndroidLz4() {
+		BuildPlatform(eBuildPlatform.eBuildAndroid, 2);
+	}
+
+	[MenuItem("Assets/平台打包/Android MD5(Lz4)")]
+	static public void OnBuildPlatformAndroidLz4Md5() {
+		BuildPlatform(eBuildPlatform.eBuildAndroid, 2, true);
+	}
+
+	[MenuItem("Assets/平台打包/IOS(Lz4)")]
+	static public void OnBuildPlatformIOSLz4() {
+		BuildPlatform(eBuildPlatform.eBuildIOS, 2);
+		//UnityEditor.EditorUserBuildSettings.SetBuildLocation
+	}
+
+	[MenuItem("Assets/平台打包/IOS MD5(Lz4)")]
+	static public void OnBuildPlatformIOSLz4Md5() {
+		BuildPlatform(eBuildPlatform.eBuildIOS, 2, true);
+	}
+
+#endif
 
     /* 真正打包步骤 */
     /*
