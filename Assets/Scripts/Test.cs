@@ -9,6 +9,48 @@ public class Test : CachedMonoBehaviour {
 		if (GameMgr.Instance.IsConfigLoaded)
 		{
 			DrawButtons();
+			DrawSpirtesButtons();
+		}
+	}
+
+	void DrawSpirtesButtons()
+	{
+		if (!m_IsSpritesLoading)
+		{
+			if (m_SpriteList != null)
+			{
+				if (GUI.Button(new Rect(100, 220, 150, 50), "删除Sprites"))
+				{
+					ResourceMgr.Instance.DestroySprites(m_SpriteList);
+					m_IsSpritesLoading = false;
+					m_SpriteList = null;
+				}
+			} else
+			if (GUI.Button(new Rect(100, 220, 150, 50), "(异步)读取Sprites"))
+			{
+				m_IsSpritesLoading = true;
+				if (!ResourceMgr.Instance.LoadSpritesAsync("resources/@spirtes/spirtes.png",
+				  delegate (float process, bool isDone, Object[] objs) {
+					if (isDone)
+					{
+						m_IsSpritesLoading = false;
+						if (m_SpriteList != null)
+						{
+							ResourceMgr.Instance.DestroySprites(m_SpriteList);
+							m_SpriteList = null;
+						}
+						if (objs != null && objs.Length > 0)
+						{
+							m_SpriteList = new Sprite[objs.Length];
+							for (int i = 0; i < objs.Length; ++i)
+							{
+								m_SpriteList[i] = objs[i] as Sprite;
+							}
+						}
+					}
+				}, ResourceCacheType.rctRefAdd))
+					m_IsSpritesLoading = false;
+			}
 		}
 	}
 	
@@ -68,4 +110,6 @@ public class Test : CachedMonoBehaviour {
 
 	private System.Collections.Generic.List<GameObject> m_ObjList = new System.Collections.Generic.List<GameObject>();
 	private string m_CurScene = string.Empty;
+	private bool m_IsSpritesLoading = false;
+	private Sprite[] m_SpriteList = null;
 }
