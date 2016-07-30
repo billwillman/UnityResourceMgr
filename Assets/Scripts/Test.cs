@@ -9,78 +9,9 @@ public class Test : CachedMonoBehaviour {
 		if (GameMgr.Instance.IsConfigLoaded)
 		{
 			DrawButtons();
-			DrawSpritesButton();
-			DrawTextureButton();
 		}
 	}
-
-	void DrawTextureButton()
-	{
-		if (!m_IsLoadTextureLoading)
-		{
-			if (m_Texture == null)
-			{
-				if (GUI.Button(new Rect(100, 220, 150, 50), "加载测试Texture"))
-				{
-					m_IsLoadTextureLoading = true;
-
-					if (!ResourceMgr.Instance.LoadTextureAsync("resources/models/@flag/m_items_01.psd",
-					delegate (float process, bool isDone, Texture obj)
-					{
-						if (isDone)
-						{
-							if (obj != null)
-								m_Texture = obj;
-							m_IsLoadTextureLoading = false;
-						}
-					}, ResourceCacheType.rctRefAdd))
-						m_IsLoadTextureLoading = false;
-				}
-			} else
-			{
-				if (GUI.Button(new Rect(100, 220, 150, 50), "删除测试Texture"))
-				{
-					ResourceMgr.Instance.DestroyObject(m_Texture);
-					m_Texture = null;
-					m_IsLoadTextureLoading = false;
-				}
-			}
-		}
-	}
-
-	void DrawSpritesButton()
-	{
-		if (!m_IsSpritesLoading)
-		{
-			if (m_Sprites == null)
-			{
-				if (GUI.Button(new Rect(260, 220, 150, 50), "加载测试Sprites"))
-				{
-					m_IsSpritesLoading = true;
-					if (!ResourceMgr.Instance.LoadSpritesAsync("resources/models/@flag/m_hadry_01.psd", 
-					                                           delegate (float process, bool isDone, Sprite[] objs) {
-						if (isDone)
-						{
-							if (objs != null)
-								m_Sprites = objs;
-							m_IsSpritesLoading = false;
-						}
-						
-					}, ResourceCacheType.rctRefAdd))
-						m_IsSpritesLoading = false;
-				}
-			} else
-			{
-				if (GUI.Button(new Rect(260, 220, 150, 50), "删除测试Sprites"))
-				{
-					ResourceMgr.Instance.DestroySprites(m_Sprites);
-					m_Sprites = null;
-					m_IsSpritesLoading = false;
-				}
-			}
-		}
-	}
-
+	
 	void DrawButtons()
 	{
 		if (GUI.Button(new Rect(100, 100, 150, 50), "(同步)切换场景"))
@@ -137,8 +68,4 @@ public class Test : CachedMonoBehaviour {
 
 	private System.Collections.Generic.List<GameObject> m_ObjList = new System.Collections.Generic.List<GameObject>();
 	private string m_CurScene = string.Empty;
-	private Sprite[] m_Sprites = null;
-	private bool m_IsSpritesLoading = false;
-	private bool m_IsLoadTextureLoading = false;
-	private Texture m_Texture = null;
 }

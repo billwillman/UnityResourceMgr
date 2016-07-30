@@ -566,6 +566,11 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		DestroyObjects<Sprite>(sprites);
 	}
 
+	public void DestroyObjects(UnityEngine.Object[] objs)
+	{
+		DestroyObjects<UnityEngine.Object>(objs);
+	}
+
 	public Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType) {
 		Sprite[] ret = mAssetLoader.LoadSprites(fileName, cacheType);
 		if (ret != null)
@@ -573,7 +578,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadSprites(fileName, cacheType);
 	}
 
-	public bool LoadSpritesAsync(string fileName, Action<float, bool, Sprite[]> onProcess, ResourceCacheType cacheType) {
+	public bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess, ResourceCacheType cacheType) {
 		bool ret = mAssetLoader.LoadSpritesAsync(fileName, cacheType, onProcess);
 		if (ret)
 			return ret;

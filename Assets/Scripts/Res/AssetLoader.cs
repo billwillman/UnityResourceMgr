@@ -875,7 +875,7 @@ public class AssetLoader: IResourceLoader
 		return asset;
 	}
 
-	public override bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Sprite[]> onProcess) {
+	public override bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.Object[]> onProcess) {
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
 #endif
@@ -901,7 +901,7 @@ public class AssetLoader: IResourceLoader
 
 
 						if (onProcess != null)
-							onProcess(process * 0.9f, isDone, null);
+							onProcess(process * 0.9f, false, null);
 					}
 					else {
 						if (onProcess != null)
@@ -917,7 +917,7 @@ public class AssetLoader: IResourceLoader
 		);
 	}
 
-	private bool _LoadSpritesAsync(string fileName, Texture texture, ResourceCacheType cacheType, Action<float, bool, Sprite[]> onProcess)
+	private bool _LoadSpritesAsync(string fileName, Texture texture, ResourceCacheType cacheType, Action<float, bool, UnityEngine.Object[]> onProcess)
 	{
 		if (texture == null)
 			return false;
@@ -940,7 +940,8 @@ public class AssetLoader: IResourceLoader
 			}
 
 			if (onProcess != null)
-				onProcess (req.progress/10.0f + 0.9f, req.isDone, req.allAssets as Sprite[]);
+				onProcess (req.progress/10.0f + 0.9f, req.isDone, req.allAssets);
+
 		  }
 		);
 

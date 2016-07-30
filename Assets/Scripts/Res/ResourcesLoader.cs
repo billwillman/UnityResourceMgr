@@ -429,7 +429,7 @@ public class ResourcesLoader: IResourceLoader
 		return ret;
 	}
 
-	public override bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Sprite[]> onProcess) {
+	public override bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.Object[]> onProcess) {
 		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctRefAdd,
 			delegate(float process, bool isDone, Texture obj) {
 				if (isDone) {
