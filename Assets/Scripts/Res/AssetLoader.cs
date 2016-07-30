@@ -879,7 +879,7 @@ public class AssetLoader: IResourceLoader
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
 #endif
-		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctTemp,
+		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctRefAdd,
 			delegate(float process, bool isDone, Texture obj) {
 				if (isDone) {
 					if (obj != null) {
@@ -890,15 +890,18 @@ public class AssetLoader: IResourceLoader
 							return;
 						}
 
-						Sprite[] ret = _LoadSprites(fileName, cacheType);
-						if (ret == null || ret.Length <= 0) {
+						bool b = _LoadSpritesAsync(fileName, obj, cacheType, onProcess);
+						if (!b)
+						{
+							ResourceMgr.Instance.DestroyObject(obj);
 							if (onProcess != null)
 								onProcess(process, isDone, null);
 							return;
 						}
 
+
 						if (onProcess != null)
-							onProcess(process, isDone, ret);
+							onProcess(process * 0.9f, isDone, null);
 					}
 					else {
 						if (onProcess != null)
@@ -909,9 +912,39 @@ public class AssetLoader: IResourceLoader
 				}
 
 				if (onProcess != null)
-					onProcess(process, isDone, null);
+					onProcess(process * 0.9f, isDone, null);
 			}
 		);
+	}
+
+	private bool _LoadSpritesAsync(string fileName, Texture texture, ResourceCacheType cacheType, Action<float, bool, Sprite[]> onProcess)
+	{
+		if (texture == null)
+			return false;
+		AssetInfo asset = FindAssetInfo(fileName);
+		if (asset == null || asset.Cache == null)
+			return false;
+		bool ret = asset.LoadSubsAsync<Sprite>(fileName, 
+		   delegate (AssetBundleRequest req) {
+
+			if (req.isDone)
+			{
+				ResourceMgr.Instance.DestroyObject(texture);
+				if (req.allAssets != null && req.allAssets.Length > 0 && cacheType == ResourceCacheType.rctRefAdd)
+				{
+					AssetCacheManager.Instance.CacheAddRefCount(asset.Cache, req.allAssets.Length);
+					for (int i = 0; i < req.allAssets.Length; ++i) {
+						AssetCacheManager.Instance._OnLoadObject(req.allAssets[i], asset.Cache);
+					}
+				}
+			}
+
+			if (onProcess != null)
+				onProcess (req.progress/10.0f + 0.9f, req.isDone, req.allAssets as Sprite[]);
+		  }
+		);
+
+		return ret;
 	}
 
 	private Sprite[] _LoadSprites(string fileName, ResourceCacheType cacheType) {
@@ -1034,27 +1067,9 @@ public class AssetLoader: IResourceLoader
 			{
 				AddRefAssetCache(asset, isNew, cacheType);
 				asset.AddOrgResMap(fileName, req.asset);
-				/*
-				if (cacheType == ResourceCacheType.rctNone)
-				{
-					if (isNew && (req.asset != null))
-					{
-						if (asset.Cache == null)
-							asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(req.asset, fileName);
-						AssetCacheManager.Instance._AddTempAsset(asset.Cache);
-						// asset.UnUsed ();
-					}
-				}
-				else
-				if (req.asset != null) {
-					if (asset.Cache == null)
-						asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(req.asset, fileName);
-					
-					if (asset.Cache != null)
-						AssetCacheManager.Instance._OnLoadObject(req.asset, asset.Cache);
-				}*/
-				
 				OnLoadObjectAsync(fileName, asset, isNew, req.asset, cacheType);
+				if (req.asset == null && cacheType == ResourceCacheType.rctRefAdd)
+					AssetCacheManager.Instance.CacheDecRefCount(asset.Cache);
 			}
 			
 			if (onProcess != null)

@@ -430,7 +430,7 @@ public class ResourcesLoader: IResourceLoader
 	}
 
 	public override bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Sprite[]> onProcess) {
-		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctTemp,
+		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctRefAdd,
 			delegate(float process, bool isDone, Texture obj) {
 				if (isDone) {
 					if (obj == null) {
@@ -445,6 +445,8 @@ public class ResourcesLoader: IResourceLoader
 							onProcess(process, isDone, null);
 						return;
 					}
+
+					ResourceMgr.Instance.DestroyObject(obj);
 
 					if (!IsResLoaderFileName(ref fileName)) {
 						if (onProcess != null)

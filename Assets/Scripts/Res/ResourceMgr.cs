@@ -301,7 +301,10 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			{
 				GameObject obj = null;
 				if (orgObj != null)
+				{
 					obj = CreateGameObject(orgObj);
+					ResourceMgr.Instance.DestroyObject(orgObj);
+				}
 				if (onProcess != null)
 					onProcess(t, isDone, obj);
 				return;
@@ -309,7 +312,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 			if (onProcess != null)
 				onProcess(t, isDone, null);
-		}, ResourceCacheType.rctTemp
+		}, ResourceCacheType.rctRefAdd
 		);
 
 		return ret;
