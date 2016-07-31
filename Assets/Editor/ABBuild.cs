@@ -2935,6 +2935,14 @@ public static class AssetBundleBuild
 		Cmd_Build(0, true, eBuildPlatform.eBuildWindow, true);
 	}
 
+	#if UNITY_5_3
+	[MenuItem("Assets/发布/Win32_Debug(Lz4)")]
+	static public void Cmd_BuidWin32_Debug_Lz4()
+	{
+		Cmd_Build(2, true, eBuildPlatform.eBuildWindow, true);
+	}
+	#endif
+
     [MenuItem("Assets/发布/Win32(压缩)")]
     static public void Cmd_BuildWin32_Compress()
     {
