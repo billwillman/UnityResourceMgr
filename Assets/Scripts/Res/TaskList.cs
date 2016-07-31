@@ -101,6 +101,97 @@ public abstract class ITask
 	private TaskList mOwner = null;
 }
 
+#if UNITY_5_3
+
+// LoadFromFileAsync
+public class BundleCreateAsyncTask: ITask
+{
+	public BundleCreateAsyncTask(string createFileName)
+	{
+		if (string.IsNullOrEmpty(createFileName))
+		{
+			TaskFail();
+			return;
+		}
+
+		m_FileName = createFileName;
+	}
+
+	public static BundleCreateAsyncTask LoadFileAtStreamingAssetsPath(string fileName, bool usePlatform)
+	{
+		fileName = WWWFileLoadTask.GetStreamingAssetsPath(usePlatform, true) + "/" + fileName;
+		BundleCreateAsyncTask ret = new BundleCreateAsyncTask(fileName);
+		return ret;
+	}
+
+	public override void Release()
+	{
+		base.Release();
+		if (m_Req != null)
+		{
+			m_Req = null;
+		}
+	}
+
+	public override void Process()
+	{
+		if (m_Req == null)
+		{
+			m_Req = AssetBundle.LoadFromFileAsync(m_FileName);
+		}
+
+		if (m_Req == null)
+		{
+			TaskFail();
+			return;
+		}
+
+		if (m_Req.isDone) 
+		{
+			if (m_Req.assetBundle != null) {
+				m_Progress = 1.0f;
+				TaskOk ();
+				m_Bundle = m_Req.assetBundle;
+			} else
+				TaskFail ();
+
+			m_Req = null;
+		} else {
+			m_Progress = m_Req.progress;
+		}
+
+		if (OnProcess != null)
+			OnProcess (this);
+
+	}
+
+	public AssetBundle Bundle
+	{
+		get {
+			return m_Bundle;
+		}
+	}
+
+	public float Progress
+	{
+		get {
+			return m_Progress;
+		}
+	}
+
+	public Action<BundleCreateAsyncTask> OnProcess {
+		get;
+		set;
+	}
+
+	private string m_FileName = string.Empty;
+	private AssetBundleCreateRequest m_Req = null;
+	private float m_Progress = 0;
+	private AssetBundle m_Bundle = null;
+}
+
+#endif
+
 // WWW 文件读取任务
 public class WWWFileLoadTask: ITask
 {

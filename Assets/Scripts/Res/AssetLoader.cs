@@ -149,19 +149,32 @@ public class AssetInfo
 			return m_WWWTask;
 		}
 	}
+
+	#if UNITY_5_3
+	internal BundleCreateAsyncTask AsyncTask
+	{
+		get
+		{
+			return m_AsyncTask;
+		}
+	}
+	#endif
 	
 	private WWWFileLoadTask m_WWWTask = null;
-	private TaskList m_WWWTaskList = null;
-	private Timer m_WWWTimer = null;
-	private Action<bool> m_WWWEndEvt = null;
-	internal void ClearWWW()
+	#if UNITY_5_3
+	private BundleCreateAsyncTask m_AsyncTask = null;
+	#endif
+	private TaskList m_TaskList = null;
+	private Timer m_Timer = null;
+	private Action<bool> m_EndEvt = null;
+	internal void ClearTaskData()
 	{
-		m_WWWEndEvt = null;
+		m_EndEvt = null;
 
-		if (m_WWWTimer != null)
+		if (m_Timer != null)
 		{
-			m_WWWTimer.Dispose();
-			m_WWWTimer = null;
+			m_Timer.Dispose();
+			m_Timer = null;
 		}
 
 		if (m_WWWTask != null)
@@ -170,23 +183,31 @@ public class AssetInfo
 			m_WWWTask = null;
 		}
 
-		if (m_WWWTaskList != null)
+		#if UNITY_5_3
+		if (m_AsyncTask != null)
 		{
-			m_WWWTaskList.Clear();
-			m_WWWTaskList = null;
+			m_AsyncTask.Release();
+			m_AsyncTask = null;
+		}
+		#endif
+
+		if (m_TaskList != null)
+		{
+			m_TaskList.Clear();
+			m_TaskList = null;
 		}
 	}
 
-	private void OnWWWTimerEvt(Timer obj, float timer)
+	private void OnTimerEvt(Timer obj, float timer)
 	{
-		if (m_WWWTaskList != null)
+		if (m_TaskList != null)
 		{
-			m_WWWTaskList.Process();
-			if (m_WWWTaskList.IsEmpty)
+			m_TaskList.Process();
+			if (m_TaskList.IsEmpty)
 			{
-				if (m_WWWEndEvt != null)
-					m_WWWEndEvt(true);
-				ClearWWW();
+				if (m_EndEvt != null)
+					m_EndEvt(true);
+				ClearTaskData();
 			}
 		}
 	}
@@ -199,29 +220,47 @@ public class AssetInfo
 		{
 			if (task.IsFail)
 			{
-				if (m_WWWEndEvt != null)
-					m_WWWEndEvt(false);
-				ClearWWW();
+				if (m_EndEvt != null)
+					m_EndEvt(false);
+				ClearTaskData();
 			}
 		}
 	}
 
-	public TaskList CreateWWWTaskList(Action<bool> onEnd)
+	public TaskList CreateTaskList(Action<bool> onEnd)
 	{
-		if (m_WWWTaskList == null)
+		if (m_TaskList == null)
 		{
-			m_WWWTaskList = new TaskList();
-			m_WWWTaskList.UserData = this;
-			if (m_WWWTimer == null)
+			m_TaskList = new TaskList();
+			m_TaskList.UserData = this;
+			if (m_Timer == null)
 			{
-				m_WWWTimer = TimerMgr.Instance.CreateTimer(false, 0, true);
-				m_WWWTimer.AddListener(OnWWWTimerEvt);
+				m_Timer = TimerMgr.Instance.CreateTimer(false, 0, true);
+				m_Timer.AddListener(OnTimerEvt);
 			}
 		}
 
-		m_WWWEndEvt += onEnd;
-		return m_WWWTaskList;
+		m_EndEvt += onEnd;
+		return m_TaskList;
 	}
+
+	#if UNITY_5_3
+	private static void OnLocalAsyncResult(ITask task)
+	{
+		BundleCreateAsyncTask asycTask = task as BundleCreateAsyncTask;
+		if (asycTask == null)
+			return;
+		AssetInfo info = asycTask.UserData as AssetInfo;
+		if (info == null)
+			return;
+		if (asycTask.IsDone && asycTask.IsOk)
+		{
+			info.mBundle = asycTask.Bundle;
+		}
+
+		info.IsUsing = false;
+	}
+	#endif
 
 	private static void OnLocalWWWResult(ITask task)
 	{
@@ -238,6 +277,58 @@ public class AssetInfo
 
 		info.IsUsing = false;
 	}
+
+#if UNITY_5_3
+
+	// 5.3新的异步加载方法
+	public bool LoadAsync(TaskList taskList)
+	{
+		if (IsVaild())
+			return true;
+		if (string.IsNullOrEmpty (mFileName))
+			return false;
+		
+		if (taskList == null)
+			return false;
+
+		if (m_AsyncTask != null)
+		{
+			if (!taskList.Contains(m_AsyncTask))
+			{
+				taskList.AddTask(m_AsyncTask, false);
+				if (taskList.UserData != null)
+				{
+					AssetInfo parent = taskList.UserData as AssetInfo;
+					if (parent != null)
+					{
+						m_AsyncTask.AddResultEvent(parent.OnTaskResult);
+					}
+				}
+			}
+			return true;
+		}
+
+		m_AsyncTask = new BundleCreateAsyncTask(mFileName);
+		if (m_AsyncTask != null)
+		{
+			m_AsyncTask.UserData = this;
+			m_AsyncTask.AddResultEvent(OnLocalAsyncResult);
+			taskList.AddTask(m_AsyncTask, true);
+			if (taskList.UserData != null)
+			{
+				AssetInfo parent = taskList.UserData as AssetInfo;
+				if (parent != null)
+				{
+					m_AsyncTask.AddResultEvent(parent.OnTaskResult);
+				}
+			}
+		} else
+			return false;
+		
+		return true;
+	}
+
+#endif
 
 	public bool LoadWWW(TaskList taskList)
 	{
@@ -311,7 +402,7 @@ public class AssetInfo
 
 	//	mIsLoading = false;
 		if (mCompressType == AssetCompressType.astNone) {
-			ClearWWW();
+			ClearTaskData();
 #if UNITY_5_3
 			mBundle = AssetBundle.LoadFromFile (mFileName);
 #else
@@ -322,7 +413,7 @@ public class AssetInfo
 		} else 
 		if (mCompressType == AssetCompressType.astUnityLzo) {
 			// Lz4 new compressType
-			ClearWWW();
+			ClearTaskData();
 #if UNITY_5_3
 			mBundle = AssetBundle.LoadFromFile(mFileName);
 #else
@@ -588,7 +679,7 @@ public class AssetInfo
 			mBundle = null;
 			mCache = null;
 
-			ClearWWW();
+			ClearTaskData();
 
 			DecDependInfo();
 		}
@@ -603,7 +694,7 @@ public class AssetInfo
 			mBundle.Unload(false);
 			mBundle = null;
 			mCache = null;
-			ClearWWW();
+			ClearTaskData();
 			// 处理依赖关系
 			DecDependInfo();
 		}
@@ -774,6 +865,21 @@ public class AssetLoader: IResourceLoader
 							 }
 			);
 		} else
+#if UNITY_5_3
+		if (asset.CompressType == AssetCompressType.astUnityLzo)
+		{
+				return LoadAsyncAssetInfo(asset, null, ref addCount,
+					delegate (bool isOk) {
+						if (isOk)
+						{
+							AddOrUpdateAssetCache (asset);
+							if (onEnd != null)
+								onEnd();
+						}
+					}
+				);
+		} else
+#endif
 		{
 			if (!LoadAssetInfo (asset, ref addCount))
 				return false;
@@ -842,6 +948,22 @@ public class AssetLoader: IResourceLoader
 			}
 			);
 		} else
+#if UNITY_5_3
+		if (asset.CompressType == AssetCompressType.astUnityLzo)
+		{
+				return LoadAsyncAssetInfo(asset, null, ref addCount,
+					delegate (bool isOk){
+						if (isOk)
+						{
+							DoPreloadAllType(isNew, asset, type);
+						}
+
+						if (onEnd != null)
+							onEnd();
+					}
+				);
+		} else
+#endif
 		{
 
 			if (!LoadAssetInfo (asset, ref addCount))
@@ -1100,6 +1222,18 @@ public class AssetLoader: IResourceLoader
 				}
 			                 });
 		} else
+#if UNITY_5_3
+		if (asset.CompressType == AssetCompressType.astUnityLzo)
+		{
+				return LoadAsyncAssetInfo(asset, null, ref addCount,
+					delegate (bool isOk){
+						if (isOk)
+						{
+							DoLoadObjectAsync<T>(asset, isNew, fileName, cacheType, onProcess);
+						}
+					});
+		} else
+#endif
 		{
 			if (!LoadAssetInfo (asset, ref addCount))
 				return false;
@@ -1270,6 +1404,65 @@ public class AssetLoader: IResourceLoader
 	}
 #endif	
 
+#if UNITY_5_3
+
+	internal bool LoadAsyncAssetInfo(AssetInfo asset, TaskList taskList, ref int addCount, Action<bool> onEnd = null)
+	{
+		if (asset == null)
+			return false;
+
+		if (asset.IsVaild ())
+		{
+			if (onEnd != null)
+				onEnd(true);
+			return true;
+		}
+
+		if (asset.IsUsing)
+		{
+			if (taskList == null)
+			{
+				var task = asset.AsyncTask;
+				if (task != null)
+				{
+					taskList = asset.CreateTaskList(onEnd);
+					taskList.AddTask(task, false);
+				}
+			}
+			return true;
+		}
+
+		if (taskList == null)
+			taskList = asset.CreateTaskList(onEnd);
+
+		asset.IsUsing = true;
+		for (int i = 0; i < asset.DependFileCount; ++i)
+		{
+			string fileName = asset.GetDependFileName(i);
+			if (!string.IsNullOrEmpty(fileName))
+			{
+				AssetInfo depend = FindAssetInfo(fileName);
+				if (depend == null)
+				{
+					continue;
+				}
+				if (!LoadAsyncAssetInfo(depend, taskList, ref addCount))
+				{
+					asset.IsUsing = false;
+					return false;
+				}
+			}
+		}
+
+		addCount += 1;
+		AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
+
+		bool ret = asset.LoadAsync(taskList);
+		return ret;
+	}
+
+#endif
+
 	internal bool LoadWWWAsseetInfo(AssetInfo asset, TaskList taskList, ref int addCount, Action<bool> onEnd = null)
 	{
 		if (asset == null)
@@ -1290,7 +1483,7 @@ public class AssetLoader: IResourceLoader
 				var task = asset.WWWTask;
 				if (task != null)
 				{
-					taskList = asset.CreateWWWTaskList(onEnd);
+					taskList = asset.CreateTaskList(onEnd);
 					taskList.AddTask(task, false);
 				}
 			}
@@ -1298,7 +1491,7 @@ public class AssetLoader: IResourceLoader
 		}
 
 		if (taskList == null)
-			taskList = asset.CreateWWWTaskList(onEnd);
+			taskList = asset.CreateTaskList(onEnd);
 
 		asset.IsUsing = true;
 		for (int i = 0; i < asset.DependFileCount; ++i)
