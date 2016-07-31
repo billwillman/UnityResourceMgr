@@ -14,7 +14,7 @@
 如果要使用非LZ4的压缩AB请使用异步函数。外部使用接口，并不用关心具体文件是在Resources里还是在StreamAssets还是在下载目录，
 均使用一种方式读取（只有选择同步和非同步的区别）。
 
---》》重大更新：已经支持LZ4了。另：已经支持同步和异步读取Sprite[]
+--》》重大更新：已经支持LZ4了。另：已经支持同步和异步读取Sprite[]。异步读取LZO压缩，采用5.3版本的LoadFromAsync读取AB。
 
 具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
 
