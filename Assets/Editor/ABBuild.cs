@@ -1625,8 +1625,9 @@ class AssetBundleMgr
 			if (string.IsNullOrEmpty(p))
 				continue;
 			p = p.Replace('\\', '/');
-			int idx = p.IndexOf("Unity/Editor", StringComparison.CurrentCultureIgnoreCase);
-			if (idx >= 0)
+			int idx = p.IndexOf("/Unity", StringComparison.CurrentCultureIgnoreCase);
+			int idx1 = p.IndexOf("/Editor", StringComparison.CurrentCultureIgnoreCase);
+			if (idx >= 0 && idx1 > idx)
 			{
 				return p;
 			}
