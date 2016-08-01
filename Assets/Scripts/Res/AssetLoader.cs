@@ -27,6 +27,10 @@ public class AssetBundleCache: AssetCache
 	public AssetBundleCache()
 	{}
 
+	public override bool IsNotUsed() {
+		return (RefCount <= 0) && ((mTarget == null) || (!mTarget.IsUsing));
+	}
+
 	public static AssetBundleCache Create(AssetInfo target)
 	{
 		AssetBundleCache ret;

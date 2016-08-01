@@ -41,12 +41,9 @@ public abstract class AssetCache
 		}
 	}*/
 	
-	public bool IsNotUsed
+	public virtual bool IsNotUsed()
 	{
-		get
-		{
-			return (mRefCount <= 0) ;//&& (mPrefabRefCnt <= 0);
-		}
+		return (mRefCount <= 0) ;//&& (mPrefabRefCnt <= 0);
 	}
 
 	/*
@@ -393,7 +390,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 				LinkedListNode<AssetCache> delNode = null;
 				if (node.Value != null)
 				{
-					if ((!checkRef) || (node.Value.IsNotUsed))
+					if ((!checkRef) || (node.Value.IsNotUsed()))
 					{
 						RemoveCache(node.Value);
 						node.Value = null;
@@ -637,7 +634,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		var node = mTempAssetList.First;
 		while (node != null)
 		{
-			if ((node.Value != null) && (node.Value.IsNotUsed))
+			if ((node.Value != null) && (node.Value.IsNotUsed()))
 				node.Value.UnLoad();
 			node = node.Next;
 		}
