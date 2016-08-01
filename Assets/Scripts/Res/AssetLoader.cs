@@ -670,7 +670,7 @@ public class AssetInfo
 
 	public void UnLoad()
 	{
-		if (IsVaild ()) {
+		if (IsVaild() && !IsUsing) {
 
 			// LogMgr.Instance.Log(string.Format("Bundle unload=>{0}", Path.GetFileNameWithoutExtension(mFileName)));
 			m_OrgResMap.Clear();
@@ -687,7 +687,7 @@ public class AssetInfo
 
 	public void UnUsed()
 	{
-		if (IsVaild ()) {
+		if (IsVaild() && !IsUsing) {
 
 			m_OrgResMap.Clear();
 
