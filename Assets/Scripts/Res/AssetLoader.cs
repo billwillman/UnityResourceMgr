@@ -571,10 +571,11 @@ public class AssetInfo
 		return AsyncOperationMgr.Instance.AddAsyncOperation(request, onProcess) != null;
 	}
 
+	/*
 	public bool IsNew()
 	{
 		return !IsVaild() && !IsUsing;
-	}
+	}*/
 
 	public bool IsVaild()
 	{
@@ -916,8 +917,9 @@ public class AssetLoader: IResourceLoader
 			AssetCacheManager.Instance._OnLoadObject(obj, asset.Cache);
 	}
 
-	private void DoPreloadAllType(bool isNew, AssetInfo asset, System.Type type)
+	private void DoPreloadAllType(AssetInfo asset, System.Type type)
 	{
+		bool isNew = asset.Cache == null;
 		if (isNew)
 		{
 			AddOrUpdateAssetCache (asset);
@@ -937,14 +939,14 @@ public class AssetLoader: IResourceLoader
 			return false;
 
 		int addCount = 0;
-		bool isNew = asset.IsNew();
+		//bool isNew = asset.IsNew();
 		if (asset.CompressType == AssetCompressType.astUnityZip)
 		{
 			return LoadWWWAsseetInfo(asset, null, ref addCount, 
 			                  delegate (bool isOk){
 				if (isOk)
 				{
-					DoPreloadAllType(isNew, asset, type);
+					DoPreloadAllType(asset, type);
 				}
 
 				if (onEnd != null)
@@ -959,7 +961,7 @@ public class AssetLoader: IResourceLoader
 					delegate (bool isOk){
 						if (isOk)
 						{
-							DoPreloadAllType(isNew, asset, type);
+							DoPreloadAllType(asset, type);
 						}
 
 						if (onEnd != null)
@@ -973,7 +975,7 @@ public class AssetLoader: IResourceLoader
 			if (!LoadAssetInfo (asset, ref addCount))
 				return false;
 		
-			DoPreloadAllType(isNew, asset, type);
+			DoPreloadAllType(asset, type);
 			if (onEnd != null)
 				onEnd();
 		}
@@ -1115,7 +1117,7 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return null;
 
-		bool isNew = asset.IsNew();
+		bool isNew = asset.Cache == null;
 		int addCount = 0;
 		if (!LoadAssetInfo (asset, ref addCount))
 			return null;
@@ -1172,7 +1174,7 @@ public class AssetLoader: IResourceLoader
 		}
 	}
 
-	private bool DoLoadObjectAsync<T>(AssetInfo asset, bool isNew, string fileName, ResourceCacheType cacheType, 
+	private bool DoLoadObjectAsync<T>(AssetInfo asset, string fileName, ResourceCacheType cacheType, 
 	                                  Action<float, bool, T> onProcess) where T: UnityEngine.Object
 	{
 		// AddRefAssetCache(asset, isNew, cacheType);
@@ -1180,6 +1182,7 @@ public class AssetLoader: IResourceLoader
 		UnityEngine.Object search;
 		if (asset.GetOrgResMap(fileName, out search))
 		{
+			bool isNew = asset.Cache == null;
 			AddRefAssetCache(asset, isNew, cacheType);
 			OnLoadObjectAsync(fileName, asset, isNew, search, cacheType);
 			if (onProcess != null)
@@ -1194,6 +1197,7 @@ public class AssetLoader: IResourceLoader
 			if (req.isDone)
 			{
 				asset.IsUsing = false;
+				bool isNew = asset.Cache == null;
 				AddRefAssetCache(asset, isNew, cacheType);
 				asset.AddOrgResMap(fileName, req.asset);
 				OnLoadObjectAsync(fileName, asset, isNew, req.asset, cacheType);
@@ -1222,14 +1226,14 @@ public class AssetLoader: IResourceLoader
 			return false;
 
 		int addCount = 0;
-		bool isNew = asset.IsNew();
+	//	bool isNew = asset.IsNew();
 		if (asset.CompressType == AssetCompressType.astUnityZip)
 		{
 			return LoadWWWAsseetInfo(asset, null, ref addCount,
 			                  delegate (bool isOk){
 								  if (isOk)
 							      {
-									 DoLoadObjectAsync<T>(asset, isNew, fileName, cacheType, onProcess);
+									 DoLoadObjectAsync<T>(asset, fileName, cacheType, onProcess);
 				}
 			                 });
 		} else
@@ -1240,7 +1244,7 @@ public class AssetLoader: IResourceLoader
 					delegate (bool isOk){
 						if (isOk)
 						{
-							DoLoadObjectAsync<T>(asset, isNew, fileName, cacheType, onProcess);
+							DoLoadObjectAsync<T>(asset, fileName, cacheType, onProcess);
 						}
 					});
 		} else
@@ -1248,7 +1252,7 @@ public class AssetLoader: IResourceLoader
 		{
 			if (!LoadAssetInfo (asset, ref addCount))
 				return false;
-			return DoLoadObjectAsync<T>(asset, isNew, fileName, cacheType, onProcess);
+			return DoLoadObjectAsync<T>(asset, fileName, cacheType, onProcess);
 		}
 	}
 
