@@ -1182,12 +1182,14 @@ public class AssetLoader: IResourceLoader
 				onProcess (1.0f, true, search as T);
 			return true;
 		}
-		
-		return asset.LoadObjectAsync (fileName, typeof(T), 
+
+		asset.IsUsing = true;
+		bool ret = asset.LoadObjectAsync (fileName, typeof(T), 
 		                              delegate (AssetBundleRequest req) {
 			
 			if (req.isDone)
 			{
+				asset.IsUsing = false;
 				AddRefAssetCache(asset, isNew, cacheType);
 				asset.AddOrgResMap(fileName, req.asset);
 				OnLoadObjectAsync(fileName, asset, isNew, req.asset, cacheType);
@@ -1199,6 +1201,11 @@ public class AssetLoader: IResourceLoader
 				onProcess (req.progress, req.isDone, req.asset as T);
 		}
 		);
+
+		if (!ret)
+			asset.IsUsing = false;
+
+		return ret;
 	}
 
 	public bool LoadObjectAsync<T>(string fileName, ResourceCacheType cacheType, Action<float, bool, T> onProcess) where T: UnityEngine.Object
