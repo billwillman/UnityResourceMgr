@@ -2137,14 +2137,14 @@ public static class AssetBundleBuild
     private static string cAssetsResourcesPath = "Assets/Resources/";
 	// 支持的资源文件格式
 	private static readonly string[] ResourceExts = {".prefab", ".fbx",
-													 ".png", ".jpg", ".dds", ".gif", ".psd",
+													 ".png", ".jpg", ".dds", ".gif", ".psd", ".tga",
 													 ".txt", ".bytes", ".xml", ".csv",
 													 ".controller", ".shader", ".anim", ".unity", ".mat",
 													 ".wav", ".mp3", ".ogg",
 													 ".shadervariants"};
 	
 	private static readonly string[] ResourceXmlExts = {".prefab", ".fbx",
-														".tex", ".tex",  ".tex", ".tex", ".tex",
+														".tex", ".tex",  ".tex", ".tex", ".tex", ".tex",
 														".bytes", ".bytes", ".bytes", ".bytes",
 														".controller", ".shader", ".anim", ".unity", ".mat",
 														".audio", ".audio", ".audio",
