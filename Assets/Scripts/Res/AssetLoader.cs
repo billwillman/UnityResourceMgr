@@ -216,7 +216,7 @@ public class AssetInfo
 	{
 		if (task == null)
 			return;
-		if (task.IsDoing)
+		if (task.IsDone)
 		{
 			if (task.IsFail)
 			{
