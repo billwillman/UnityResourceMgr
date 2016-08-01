@@ -209,7 +209,8 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		{
 			if (mNotUsedCacheList.Count <= 0)
 				break;
-			ClearAllNotUsedList (true);
+			if (!ClearAllNotUsedList(true))
+				break;
 			if (isStep)
 				break;
 			UpdateUsedList (t, false);
@@ -380,8 +381,9 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
         EventDispatch.Instance.TriggerEvent<AssetCache>(_EVENT_CACHEDESTROY_END, cache);
 	}
 
-	private void ClearAllNotUsedList(bool checkRef)
+	private bool ClearAllNotUsedList(bool checkRef)
 	{
+		bool ret = false;
 		if (mNotUsedCacheList != null) {
 			LinkedListNode<AssetCache> node = mNotUsedCacheList.First;
 			while (node != null)
@@ -405,12 +407,16 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 					mUsedCacheList.AddLast(usedNode);
 				}
 
-				if (delNode != null)
+				if (delNode != null) {
 					mNotUsedCacheList.Remove(delNode);
+					ret = true;
+				}
 			}
 
 			// mNotUsedCacheList.Clear();
 		}
+
+		return ret;
 	}
 
 	// 这样操作比较危险
