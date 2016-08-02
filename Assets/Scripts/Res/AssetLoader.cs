@@ -863,7 +863,7 @@ public class AssetLoader: IResourceLoader
 			);
 		} else
 #if UNITY_5_3
-		if (asset.CompressType == AssetCompressType.astUnityLzo)
+		if (asset.CompressType == AssetCompressType.astUnityLzo || asset.CompressType == AssetCompressType.astNone)
 		{
 				return LoadAsyncAssetInfo(asset, null, ref addCount,
 					delegate (bool isOk) {
@@ -947,7 +947,7 @@ public class AssetLoader: IResourceLoader
 			);
 		} else
 #if UNITY_5_3
-		if (asset.CompressType == AssetCompressType.astUnityLzo)
+		if (asset.CompressType == AssetCompressType.astUnityLzo || asset.CompressType == AssetCompressType.astNone)
 		{
 				return LoadAsyncAssetInfo(asset, null, ref addCount,
 					delegate (bool isOk){
@@ -1230,7 +1230,7 @@ public class AssetLoader: IResourceLoader
 			                 });
 		} else
 #if UNITY_5_3
-		if (asset.CompressType == AssetCompressType.astUnityLzo)
+		if (asset.CompressType == AssetCompressType.astUnityLzo || asset.CompressType == AssetCompressType.astNone)
 		{
 				return LoadAsyncAssetInfo(asset, null, ref addCount,
 					delegate (bool isOk){
