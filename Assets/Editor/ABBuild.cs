@@ -661,6 +661,9 @@ class AssetBunbleInfo
                 }
             }
         }
+
+		// 清理一次
+		EditorUtility.UnloadUnusedAssetsImmediate();
 #endif
     }
 
@@ -1081,6 +1084,7 @@ class AssetBundleMgr
 		}
 #if USE_UNITY5_X_BUILD
 		AssetDatabase.RemoveUnusedAssetBundleNames();
+		EditorUtility.UnloadUnusedAssetsImmediate();
 #endif
 		// 创建AssetBundleInfo
 		for (int i = 0; i < abFiles.Count; ++i)
