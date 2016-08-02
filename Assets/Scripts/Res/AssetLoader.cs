@@ -282,6 +282,20 @@ public class AssetInfo
 		info.IsUsing = false;
 	}
 
+	internal void AddNoOwnerToTaskList(TaskList taskList, ITask task) {
+		if (task == null || taskList == null)
+			return;
+		if (!taskList.Contains(task)) {
+			taskList.AddTask(task, false);
+			if (taskList.UserData != null) {
+				AssetInfo parent = taskList.UserData as AssetInfo;
+				if (parent != null) {
+					task.AddResultEvent(parent.OnTaskResult);
+				}
+			}
+		}
+	}
+
 #if UNITY_5_3
 
 	// 5.3新的异步加载方法
@@ -297,18 +311,7 @@ public class AssetInfo
 
 		if (m_AsyncTask != null)
 		{
-			if (!taskList.Contains(m_AsyncTask))
-			{
-				taskList.AddTask(m_AsyncTask, false);
-				if (taskList.UserData != null)
-				{
-					AssetInfo parent = taskList.UserData as AssetInfo;
-					if (parent != null)
-					{
-						m_AsyncTask.AddResultEvent(parent.OnTaskResult);
-					}
-				}
-			}
+			AddNoOwnerToTaskList(taskList, m_AsyncTask);
 			return true;
 		}
 
@@ -346,18 +349,7 @@ public class AssetInfo
 
 		if (m_WWWTask != null)
 		{
-			if (!taskList.Contains(m_WWWTask))
-			{
-				taskList.AddTask(m_WWWTask, false);
-				if (taskList.UserData != null)
-				{
-					AssetInfo parent = taskList.UserData as AssetInfo;
-					if (parent != null)
-					{
-						m_WWWTask.AddResultEvent(parent.OnTaskResult);
-					}
-				}
-			}
+			AddNoOwnerToTaskList(taskList, m_WWWTask);
 			return true;
 		}
 
@@ -1435,15 +1427,15 @@ public class AssetLoader: IResourceLoader
 
 		if (asset.IsUsing)
 		{
-			if (taskList == null)
-			{
+			if (taskList == null) {
 				var task = asset.AsyncTask;
-				if (task != null)
-				{
+				if (task != null) {
 					taskList = asset.CreateTaskList(onEnd);
 					taskList.AddTask(task, false);
 				}
 			}
+			else
+				asset.AddNoOwnerToTaskList(taskList, asset.AsyncTask);
 			return true;
 		}
 
@@ -1501,6 +1493,9 @@ public class AssetLoader: IResourceLoader
 					taskList = asset.CreateTaskList(onEnd);
 					taskList.AddTask(task, false);
 				}
+			}
+			else {
+				asset.AddNoOwnerToTaskList(taskList, asset.WWWTask);
 			}
 			return true;
 		}
