@@ -110,7 +110,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		loader.OnSceneClose (realSceneName);*/
 		if (!mAssetLoader.OnSceneClose (sceneName))
 			mResLoader.OnSceneClose (sceneName);
-#if UNITY_5_2
+#if UNITY_5_2 || UNITY_5_3
 		Application.UnloadLevel(sceneName);
 #endif
 		// 清除
