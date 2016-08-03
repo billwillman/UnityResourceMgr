@@ -655,15 +655,16 @@ class AssetBunbleInfo
 					if (string.Compare(importer.assetBundleName, name) != 0)
 					{
 						importer.assetBundleName = name;
+						EditorUtility.UnloadUnusedAssetsImmediate();
 					//	importer.assetBundleVariant = "assets";
 					//	importer.SaveAndReimport();
 					}
+
+					AssetBundleBuild.AddShowTagProcess(name);
                 }
             }
         }
 
-		// 清理一次
-		EditorUtility.UnloadUnusedAssetsImmediate();
 #endif
     }
 
@@ -1031,6 +1032,18 @@ class AssetBundleMgr
 		return ret;
 	}
 
+	public int MaxTagFileCount
+	{
+		get;
+		private set;
+	}
+
+	public int CurTagIdx
+	{
+		get;
+		set;
+	}
+
 	// 生成
 	public void BuildDirs(List<string> dirList)
 	{
@@ -1038,6 +1051,7 @@ class AssetBundleMgr
 		if ((dirList == null) || (dirList.Count <= 0))
 			return;
 
+		MaxTagFileCount = dirList.Count;
 		List<string> abFiles = new List<string> ();
 		HashSet<string> NotUsedDirHash = new HashSet<string> ();
         string notUsedSplit = "/" + AssetBundleBuild._NotUsed;
@@ -1103,6 +1117,7 @@ class AssetBundleMgr
 
 		mAssetBundleList.Sort (AssetBunbleInfo.OnSort);
 #if USE_UNITY5_X_BUILD
+		EditorUtility.ClearProgressBar();
 		AssetDatabase.Refresh();
 		//AssetDatabase.RemoveUnusedAssetBundleNames();
 	    //AssetDatabase.Refresh();
@@ -1148,6 +1163,8 @@ class AssetBundleMgr
 
 	public void Clear()
 	{
+		CurTagIdx = 0;
+		MaxTagFileCount = 0;
 		mAssetBundleMap.Clear ();
 		mAssetBundleList.Clear ();
 	}
@@ -3282,6 +3299,37 @@ public static class AssetBundleBuild
 			AssetDatabase.ExportPackage(allFiles, tempPacketFile);
 		}
 	}
+
+	public static void AddShowTagProcess(string tagName)
+	{
+		if (mMgr.MaxTagFileCount <= 0)
+			return;
+		mMgr.CurTagIdx += 1;
+		float maxCnt = mMgr.MaxTagFileCount;
+		float curIdx = mMgr.CurTagIdx;
+		float process = curIdx/maxCnt;
+		EditorUtility.DisplayProgressBar("设置Tag中...", tagName, process);
+	}
+
+	#if UNITY_5
+
+	[MenuItem("Assets/清理所有AssetBundle的Tag")]
+	public static void ClearAllAssetNames()
+	{
+		string[] assetBundleNames = AssetDatabase.GetAllAssetBundleNames();
+		if (assetBundleNames == null || assetBundleNames.Length <= 0)
+			return;
+		for (int i = 0; i <assetBundleNames.Length; ++i)
+		{
+			float process = ((float)i)/((float)assetBundleNames.Length);
+			EditorUtility.DisplayProgressBar("清理Tag中...", assetBundleNames[i], process);
+			AssetDatabase.RemoveAssetBundleName(assetBundleNames[i], true);
+			EditorUtility.UnloadUnusedAssetsImmediate();
+		}
+		EditorUtility.ClearProgressBar();
+	}
+
+	#endif
 
 	private static AssetBundleMgr mMgr = new AssetBundleMgr();
 }
