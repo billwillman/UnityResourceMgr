@@ -94,14 +94,20 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 		if (item == null)
 			return;
 		
-		Timer time;
 		AsyncOperation opt = item.GetOperation ();
-		if (mDic.TryGetValue (opt, out time) && (time != null)) {
+		RemoveAsyncOperation(opt);
+		
+		item.Release ();
+	}
+
+	public void RemoveAsyncOperation(AsyncOperation opt) {
+		if (opt == null)
+			return;
+		Timer time;
+		if (mDic.TryGetValue(opt, out time) && (time != null)) {
 			mDic.Remove(opt);
 			time.Dispose();
 		}
-		
-		item.Release ();
 	}
 
 	#endregion public function

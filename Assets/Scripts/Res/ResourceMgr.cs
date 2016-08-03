@@ -46,40 +46,45 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return true;
 	}
 
-	private bool DoLoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess)
+	private bool DoLoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess, bool isLoadedActive)
 	{
+		AsyncOperation opt;
 		if (isAdd) {
-			AsyncOperation opt = Application.LoadLevelAdditiveAsync (sceneName);
-			if (opt == null)
-				return false;
-			
-			if (opt.isDone)
-			{
-				if (onProcess != null)
-					onProcess(opt);
-				return true;
-			}
-			
-			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation> (opt, onProcess) != null;
+			opt = Application.LoadLevelAdditiveAsync (sceneName);
 		} else {
-			AsyncOperation opt = Application.LoadLevelAsync(sceneName);
-			if (opt == null)
-				return false;
-			if (opt.isDone)
-			{
-				if (onProcess != null)
-					onProcess(opt);
-				return true;
-			}
-			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation> (opt, onProcess) != null;
+			opt = Application.LoadLevelAsync(sceneName);
+		}
+
+		if (opt == null)
+			return false;
+
+		if (opt.isDone) {
+			if (onProcess != null)
+				onProcess(opt);
+			return true;
+		}
+
+		opt.allowSceneActivation = isLoadedActive;
+		if (isLoadedActive)
+			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation>(opt, onProcess) != null;
+		else {
+			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation>(opt,
+				delegate(AsyncOperation obj) {
+					if (onProcess != null)
+						onProcess(obj);
+					if (obj.progress >= 0.9f) {
+						AsyncOperationMgr.Instance.RemoveAsyncOperation(obj);
+					}
+				}) != null;
 		}
 	}
 
-	public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess)
+	// isLoadedActive: 是否加载完就激活
+	public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess, bool isLoadedActive = true)
 	{
 		if (mAssetLoader.OnSceneLoadAsync (sceneName, 
 		                                   delegate {
-												DoLoadSceneAsync(sceneName, isAdd, onProcess);
+											   DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive);
 		                                  })) {
 			LogMgr.Instance.Log (string.Format ("Loading AssetBundle Scene: {0}", sceneName));
 		} else {
@@ -89,7 +94,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 #endif
 			if (mResLoader.OnSceneLoadAsync(sceneName,
 			                                delegate {
-												DoLoadSceneAsync(sceneName, isAdd, onProcess);
+												DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive);
 											}))
 				LogMgr.Instance.Log(string.Format("Loading Resources Scene: {0}", sceneName));
 			else
