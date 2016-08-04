@@ -124,11 +124,20 @@ public abstract class AssetCache
 		}
 	}
 
+	public void RemoveObj(UnityEngine.Object obj)
+	{
+		if (obj == null)
+			return;
+		int instId = obj.GetInstanceID();
+		RemoveObj(instId);
+	}
+
 	public  void RemoveObj(int id)
 	{
 		if (mObjSet == null)
 			return;
-		mObjSet.Remove (id);
+		if (mObjSet.Contains(id))
+			mObjSet.Remove (id);
 	}
 
 	public bool GetObjEnumerator(out HashSet<int>.Enumerator iter)
