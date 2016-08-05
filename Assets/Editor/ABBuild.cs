@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------
+﻿/*----------------------------------------------------------------
 // 模块名：AssetBundle 打包功能
 // 创建者：zengyi
 // 修改者列表：
@@ -1313,6 +1313,7 @@ class AssetBundleMgr
 #endif
 		
 		AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(exportDir, buildOpts, target);
+		EditorUtility.UnloadUnusedAssetsImmediate();
 		
 		for (int i = 0; i < mAssetBundleList.Count; ++i)
 		{
