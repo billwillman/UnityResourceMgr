@@ -170,6 +170,20 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		AssetCacheManager.Instance._OnDestroyGameObject (instID);
 	}
 
+	// 删除实例化的GameObj   isImm: 是否是立即模式
+	public void DestroyInstGameObj(UnityEngine.GameObject obj, bool isImm = false) 
+	{
+		if (obj == null)
+			return;
+		int instId = obj.GetInstanceID();
+		if (isImm)
+			UnityEngine.GameObject.DestroyImmediate(obj);
+		else
+			UnityEngine.GameObject.Destroy(obj);
+
+		AssetCacheManager.Instance._OnDestroyGameObject(instId);
+	}
+
 	public void DestroyObject(UnityEngine.Object obj)
 	{
 		if (obj == null)
