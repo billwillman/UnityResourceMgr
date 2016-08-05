@@ -38,9 +38,27 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 				return;
 			onProcess (opt);
 		}
+
+		public System.Object UserData
+		{
+			get; set;
+		}
 	}
 
 	#region public function
+
+	public AsyncOperationItem<T> FindItem<T>(T opt) where T: AsyncOperation
+	{
+		if (opt == null)
+			return null;
+		Timer time;
+		if (mDic.TryGetValue (opt, out time))
+		{
+			return GetAsyncOptionTimerOprItem<T>(time);
+		} else
+			return null;
+	}
+
 	public AsyncOperationItem<T> AddAsyncOperation<T>(T opt, Action<T> onProcess) where T: AsyncOperation
 	{
 		Timer time;
@@ -108,6 +126,27 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 			mDic.Remove(opt);
 			time.Dispose();
 		}
+	}
+
+	public AsyncOperation GetAsyncOptionTimerOpr(Timer obj)
+	{
+		if (obj == null)
+			return null;
+		IAsyncOperationItem item = (IAsyncOperationItem)obj.UserData;
+		if (item == null)
+			return null;
+		AsyncOperation opt = item.GetOperation ();
+		return opt;
+	}
+
+	public AsyncOperationItem<T> GetAsyncOptionTimerOprItem<T>(Timer obj) where T: AsyncOperation
+	{
+		if (obj == null)
+			return null;
+		IAsyncOperationItem item = (IAsyncOperationItem)obj.UserData;
+		if (item == null)
+			return null;
+		return item as AsyncOperationItem<T>;
 	}
 
 	#endregion public function
