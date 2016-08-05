@@ -1182,6 +1182,7 @@ public class AssetLoader: IResourceLoader
 			return true;
 		}
 
+		// todo: 後面換成計數，而不是bool
 		asset.IsUsing = true;
 		bool ret = asset.LoadObjectAsync (fileName, typeof(T), 
 		                              delegate (AssetBundleRequest req) {
