@@ -2158,14 +2158,14 @@ public static class AssetBundleBuild
     private static string cAssetsResourcesPath = "Assets/Resources/";
 	// 支持的资源文件格式
 	private static readonly string[] ResourceExts = {".prefab", ".fbx",
-													 ".png", ".jpg", ".dds", ".gif", ".psd", ".tga",
+													 ".png", ".jpg", ".dds", ".gif", ".psd", ".tga", ".bmp",
 													 ".txt", ".bytes", ".xml", ".csv",
 													 ".controller", ".shader", ".anim", ".unity", ".mat",
 													 ".wav", ".mp3", ".ogg",
 													 ".shadervariants"};
 	
 	private static readonly string[] ResourceXmlExts = {".prefab", ".fbx",
-														".tex", ".tex",  ".tex", ".tex", ".tex", ".tex",
+														".tex", ".tex",  ".tex", ".tex", ".tex", ".tex", ".tex",
 														".bytes", ".bytes", ".bytes", ".bytes",
 														".controller", ".shader", ".anim", ".unity", ".mat",
 														".audio", ".audio", ".audio",
@@ -2173,7 +2173,7 @@ public static class AssetBundleBuild
 
 	private static readonly Type[] ResourceExtTypes = {
 														typeof(UnityEngine.GameObject), typeof(UnityEngine.GameObject),
-														typeof(UnityEngine.Texture), typeof(UnityEngine.Texture), typeof(UnityEngine.Texture), typeof(UnityEngine.Texture), typeof(UnityEngine.Texture), typeof(UnityEngine.Texture),
+														typeof(UnityEngine.Texture), typeof(UnityEngine.Texture), typeof(UnityEngine.Texture), typeof(UnityEngine.Texture), typeof(UnityEngine.Texture), typeof(UnityEngine.Texture), typeof(UnityEngine.Texture),
 														typeof(UnityEngine.TextAsset), typeof(UnityEngine.TextAsset), typeof(UnityEngine.TextAsset), typeof(UnityEngine.TextAsset),
 														typeof(UnityEngine.Object), typeof(UnityEngine.Shader), typeof(UnityEngine.AnimationClip), null, typeof(UnityEngine.Material),
 														typeof(UnityEngine.AudioClip), typeof(UnityEngine.AudioClip), typeof(UnityEngine.AudioClip),
