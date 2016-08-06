@@ -629,7 +629,8 @@ public class AssetInfo
 		var req = FindAsyncLoadDict(fileName, objType);
 		if (req != null)
 		{
-			req.onProcess += onProcess;
+			if (onProcess != null)
+				req.onProcess += onProcess;
 			return true;
 		}
 
