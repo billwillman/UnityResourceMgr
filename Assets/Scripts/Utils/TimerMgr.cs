@@ -87,6 +87,22 @@ public class Timer : DisposeObject
         m_EventHandler += listener;
     }
 
+	public bool ContainsEvent(Timer.OnTimerEvent evt)
+	{
+		if (evt == null)
+			return false;
+		Delegate[] evts = m_EventHandler.GetInvocationList();
+		if (evts == null || evts.Length <= 0)
+			return false;
+		for (int i = 0; i < evts.Length; ++i)
+		{
+			if (evt == evts[i])
+				return true;
+		}
+
+		return false;
+	}
+
     public void ClearAllListener()
     {
         if (m_EventHandler != null)

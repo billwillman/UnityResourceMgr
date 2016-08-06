@@ -66,9 +66,9 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 		opt.allowSceneActivation = isLoadedActive;
 		if (isLoadedActive)
-			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation>(opt, onProcess) != null;
+			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt, onProcess) != null;
 		else {
-			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation>(opt,
+			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt,
 				delegate(AsyncOperation obj) {
 					if (onProcess != null)
 						onProcess(obj);
@@ -152,7 +152,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		GameObject ret = GameObject.Instantiate (orgObject) as GameObject;
 		if (ret != null) {
 			AssetCacheManager.Instance._OnCreateGameObject (ret, orgObject);
-			// 加入一个脚�?			// ret.AddComponent<ResInstDestroy>();
+			// 加入�?个脚�?			// ret.AddComponent<ResInstDestroy>();
 		}
 
 		return ret;
@@ -627,7 +627,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 	public void UnloadUnUsed()
 	{
-		// 清除所有未使用�?		AssetCacheManager.Instance.ClearUnUsed ();
+		// 清除�?有未使用�?		AssetCacheManager.Instance.ClearUnUsed ();
 		Resources.UnloadUnusedAssets ();
 	}
 

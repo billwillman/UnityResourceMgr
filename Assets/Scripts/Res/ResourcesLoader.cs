@@ -264,7 +264,7 @@ public class ResourcesLoader: IResourceLoader
 			return true;
 		}
 
-		var ret = AsyncOperationMgr.Instance.AddAsyncOperation<ResourceRequest> (request,
+		var ret = AsyncOperationMgr.Instance.AddAsyncOperation<ResourceRequest, System.Object> (request,
 		                                              delegate (ResourceRequest req) {
 			if (req.isDone)
 			{

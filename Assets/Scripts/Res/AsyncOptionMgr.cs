@@ -20,7 +20,7 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 		void Process();
 	}
 
-	public class AsyncOperationItem<T>: IAsyncOperationItem where T: AsyncOperation
+	public class AsyncOperationItem<T, U>: IAsyncOperationItem where T: AsyncOperation
 	{
 		internal T opt = null;
 		internal Action<T> onProcess = null;
@@ -39,7 +39,7 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 			onProcess (opt);
 		}
 
-		public System.Object UserData
+		public U UserData
 		{
 			get; set;
 		}
@@ -47,25 +47,25 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 
 	#region public function
 
-	public AsyncOperationItem<T> FindItem<T>(T opt) where T: AsyncOperation
+	public AsyncOperationItem<T, U> FindItem<T, U>(T opt) where T: AsyncOperation
 	{
 		if (opt == null)
 			return null;
 		Timer time;
 		if (mDic.TryGetValue (opt, out time))
 		{
-			return GetAsyncOptionTimerOprItem<T>(time);
+			return GetAsyncOptionTimerOprItem<T, U>(time);
 		} else
 			return null;
 	}
 
-	public AsyncOperationItem<T> AddAsyncOperation<T>(T opt, Action<T> onProcess) where T: AsyncOperation
+	public AsyncOperationItem<T, U> AddAsyncOperation<T, U>(T opt, Action<T> onProcess) where T: AsyncOperation
 	{
 		Timer time;
 		if (mDic.TryGetValue (opt, out time)) {
 			if (time == null)
 				return null;
-			AsyncOperationItem<T> old = time.UserData as AsyncOperationItem<T>;
+			AsyncOperationItem<T, U> old = time.UserData as AsyncOperationItem<T, U>;
 			if (old == null)
 				return null;
 
@@ -76,7 +76,7 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 
 		time = TimerMgr.Instance.CreateTimer (false, 0, true);
 		time.AddListener (OnTimerEvent);
-		AsyncOperationItem<T> item = new AsyncOperationItem<T> ();
+		AsyncOperationItem<T, U> item = new AsyncOperationItem<T, U> ();
 		//AsyncOperationItem item = AsyncOperationItem.NewItem ();
 		item.opt = opt; 
 		item.onProcess = onProcess;
@@ -139,14 +139,14 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 		return opt;
 	}
 
-	public AsyncOperationItem<T> GetAsyncOptionTimerOprItem<T>(Timer obj) where T: AsyncOperation
+	public AsyncOperationItem<T, U> GetAsyncOptionTimerOprItem<T, U>(Timer obj) where T: AsyncOperation
 	{
 		if (obj == null)
 			return null;
 		IAsyncOperationItem item = (IAsyncOperationItem)obj.UserData;
 		if (item == null)
 			return null;
-		return item as AsyncOperationItem<T>;
+		return item as AsyncOperationItem<T, U>;
 	}
 
 	#endregion public function

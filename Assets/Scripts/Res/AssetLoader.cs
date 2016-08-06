@@ -518,8 +518,9 @@ public class AssetInfo
 		if (!ContainFileNameHash(fileName))
 			return false;
 
+		System.Type objType = typeof(T);
 		// 目的：減少I/O操作
-		var item = FindAsyncLoadDict(fileName);
+		var item = FindAsyncLoadDict(fileName, objType);
 		if (item != null)
 		{
 			item.onProcess += onProcess;
@@ -538,51 +539,66 @@ public class AssetInfo
 			return true;
 		}
 
-		return AddAsyncOperation(fileName, request, onProcess);
+
+		return AddAsyncOperation(fileName, objType, request, onProcess);
 	}
 
-	private bool AddAsyncOperation(string key, AssetBundleRequest request, Action<AssetBundleRequest> onProcess)
+	protected struct AsyncLoadKey
 	{
-		var item = AsyncOperationMgr.Instance.AddAsyncOperation(request, onProcess);
+		public string fileName;
+		public System.Type type;
+	}
+
+	private bool AddAsyncOperation(string fileName, System.Type objType, AssetBundleRequest request, Action<AssetBundleRequest> onProcess)
+	{
+		if (string.IsNullOrEmpty(fileName) || objType == null || request == null)
+			return false;
+		
+		var item = AsyncOperationMgr.Instance.AddAsyncOperation<AssetBundleRequest, AsyncLoadKey>(request, onProcess);
 		bool ret = item != null;
 		if (ret)
 		{
-			item.UserData = key;
-			AddAsyncLoadDict(key, item);
+			AddAsyncLoadDict(fileName, objType, item);
 			item.onProcess += OnAsyncLoadEvt;
 		}
 		return ret;
 	}
 
-	private void AddAsyncLoadDict(string key, AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest> req)
+	private void AddAsyncLoadDict(string fileName, System.Type objType, AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest, AsyncLoadKey> req)
 	{
-		if (req == null || string.IsNullOrEmpty(key))
+		if (req == null || string.IsNullOrEmpty(fileName) || objType == null)
 			return;
+		AsyncLoadKey key = new AsyncLoadKey();
+		key.fileName = fileName;
+		key.type = objType;
+		req.UserData = key;
 		if (m_AsyncLoadDict.ContainsKey(key))
 			m_AsyncLoadDict[key] = req;
 		else
 			m_AsyncLoadDict.Add(key, req);
 	}
 
-	private AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest> FindAsyncLoadDict(string key)
+	private AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest, AsyncLoadKey> FindAsyncLoadDict(string fileName, System.Type objType)
 	{
-		if (string.IsNullOrEmpty(key))
+		if (string.IsNullOrEmpty(fileName) || objType == null)
 			return null;
-		AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest> ret;
+		AsyncLoadKey key = new AsyncLoadKey();
+		key.fileName = fileName;
+		key.type = objType;
+		AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest, AsyncLoadKey> ret;
 		if (!m_AsyncLoadDict.TryGetValue(key, out ret))
 			return null;
 		return ret;
 	}
 
-	private void RemoveAsyncLoadDict(AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest> item)
+	private void RemoveAsyncLoadDict(AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest, AsyncLoadKey> item)
 	{
 		if (item == null)
 			return;
-		string key = item.UserData as string;
-		if (string.IsNullOrEmpty(key))
+		if (string.IsNullOrEmpty(item.UserData.fileName))
 			return;
-		if (m_AsyncLoadDict.ContainsKey(key))
-			m_AsyncLoadDict.Remove(key);
+		if (m_AsyncLoadDict.ContainsKey(item.UserData))
+			m_AsyncLoadDict.Remove(item.UserData);
 	}
 
 	private void OnAsyncLoadEvt(AssetBundleRequest req)
@@ -592,7 +608,7 @@ public class AssetInfo
 		if (!req.isDone)
 			return;
 		
-		var item = AsyncOperationMgr.Instance.FindItem(req);
+		var item = AsyncOperationMgr.Instance.FindItem<AssetBundleRequest, AsyncLoadKey>(req);
 		if (item == null)
 			return;
 		RemoveAsyncLoadDict(item);
@@ -609,8 +625,8 @@ public class AssetInfo
 		if (!ContainFileNameHash (fileName))
 			return false;
 
-		// 目的：減少I/O操作
-		var req = FindAsyncLoadDict(fileName);
+		// 目的：減少I/O操作(Unity 同時讀取統一個東西，會產生多份Request)
+		var req = FindAsyncLoadDict(fileName, objType);
 		if (req != null)
 		{
 			req.onProcess += onProcess;
@@ -634,7 +650,7 @@ public class AssetInfo
 			return true;
 		}
 
-		return AddAsyncOperation(fileName, request, onProcess);
+		return AddAsyncOperation(fileName, objType, request, onProcess);
 	}
 
 	/*
@@ -873,7 +889,7 @@ public class AssetInfo
 	//private HashSet<int> mChildFileNameHashs = null;
 	private HashSet<string> mChildFileNameHashs = null;
 	// 異步加載保存池(減少IO操作)
-	private Dictionary<string, AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest>> m_AsyncLoadDict = new Dictionary<string, AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest>>();
+	private Dictionary<AsyncLoadKey, AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest, AsyncLoadKey>> m_AsyncLoadDict = new Dictionary<AsyncLoadKey, AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest, AsyncLoadKey>>();
 	private Dictionary<string, UnityEngine.Object> m_OrgResMap = new Dictionary<string, UnityEngine.Object>();
 	// 依赖的AssetBundle文件名（包含路径）
 	private List<DependFileInfo> mDependFileNames = null;
