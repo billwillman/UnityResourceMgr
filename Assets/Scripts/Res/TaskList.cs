@@ -504,10 +504,12 @@ public class TaskList
 			return;
 		int hashCode = task.GetHashCode();
 		if (!mTaskIDs.Contains(hashCode))
+		{
 			mTaskIDs.Add(hashCode);
-		mTaskList.AddLast (task);
-		if (isOwner)
-			task._Owner = this;
+			mTaskList.AddLast (task);
+			if (isOwner)
+				task._Owner = this;
+		}
 	}
 
 	// 保证不要加重复的
@@ -517,10 +519,12 @@ public class TaskList
 			return;
 		int hashCode = node.Value.GetHashCode();
 		if (!mTaskIDs.Contains(hashCode))
+		{
 			mTaskIDs.Add(hashCode);
-		mTaskList.AddLast (node);
-		if (isOwner)
-			node.Value._Owner = this;
+			mTaskList.AddLast (node);
+			if (isOwner)
+				node.Value._Owner = this;
+		}
 	}
 
 	public void Process()
