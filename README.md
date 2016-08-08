@@ -10,11 +10,12 @@
    AssetCacheManager.Instance.ClearUnUsed();
    ResourceMgr.Instance.UnloadUnUsed();
 
-压缩AB, LZ4 AB，非压缩AB，Resources读取都支持。但同步函数只支持Resources和非压缩AB, LZ4。异步加载均全支持。
-如果要使用非LZ4的压缩AB请使用异步函数。外部使用接口，并不用关心具体文件是在Resources里还是在StreamAssets还是在下载目录，
-均使用一种方式读取（只有选择同步和非同步的区别）。
+压缩AB, LZ4 AB，非压缩AB，Resources读取都支持。5.3版本支持同步和异步读取所有类型的AB。5.3之前版本，同步函数只支持Resources和非压缩AB, LZ4（5.x才有），异步加载均全支持。
+外部使用接口，并不用关心具体文件是在Resources里还是在StreamAssets还是在下载目录，均使用一种方式读取（只有选择同步和非同步的区别）。
 
---》》重大更新：已经支持LZ4了。另：已经支持同步和异步读取Sprite[]。异步读取LZO压缩，采用5.3版本的LoadFromAsync读取AB。
+--》》重大更新：
+   1.已经支持LZ4了。另：已经支持同步和异步读取Sprite[]。异步读取LZO压缩，采用5.3版本的LoadFromAsync读取AB。
+   2.LZMA的读取，在5.3版本采用LoadFromFile和LoadFromFileAsync,在5.3之前版本使用WWW读取（所以5.3可以支持同步和异步，而5.3之前只支持异步）
 
 具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
 
