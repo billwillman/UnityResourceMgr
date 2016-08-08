@@ -407,7 +407,11 @@ public class AssetInfo
 			if (mBundle == null)
 				return false;
 		} else 
-		if (mCompressType == AssetCompressType.astUnityLzo) {
+		if (mCompressType == AssetCompressType.astUnityLzo
+#if UNITY_5_3
+			|| mCompressType == AssetCompressType.astUnityZip
+#endif
+			) {
 			// Lz4 new compressType
 			ClearTaskData();
 #if UNITY_5_3
@@ -944,21 +948,11 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return false;
 		int addCount = 0;
-		if (asset.CompressType == AssetCompressType.astUnityZip)
-		{
-			return LoadWWWAsseetInfo(asset, null, ref addCount, 
-			                  delegate (bool isOk) {
-								if (isOk)
-								{
-									AddOrUpdateAssetCache (asset);
-									if (onEnd != null)
-										onEnd();
-								}
-							 }
-			);
-		} else
 #if UNITY_5_3
-		if (asset.CompressType == AssetCompressType.astUnityLzo || asset.CompressType == AssetCompressType.astNone)
+		if (asset.CompressType == AssetCompressType.astUnityLzo || 
+			asset.CompressType == AssetCompressType.astUnityZip || 
+			asset.CompressType == AssetCompressType.astNone
+		   )
 		{
 				return LoadAsyncAssetInfo(asset, null, ref addCount,
 					delegate (bool isOk) {
@@ -972,6 +966,19 @@ public class AssetLoader: IResourceLoader
 				);
 		} else
 #endif
+		if (asset.CompressType == AssetCompressType.astUnityZip)
+		{
+			return LoadWWWAsseetInfo(asset, null, ref addCount, 
+			                  delegate (bool isOk) {
+								if (isOk)
+								{
+									AddOrUpdateAssetCache (asset);
+									if (onEnd != null)
+										onEnd();
+								}
+							 }
+			);
+		} else
 		{
 			if (!LoadAssetInfo (asset, ref addCount))
 				return false;
@@ -1027,6 +1034,24 @@ public class AssetLoader: IResourceLoader
 
 		int addCount = 0;
 		//bool isNew = asset.IsNew();
+#if UNITY_5_3
+		if (asset.CompressType == AssetCompressType.astUnityLzo || 
+			asset.CompressType == AssetCompressType.astUnityZip ||
+			asset.CompressType == AssetCompressType.astNone
+		   ) {
+			return LoadAsyncAssetInfo(asset, null, ref addCount,
+				delegate(bool isOk) {
+					if (isOk) {
+						DoPreloadAllType(asset, type);
+					}
+
+					if (onEnd != null)
+						onEnd();
+				}
+			);
+		}
+		else
+#endif
 		if (asset.CompressType == AssetCompressType.astUnityZip)
 		{
 			return LoadWWWAsseetInfo(asset, null, ref addCount, 
@@ -1041,22 +1066,6 @@ public class AssetLoader: IResourceLoader
 			}
 			);
 		} else
-#if UNITY_5_3
-		if (asset.CompressType == AssetCompressType.astUnityLzo || asset.CompressType == AssetCompressType.astNone)
-		{
-				return LoadAsyncAssetInfo(asset, null, ref addCount,
-					delegate (bool isOk){
-						if (isOk)
-						{
-							DoPreloadAllType(asset, type);
-						}
-
-						if (onEnd != null)
-							onEnd();
-					}
-				);
-		} else
-#endif
 		{
 
 			if (!LoadAssetInfo (asset, ref addCount))
@@ -1315,6 +1324,20 @@ public class AssetLoader: IResourceLoader
 
 		int addCount = 0;
 	//	bool isNew = asset.IsNew();
+#if UNITY_5_3
+		if (asset.CompressType == AssetCompressType.astUnityLzo || 
+			asset.CompressType == AssetCompressType.astUnityZip ||
+			asset.CompressType == AssetCompressType.astNone
+			) {
+			return LoadAsyncAssetInfo(asset, null, ref addCount,
+				delegate(bool isOk) {
+					if (isOk) {
+						DoLoadObjectAsync<T>(asset, fileName, cacheType, onProcess);
+					}
+				});
+		}
+		else
+#endif
 		if (asset.CompressType == AssetCompressType.astUnityZip)
 		{
 			return LoadWWWAsseetInfo(asset, null, ref addCount,
@@ -1325,18 +1348,6 @@ public class AssetLoader: IResourceLoader
 				}
 			                 });
 		} else
-#if UNITY_5_3
-		if (asset.CompressType == AssetCompressType.astUnityLzo || asset.CompressType == AssetCompressType.astNone)
-		{
-				return LoadAsyncAssetInfo(asset, null, ref addCount,
-					delegate (bool isOk){
-						if (isOk)
-						{
-							DoLoadObjectAsync<T>(asset, fileName, cacheType, onProcess);
-						}
-					});
-		} else
-#endif
 		{
 			if (!LoadAssetInfo (asset, ref addCount))
 				return false;
