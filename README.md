@@ -15,6 +15,7 @@
 
 --》》重大更新：
    1.已经支持LZ4了。另：已经支持同步和异步读取Sprite[]。异步读取LZO压缩，采用5.3版本的LoadFromAsync读取AB。
+   
    2.LZMA的读取，在5.3版本采用LoadFromFile和LoadFromFileAsync,在5.3之前版本使用WWW读取（所以5.3可以支持同步和异步，而5.3之前只支持异步）
 
 具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
