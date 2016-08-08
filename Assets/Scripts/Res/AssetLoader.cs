@@ -154,7 +154,7 @@ public class AssetInfo
 		}
 	}
 
-	#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 	internal BundleCreateAsyncTask AsyncTask
 	{
 		get
@@ -162,12 +162,12 @@ public class AssetInfo
 			return m_AsyncTask;
 		}
 	}
-	#endif
+#endif
 	
 	private WWWFileLoadTask m_WWWTask = null;
-	#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 	private BundleCreateAsyncTask m_AsyncTask = null;
-	#endif
+#endif
 	private TaskList m_TaskList = null;
 	private Timer m_Timer = null;
 	private Action<bool> m_EndEvt = null;
@@ -187,13 +187,13 @@ public class AssetInfo
 			m_WWWTask = null;
 		}
 
-		#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 		if (m_AsyncTask != null)
 		{
 			m_AsyncTask.Release();
 			m_AsyncTask = null;
 		}
-		#endif
+#endif
 
 		if (m_TaskList != null)
 		{
@@ -248,7 +248,7 @@ public class AssetInfo
 		return m_TaskList;
 	}
 
-	#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 	private static void OnLocalAsyncResult(ITask task)
 	{
 		BundleCreateAsyncTask asycTask = task as BundleCreateAsyncTask;
@@ -264,7 +264,7 @@ public class AssetInfo
 
 		info.IsUsing = false;
 	}
-	#endif
+#endif
 
 	private static void OnLocalWWWResult(ITask task)
 	{
@@ -296,7 +296,7 @@ public class AssetInfo
 		}
 	}
 
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 
 	// 5.3新的异步加载方法
 	public bool LoadAsync(TaskList taskList)
@@ -399,7 +399,7 @@ public class AssetInfo
 	//	mIsLoading = false;
 		if (mCompressType == AssetCompressType.astNone) {
 			ClearTaskData();
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 			mBundle = AssetBundle.LoadFromFile (mFileName);
 #else
 			mBundle = AssetBundle.CreateFromFile(mFileName);
@@ -408,13 +408,13 @@ public class AssetInfo
 				return false;
 		} else 
 		if (mCompressType == AssetCompressType.astUnityLzo
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 			|| mCompressType == AssetCompressType.astUnityZip
 #endif
 			) {
 			// Lz4 new compressType
 			ClearTaskData();
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 			mBundle = AssetBundle.LoadFromFile(mFileName);
 #else
 			mBundle = AssetBundle.CreateFromFile(mFileName);
@@ -948,7 +948,7 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return false;
 		int addCount = 0;
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 		if (asset.CompressType == AssetCompressType.astUnityLzo || 
 			asset.CompressType == AssetCompressType.astUnityZip || 
 			asset.CompressType == AssetCompressType.astNone
@@ -1034,7 +1034,7 @@ public class AssetLoader: IResourceLoader
 
 		int addCount = 0;
 		//bool isNew = asset.IsNew();
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 		if (asset.CompressType == AssetCompressType.astUnityLzo || 
 			asset.CompressType == AssetCompressType.astUnityZip ||
 			asset.CompressType == AssetCompressType.astNone
@@ -1323,8 +1323,8 @@ public class AssetLoader: IResourceLoader
 			return false;
 
 		int addCount = 0;
-	//	bool isNew = asset.IsNew();
-#if UNITY_5_3
+		//	bool isNew = asset.IsNew();
+#if UNITY_5_3 || UNITY_5_4
 		if (asset.CompressType == AssetCompressType.astUnityLzo || 
 			asset.CompressType == AssetCompressType.astUnityZip ||
 			asset.CompressType == AssetCompressType.astNone
@@ -1518,7 +1518,7 @@ public class AssetLoader: IResourceLoader
 	}
 #endif	
 
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 
 	internal bool LoadAsyncAssetInfo(AssetInfo asset, TaskList taskList, ref int addCount, Action<bool> onEnd = null)
 	{

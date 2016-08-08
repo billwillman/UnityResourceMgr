@@ -1307,7 +1307,7 @@ class AssetBundleMgr
 											BuildAssetBundleOptions.ForceRebuildAssetBundle; // 永远重新打包
 		if (compressType == 0)
 			buildOpts |= BuildAssetBundleOptions.UncompressedAssetBundle;
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 		else if (compressType == 2)
 			buildOpts |= BuildAssetBundleOptions.ChunkBasedCompression;
 #endif
@@ -2801,7 +2801,7 @@ public static class AssetBundleBuild
 		BuildPlatform (eBuildPlatform.eBuildIOS, 1, true);
 	}
 
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 
 	[MenuItem("Assets/平台打包/-----------")]
 	static public void OnBuildPlatformNone1() {
@@ -2958,13 +2958,13 @@ public static class AssetBundleBuild
 		Cmd_Build(0, true, eBuildPlatform.eBuildWindow, true);
 	}
 
-	#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 	[MenuItem("Assets/发布/Win32_Debug(Lz4)")]
 	static public void Cmd_BuidWin32_Debug_Lz4()
 	{
 		Cmd_Build(2, true, eBuildPlatform.eBuildWindow, true);
 	}
-	#endif
+#endif
 
     [MenuItem("Assets/发布/Win32(压缩)")]
     static public void Cmd_BuildWin32_Compress()
@@ -2972,7 +2972,7 @@ public static class AssetBundleBuild
         Cmd_Build(1, true, eBuildPlatform.eBuildWindow);
     }
 
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 	[MenuItem("Assets/发布/Win32(Lz4)")]
 	static public void Cmd_BuildWin32_Lz4() {
 		Cmd_Build(2, true, eBuildPlatform.eBuildWindow);
@@ -3087,7 +3087,7 @@ public static class AssetBundleBuild
         Cmd_Build(1, true, eBuildPlatform.eBuildAndroid);
     }
 
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 	[MenuItem("Assets/发布/APK_整包(Lz4)")]
 	static public void Cmd_BuildAPK_Lz4() {
 		Cmd_Build(2, true, eBuildPlatform.eBuildAndroid);

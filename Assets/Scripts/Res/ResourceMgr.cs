@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 using UnityEngine.SceneManagement;
 #endif
 
@@ -42,17 +42,17 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		}
 
 		if (isAdd)
-			#if UNITY_5_3
+#if UNITY_5_3 ||UNITY_5_4
 			SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
-			#else
+#else
 			Application.LoadLevelAdditive (sceneName);
-			#endif
+#endif
 		else
-			#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 			SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
-			#else
+#else
 			Application.LoadLevel (sceneName);
-			#endif
+#endif
 		
 		return true;
 	}
@@ -61,17 +61,17 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	{
 		AsyncOperation opt;
 		if (isAdd) {
-			#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 			opt = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
-			#else
+#else
 			opt = Application.LoadLevelAdditiveAsync (sceneName);
-			#endif
+#endif
 		} else {
-			#if UNITY_5_3
+#if UNITY_5_3 || UNITY_5_4
 			opt = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
-			#else
+#else
 			opt = Application.LoadLevelAsync(sceneName);
-			#endif
+#endif
 		}
 
 		if (opt == null)
@@ -134,8 +134,11 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		loader.OnSceneClose (realSceneName);*/
 		if (!mAssetLoader.OnSceneClose (sceneName))
 			mResLoader.OnSceneClose (sceneName);
-#if UNITY_5_2 || UNITY_5_3
+
+#if UNITY_5_2
 		Application.UnloadLevel(sceneName);
+#elif UNITY_5_3 || UNITY_5_4
+		SceneManager.UnloadScene(sceneName);
 #endif
 		// 清除
 		AssetCacheManager.Instance.ClearUnUsed ();
