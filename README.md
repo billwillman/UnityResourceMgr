@@ -14,6 +14,7 @@
 外部使用接口，并不用关心具体文件是在Resources里还是在StreamAssets还是在下载目录，均使用一种方式读取（只有选择同步和非同步的区别）。
 
 --》》重大更新：
+   
    1.已经支持LZ4了。另：已经支持同步和异步读取Sprite[]。异步读取LZO压缩，采用5.3版本的LoadFromAsync读取AB。
    
    2.LZMA的读取，在5.3版本采用LoadFromFile和LoadFromFileAsync,在5.3之前版本使用WWW读取（所以5.3可以支持同步和异步，而5.3之前只支持异步）
