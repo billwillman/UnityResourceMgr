@@ -780,7 +780,7 @@ public class AssetInfo
 
 	public void UnUsed()
 	{
-		if (IsVaild() && !IsUsing) {
+		if (IsVaild() /*&& !IsUsing*/) {
 
 			m_OrgResMap.Clear();
 			m_AsyncLoadDict.Clear();
@@ -1980,6 +1980,26 @@ public class AssetLoader: IResourceLoader
 			mLoaderTimer = TimerMgr.Instance.CreateTimer(false, 0, false);
 			mLoaderTimer.AddListener(OnLoaderTimer);
 		}*/
+	}
+
+	// 资源更新清理
+	public void AutoUpdateClear()
+	{
+		mConfigLoaderEvent = null;
+
+		if (mLoaderTimer != null)
+		{
+			mLoaderTimer.Dispose();
+			mLoaderTimer = null;
+		}
+
+		if (mXmlLoaderTask != null)
+		{
+			mXmlLoaderTask.Release();
+			mXmlLoaderTask = null;
+		}
+
+		mAssetFileNameMap.Clear();
 	}
 
 	private void LoadXml(byte[] bytes)

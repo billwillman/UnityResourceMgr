@@ -25,6 +25,12 @@ public abstract class AssetCache
 		OnUnLoad ();
 	}
 
+	public void UnUsed()
+	{
+		RemoveAllObj();
+		OnUnUsed();
+	}
+
 	public int RefCount
 	{
 		get {
@@ -642,6 +648,33 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		if (cache == null)
 			return;
 		mTempAssetList.AddLast(cache);
+	}
+
+	// 资源更新清理
+	public void AutoUpdateClear()
+	{
+		UnLoadTempAssetInfo();
+		LinkedListNode<AssetCache> first = mNotUsedCacheList.First;
+		while (first != null)
+		{
+			if (first.Value != null)
+				first.Value.UnUsed();
+			first = first.Next;
+		}
+		mNotUsedCacheList.Clear();
+
+		first = mUsedCacheList.First;
+		while (first != null)
+		{
+			if (first.Value != null)
+				first.Value.UnUsed();
+			first = first.Next;
+		}
+		mUsedCacheList.Clear();
+
+		mObjCacheMap.Clear();
+		mInstObjToObjMap.Clear();
+		mCacheSet.Clear();
 	}
 
 	private void UnLoadTempAssetInfo()

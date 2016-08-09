@@ -666,6 +666,16 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		}
 	}
 
+	// 资源更新清理
+	public void AutoUpdateClear()
+	{
+		AssetCacheManager.Instance.AutoUpdateClear();
+		AssetLoader loader = mAssetLoader as AssetLoader;
+		if (loader != null)
+			loader.AutoUpdateClear();
+		UnloadUnUsed();
+	}
+
 	/*
 	protected IResourceLoader GetLoader(ref string path)
 	{
