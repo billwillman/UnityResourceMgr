@@ -217,9 +217,7 @@ namespace AutoUpdate
 		// 开始
 		public void StartAutoUpdate(string url)
 		{
-            Release();
-            m_ChgStateList.Clear();
-            m_ErrList.Clear();
+            Clear();
             m_ResServerAddr = url;
 
 			DownProcess = 0;
