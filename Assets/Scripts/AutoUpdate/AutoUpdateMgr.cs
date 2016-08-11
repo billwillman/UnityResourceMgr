@@ -119,6 +119,7 @@ namespace AutoUpdate
         public void Clear()
         {
             m_ChgStateList.Clear();
+            m_ErrList.Clear();
             Release();
         }
 
@@ -218,6 +219,7 @@ namespace AutoUpdate
 		{
             Release();
             m_ChgStateList.Clear();
+            m_ErrList.Clear();
             m_ResServerAddr = url;
 
 			DownProcess = 0;
@@ -311,8 +313,10 @@ namespace AutoUpdate
 
 		internal void Error(AutoUpdateErrorType errType, int status)
 		{
-            if (OnError != null)
-                OnError(errType, status);
+            lock (m_Lock)
+            {
+                m_ErrList.AddLast(new KeyValuePair<AutoUpdateErrorType, int>(errType, status));
+            }
         }
 
 		public void Update()
@@ -320,6 +324,7 @@ namespace AutoUpdate
 			TasksUpdate();
 			StateUpdate();
             ChgStateUpdate();
+            ErrorUpdate();
         }
 
         void ChgStateUpdate()
@@ -337,6 +342,24 @@ namespace AutoUpdate
 
                 if (m_StateMgr.ChangeState(node.Value))
                     CallStateChanged(node.Value);
+            } while (true);
+        }
+
+        void ErrorUpdate()
+        {
+            do
+            {
+                LinkedListNode<KeyValuePair<AutoUpdateErrorType, int>> node;
+                lock (m_Lock)
+                {
+                    node = m_ErrList.First;
+                    if (node == null)
+                        break;
+                    m_ErrList.RemoveFirst();
+                }
+
+                if (OnError != null)
+                    OnError(node.Value.Key, node.Value.Value);
             } while (true);
         }
 
@@ -505,5 +528,6 @@ namespace AutoUpdate
         // 资源服务器地址 例如：http://192.168.199.147:1983
         private string m_ResServerAddr = string.Empty;
         private LinkedList<AutoUpdateState> m_ChgStateList = new LinkedList<AutoUpdateState>();
+        private LinkedList<KeyValuePair<AutoUpdateErrorType, int>> m_ErrList = new LinkedList<KeyValuePair<AutoUpdateErrorType, int>>();
 	}
 }
