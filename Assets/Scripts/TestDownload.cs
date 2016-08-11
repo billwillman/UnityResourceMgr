@@ -63,6 +63,9 @@ public class TestDownload : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        TimerMgr.Instance.ScaleTick(Time.deltaTime);
+        TimerMgr.Instance.UnScaleTick(Time.unscaledDeltaTime);
+
         AutoUpdateMgr.Instance.Update();
         float value = AutoUpdateMgr.Instance.DownProcess;
         if (m_Progress != null)
