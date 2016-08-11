@@ -34,13 +34,13 @@ namespace AutoUpdate
 	public class AutoUpdateMgr: Singleton<AutoUpdateMgr>
 	{
 		// 是否需要更新Version.txt
-		public bool IsVersionTxtNoUpdate()
+		internal bool IsVersionTxtNoUpdate()
 		{
 			int ret = string.Compare(LocalResVersion, CurrServeResrVersion, StringComparison.CurrentCultureIgnoreCase);
 			return ret >= 0;
 		}
 
-		public bool IsVersionNoUpdate()
+        internal bool IsVersionNoUpdate()
 		{
 			return IsVersionTxtNoUpdate() &&
 				   string.Compare(LocalFileListContentMd5, ServerFileListContentMd5,  StringComparison.CurrentCultureIgnoreCase) == 0;
@@ -59,7 +59,7 @@ namespace AutoUpdate
 			RegisterStates();
 		}
 
-		public string WritePath
+        internal string WritePath
 		{
 			get
 			{
