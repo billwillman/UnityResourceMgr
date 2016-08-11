@@ -110,11 +110,17 @@ namespace AutoUpdate
 			}
 		}
 
-		public void Release()
-		{
-			HttpRelease();
+		internal void Release()
+        {
+            HttpRelease();
 			TasksRelease();
-		}
+        }
+
+        public void Clear()
+        {
+            m_ChgStateList.Clear();
+            Release();
+        }
 
         public Action<AutoUpdateState> OnStateChanged
         {
@@ -122,18 +128,17 @@ namespace AutoUpdate
             set;
         }
 
-		internal void ChangeState(AutoUpdateState state)
-		{
-			Release();
-			lock(m_Lock)
-			{
-                if (m_StateMgr.ChangeState(state))
-                {
-                    if (OnStateChanged != null)
-                        OnStateChanged(state);
-                }
-			}
-		}
+        private void CallStateChanged(AutoUpdateState state)
+        {
+             if (OnStateChanged != null)
+                OnStateChanged(state);
+        }
+
+        public void ChangeState(AutoUpdateState state)
+        {
+            Release();
+            AddChgState(state);
+        }
 
 		internal void ServerFileListToClientFileList()
 		{
@@ -200,29 +205,33 @@ namespace AutoUpdate
 				File.Delete(updateFileName);
 		}
 
+        private void AddChgState(AutoUpdateState state)
+        {
+            lock (m_Lock)
+            {
+                m_ChgStateList.AddLast(state);
+            }
+        }
+
 		// 开始
 		public void StartAutoUpdate(string url)
 		{
             Release();
+            m_ChgStateList.Clear();
             m_ResServerAddr = url;
 
 			DownProcess = 0;
-			lock(m_Lock)
-			{
-				m_StateMgr.ChangeState(AutoUpdateState.auPrepare);
-			}
-		}
 
-		public void EndAutoUpdate()
+            AddChgState(AutoUpdateState.auPrepare);
+        }
+
+		internal void EndAutoUpdate()
 		{
 			Release();
-			lock(m_Lock)
-			{
-				m_StateMgr.ChangeState(AutoUpdateState.auEnd);
-			}
+            AddChgState(AutoUpdateState.auEnd);
 		}
 
-		public HttpClient CreateHttpTxt(string url, Action<HttpClientResponse, long> OnReadEvt, 
+		internal HttpClient CreateHttpTxt(string url, Action<HttpClientResponse, long> OnReadEvt, 
 		                                Action<HttpClientResponse, int> OnErrorEvt)
 		{
 			HttpRelease();
@@ -233,7 +242,7 @@ namespace AutoUpdate
 			return m_HttpClient;
 		}
 
-		public HttpClient CreateHttpFile(string url, long process, Action<HttpClientResponse, long> OnReadEvt,
+		internal HttpClient CreateHttpFile(string url, long process, Action<HttpClientResponse, long> OnReadEvt,
 		                                 Action<HttpClientResponse, int> OnErrorEvt)
 		{
 			if (string.IsNullOrEmpty(m_WritePath))
@@ -251,7 +260,7 @@ namespace AutoUpdate
 			return m_HttpClient;
 		}
 
-		public WWWFileLoadTask CreateWWWStreamAssets(string fileName, bool usePlatform)
+		internal WWWFileLoadTask CreateWWWStreamAssets(string fileName, bool usePlatform)
 		{
 			WWWFileLoadTask ret = WWWFileLoadTask.LoadFileAtStreamingAssetsPath(fileName, usePlatform);
 			lock(m_Lock)
@@ -310,7 +319,26 @@ namespace AutoUpdate
 		{
 			TasksUpdate();
 			StateUpdate();
-		}
+            ChgStateUpdate();
+        }
+
+        void ChgStateUpdate()
+        {
+            do
+            {
+                LinkedListNode<AutoUpdateState> node;
+                lock (m_Lock)
+                {
+                    node = m_ChgStateList.First;
+                    if (node == null)
+                        break;
+                    m_ChgStateList.RemoveFirst();
+                }
+
+                if (m_StateMgr.ChangeState(node.Value))
+                    CallStateChanged(node.Value);
+            } while (true);
+        }
 
 		void TasksUpdate()
 		{
@@ -323,12 +351,9 @@ namespace AutoUpdate
 
 		void StateUpdate()
 		{
-			lock(m_Lock)
-			{
-				if (m_StateMgr != null)
-					m_StateMgr.Process(this);
-			}
-		}
+            if (m_StateMgr != null)
+                m_StateMgr.Process(this);
+        }
 
         /*
 		public Action<int, long, bool> OnDownloadFileEvt
@@ -479,5 +504,6 @@ namespace AutoUpdate
 		private object m_Lock = new object();
         // 资源服务器地址 例如：http://192.168.199.147:1983
         private string m_ResServerAddr = string.Empty;
+        private LinkedList<AutoUpdateState> m_ChgStateList = new LinkedList<AutoUpdateState>();
 	}
 }

@@ -15,6 +15,12 @@ public class TestDownload : MonoBehaviour {
         }
 
         AutoUpdateMgr.Instance.OnStateChanged = StateChanged;
+        AutoUpdateMgr.Instance.OnError = OnAutoUpdateError;
+    }
+
+    void OnAutoUpdateError(AutoUpdateErrorType errType, int code)
+    {
+        Debug.LogFormat("OnUpdateError: errType {0:D} code {0:D}", (int)errType, code);
     }
 
     void OnBtnDownClick()
@@ -27,16 +33,32 @@ public class TestDownload : MonoBehaviour {
         if (state == AutoUpdateState.auEnd)
         {
             // 進入遊戲
+            Debug.Log("Enter Game!!!");
         } else if (state == AutoUpdateState.auFinished)
         {
             // 下載完成
+            Debug.Log("Res Update Finished!!!");
+            ResourceMgr.Instance.AutoUpdateClear();
+            ResourceMgr.Instance.LoadConfigs(OnResLoad);
+        }
+    }
+
+    void OnResLoad(bool isFinished)
+    {
+        if (isFinished)
+        {
+            AssetLoader loader = ResourceMgr.Instance.AssetLoader as AssetLoader;
+            if (loader != null)
+            {
+                
+            }
         }
     }
 
 	// Use this for initialization
 	void Start () {
         InitUI();
-       
+        ResourceMgr.Instance.LoadConfigs(OnResLoad);
     }
 	
 	// Update is called once per frame
