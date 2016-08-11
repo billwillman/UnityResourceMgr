@@ -116,12 +116,22 @@ namespace AutoUpdate
 			TasksRelease();
 		}
 
+        public Action<AutoUpdateState> OnStateChanged
+        {
+            get;
+            set;
+        }
+
 		internal void ChangeState(AutoUpdateState state)
 		{
 			Release();
 			lock(m_Lock)
 			{
-				m_StateMgr.ChangeState(state);
+                if (m_StateMgr.ChangeState(state))
+                {
+                    if (OnStateChanged != null)
+                        OnStateChanged(state);
+                }
 			}
 		}
 
@@ -191,8 +201,11 @@ namespace AutoUpdate
 		}
 
 		// 开始
-		public void StartAutoUpdate()
+		public void StartAutoUpdate(string url)
 		{
+            Release();
+            m_ResServerAddr = url;
+
 			DownProcess = 0;
 			lock(m_Lock)
 			{
@@ -252,8 +265,9 @@ namespace AutoUpdate
 		{
 			get
 			{
-				return "http://192.168.199.147:1983";
-			}
+                return m_ResServerAddr;
+
+            }
 		}
 
 		internal string CurrServeResrVersion
@@ -280,8 +294,17 @@ namespace AutoUpdate
 			set;
 		}
 
+        public Action<AutoUpdateErrorType, int> OnError
+        {
+            get;
+            set;
+        }
+
 		internal void Error(AutoUpdateErrorType errType, int status)
-		{}
+		{
+            if (OnError != null)
+                OnError(errType, status);
+        }
 
 		public void Update()
 		{
@@ -307,11 +330,12 @@ namespace AutoUpdate
 			}
 		}
 
+        /*
 		public Action<int, long, bool> OnDownloadFileEvt
 		{
 			get;
 			set;
-		}
+		}*/
 
 		public float DownProcess
 		{
@@ -335,11 +359,12 @@ namespace AutoUpdate
 			}
 		}
 
+        /*
 		internal void CallDownloadFileEvt(int idx, long readBytes, bool isDone)
 		{
 			if (OnDownloadFileEvt != null)
 				OnDownloadFileEvt(idx, readBytes, isDone);
-		}
+		}*/
 
 		private bool GetResVer(string content, out string ver, out string fileListMd5)
 		{
@@ -452,5 +477,7 @@ namespace AutoUpdate
 		private AutoUpdateCfgFile m_UpdateFile = null;
 		private float m_DownProcess = 0;
 		private object m_Lock = new object();
+        // 资源服务器地址 例如：http://192.168.199.147:1983
+        private string m_ResServerAddr = string.Empty;
 	}
 }
