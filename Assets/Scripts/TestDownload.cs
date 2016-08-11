@@ -30,6 +30,8 @@ public class TestDownload : MonoBehaviour {
 
     void StateChanged(AutoUpdateState state)
     {
+        Debug.LogFormat("AutoUpdate ChangeState: {0:D}", (int)state);
+
         if (state == AutoUpdateState.auEnd)
         {
             // 進入遊戲
