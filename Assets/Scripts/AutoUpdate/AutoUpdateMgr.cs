@@ -118,8 +118,7 @@ namespace AutoUpdate
 
         public void Clear()
         {
-            m_ChgStateList.Clear();
-            m_ErrList.Clear();
+            m_StateMsgList.Clear();
             Release();
         }
 
@@ -208,9 +207,22 @@ namespace AutoUpdate
 
         private void AddChgState(AutoUpdateState state)
         {
+            AutoUpdateMsgNode node = AutoUpdateMsgNode.Create();
+            node.autoUpdateState = (int)state;
             lock (m_Lock)
             {
-                m_ChgStateList.AddLast(state);
+                m_StateMsgList.AddLast(node);
+            }
+        }
+
+        private void AddErrMsg(AutoUpdateErrorType errType, int errStatus)
+        {
+            AutoUpdateMsgNode node = AutoUpdateMsgNode.Create();
+            node.errType = (int)errType;
+            node.errStatus = errStatus;
+            lock (m_Lock)
+            {
+                m_StateMsgList.AddLast(node);
             }
         }
 
@@ -311,53 +323,41 @@ namespace AutoUpdate
 
 		internal void Error(AutoUpdateErrorType errType, int status)
 		{
-            lock (m_Lock)
-            {
-                m_ErrList.AddLast(new KeyValuePair<AutoUpdateErrorType, int>(errType, status));
-            }
+            AddErrMsg(errType, status);
         }
 
 		public void Update()
 		{
 			TasksUpdate();
 			StateUpdate();
-            ChgStateUpdate();
-            ErrorUpdate();
+            StateMsgUpdate();
         }
 
-        void ChgStateUpdate()
+        void StateMsgUpdate()
         {
             do
             {
-                LinkedListNode<AutoUpdateState> node;
+                LinkedListNode<AutoUpdateMsgNode> node;
                 lock (m_Lock)
                 {
-                    node = m_ChgStateList.First;
+                    node = m_StateMsgList.First;
                     if (node == null)
                         break;
-                    m_ChgStateList.RemoveFirst();
+                    m_StateMsgList.RemoveFirst();
                 }
 
-                if (m_StateMgr.ChangeState(node.Value))
-                    CallStateChanged(node.Value);
-            } while (true);
-        }
-
-        void ErrorUpdate()
-        {
-            do
-            {
-                LinkedListNode<KeyValuePair<AutoUpdateErrorType, int>> node;
-                lock (m_Lock)
+                if (node.Value.autoUpdateState >= 0)
                 {
-                    node = m_ErrList.First;
-                    if (node == null)
-                        break;
-                    m_ErrList.RemoveFirst();
+                    AutoUpdateState state = (AutoUpdateState)node.Value.autoUpdateState;
+                    if (m_StateMgr.ChangeState(state))
+                        CallStateChanged(state);
                 }
-
-                if (OnError != null)
-                    OnError(node.Value.Key, node.Value.Value);
+                else if (node.Value.errType >= 0)
+                {
+                    AutoUpdateErrorType errType = (AutoUpdateErrorType)node.Value.errType; 
+                    if (OnError != null)
+                        OnError(errType, node.Value.errStatus);
+                }
             } while (true);
         }
 
@@ -510,6 +510,22 @@ namespace AutoUpdate
 			}
 		}
 
+        private struct AutoUpdateMsgNode
+        {
+            public static AutoUpdateMsgNode Create()
+            {
+                AutoUpdateMsgNode ret = new AutoUpdateMsgNode();
+                ret.autoUpdateState = -1;
+                ret.errType = -1;
+                ret.errStatus = 0;
+                return ret;
+            }
+
+            public int autoUpdateState;
+            public int errType;
+            public int errStatus;
+        }
+
 		internal static readonly string _cVersionTxt = "version.txt";
 		internal static readonly string _cFileListTxt = "fileList.txt";
 		internal static readonly string _cUpdateTxt = "update.txt";
@@ -525,7 +541,6 @@ namespace AutoUpdate
 		private object m_Lock = new object();
         // 资源服务器地址 例如：http://192.168.199.147:1983
         private string m_ResServerAddr = string.Empty;
-        private LinkedList<AutoUpdateState> m_ChgStateList = new LinkedList<AutoUpdateState>();
-        private LinkedList<KeyValuePair<AutoUpdateErrorType, int>> m_ErrList = new LinkedList<KeyValuePair<AutoUpdateErrorType, int>>();
+        private LinkedList<AutoUpdateMsgNode> m_StateMsgList = new LinkedList<AutoUpdateMsgNode>();
 	}
 }
