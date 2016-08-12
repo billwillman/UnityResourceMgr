@@ -227,15 +227,23 @@ namespace AutoUpdate
         }
 
 		// 开始
-		public void StartAutoUpdate(string url)
+		public void StartAutoUpdate(string url, float connectTimeOut = 5.0f)
 		{
             Clear();
             m_ResServerAddr = url;
 
 			DownProcess = 0;
+			m_HttpConnectTimeOut = connectTimeOut;
 
             AddChgState(AutoUpdateState.auPrepare);
         }
+
+		public float HttpConnectTimeOut
+		{
+			get {
+				return m_HttpConnectTimeOut;
+			}
+		}
 
 		internal void EndAutoUpdate()
 		{
@@ -250,7 +258,7 @@ namespace AutoUpdate
 			HttpClientStrResponse response = new HttpClientStrResponse();
 			response.OnReadEvt = OnReadEvt;
 			response.OnErrorEvt = OnErrorEvt;
-			m_HttpClient = new HttpClient(url, response, 5.0f);
+			m_HttpClient = new HttpClient(url, response, m_HttpConnectTimeOut);
 			return m_HttpClient;
 		}
 
@@ -267,7 +275,7 @@ namespace AutoUpdate
 			response.OnErrorEvt = OnErrorEvt;
 			lock(m_Lock)
 			{
-				m_HttpClient = new HttpClient(url, response, process, 5.0f);
+				m_HttpClient = new HttpClient(url, response, process, m_HttpConnectTimeOut);
 			}
 			return m_HttpClient;
 		}
@@ -542,5 +550,6 @@ namespace AutoUpdate
         // 资源服务器地址 例如：http://192.168.199.147:1983
         private string m_ResServerAddr = string.Empty;
         private LinkedList<AutoUpdateMsgNode> m_StateMsgList = new LinkedList<AutoUpdateMsgNode>();
+		private float m_HttpConnectTimeOut = 5.0f;
 	}
 }
