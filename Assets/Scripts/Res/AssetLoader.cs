@@ -2069,7 +2069,11 @@ public class AssetLoader: IResourceLoader
 			}
 
 			bool isUseCreateFromFile = compressType == AssetCompressType.astNone ||
-										compressType == AssetCompressType.astUnityLzo;
+										compressType == AssetCompressType.astUnityLzo
+#if UNITY_5_3 || UNITY_5_4
+                                        || compressType == AssetCompressType.astUnityZip
+#endif
+                                        ;
 			string assetBundleFileName = GetCheckFileName(localFileName, false, isUseCreateFromFile);
 
 			AssetInfo asset;

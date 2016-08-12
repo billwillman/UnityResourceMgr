@@ -96,7 +96,8 @@ public class Timer : DisposeObject
 			return false;
 		for (int i = 0; i < evts.Length; ++i)
 		{
-			if (evt == evts[i])
+			Timer.OnTimerEvent curEvt = evts [i] as Timer.OnTimerEvent;
+			if (evt == curEvt)
 				return true;
 		}
 
