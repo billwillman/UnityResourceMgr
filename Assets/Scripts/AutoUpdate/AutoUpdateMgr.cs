@@ -227,14 +227,14 @@ namespace AutoUpdate
         }
 
 		// 开始
-		public void StartAutoUpdate(string url, float connectTimeOut = 5.0f, int httpBufSize = 1024 * 64)
+		public void StartAutoUpdate(string url, float connectTimeOut = 5.0f, int httpFileBufSize = 1024 * 64)
 		{
             Clear();
             m_ResServerAddr = url;
 
 			DownProcess = 0;
 			m_HttpConnectTimeOut = connectTimeOut;
-			m_HttpBufSize = httpBufSize;
+			m_HttpFileBufSize = httpFileBufSize;
 
             AddChgState(AutoUpdateState.auPrepare);
         }
@@ -246,11 +246,11 @@ namespace AutoUpdate
 			}
 		}
 
-		public int HttpBufSize
+		public int HttpFileBufSize
 		{
 			get
 			{
-				return m_HttpBufSize;
+				return m_HttpFileBufSize;
 			}
 		}
 
@@ -279,7 +279,7 @@ namespace AutoUpdate
 			string fileName = Path.GetFileName(url);
 			string dstFileName = string.Format("{0}/{1}", m_WritePath, fileName);
 			HttpRelease();
-			HttpClientFileStream response = new HttpClientFileStream(dstFileName, process, m_HttpBufSize);
+			HttpClientFileStream response = new HttpClientFileStream(dstFileName, process, m_HttpFileBufSize);
 			response.OnReadEvt = OnReadEvt;
 			response.OnErrorEvt = OnErrorEvt;
 			lock(m_Lock)
@@ -560,6 +560,6 @@ namespace AutoUpdate
         private string m_ResServerAddr = string.Empty;
         private LinkedList<AutoUpdateMsgNode> m_StateMsgList = new LinkedList<AutoUpdateMsgNode>();
 		private float m_HttpConnectTimeOut = 5.0f;
-		private int m_HttpBufSize = 1024 * 64;
+		private int m_HttpFileBufSize = 1024 * 64;
 	}
 }
