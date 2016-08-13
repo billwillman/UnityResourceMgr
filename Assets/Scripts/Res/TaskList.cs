@@ -184,6 +184,14 @@ public class BundleCreateAsyncTask: ITask
 		set;
 	}
 
+    public string FileName
+    {
+        get
+        {
+            return m_FileName;
+        }
+    }
+
 	private string m_FileName = string.Empty;
 	private AssetBundleCreateRequest m_Req = null;
 	private float m_Progress = 0;
