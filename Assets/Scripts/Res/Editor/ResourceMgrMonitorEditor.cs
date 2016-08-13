@@ -123,13 +123,14 @@ public class ResourceMgrMonitorEditor: Editor
 			if (!hash.Contains(key))
 				removeHash.Add(key);
 		}
+        iter.Dispose();
 
 		var removeIter = removeHash.GetEnumerator ();
 		while (removeIter.MoveNext()) {
 			mUsedAssetRefMap.Remove(removeIter.Current);
 		}
-
-		hash.Clear ();
+        removeIter.Dispose();
+        hash.Clear ();
 		removeHash.Clear ();
 
 		// not used list
@@ -193,13 +194,15 @@ public class ResourceMgrMonitorEditor: Editor
 			if (!hash.Contains(key))
 				removeHash.Add(key);
 		}
-		
+        iter.Dispose();
+
 		removeIter = removeHash.GetEnumerator ();
 		while (removeIter.MoveNext()) {
 			mNotUsedAssetRefMap.Remove(removeIter.Current);
 		}
-		
-		hash.Clear ();
+        removeIter.Dispose();
+
+        hash.Clear ();
 		removeHash.Clear ();
 
 		return ret;
