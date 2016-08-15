@@ -539,7 +539,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 				// node.value不会为null
 				if (node.Value != null)
 				{
-					if (timer - node.Value.LastUsedTime >= cCacheUnUsedTime)
+					if (timer - node.Value.LastUsedTime >= cCacheUnUsedTime && node.Value.IsNotUsed())
 					{
 						// 删除资源
 						delNode = node;
