@@ -682,10 +682,15 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		var node = mTempAssetList.First;
 		while (node != null)
 		{
-			if ((node.Value != null) && (node.Value.IsNotUsed()))
+            bool isRemove = (node.Value != null) && node.Value.IsNotUsed();
+            if (isRemove)
 				node.Value.UnLoad();
+
+            isRemove = isRemove || node.Value == null;
+            var delNode = node;
 			node = node.Next;
-            mTempAssetList.RemoveFirst();
+            if (isRemove)
+                mTempAssetList.Remove(delNode);
 		}
 	}
 
