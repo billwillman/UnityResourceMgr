@@ -653,8 +653,16 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 	// 资源更新清理
 	public void AutoUpdateClear()
 	{
-		UnLoadTempAssetInfo();
-		LinkedListNode<AssetCache> first = mNotUsedCacheList.First;
+		LinkedListNode<AssetCache> first = mTempAssetList.First;
+		while (first != null)
+		{
+			if (first.Value != null)
+				first.Value.UnUsed();
+			first = first.Next;
+		}
+		mTempAssetList.Clear();
+
+		first = mNotUsedCacheList.First;
 		while (first != null)
 		{
 			if (first.Value != null)
