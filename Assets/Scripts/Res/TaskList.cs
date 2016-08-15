@@ -284,12 +284,25 @@ public class WWWFileLoadTask: ITask
 
 		mWWWFileName = wwwFileName;
 	}
+
+	public WWWFileLoadTask()
+	{}
+
+	public static WWWFileLoadTask Create(string wwwFileName)
+	{
+		if (string.IsNullOrEmpty(wwwFileName))
+			return null;
+		WWWFileLoadTask ret = GetNewTask();
+		ret.mWWWFileName = wwwFileName;
+		return ret;
+	}
+
 	
 	// 传入为普通文件名(推荐使用这个函数)
 	public static WWWFileLoadTask LoadFileName(string fileName)
 	{
 		string wwwFileName = ConvertToWWWFileName(fileName);
-		WWWFileLoadTask ret = new WWWFileLoadTask(wwwFileName);
+		WWWFileLoadTask ret = Create(wwwFileName);
 		return ret;
 	}
 	
@@ -394,16 +407,8 @@ public class WWWFileLoadTask: ITask
 	public override void Release()
 	{
 		base.Release ();
-
-		if (mLoader != null) {
-			mLoader.Dispose();
-			mLoader = null;
-		}
-
-		mByteData = null;
-		mBundle = null;
-		mProgress = 0;
-		mWWWFileName = string.Empty;
+		ItemPoolReset();
+		InPool(this);
 	}
 
 	public override void Process()
@@ -467,11 +472,74 @@ public class WWWFileLoadTask: ITask
 		set;
 	}
 
+	private void ItemPoolReset()
+	{
+		if (mLoader != null)
+		{
+			mLoader.Dispose();
+			mLoader = null;
+		}
+		OnResult = null;
+		OnProcess = null;
+		mProgress = 0;
+		mWWWFileName = string.Empty;
+		mResult = 0;
+		UserData = null;
+		_Owner = null;
+		mByteData = null;
+		mBundle = null;
+	}
+
+	private static WWWFileLoadTask GetNewTask()
+	{
+		if (m_UsePool)
+		{
+			InitPool();
+			WWWFileLoadTask ret = m_Pool.GetObject();
+			if (ret != null)
+				ret.m_IsInPool = false;
+			return ret;
+		}
+
+		return new WWWFileLoadTask();
+	}
+
+	private static void InPool(WWWFileLoadTask task)
+	{
+		if (!m_UsePool || task == null || task.m_IsInPool)
+			return;
+		InitPool();
+		m_Pool.Store(task);	
+		task.m_IsInPool = true;
+	}
+
+	private static void PoolReset(WWWFileLoadTask task)
+	{
+		if (task == null)
+			return;
+		task.ItemPoolReset();
+	}
+
+	private static void InitPool()
+	{
+		if (m_PoolInited)
+			return;
+		m_PoolInited = true;
+		m_Pool.Init(0, null, PoolReset);
+	}
+
 	private WWW mLoader = null;
 	private byte[] mByteData = null;
 	private AssetBundle mBundle = null;
 	private string mWWWFileName = string.Empty;
 	private float mProgress = 0;
+
+
+	private bool m_IsInPool = false;
+
+	private static bool m_UsePool = true;
+	private static bool m_PoolInited = false;
+	private static Utils.ObjectPool<WWWFileLoadTask> m_Pool = new Utils.ObjectPool<WWWFileLoadTask>();
 }
 
 // 加载场景任务

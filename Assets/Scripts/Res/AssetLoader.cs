@@ -278,9 +278,12 @@ public class AssetInfo
 		AssetInfo info = wwwTask.UserData as AssetInfo;
 		if (info == null)
 			return;
-		if (wwwTask.IsDone && wwwTask.IsOk)
+		if (wwwTask.IsDone)
 		{
-			info.mBundle = wwwTask.Bundle;
+			if (wwwTask.IsOk)
+				info.mBundle = wwwTask.Bundle;
+			if (info.m_WWWTask != null)
+				info.m_WWWTask = null;
 		}
 
 		info.IsUsing = false;
@@ -2190,7 +2193,7 @@ public class AssetLoader: IResourceLoader
 			string fileName = GetXmlFileName ();
 			if (string.IsNullOrEmpty (fileName))
 				return;
-			mXmlLoaderTask = new WWWFileLoadTask (fileName);
+			mXmlLoaderTask = WWWFileLoadTask.Create(fileName);
 			if (mXmlLoaderTask.IsDoing) {
 				// 创建时钟
 				if (mLoaderTimer == null)
