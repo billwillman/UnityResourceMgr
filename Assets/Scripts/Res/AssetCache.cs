@@ -685,9 +685,8 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 			if ((node.Value != null) && (node.Value.IsNotUsed()))
 				node.Value.UnLoad();
 			node = node.Next;
+            mTempAssetList.RemoveFirst();
 		}
-
-		mTempAssetList.Clear();
 	}
 
     private static readonly string _Event_CACHEDESTROY_START = "OnCacheStartDestroy";
