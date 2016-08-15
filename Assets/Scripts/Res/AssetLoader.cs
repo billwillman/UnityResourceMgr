@@ -769,6 +769,10 @@ public class AssetInfo
 
 	public void UnLoad()
 	{
+#if UNITY_EDITOR
+		if (IsVaild() && IsUsing)
+			Debug.LogErrorFormat("{0} is using but unload!", mFileName);
+#endif
 		if (IsVaild() && !IsUsing) {
 
 			// LogMgr.Instance.Log(string.Format("Bundle unload=>{0}", Path.GetFileNameWithoutExtension(mFileName)));
