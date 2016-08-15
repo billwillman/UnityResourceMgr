@@ -257,9 +257,13 @@ public class AssetInfo
 		AssetInfo info = asycTask.UserData as AssetInfo;
 		if (info == null)
 			return;
-		if (asycTask.IsDone && asycTask.IsOk)
+		if (asycTask.IsDone)
 		{
-			info.mBundle = asycTask.Bundle;
+			if (asycTask.IsOk)
+				info.mBundle = asycTask.Bundle;
+
+			if (info.m_AsyncTask != null)
+				info.m_AsyncTask = null;
 		}
 
 		info.IsUsing = false;
@@ -315,7 +319,7 @@ public class AssetInfo
 			return true;
 		}
 
-		m_AsyncTask = new BundleCreateAsyncTask(mFileName);
+		m_AsyncTask = BundleCreateAsyncTask.Create(mFileName);
 		if (m_AsyncTask != null)
 		{
 			m_AsyncTask.UserData = this;

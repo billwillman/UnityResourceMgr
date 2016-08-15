@@ -97,7 +97,7 @@ public abstract class ITask
 		mResult = -1;
 	}
 
-	private int mResult = 0;
+	protected int mResult = 0;
 	private TaskList mOwner = null;
 }
 
@@ -117,6 +117,18 @@ public class BundleCreateAsyncTask: ITask
 		m_FileName = createFileName;
 	}
 
+	public BundleCreateAsyncTask()
+	{}
+
+	public static BundleCreateAsyncTask Create(string createFileName)
+	{
+		if (string.IsNullOrEmpty(createFileName))
+			return null;
+		BundleCreateAsyncTask ret = GetNewTask();
+		ret.m_FileName = createFileName;
+		return ret;
+	}
+
 	public static BundleCreateAsyncTask LoadFileAtStreamingAssetsPath(string fileName, bool usePlatform)
 	{
 		fileName = WWWFileLoadTask.GetStreamingAssetsPath(usePlatform, true) + "/" + fileName;
@@ -127,10 +139,8 @@ public class BundleCreateAsyncTask: ITask
 	public override void Release()
 	{
 		base.Release();
-		if (m_Req != null)
-		{
-			m_Req = null;
-		}
+		ItemPoolReset();
+		InPool(this);
 	}
 
 	public override void Process()
@@ -192,10 +202,71 @@ public class BundleCreateAsyncTask: ITask
         }
     }
 
+	private static BundleCreateAsyncTask GetNewTask()
+	{
+		if (m_UsePool)
+		{
+			InitPool();
+			BundleCreateAsyncTask ret = m_Pool.GetObject();
+			if (ret != null)
+				ret.m_IsInPool = false;
+			return ret;
+		}
+
+		return new BundleCreateAsyncTask();
+	}
+
+	private static void InPool(BundleCreateAsyncTask task)
+	{
+		if (!m_UsePool || task == null || task.m_IsInPool)
+			return;
+		InitPool();
+		m_Pool.Store(task);	
+		task.m_IsInPool = true;
+	}
+
+	private void ItemPoolReset()
+	{
+		if (m_Req != null)
+		{
+			m_Req = null;
+		}
+
+		OnResult = null;
+		OnProcess = null;
+		m_Bundle = null;
+		m_Progress = 0;
+		m_FileName = string.Empty;
+		mResult = 0;
+		UserData = null;
+		_Owner = null;
+	}
+
+	private static void PoolReset(BundleCreateAsyncTask task)
+	{
+		if (task == null)
+			return;
+		task.ItemPoolReset();
+	}
+
+	private static void InitPool()
+	{
+		if (m_PoolInited)
+			return;
+		m_PoolInited = true;
+		m_Pool.Init(0, null, PoolReset);
+	}
+
 	private string m_FileName = string.Empty;
 	private AssetBundleCreateRequest m_Req = null;
 	private float m_Progress = 0;
 	private AssetBundle m_Bundle = null;
+
+	private bool m_IsInPool = false;
+
+	private static bool m_UsePool = true;
+	private static bool m_PoolInited = false;
+	private static Utils.ObjectPool<BundleCreateAsyncTask> m_Pool = new Utils.ObjectPool<BundleCreateAsyncTask>();
 }
 
 #endif
@@ -570,15 +641,13 @@ public class TaskList
 		get;
 		set;
 	}
-
-	// 慎用
+		
 	public void Clear()
 	{
-
 		var node = mTaskList.First;
 		while (node != null) {
 			var next = node.Next;
-			if (node.Value != null)
+			if (node.Value != null && node.Value._Owner == this)
 				node.Value.Release();
 			node = next;
 		}
@@ -592,7 +661,10 @@ public class TaskList
 		if ((task == null) || (!task.IsDone))
 			return;
 		if ((task._Owner == this) && (task.OnResult != null))
+		{
 			task.OnResult (task);
+			task.Release();
+		}
 	}
 
 	private void TaskProcess(ITask task)
