@@ -21,6 +21,10 @@ public class Test : CachedMonoBehaviour {
 			{
 				if (GUI.Button(new Rect(100, 220, 150, 50), "删除Sprites"))
 				{
+					for (int i = 0; i < m_SpriteList.Length; ++i)
+					{
+						Resources.UnloadAsset(m_SpriteList[i]);
+					}
 					ResourceMgr.Instance.DestroySprites(m_SpriteList);
 					m_IsSpritesLoading = false;
 					m_SpriteList = null;
