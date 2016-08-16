@@ -69,7 +69,7 @@ public class ResourceAssetCache: AssetCache
 	public ResourceAssetCache(UnityEngine.Object target)
 	{
 		mTarget = target;
-		mIsGameObject = (mTarget as GameObject) != null;
+		CheckGameObject();
 	}
 
 	public ResourceAssetCache()
@@ -90,6 +90,11 @@ public class ResourceAssetCache: AssetCache
 		{
 			return mTarget;
 		}
+	}
+
+	private void CheckGameObject()
+	{
+		mIsGameObject = (mTarget as GameObject) != null;
 	}
 
 	protected override void OnUnLoad()
@@ -153,6 +158,7 @@ public class ResourceAssetCache: AssetCache
 		InitPool();
 		ResourceAssetCache ret = m_Pool.GetObject();
 		ret.mTarget = target;
+		ret.CheckGameObject();
 		return ret;
 	}
 
