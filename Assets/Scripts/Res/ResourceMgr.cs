@@ -179,6 +179,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
 			script.DelayDestroyTime = delayDestroyTime;
 		}
+
+		return ret;
 	}
 
 	public GameObject CreateGameObject(string fileName, float delayDestroyTime)
