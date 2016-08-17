@@ -71,7 +71,7 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		m_ResMap.Clear();
 	}
 
-	public bool UITexture_LoadMainTexture(UITexture uiTexture, string fileName)
+	public bool LoadMainTexture(UITexture uiTexture, string fileName)
 	{
 		if (uiTexture == null || string.IsNullOrEmpty(fileName))
 			return false;
@@ -83,7 +83,7 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		return tex != null;
 	}
 
-	public bool UITexture_LoadTexture(UITexture uiTexture, string fileName, string matName)
+	public bool LoadTexture(UITexture uiTexture, string fileName, string matName)
 	{
 		if (uiTexture == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(matName))
 			return false;
@@ -99,7 +99,7 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		return tex != null;
 	}
 
-	public bool UITexture_LoadMaterial(UITexture uiTexture, string fileName)
+	public bool LoadMaterial(UITexture uiTexture, string fileName)
 	{
 		if (uiTexture == null || string.IsNullOrEmpty(fileName))
 			return false;
@@ -115,7 +115,7 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		return mat != null;
 	}
 
-	public bool UISprite_LoadMaterial(UISprite uiSprite, string fileName)
+	public bool LoadMaterial(UISprite uiSprite, string fileName)
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName))
 			return false;
@@ -131,7 +131,7 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		return mat != null;
 	}
 
-	public bool UISprite_LoadTexture(UISprite uiSprite, string fileName, string matName)
+	public bool LoadTexture(UISprite uiSprite, string fileName, string matName)
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(matName))
 			return false;
@@ -147,7 +147,7 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		return tex != null;
 	}
 
-	public bool UISprite_LoadMainTexture(UISprite uiSprite, string fileName)
+	public bool LoadMainTexture(UISprite uiSprite, string fileName)
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName))
 			return false;
@@ -159,7 +159,7 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		return tex != null;
 	}
 
-	public bool UI2DSprite_LoadMainTexture(UI2DSprite uiSprite, string fileName)
+	public bool LoadMainTexture(UI2DSprite uiSprite, string fileName)
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName))
 			return false;
@@ -171,7 +171,7 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		return tex != null;
 	}
 
-	public bool UI2DSprite_LoadTexture(UI2DSprite uiSprite, string fileName, string matName)
+	public bool LoadTexture(UI2DSprite uiSprite, string fileName, string matName)
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(matName))
 			return false;
@@ -187,7 +187,7 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		return tex != null;
 	}
 
-	public bool UI2DSprite_LoadMaterial(UI2DSprite uiSprite, string fileName)
+	public bool LoadMaterial(UI2DSprite uiSprite, string fileName)
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName))
 			return false;

@@ -12,9 +12,9 @@ public class TestUI : NGUIResLoader {
 			if (GUI.Button(new Rect(100, 100, 150, 50), "切换贴图"))
 			{
 				if (flag%2 == 0)
-					UITexture_LoadMainTexture(uiTexture, "resources/models/@flag/m_hadry_01.psd");
+					LoadMainTexture(uiTexture, "resources/models/@flag/m_hadry_01.psd");
 				else
-					UITexture_LoadMainTexture(uiTexture, "resources/models/@flag/m_items_01.psd");
+					LoadMainTexture(uiTexture, "resources/models/@flag/m_items_01.psd");
 				++flag;
 			}
 		}
