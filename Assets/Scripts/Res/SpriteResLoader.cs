@@ -35,16 +35,20 @@ public class SpriteResLoader: BaseResLoader
 			{
 				sprite.sprite = sp;
 				isFound = true;
-				SetResource(sprite, sp, typeof(Sprite));
-			} else
-			{
-				Resources.UnloadAsset(sp);
-				ResourceMgr.Instance.DestroyObject(sp);
+				SetResources(sprite, sps, typeof(Sprite[]));
+				break;
 			}
 		}
 
 		if (!isFound)
-			SetResource(sprite, null, typeof(Sprite));
+		{
+			for (int i = 0; i < sps.Length; ++i)
+			{
+				Sprite sp = sps[i];
+				DestroySprite(sp);
+			}
+			SetResources(sprite, null, typeof(Sprite[]));
+		}
 		
 		return isFound;
 	}

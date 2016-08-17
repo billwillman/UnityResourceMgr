@@ -164,16 +164,20 @@ public class NGUIResLoader: BaseResLoader  {
 			{
 				uiSprite.sprite2D = sp;
 				isFound = true;
-				SetResource(uiSprite, sp, typeof(Sprite));
-			} else
-			{
-				Resources.UnloadAsset(sp);
-				ResourceMgr.Instance.DestroyObject(sp);
+				SetResources(uiSprite, sps, typeof(Sprite[]));
+				break;
 			}
 		}
 
 		if (!isFound)
-			SetResource(uiSprite, null, typeof(Sprite));
+		{
+			for (int i = 0; i < sps.Length; ++i)
+			{
+				Sprite sp = sps[i];
+				DestroySprite(sp);
+			}
+			SetResources(uiSprite, null, typeof(Sprite[]));
+		}
 
 		return isFound;
 	}

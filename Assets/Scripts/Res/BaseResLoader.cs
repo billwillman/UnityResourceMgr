@@ -7,13 +7,19 @@ using Utils;
 public class BaseResLoader: CachedMonoBehaviour
 {
 	protected static readonly string _cMainTex = "_MainTex";
-	protected Dictionary<ResKey, UnityEngine.Object> m_ResMap = new Dictionary<ResKey, UnityEngine.Object>();
+	protected Dictionary<ResKey, ResValue> m_ResMap = new Dictionary<ResKey, ResValue>();
 
 	protected struct ResKey
 	{
 		public int instanceId;
 		public System.Type resType;
 		public string resName;
+	}
+
+	protected struct ResValue
+	{
+		public UnityEngine.Object obj;
+		public UnityEngine.Object[] objs;
 	}
 
 	protected static ResKey CreateKey(int instanceId, System.Type resType, string resName = "")
@@ -25,19 +31,57 @@ public class BaseResLoader: CachedMonoBehaviour
 		return ret;
 	}
 
-	protected virtual void InternalDestroyResource(ResKey key, UnityEngine.Object res)
+	protected ResValue CreateValue(UnityEngine.Object obj)
+	{
+		ResValue ret = new ResValue();
+		ret.obj = obj;
+		ret.objs = null;
+		return ret;
+	}
+
+	protected ResValue CreateValue(UnityEngine.Object[] objs)
+	{
+		ResValue ret = new ResValue();
+		ret.obj = null;
+		ret.objs = objs;
+		return ret;
+	}
+
+	protected virtual bool InternalDestroyResource(ResKey key, ResValue res)
 	{
 		if (key.resType == typeof(Sprite))
-			Resources.UnloadAsset(res);
+		{
+			if (res.obj != null)
+				Resources.UnloadAsset(res.obj);
+		} else if (key.resType == typeof(Sprite[]))
+		{
+			if (res.objs != null)
+			{
+				for (int i = 0; i < res.objs.Length; ++i)
+				{
+					UnityEngine.Object obj = res.objs[i];
+					if (obj != null)
+						Resources.UnloadAsset(obj);
+				}
+			}
+		}
+
+		return true;
 	}
 
 	protected void DestroyResource(ResKey key)
 	{
-		UnityEngine.Object res;
+		ResValue res;
 		if (m_ResMap.TryGetValue(key, out res))
 		{
-			InternalDestroyResource(key, res);
-			ResourceMgr.Instance.DestroyObject(res);
+			if (InternalDestroyResource(key, res))
+			{
+				if (res.obj != null)
+					ResourceMgr.Instance.DestroyObject(res.obj);
+
+				if (res.objs != null)
+					ResourceMgr.Instance.DestroyObjects(res.objs);
+			}
 			m_ResMap.Remove(key);
 		}
 	}
@@ -48,16 +92,34 @@ public class BaseResLoader: CachedMonoBehaviour
 		DestroyResource(key);
 	}
 
-	protected void SetResources(int instanceId, UnityEngine.Object res, System.Type resType, string resName = "")
+	protected void SetResource(int instanceId, UnityEngine.Object res, System.Type resType, string resName = "")
 	{
 		ResKey key = CreateKey(instanceId, resType, resName);
 		DestroyResource(key);
 		if (res == null)
 			return;
-		m_ResMap.Add(key, res);
+		ResValue value = CreateValue(res);
+		m_ResMap.Add(key, value);
 	}
 
 	protected void SetResource(UnityEngine.Object target, UnityEngine.Object res, System.Type resType, string resName = "")
+	{
+		if (target == null)
+			return;
+		SetResource(target.GetInstanceID(), res, resType, resName);
+	}
+
+	protected void SetResources(int instanceId, UnityEngine.Object[] res, System.Type resType, string resName = "")
+	{
+		ResKey key = CreateKey(instanceId, resType, resName);
+		DestroyResource(key);
+		if (res == null)
+			return;
+		ResValue value = CreateValue(res);
+		m_ResMap.Add(key, value);
+	}
+
+	protected void SetResources(UnityEngine.Object target, UnityEngine.Object[] res, System.Type resType, string resName = "")
 	{
 		if (target == null)
 			return;
@@ -69,8 +131,14 @@ public class BaseResLoader: CachedMonoBehaviour
 		var iter = m_ResMap.GetEnumerator();
 		while (iter.MoveNext())
 		{
-			InternalDestroyResource(iter.Current.Key, iter.Current.Value);
-			ResourceMgr.Instance.DestroyObject(iter.Current.Value);
+			if (InternalDestroyResource(iter.Current.Key, iter.Current.Value))
+			{
+				if (iter.Current.Value.obj != null)
+					ResourceMgr.Instance.DestroyObject(iter.Current.Value.obj);
+
+				if (iter.Current.Value.objs != null)
+					ResourceMgr.Instance.DestroyObjects(iter.Current.Value.objs);
+			}
 		}
 		iter.Dispose();
 		m_ResMap.Clear();
@@ -79,5 +147,13 @@ public class BaseResLoader: CachedMonoBehaviour
 	protected virtual void OnDestroy()
 	{
 		ClearAllResources();
+	}
+
+	protected void DestroySprite(Sprite sp)
+	{
+		if (sp == null)
+			return;
+		Resources.UnloadAsset(sp);
+		ResourceMgr.Instance.DestroyObject(sp);
 	}
 }
