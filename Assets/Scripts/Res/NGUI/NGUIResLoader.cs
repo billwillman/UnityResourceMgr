@@ -7,69 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Utils;
 
-public class NGUIResLoader: CachedMonoBehaviour  {
-
-	private static readonly string _cMainTex = "_MainTex";
-	private Dictionary<NGUIResKey, UnityEngine.Object> m_ResMap = new Dictionary<NGUIResKey, Object>();
-
-	private struct NGUIResKey
-	{
-		public int instanceId;
-		public System.Type resType;
-		public string resName;
-	}
-
-	private static NGUIResKey CreateKey(int instanceId, System.Type resType, string resName = "")
-	{
-		NGUIResKey ret = new NGUIResKey();
-		ret.resName = resName;
-		ret.resType = resType;
-		ret.instanceId = instanceId;
-		return ret;
-	}
-
-	private void DestroyResource(NGUIResKey key)
-	{
-		UnityEngine.Object res;
-		if (m_ResMap.TryGetValue(key, out res))
-		{
-			ResourceMgr.Instance.DestroyObject(res);
-			m_ResMap.Remove(key);
-		}
-	}
-
-	private void DestroyResource(int instanceId, System.Type resType, string resName = "")
-	{
-		NGUIResKey key = CreateKey(instanceId, resType, resName);
-		DestroyResource(key);
-	}
-
-	private void SetResources(int instanceId, UnityEngine.Object res, System.Type resType, string resName = "")
-	{
-		NGUIResKey key = CreateKey(instanceId, resType, resName);
-		DestroyResource(key);
-		if (res == null)
-			return;
-		m_ResMap.Add(key, res);
-	}
-
-	private void SetResource(UnityEngine.Object target, UnityEngine.Object res, System.Type resType, string resName = "")
-	{
-		if (target == null)
-			return;
-		SetResources(target.GetInstanceID(), res, resType, resName);
-	}
-
-	private void ClearAllResources()
-	{
-		var iter = m_ResMap.GetEnumerator();
-		while (iter.MoveNext())
-		{
-			ResourceMgr.Instance.DestroyObject(iter.Current.Value);
-		}
-		iter.Dispose();
-		m_ResMap.Clear();
-	}
+public class NGUIResLoader: BaseResLoader  {
 
 	public bool LoadMainTexture(UITexture uiTexture, string fileName)
 	{
@@ -81,6 +19,18 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		uiTexture.mainTexture = tex;
 
 		return tex != null;
+	}
+
+	public bool LoadShader(UITexture uiTexture, string fileName)
+	{
+		if (uiTexture == null || string.IsNullOrEmpty(fileName))
+			return false;
+
+		Shader shader = ResourceMgr.Instance.LoadShader(fileName, ResourceCacheType.rctRefAdd);
+		SetResource(uiTexture, shader, typeof(Shader));
+		uiTexture.shader = shader;
+
+		return shader != null;
 	}
 
 	public bool LoadTexture(UITexture uiTexture, string fileName, string matName)
@@ -171,6 +121,18 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		return tex != null;
 	}
 
+	public bool LoadShader(UI2DSprite uiSprite, string fileName)
+	{
+		if (uiSprite == null || string.IsNullOrEmpty(fileName))
+			return false;
+
+		Shader shader = ResourceMgr.Instance.LoadShader(fileName, ResourceCacheType.rctRefAdd);
+		SetResource(uiSprite, shader, typeof(Shader));
+		uiSprite.shader = shader;
+
+		return shader != null;
+	}
+
 	public bool LoadTexture(UI2DSprite uiSprite, string fileName, string matName)
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(matName))
@@ -187,6 +149,35 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		return tex != null;
 	}
 
+	public bool LoadSprite(UI2DSprite uiSprite, string fileName, string spriteName)
+	{
+		if (uiSprite == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(spriteName))
+			return false;
+		Sprite[] sps = ResourceMgr.Instance.LoadSprites(fileName, ResourceCacheType.rctRefAdd);
+		bool isFound = false;
+		for (int i = 0; i < sps.Length; ++i)
+		{
+			Sprite sp = sps[i];
+			if (sp == null)
+				continue;
+			if (!isFound && string.Compare(sp.name, spriteName) == 0)
+			{
+				uiSprite.sprite2D = sp;
+				isFound = true;
+				SetResource(uiSprite, sp, typeof(Sprite));
+			} else
+			{
+				Resources.UnloadAsset(sp);
+				ResourceMgr.Instance.DestroyObject(sp);
+			}
+		}
+
+		if (!isFound)
+			SetResource(uiSprite, null, typeof(Sprite));
+
+		return isFound;
+	}
+
 	public bool LoadMaterial(UI2DSprite uiSprite, string fileName)
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName))
@@ -201,11 +192,6 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 			uiSprite.material = null;
 
 		return mat != null;
-	}
-
-	protected virtual void OnDestroy()
-	{
-		ClearAllResources();
 	}
 }
 
