@@ -203,7 +203,7 @@ public class NGUIResLoader: CachedMonoBehaviour  {
 		return mat != null;
 	}
 
-	void OnDestroy()
+	protected virtual void OnDestroy()
 	{
 		ClearAllResources();
 	}
