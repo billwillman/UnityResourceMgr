@@ -156,6 +156,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 428731910}
   - 114: {fileID: 428731911}
+  - 114: {fileID: 428731912}
   m_Layer: 5
   m_Name: Texture
   m_TagString: Untagged
@@ -234,6 +235,18 @@ MonoBehaviour:
   mShader: {fileID: 4800000, guid: e75727d9555d9d14ca51d91908c681bc, type: 3}
   mBorder: {x: 0, y: 0, z: 0, w: 0}
   mFixedAspect: 0
+--- !u!114 &428731912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 428731909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 546756173ae4c7d48b7f55e34d8f6f7b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiTexture: {fileID: 428731911}
 --- !u!1 &536861673
 GameObject:
   m_ObjectHideFlags: 0
@@ -434,7 +447,6 @@ GameObject:
   serializedVersion: 4
   m_Component:
   - 4: {fileID: 1442539466}
-  - 114: {fileID: 1442539465}
   - 114: {fileID: 1442539467}
   m_Layer: 0
   m_Name: Main
@@ -443,18 +455,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1442539465
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1442539464}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 546756173ae4c7d48b7f55e34d8f6f7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  uiTexture: {fileID: 428731911}
 --- !u!4 &1442539466
 Transform:
   m_ObjectHideFlags: 0
