@@ -162,6 +162,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			Transform trans = ret.transform;
 			trans.position = position;
 			trans.rotation = rotation;
+			ret.AddComponent<ResInstDestroy> ();
 		}
 
 		return ret;
