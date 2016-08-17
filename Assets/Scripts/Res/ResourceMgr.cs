@@ -155,6 +155,18 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return ret;
 	}
 
+	public GameObject CreateGameObject(string fileName, Vector3 position, Quaternion rotation)
+	{
+		GameObject ret = CreatePrefab(fileName);
+		if (ret != null) {
+			Transform trans = ret.transform;
+			trans.position = position;
+			trans.rotation = rotation;
+		}
+
+		return ret;
+	}
+
 	public GameObject CreateGameObject(string fileName, float delayDestroyTime)
 	{
 		GameObject ret = CreatePrefab(fileName);
