@@ -263,4 +263,22 @@ public class BaseResLoader: CachedMonoBehaviour
 
 		return isFound;
 	}
+
+    public bool LoadGameObject(ref GameObject target, string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName))
+            return false;
+        GameObject obj = ResourceMgr.Instance.LoadPrefab(fileName, ResourceCacheType.rctRefAdd);
+        ClearGameObject(ref target);
+        target = obj;
+        return obj != null;
+    }
+
+    public void ClearGameObject(ref GameObject target)
+    {
+        if (target == null)
+            return;
+        SetResource(target.GetInstanceID(), null, typeof(GameObject));
+        target = null;
+    }
 }
