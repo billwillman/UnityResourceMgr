@@ -19,5 +19,13 @@ public class MeshResLoader: BaseResLoader
 		return true;
 	}
 
-
+	public void ClearMaterials(MeshRenderer renderer)
+	{
+		SetResources(renderer, null, typeof(Material[]));
+		SetResource(renderer, null, typeof(Material));
+		renderer.sharedMaterial = null;
+		renderer.material = null;
+		renderer.sharedMaterials = null;
+		renderer.materials = null;
+	}
 }

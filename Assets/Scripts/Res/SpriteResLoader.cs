@@ -10,7 +10,7 @@ public class SpriteResLoader: BaseResLoader
 		if (sprite == null || string.IsNullOrEmpty(fileName))
 			return false;
 		Material mat = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
-		SetResource(sprite, mat, typeof(Material), _cMainMat);
+		SetResource(sprite, mat, typeof(Material));
 
 		if (mat != null)
 			sprite.sharedMaterial = mat;
@@ -24,7 +24,7 @@ public class SpriteResLoader: BaseResLoader
 	{
 		if (sprite == null)
 			return;
-		ClearResource<Material>(sprite, _cMainMat);
+		ClearResource<Material>(sprite);
 		sprite.sharedMaterial = null;
 	}
 
