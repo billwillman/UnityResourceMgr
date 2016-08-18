@@ -183,6 +183,51 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return ret;
 	}
 
+    public GameObject InstantiateGameObj(GameObject orgObj)
+    {
+        if (orgObj == null)
+            return null;
+        GameObject ret = GameObject.Instantiate(orgObj);
+        if (ret != null)
+            ret.AddComponent<ResInstDestroy>();
+        return ret;
+    }
+
+    public GameObject InstantiateGameObj(GameObject orgObj, Vector3 position, Quaternion rotation)
+    {
+        GameObject ret = InstantiateGameObj(orgObj);
+        if (ret == null)
+            return null;
+        Transform trans = ret.transform;
+        trans.position = position;
+        trans.rotation = rotation;
+        return ret;
+    }
+
+    public GameObject InstantiateGameObj(GameObject orgObj, float delayDestroyTime)
+    {
+        if (orgObj == null)
+            return null;
+        GameObject ret = GameObject.Instantiate(orgObj);
+        if (ret != null)
+        {
+            ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
+            script.DelayDestroyTime = delayDestroyTime;
+        }
+        return ret;
+    }
+
+    public GameObject InstantiateGameObj(GameObject orgObj, Vector3 position, Quaternion rotation, float delayDestroyTime)
+    {
+        GameObject ret = InstantiateGameObj(orgObj, delayDestroyTime);
+        if (ret == null)
+            return null;
+        Transform trans = ret.transform;
+        trans.position = position;
+        trans.rotation = rotation;
+        return ret;
+    }
+
 	public GameObject CreateGameObject(string fileName, float delayDestroyTime)
 	{
 		GameObject ret = CreatePrefab(fileName);
