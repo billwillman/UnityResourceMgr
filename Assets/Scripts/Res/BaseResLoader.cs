@@ -10,6 +10,23 @@ public class BaseResLoader: CachedMonoBehaviour
 	protected static readonly string _cMainMat = "_Mat_0";
 	protected Dictionary<ResKey, ResValue> m_ResMap = new Dictionary<ResKey, ResValue>();
 
+	private bool m_IsCheckedVisible = false;
+
+	private void CheckVisible()
+	{
+		if (m_IsCheckedVisible)
+			return;
+		m_IsCheckedVisible = true;
+		GameObject obj = this.CachedGameObject;
+		if (obj == null)
+			return;
+		if (!obj.activeInHierarchy)
+		{
+			obj.SetActive(true);
+			obj.SetActive(false);
+		}
+	}
+
 	protected string GetMatResName(int matIdx)
 	{
 		if (matIdx < 0)
@@ -107,6 +124,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		DestroyResource(key);
 		if (res == null)
 			return;
+		CheckVisible();
 		ResValue value = CreateValue(res);
 		m_ResMap.Add(key, value);
 	}
@@ -141,6 +159,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		DestroyResource(key);
 		if (res == null)
 			return;
+		CheckVisible();
 		ResValue value = CreateValue(res);
 		m_ResMap.Add(key, value);
 	}

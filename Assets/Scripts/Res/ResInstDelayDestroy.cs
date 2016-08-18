@@ -1,5 +1,6 @@
 
 using UnityEngine;
+using Utils;
 
 public class ResInstDelayDestroy: MonoBehaviour
 {
@@ -14,4 +15,21 @@ public class ResInstDelayDestroy: MonoBehaviour
 	{
 		ResourceMgr.Instance.OnDestroyInstObject (gameObject.GetInstanceID ());
 	}
+
+	public void CheckVisible()
+	{
+		if (m_IsCheckedVisible)
+			return;
+		m_IsCheckedVisible = true;
+		GameObject obj = this.gameObject;
+		if (obj == null)
+			return;
+		if (!obj.activeInHierarchy)
+		{
+			obj.SetActive(true);
+			obj.SetActive(false);
+		}
+	}
+
+	private bool m_IsCheckedVisible = false;
 }

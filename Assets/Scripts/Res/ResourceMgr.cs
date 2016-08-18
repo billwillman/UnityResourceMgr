@@ -143,13 +143,14 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		// 清除
 		AssetCacheManager.Instance.ClearUnUsed ();
 	}
-
+	 
 	public GameObject CreateGameObject(string fileName)
 	{
 		GameObject ret = CreatePrefab(fileName);
 		if (ret != null)
 		{
-			ret.AddComponent<ResInstDestroy>();
+			var script = ret.AddComponent<ResInstDestroy>();
+			script.CheckVisible();
 		}
 
 		return ret;
@@ -162,7 +163,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			Transform trans = ret.transform;
 			trans.position = position;
 			trans.rotation = rotation;
-			ret.AddComponent<ResInstDestroy> ();
+			var script = ret.AddComponent<ResInstDestroy> ();
+			script.CheckVisible();
 		}
 
 		return ret;
@@ -178,6 +180,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			trans.rotation = rotation;
 			ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
 			script.DelayDestroyTime = delayDestroyTime;
+			script.CheckVisible();
 		}
 
 		return ret;
@@ -191,7 +194,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
         if (ret != null)
         {
             AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
-            ret.AddComponent<ResInstDestroy>();
+            var script = ret.AddComponent<ResInstDestroy>();
+			script.CheckVisible();
         }
         return ret;
     }
@@ -217,6 +221,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
             AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
             ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
             script.DelayDestroyTime = delayDestroyTime;
+			script.CheckVisible();
         }
         return ret;
     }
@@ -239,6 +244,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		{
 			ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
 			script.DelayDestroyTime = delayDestroyTime;
+			script.CheckVisible();
 		}
 
 		return ret;
@@ -363,7 +369,10 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			if (isDone)
 			{
 				if (instObj != null)
-					instObj.AddComponent<ResInstDestroy>();
+				{
+					var script = instObj.AddComponent<ResInstDestroy>();
+					script.CheckVisible();
+				}
 				if (onProcess != null)
 					onProcess(process, isDone, instObj);
 				return;
@@ -387,6 +396,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 				{
 					ResInstDelayDestroy script = instObj.AddComponent<ResInstDelayDestroy>();
 					script.DelayDestroyTime = delayDestroyTime;
+					script.CheckVisible();
 				}
 				if (onProcess != null)
 					onProcess(process, isDone, instObj);
