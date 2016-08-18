@@ -189,7 +189,10 @@ public class ResourceMgr: Singleton<ResourceMgr>
             return null;
         GameObject ret = GameObject.Instantiate(orgObj);
         if (ret != null)
+        {
+            AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
             ret.AddComponent<ResInstDestroy>();
+        }
         return ret;
     }
 
@@ -211,6 +214,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
         GameObject ret = GameObject.Instantiate(orgObj);
         if (ret != null)
         {
+            AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
             ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
             script.DelayDestroyTime = delayDestroyTime;
         }
