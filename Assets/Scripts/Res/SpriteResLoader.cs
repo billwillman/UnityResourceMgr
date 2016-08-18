@@ -26,6 +26,7 @@ public class SpriteResLoader: BaseResLoader
 			return;
 		ClearResource<Material>(sprite);
 		sprite.sharedMaterial = null;
+		sprite.material = null;
 	}
 
 	public bool LoadSprite(SpriteRenderer sprite, string fileName, string spriteName)
