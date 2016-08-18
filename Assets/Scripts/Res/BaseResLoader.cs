@@ -7,7 +7,16 @@ using Utils;
 public class BaseResLoader: CachedMonoBehaviour
 {
 	protected static readonly string _cMainTex = "_MainTex";
+	protected static readonly string _cMainMat = "_Mat_0";
 	protected Dictionary<ResKey, ResValue> m_ResMap = new Dictionary<ResKey, ResValue>();
+
+	protected string GetMatResName(int matIdx)
+	{
+		if (matIdx < 0)
+			return string.Empty;
+		string ret = string.Format("_Mat_{0:D}", matIdx);
+		return ret;
+	}
 
 	protected struct ResKey
 	{
@@ -107,6 +116,23 @@ public class BaseResLoader: CachedMonoBehaviour
 		if (target == null)
 			return;
 		SetResource(target.GetInstanceID(), res, resType, resName);
+	}
+
+	protected void ClearResource<T>(UnityEngine.Object target, string resName = "") where T: UnityEngine.Object
+	{
+		System.Type resType = typeof(T);
+		SetResource<T>(target, null, resName);
+	}
+
+	protected void ClearResource(UnityEngine.Object target, System.Type resType, string resName = "")
+	{
+		SetResource(target, null, resType, resName);
+	}
+
+	protected void SetResource<T>(UnityEngine.Object target, T res, string resName = "") where T: UnityEngine.Object
+	{
+		System.Type resType = typeof(T);
+		SetResource(target, res, resType, resName);
 	}
 
 	protected void SetResources(int instanceId, UnityEngine.Object[] res, System.Type resType, string resName = "")

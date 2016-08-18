@@ -21,6 +21,25 @@ public class NGUIResLoader: BaseResLoader  {
 		return tex != null;
 	}
 
+	public void ClearMainTexture(UITexture uiTexture)
+	{
+		if (uiTexture == null)
+			return;
+		ClearTexture(uiTexture, _cMainTex);
+		uiTexture.mainTexture = null;
+	}
+
+	public void ClearTexture(UITexture uiTexture, string matName)
+	{
+		if (uiTexture == null)
+			return;
+		
+		ClearResource<Texture>(uiTexture, matName);
+		Material mat = uiTexture.material;
+		if (mat != null)
+			mat.SetTexture(matName, null);
+	}
+
 	public bool LoadShader(UITexture uiTexture, string fileName)
 	{
 		if (uiTexture == null || string.IsNullOrEmpty(fileName))
@@ -31,6 +50,14 @@ public class NGUIResLoader: BaseResLoader  {
 		uiTexture.shader = shader;
 
 		return shader != null;
+	}
+
+	public void ClearShader(UITexture uiTexture)
+	{
+		if (uiTexture == null)
+			return;
+		ClearResource<Shader>(uiTexture);
+		uiTexture.shader = null;
 	}
 
 	public bool LoadTexture(UITexture uiTexture, string fileName, string matName)
@@ -47,6 +74,14 @@ public class NGUIResLoader: BaseResLoader  {
 		mat.SetTexture(matName, tex);
 
 		return tex != null;
+	}
+
+	public void ClearMaterial(UITexture uiTexture)
+	{
+		if (uiTexture == null)
+			return;
+		ClearResource<Material>(uiTexture);
+		uiTexture.material = null;
 	}
 
 	public bool LoadMaterial(UITexture uiTexture, string fileName)
@@ -81,6 +116,14 @@ public class NGUIResLoader: BaseResLoader  {
 		return mat != null;
 	}
 
+	public void ClearMaterial(UISprite uiSprite)
+	{
+		if (uiSprite == null)
+			return;
+		ClearResource<Material>(uiSprite);
+		uiSprite.material = null;
+	}
+
 	public bool LoadTexture(UISprite uiSprite, string fileName, string matName)
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(matName))
@@ -95,6 +138,26 @@ public class NGUIResLoader: BaseResLoader  {
 		mat.SetTexture(matName, tex);
 
 		return tex != null;
+	}
+
+	public void ClearMainTexture(UISprite uiSprite)
+	{
+		if (uiSprite == null)
+			return;
+		ClearTexture(uiSprite, _cMainTex);
+		uiSprite.mainTexture = null;
+	}
+
+	public void ClearTexture(UISprite uiSprite, string matName)
+	{
+		if (uiSprite == null)
+			return;
+		
+		ClearResource<Texture>(uiSprite, matName);
+
+		Material mat = uiSprite.material;
+		if (mat != null)
+			mat.SetTexture(matName, null);
 	}
 
 	public bool LoadMainTexture(UISprite uiSprite, string fileName)
@@ -131,6 +194,35 @@ public class NGUIResLoader: BaseResLoader  {
 		uiSprite.shader = shader;
 
 		return shader != null;
+	}
+
+	public void ClearShader(UI2DSprite uiSprite)
+	{
+		if (uiSprite == null)
+			return;
+		ClearResource<Shader>(uiSprite);
+		uiSprite.shader = null;
+	}
+
+	public void ClearTexture(UI2DSprite uiSprite, string matName)
+	{
+		if (uiSprite == null)
+			return;
+		
+		ClearResource<Texture>(uiSprite, matName);
+
+		Material mat = uiSprite.material;
+		if (mat != null)
+			mat.SetTexture(matName, null);
+	}
+
+	public void ClearMainTexture(UI2DSprite uiSprite)
+	{
+		if (uiSprite == null)
+			return;
+		
+		ClearTexture(uiSprite, _cMainTex);
+		uiSprite.mainTexture = null;
 	}
 
 	public bool LoadTexture(UI2DSprite uiSprite, string fileName, string matName)
@@ -180,6 +272,14 @@ public class NGUIResLoader: BaseResLoader  {
 		}
 
 		return isFound;
+	}
+
+	public void ClearMaterial(UI2DSprite uiSprite)
+	{
+		if (uiSprite == null)
+			return;
+		uiSprite.material = null;
+		ClearResource<Material>(uiSprite);
 	}
 
 	public bool LoadMaterial(UI2DSprite uiSprite, string fileName)
