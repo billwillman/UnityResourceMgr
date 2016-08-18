@@ -301,4 +301,99 @@ public class BaseResLoader: CachedMonoBehaviour
         SetResource(target.GetInstanceID(), null, typeof(GameObject));
         target = null;
     }
+
+	public void ClearMaterail(ref Material target)
+	{
+		if (target == null)
+			return;
+		SetResource(target.GetInstanceID(), null, typeof(Material));
+		target = null;
+	}
+
+	public bool LoadMaterial(ref Material target, string fileName)
+	{
+		if (string.IsNullOrEmpty(fileName))
+			return false;
+		ClearMaterail(ref target);
+		target = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
+		if (target != null)
+			SetResource(target.GetInstanceID(), target, typeof(Material));
+		return target != null;
+	}
+
+	public void ClearTexture(ref Texture target)
+	{
+		if (target == null)
+			return;
+		SetResource(target.GetInstanceID(), null, typeof(Texture));
+		target = null;
+	}
+
+	public bool LoadTexture(ref Texture target, string fileName)
+	{
+		if (string.IsNullOrEmpty(fileName))
+			return false;
+		ClearTexture(ref target);
+		target = ResourceMgr.Instance.LoadTexture(fileName, ResourceCacheType.rctRefAdd);
+		if (target != null)
+			SetResource(target.GetInstanceID(), target, typeof(Texture));
+		return target != null;
+	}
+
+	public void ClearShader(ref Shader target)
+	{
+		if (target == null)
+			return;
+		SetResource(target.GetInstanceID(), null, typeof(Shader));
+		target = null;
+	}
+
+	public bool LoadShader(ref Shader target, string fileName)
+	{
+		if (string.IsNullOrEmpty(fileName))
+			return false;
+		ClearShader(ref target);
+		target = ResourceMgr.Instance.LoadShader(fileName, ResourceCacheType.rctRefAdd);
+		if (target != null)
+			SetResource(target.GetInstanceID(), target, typeof(Shader));
+		return target != null;
+	}
+
+	public void ClearAudioClip(ref AudioClip target)
+	{
+		if (target == null)
+			return;
+		SetResource(target.GetInstanceID(), null, typeof(AudioClip));
+		target = null;
+	}
+
+	public bool LoadAudioClip(ref AudioClip target, string fileName)
+	{
+		if (string.IsNullOrEmpty(fileName))
+			return false;
+		ClearAudioClip(ref target);
+		target = ResourceMgr.Instance.LoadAudioClip(fileName, ResourceCacheType.rctRefAdd);
+		if (target != null)
+			SetResource(target.GetInstanceID(), target, typeof(AudioClip));
+		return target != null;
+	}
+
+	public void ClearAnimationClip(ref AnimationClip target)
+	{
+		if (target == null)
+			return;
+		SetResource(target.GetInstanceID(), null, typeof(AnimationClip));
+		target = null;
+	}
+
+	public bool LoadAnimationClip(ref AnimationClip target, string fileName)
+	{
+		if (string.IsNullOrEmpty(fileName))
+			return false;
+		ClearAnimationClip(ref target);
+		target = ResourceMgr.Instance.LoadAnimationClip(fileName, ResourceCacheType.rctRefAdd);
+		if (target != null)
+			SetResource(target.GetInstanceID(), target, typeof(AnimationClip));
+		return target != null;
+	}
 }
