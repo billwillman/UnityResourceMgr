@@ -182,4 +182,85 @@ public class BaseResLoader: CachedMonoBehaviour
 		Resources.UnloadAsset(sp);
 		ResourceMgr.Instance.DestroyObject(sp);
 	}
+
+	public bool LoadMaterial(MeshRenderer renderer, string fileName)
+	{
+		if (renderer == null)
+			return false;
+
+		Material mat = null;
+		if (!string.IsNullOrEmpty(fileName))
+			mat = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
+		SetResources(renderer, null, typeof(Material[]));
+		SetResource(renderer, mat, typeof(Material));
+		renderer.sharedMaterial = mat;
+		return true;
+	}
+
+	public void ClearMaterials(MeshRenderer renderer)
+	{
+		SetResources(renderer, null, typeof(Material[]));
+		SetResource(renderer, null, typeof(Material));
+		renderer.sharedMaterial = null;
+		renderer.material = null;
+		renderer.sharedMaterials = null;
+		renderer.materials = null;
+	}
+
+	public bool LoadMaterial(SpriteRenderer sprite, string fileName)
+	{
+		if (sprite == null || string.IsNullOrEmpty(fileName))
+			return false;
+		Material mat = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
+		SetResource(sprite, mat, typeof(Material));
+
+		if (mat != null)
+			sprite.sharedMaterial = mat;
+		else
+			sprite.sharedMaterial = null;
+
+		return mat != null;
+	}
+
+	public void ClearMaterial(SpriteRenderer sprite)
+	{
+		if (sprite == null)
+			return;
+		ClearResource<Material>(sprite);
+		sprite.sharedMaterial = null;
+		sprite.material = null;
+	}
+
+	public bool LoadSprite(SpriteRenderer sprite, string fileName, string spriteName)
+	{
+		if (sprite == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(spriteName))
+			return false;
+		Sprite[] sps = ResourceMgr.Instance.LoadSprites(fileName, ResourceCacheType.rctRefAdd);
+		bool isFound = false;
+		for (int i = 0; i < sps.Length; ++i)
+		{
+			Sprite sp = sps[i];
+			if (sp == null)
+				continue;
+			if (!isFound && string.Compare(sp.name, spriteName) == 0)
+			{
+				sprite.sprite = sp;
+				isFound = true;
+				SetResources(sprite, sps, typeof(Sprite[]));
+				break;
+			}
+		}
+
+		if (!isFound)
+		{
+			for (int i = 0; i < sps.Length; ++i)
+			{
+				Sprite sp = sps[i];
+				DestroySprite(sp);
+			}
+			SetResources(sprite, null, typeof(Sprite[]));
+		}
+
+		return isFound;
+	}
 }
