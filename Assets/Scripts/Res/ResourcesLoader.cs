@@ -66,22 +66,23 @@ public class ResourceAssetCache: AssetCache
 	
 	private string mTag = string.Empty;
 #endif
-	public ResourceAssetCache(UnityEngine.Object target)
+	public ResourceAssetCache(UnityEngine.Object target, string fileName)
 	{
 		mTarget = target;
+		mFileName = fileName;
 		CheckGameObject();
 	}
 
 	public ResourceAssetCache()
 	{}
 
-	public static ResourceAssetCache Create(UnityEngine.Object target)
+	public static ResourceAssetCache Create(UnityEngine.Object target, string fileName)
 	{
 		ResourceAssetCache ret;
 		if (m_PoolUsed)
-			ret = GetPool(target);
+			ret = GetPool(target, fileName);
 		else
-			ret = new ResourceAssetCache(target);
+			ret = new ResourceAssetCache(target, fileName);
 		return ret;
 	}
 
@@ -92,6 +93,14 @@ public class ResourceAssetCache: AssetCache
 		}
 	}
 
+	public string FileName
+	{
+		get
+		{
+			return mFileName;
+		}
+	}
+
 	private void CheckGameObject()
 	{
 		mIsGameObject = (mTarget as GameObject) != null;
@@ -99,7 +108,12 @@ public class ResourceAssetCache: AssetCache
 
     protected override void OnUnUsed()
     {
+		ResourcesLoader loader = ResourceMgr.Instance.ResLoader as ResourcesLoader;
+		if (loader != null)
+			loader.OnCacheDestroy(this);
+		
         mTarget = null;
+		mFileName = string.Empty;
         if (m_PoolUsed)
         {
             InPool(this);
@@ -108,6 +122,10 @@ public class ResourceAssetCache: AssetCache
 
 	protected override void OnUnLoad()
 	{
+		ResourcesLoader loader = ResourceMgr.Instance.ResLoader as ResourcesLoader;
+		if (loader != null)
+			loader.OnCacheDestroy(this);
+
 		if (mTarget != null) {
 			if (mIsGameObject)
 			{
@@ -141,6 +159,8 @@ public class ResourceAssetCache: AssetCache
 			mTarget = null;
 		}
 
+		mFileName = string.Empty;
+
 		if (m_PoolUsed)
 		{
 			InPool(this);
@@ -162,17 +182,19 @@ public class ResourceAssetCache: AssetCache
 		m_Pool.Store(cache);
 	}
 
-	private static ResourceAssetCache GetPool(UnityEngine.Object target)
+	private static ResourceAssetCache GetPool(UnityEngine.Object target, string fileName)
 	{
 		InitPool();
 		ResourceAssetCache ret = m_Pool.GetObject();
 		ret.mTarget = target;
+		ret.mFileName = fileName;
 		ret.CheckGameObject();
 		return ret;
 	}
 
 	private UnityEngine.Object mTarget = null;
 	private bool mIsGameObject = false;
+	private string mFileName = string.Empty;
 
 	// 缓冲池
 	private static bool m_PoolUsed = true;
@@ -226,32 +248,52 @@ public class ResourcesLoader: IResourceLoader
 			return null;
 
 		T ret = null;
-		if (IsResLoaderFileName (ref fileName))
-			ret = Resources.Load<T>(fileName);
-		else {
-			return null;
+
+		string orgFileName = fileName;
+
+#if USE_HAS_EXT
+		ret = FindCache<T>(orgFileName);
+#endif
+		bool isFirstLoad = (ret == null);
+		if (isFirstLoad)
+		{	
+			if (IsResLoaderFileName (ref fileName))
+				ret = Resources.Load<T>(fileName);
+			else {
+				return null;
+			}
 		}
+
+		AssetCache cache = null;
 		if (ret && (cacheType != ResourceCacheType.rctNone)) {
-			AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache (ret);
+			cache = AssetCacheManager.Instance.FindOrgObjCache (ret);
 			if (cache == null)
-				cache = ResourceMgr.Instance.ResLoader.CreateCache (ret, fileName);
+				cache = ResourceMgr.Instance.ResLoader.CreateCache (ret, orgFileName);
 			if (cache != null) {
 				if (cacheType == ResourceCacheType.rctRefAdd)
 					AssetCacheManager.Instance._AddOrUpdateUsedList (cache);
 				AssetCacheManager.Instance._OnLoadObject (ret, cache);
 			}
 		} else if (ret && (cacheType == ResourceCacheType.rctNone)) {
-			AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache (ret);
+			cache = AssetCacheManager.Instance.FindOrgObjCache (ret);
 			if (cache == null)
 			{
 				// 第一次加载
-				cache = ResourceMgr.Instance.ResLoader.CreateCache (ret, fileName);
+				cache = ResourceMgr.Instance.ResLoader.CreateCache (ret, orgFileName);
 				if (cache != null)
 				{
 					AssetCacheManager.Instance._AddTempAsset(cache);
 				}
 			}
 		}
+
+#if USE_HAS_EXT
+		if (isFirstLoad && cache != null)
+		{
+			AddCacheMap(cache);
+		}
+#endif
+
 		return ret;
 	}
 
@@ -532,9 +574,78 @@ public class ResourcesLoader: IResourceLoader
 		if (orgObj == null)
 			return null;
 
-		ResourceAssetCache cache = ResourceAssetCache.Create(orgObj);
+		ResourceAssetCache cache = ResourceAssetCache.Create(orgObj, fileName);
 		return cache;
 	}
 
 	#endregion public function
+
+	private AssetCache FindCache(string fileName)
+	{
+		AssetCache ret;
+		if (m_CacheMap.TryGetValue(fileName, out ret))
+			return ret;
+		return null;
+	}
+
+	private T FindCache<T>(string fileName) where T: UnityEngine.Object
+	{
+		AssetCache cache = FindCache(fileName);
+		if (cache == null)
+			return null;
+
+		ResourceAssetCache resCache = cache as ResourceAssetCache;
+		if (resCache == null)
+			return null;
+
+		return resCache.Target as T;
+	}
+
+	internal void OnCacheDestroy(ResourceAssetCache cache)
+	{
+		if (cache == null)
+			return;
+
+
+		string fileName = cache.FileName;
+		if (string.IsNullOrEmpty(fileName))
+			return;
+		
+		if (m_CacheMap.ContainsKey(fileName))
+			m_CacheMap.Remove(fileName);
+	}
+
+	private void AddCacheMap(AssetCache cache)
+	{
+		if (cache == null)
+			return;
+		ResourceAssetCache resCache = cache as ResourceAssetCache;
+		if (resCache == null)
+			return;
+		AddCacheMap(resCache);
+	}
+
+	private void AddCacheMap(ResourceAssetCache cache)
+	{
+		if (cache == null)
+			return;
+		string fileName = cache.FileName;
+		if (string.IsNullOrEmpty(fileName))
+			return;
+		
+		if (m_CacheMap.ContainsKey(fileName))
+		{
+			if (m_CacheMap[fileName] != cache)
+			{
+				m_CacheMap[fileName] = cache;
+				Debug.LogErrorFormat("[AddCacheMap] CacheMap {0} exists!", fileName);
+			}
+
+			return;
+		}
+
+		m_CacheMap.Add(fileName, cache);
+	}
+
+	private Dictionary<string, AssetCache> m_CacheMap = new Dictionary<string, AssetCache>();
 }
