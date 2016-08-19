@@ -243,7 +243,7 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	public bool LoadMaterial(MeshRenderer renderer, string fileName)
 	{
-		if (renderer == null)
+		if (renderer == null || string.IsNullOrEmpty(fileName))
 			return false;
 
 		Material mat = null;
@@ -252,7 +252,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		SetResources(renderer, null, typeof(Material[]));
 		SetResource(renderer, mat, typeof(Material));
 		renderer.sharedMaterial = mat;
-		return true;
+		return mat != null;
 	}
 
 	public void ClearMaterials(MeshRenderer renderer)
@@ -296,13 +296,18 @@ public class BaseResLoader: CachedMonoBehaviour
 		
 		ResValue resValue;
 		if (FindResValue (sprite, typeof(Sprite[]), out resValue)) {
+			bool isSame = string.Compare(fileName, resValue.tag) == 0;
+			if (isSame)
+			{
 				if (resValue.objs != null && resValue.objs.Length > 0) {
 					Sprite sp = resValue.objs [0] as Sprite;
 					sprite.sprite = sp;
 					return sp != null;
 				}
 
+				sprite.sprite = null;
 				return false;
+			}
 		};
 
 		Sprite[] sps = ResourceMgr.Instance.LoadSprites(fileName, ResourceCacheType.rctRefAdd);
@@ -313,10 +318,10 @@ public class BaseResLoader: CachedMonoBehaviour
 		}
 		
 		
-		SetResources(sprite, sps, typeof(Sprite[]));
+		SetResources(sprite, sps, typeof(Sprite[]), string.Empty, fileName);
 		Sprite sp1 = sps[0];
 		sprite.sprite = sp1;
-		return sp1;
+		return sp1 != null;
 	}
 
 	public bool LoadSprite(SpriteRenderer sprite, string fileName, string spriteName)
@@ -326,7 +331,8 @@ public class BaseResLoader: CachedMonoBehaviour
 
 		ResValue resValue;
 		if (FindResValue (sprite, typeof(Sprite[]), out resValue)) {
-			if (string.Compare (resValue.tag, fileName) == 0) {
+			bool isSame = string.Compare (resValue.tag, fileName) == 0;
+			if (isSame) {
 				if (resValue.objs != null) {
 					for (int i = 0; i < resValue.objs.Length; ++i) {
 						Sprite sp = resValue.objs [i] as Sprite;
@@ -340,6 +346,7 @@ public class BaseResLoader: CachedMonoBehaviour
 				}
 			}
 
+			sprite.sprite = null;
 			return false;
 		};
 
@@ -354,7 +361,7 @@ public class BaseResLoader: CachedMonoBehaviour
 			{
 				sprite.sprite = sp;
 				isFound = true;
-				SetResources(sprite, sps, typeof(Sprite[]), "", fileName);
+				SetResources(sprite, sps, typeof(Sprite[]), string.Empty, fileName);
 				break;
 			}
 		}
@@ -366,6 +373,8 @@ public class BaseResLoader: CachedMonoBehaviour
 				Sprite sp = sps[i];
 				DestroySprite(sp);
 			}
+
+			sprite.sprite = null;
 			SetResources(sprite, null, typeof(Sprite[]));
 		}
 
