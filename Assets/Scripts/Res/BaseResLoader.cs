@@ -455,4 +455,23 @@ public class BaseResLoader: CachedMonoBehaviour
 			SetResource(target.GetInstanceID(), target, typeof(AnimationClip));
 		return target != null;
 	}
+
+    public void ClearAniController(ref RuntimeAnimatorController target)
+    {
+        if (target == null)
+            return;
+        SetResource(target.GetInstanceID(), null, typeof(RuntimeAnimatorController));
+        target = null;
+    }
+
+    public bool LoadAniController(ref RuntimeAnimatorController target, string fileName)
+    {
+        if (string.IsNullOrEmpty(fileName))
+            return false;
+        ClearAniController(ref target);
+        target = ResourceMgr.Instance.LoadAniController(fileName, ResourceCacheType.rctRefAdd);
+        if (target != null)
+            SetResource(target.GetInstanceID(), target, typeof(RuntimeAnimatorController));
+        return target != null;
+    }
 }
