@@ -240,6 +240,35 @@ public class ResourcesLoader: IResourceLoader
 		}
 	}
 
+	private AssetCache AddRefCache(string orgFileName, UnityEngine.Object obj, ResourceCacheType cacheType)
+	{
+		AssetCache cache = null;
+		if (obj && (cacheType != ResourceCacheType.rctNone)) {
+			cache = AssetCacheManager.Instance.FindOrgObjCache (obj);
+			if (cache == null)
+				cache = ResourceMgr.Instance.ResLoader.CreateCache (obj, orgFileName);
+			if (cache != null) {
+				if (cacheType == ResourceCacheType.rctRefAdd)
+					AssetCacheManager.Instance._AddOrUpdateUsedList (cache);
+				AssetCacheManager.Instance._OnLoadObject (obj, cache);
+			}
+		} else if (obj && (cacheType == ResourceCacheType.rctNone)) {
+			cache = AssetCacheManager.Instance.FindOrgObjCache (obj);
+			if (cache == null)
+			{
+				// 第一次加载
+				cache = ResourceMgr.Instance.ResLoader.CreateCache (obj, orgFileName);
+				if (cache != null)
+				{
+					AssetCacheManager.Instance._AddTempAsset(cache);
+				}
+			}
+		}
+
+		return cache;
+		
+	}
+
 	#region public function
 
 	public T LoadObject<T>(string fileName, ResourceCacheType cacheType) where T: UnityEngine.Object
@@ -264,28 +293,7 @@ public class ResourcesLoader: IResourceLoader
 			}
 		}
 
-		AssetCache cache = null;
-		if (ret && (cacheType != ResourceCacheType.rctNone)) {
-			cache = AssetCacheManager.Instance.FindOrgObjCache (ret);
-			if (cache == null)
-				cache = ResourceMgr.Instance.ResLoader.CreateCache (ret, orgFileName);
-			if (cache != null) {
-				if (cacheType == ResourceCacheType.rctRefAdd)
-					AssetCacheManager.Instance._AddOrUpdateUsedList (cache);
-				AssetCacheManager.Instance._OnLoadObject (ret, cache);
-			}
-		} else if (ret && (cacheType == ResourceCacheType.rctNone)) {
-			cache = AssetCacheManager.Instance.FindOrgObjCache (ret);
-			if (cache == null)
-			{
-				// 第一次加载
-				cache = ResourceMgr.Instance.ResLoader.CreateCache (ret, orgFileName);
-				if (cache != null)
-				{
-					AssetCacheManager.Instance._AddTempAsset(cache);
-				}
-			}
-		}
+		AssetCache cache = AddRefCache(orgFileName, ret, cacheType);
 
 #if USE_HAS_EXT
 		if (isFirstLoad && cache != null)
@@ -301,6 +309,20 @@ public class ResourcesLoader: IResourceLoader
 	{
 		if (string.IsNullOrEmpty (fileName))
 			return false;
+
+		string orgFileName = fileName;
+#if USE_HAS_EXT
+		T obj = FindCache<T>(orgFileName);
+		if (obj != null)
+		{
+			if (AddRefCache(orgFileName, obj, cacheType) != null)
+			{
+				if (onProcess != null)
+					onProcess(1.0f, true, obj);
+				return true;
+			}
+		}
+#endif
 
 		if (!IsResLoaderFileName (ref fileName)) {
 			return false;
@@ -318,6 +340,13 @@ public class ResourcesLoader: IResourceLoader
 				LogMgr.Instance.LogError(err);
 				return false;
 			}
+
+			AssetCache cache = AddRefCache(orgFileName, orgObj, cacheType);
+
+			#if USE_HAS_EXT
+			AddCacheMap(cache);
+			#endif
+
 			if (onProcess != null)
 				onProcess(request.progress, request.isDone, orgObj);
 			return true;
@@ -335,27 +364,10 @@ public class ResourcesLoader: IResourceLoader
 					return;
 				}
 
-				if (orgObj != null && (cacheType != ResourceCacheType.rctNone)) {
-					AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(orgObj);
-					if (cache == null)
-						cache = ResourceMgr.Instance.ResLoader.CreateCache(orgObj, fileName);
-					if (cache != null)
-					{
-						if (cacheType == ResourceCacheType.rctRefAdd)
-							AssetCacheManager.Instance._AddOrUpdateUsedList(cache);
-						AssetCacheManager.Instance._OnLoadObject(orgObj, cache);
-					}
-				} else if ((orgObj != null) && (cacheType == ResourceCacheType.rctNone))
-				{
-					AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(orgObj);
-					if (cache == null)
-					{
-						// 第一次加载
-						cache = ResourceMgr.Instance.ResLoader.CreateCache(orgObj, fileName);
-						if (cache != null)
-							AssetCacheManager.Instance._AddTempAsset(cache);
-					}
-				}
+				AssetCache cache = AddRefCache(orgFileName, orgObj, cacheType);
+				#if USE_HAS_EXT
+				AddCacheMap(cache);
+				#endif
 
 				if (onProcess != null)
 					onProcess(req.progress, req.isDone, orgObj);
