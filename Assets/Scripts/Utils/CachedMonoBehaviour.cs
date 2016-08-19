@@ -29,7 +29,7 @@ namespace Utils
         {
             System.Type t = typeof(T);
             UnityEngine.Component ret;
-            if (!m_CachedCompentMap.TryGetValue(t, out ret))
+            if (m_CachedCompentMap == null || !m_CachedCompentMap.TryGetValue(t, out ret))
             {
                 GameObject gameObj = CachedGameObject;
                 if (gameObj == null)
@@ -37,6 +37,7 @@ namespace Utils
                 T target = gameObj.GetComponent<T>();
                 if (target == null)
                     return null;
+                CheckCachedCompentMap();
                 m_CachedCompentMap.Add(t, target);
                 return target;
             }
@@ -45,8 +46,14 @@ namespace Utils
             return comp;
         }
 
+        private void CheckCachedCompentMap()
+        {
+            if (m_CachedCompentMap == null)
+                m_CachedCompentMap = new Dictionary<System.Type,Component>();
+        }
 
-        private Dictionary<System.Type, UnityEngine.Component> m_CachedCompentMap = new Dictionary<System.Type, Component>();
+
+        private Dictionary<System.Type, UnityEngine.Component> m_CachedCompentMap = null;
         private GameObject m_CachedGameObj = null;
     }
 }
