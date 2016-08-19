@@ -20,7 +20,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		GameObject obj = this.CachedGameObject;
 		if (obj == null)
 			return;
-		if (!obj.activeInHierarchy)
+		if (!obj.activeSelf)
 		{
 			obj.SetActive(true);
 			obj.SetActive(false);

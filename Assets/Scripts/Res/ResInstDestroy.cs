@@ -17,7 +17,7 @@ public class ResInstDestroy: MonoBehaviour
 		GameObject obj = this.gameObject;
 		if (obj == null)
 			return;
-		if (!obj.activeInHierarchy)
+		if (!obj.activeSelf)
 		{
 			obj.SetActive(true);
 			obj.SetActive(false);
