@@ -8,7 +8,7 @@ public class BaseResLoader: CachedMonoBehaviour
 {
 	protected static readonly string _cMainTex = "_MainTex";
 	protected static readonly string _cMainMat = "_Mat_0";
-	protected Dictionary<ResKey, ResValue> m_ResMap = new Dictionary<ResKey, ResValue>();
+	private Dictionary<ResKey, ResValue> m_ResMap = null;
 
 	private bool m_IsCheckedVisible = false;
 
@@ -25,6 +25,12 @@ public class BaseResLoader: CachedMonoBehaviour
 			obj.SetActive(true);
 			obj.SetActive(false);
 		}
+	}
+
+	private void CheckResMap()
+	{
+		if (m_ResMap == null)
+			m_ResMap = new Dictionary<ResKey, ResValue> ();
 	}
 
 	protected string GetMatResName(int matIdx)
@@ -97,6 +103,8 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	protected void DestroyResource(ResKey key)
 	{
+		if (m_ResMap == null)
+			return;
 		ResValue res;
 		if (m_ResMap.TryGetValue(key, out res))
 		{
@@ -124,6 +132,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		DestroyResource(key);
 		if (res == null)
 			return;
+		CheckResMap ();
 		CheckVisible();
 		ResValue value = CreateValue(res);
 		m_ResMap.Add(key, value);
@@ -159,6 +168,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		DestroyResource(key);
 		if (res == null)
 			return;
+		CheckResMap ();
 		CheckVisible();
 		ResValue value = CreateValue(res);
 		m_ResMap.Add(key, value);
@@ -173,6 +183,9 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	protected void ClearAllResources()
 	{
+		if (m_ResMap == null)
+			return;
+		
 		var iter = m_ResMap.GetEnumerator();
 		while (iter.MoveNext())
 		{
