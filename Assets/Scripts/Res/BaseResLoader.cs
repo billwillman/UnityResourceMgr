@@ -33,6 +33,34 @@ public class BaseResLoader: CachedMonoBehaviour
 			m_ResMap = new Dictionary<ResKey, ResValue> ();
 	}
 
+	protected bool FindResValue(ResKey key, out ResValue value)
+	{
+		value = new ResValue ();
+		if (m_ResMap == null)
+			return false;
+		return m_ResMap.TryGetValue (key, out value);
+	}
+
+	protected bool FindResValue(int instanceId, System.Type resType, out ResValue value, string resName = "")
+	{
+		ResKey key = CreateKey (instanceId, resType, resName);
+		return FindResValue (key, out value);
+	}
+
+	protected bool FindResValue(UnityEngine.Object target, System.Type resType, out ResValue value, string resName = "")
+	{
+		value = new ResValue ();
+		if (target == null)
+			return false;
+		return FindResValue (target.GetInstanceID (), resType, out value, resName);
+	}
+
+	protected bool FindResValue<T>(T target, out ResValue value, string resName = "") where T: UnityEngine.Object
+	{
+		System.Type resType = typeof(T);
+		return FindResValue (target, resType, out value, resName);
+	}
+
 	protected string GetMatResName(int matIdx)
 	{
 		if (matIdx < 0)
@@ -52,6 +80,7 @@ public class BaseResLoader: CachedMonoBehaviour
 	{
 		public UnityEngine.Object obj;
 		public UnityEngine.Object[] objs;
+		public string tag;
 	}
 
 	protected static ResKey CreateKey(int instanceId, System.Type resType, string resName = "")
@@ -63,19 +92,21 @@ public class BaseResLoader: CachedMonoBehaviour
 		return ret;
 	}
 
-	protected ResValue CreateValue(UnityEngine.Object obj)
+	protected ResValue CreateValue(UnityEngine.Object obj, string tag = "")
 	{
 		ResValue ret = new ResValue();
 		ret.obj = obj;
 		ret.objs = null;
+		ret.tag = tag;
 		return ret;
 	}
 
-	protected ResValue CreateValue(UnityEngine.Object[] objs)
+	protected ResValue CreateValue(UnityEngine.Object[] objs, string tag = "")
 	{
 		ResValue ret = new ResValue();
 		ret.obj = null;
 		ret.objs = objs;
+		ret.tag = tag;
 		return ret;
 	}
 
@@ -126,7 +157,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		DestroyResource(key);
 	}
 
-	protected void SetResource(int instanceId, UnityEngine.Object res, System.Type resType, string resName = "")
+	protected void SetResource(int instanceId, UnityEngine.Object res, System.Type resType, string resName = "", string tag = "")
 	{
 		ResKey key = CreateKey(instanceId, resType, resName);
 		DestroyResource(key);
@@ -134,15 +165,15 @@ public class BaseResLoader: CachedMonoBehaviour
 			return;
 		CheckResMap ();
 		CheckVisible();
-		ResValue value = CreateValue(res);
+		ResValue value = CreateValue(res, tag);
 		m_ResMap.Add(key, value);
 	}
 
-	protected void SetResource(UnityEngine.Object target, UnityEngine.Object res, System.Type resType, string resName = "")
+	protected void SetResource(UnityEngine.Object target, UnityEngine.Object res, System.Type resType, string resName = "", string tag = "")
 	{
 		if (target == null)
 			return;
-		SetResource(target.GetInstanceID(), res, resType, resName);
+		SetResource(target.GetInstanceID(), res, resType, resName, tag);
 	}
 
 	protected void ClearResource<T>(UnityEngine.Object target, string resName = "") where T: UnityEngine.Object
@@ -156,13 +187,13 @@ public class BaseResLoader: CachedMonoBehaviour
 		SetResource(target, null, resType, resName);
 	}
 
-	protected void SetResource<T>(UnityEngine.Object target, T res, string resName = "") where T: UnityEngine.Object
+	protected void SetResource<T>(UnityEngine.Object target, T res, string resName = "", string tag = "") where T: UnityEngine.Object
 	{
 		System.Type resType = typeof(T);
-		SetResource(target, res, resType, resName);
+		SetResource(target, res, resType, resName, tag);
 	}
 
-	protected void SetResources(int instanceId, UnityEngine.Object[] res, System.Type resType, string resName = "")
+	protected void SetResources(int instanceId, UnityEngine.Object[] res, System.Type resType, string resName = "", string tag = "")
 	{
 		ResKey key = CreateKey(instanceId, resType, resName);
 		DestroyResource(key);
@@ -170,15 +201,15 @@ public class BaseResLoader: CachedMonoBehaviour
 			return;
 		CheckResMap ();
 		CheckVisible();
-		ResValue value = CreateValue(res);
+		ResValue value = CreateValue(res, tag);
 		m_ResMap.Add(key, value);
 	}
 
-	protected void SetResources(UnityEngine.Object target, UnityEngine.Object[] res, System.Type resType, string resName = "")
+	protected void SetResources(UnityEngine.Object target, UnityEngine.Object[] res, System.Type resType, string resName = "", string tag = "")
 	{
 		if (target == null)
 			return;
-		SetResources(target.GetInstanceID(), res, resType, resName);
+		SetResources(target.GetInstanceID(), res, resType, resName, tag);
 	}
 
 	protected void ClearAllResources()
@@ -267,6 +298,26 @@ public class BaseResLoader: CachedMonoBehaviour
 	{
 		if (sprite == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(spriteName))
 			return false;
+
+		ResValue resValue;
+		if (FindResValue (sprite, typeof(Sprite[]), out resValue)) {
+			if (string.Compare (resValue.tag, fileName) == 0) {
+				if (resValue.objs != null) {
+					for (int i = 0; i < resValue.objs.Length; ++i) {
+						Sprite sp = resValue.objs [i] as Sprite;
+						if (sp == null)
+							continue;
+						if (string.Compare (sp.name, spriteName) == 0) {
+							sprite.sprite = sp;
+							return true;
+						}
+					}
+				}
+			}
+
+			return false;
+		};
+
 		Sprite[] sps = ResourceMgr.Instance.LoadSprites(fileName, ResourceCacheType.rctRefAdd);
 		bool isFound = false;
 		for (int i = 0; i < sps.Length; ++i)
@@ -278,7 +329,7 @@ public class BaseResLoader: CachedMonoBehaviour
 			{
 				sprite.sprite = sp;
 				isFound = true;
-				SetResources(sprite, sps, typeof(Sprite[]));
+				SetResources(sprite, sps, typeof(Sprite[]), "", fileName);
 				break;
 			}
 		}
