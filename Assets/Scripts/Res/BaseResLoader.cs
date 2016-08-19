@@ -41,6 +41,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		return m_ResMap.TryGetValue (key, out value);
 	}
 
+
 	protected bool FindResValue(int instanceId, System.Type resType, out ResValue value, string resName = "")
 	{
 		ResKey key = CreateKey (instanceId, resType, resName);
@@ -53,12 +54,6 @@ public class BaseResLoader: CachedMonoBehaviour
 		if (target == null)
 			return false;
 		return FindResValue (target.GetInstanceID (), resType, out value, resName);
-	}
-
-	protected bool FindResValue<T>(T target, out ResValue value, string resName = "") where T: UnityEngine.Object
-	{
-		System.Type resType = typeof(T);
-		return FindResValue (target, resType, out value, resName);
 	}
 
 	protected string GetMatResName(int matIdx)
