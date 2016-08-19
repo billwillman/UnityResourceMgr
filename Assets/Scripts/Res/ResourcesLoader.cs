@@ -97,6 +97,15 @@ public class ResourceAssetCache: AssetCache
 		mIsGameObject = (mTarget as GameObject) != null;
 	}
 
+    protected override void OnUnUsed()
+    {
+        mTarget = null;
+        if (m_PoolUsed)
+        {
+            InPool(this);
+        }
+    }
+
 	protected override void OnUnLoad()
 	{
 		if (mTarget != null) {
