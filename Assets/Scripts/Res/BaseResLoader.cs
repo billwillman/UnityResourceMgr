@@ -456,22 +456,22 @@ public class BaseResLoader: CachedMonoBehaviour
 		return target != null;
 	}
 
-    public void ClearAniController(ref RuntimeAnimatorController target)
+    public void ClearAniController(Animator target)
     {
         if (target == null)
             return;
         SetResource(target.GetInstanceID(), null, typeof(RuntimeAnimatorController));
-        target = null;
     }
 
-    public bool LoadAniController(ref RuntimeAnimatorController target, string fileName)
+    public bool LoadAniController(Animator target, string fileName)
     {
-        if (string.IsNullOrEmpty(fileName))
+        if (target == null || string.IsNullOrEmpty(fileName))
             return false;
-        ClearAniController(ref target);
-        target = ResourceMgr.Instance.LoadAniController(fileName, ResourceCacheType.rctRefAdd);
-        if (target != null)
-            SetResource(target.GetInstanceID(), target, typeof(RuntimeAnimatorController));
-        return target != null;
+        ClearAniController(target);
+        var ctl = ResourceMgr.Instance.LoadAniController(fileName, ResourceCacheType.rctRefAdd);
+        if (ctl != null)
+            SetResource(target.GetInstanceID(), ctl, typeof(RuntimeAnimatorController));
+        target.runtimeAnimatorController = ctl;
+        return ctl != null;
     }
 }
