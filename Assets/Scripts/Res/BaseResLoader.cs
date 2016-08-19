@@ -289,6 +289,36 @@ public class BaseResLoader: CachedMonoBehaviour
 		sprite.material = null;
 	}
 
+	public bool LoadSprite(SpriteRenderer sprite, string fileName)
+	{
+		if (sprite == null || string.IsNullOrEmpty(fileName))
+			return false;
+		
+		ResValue resValue;
+		if (FindResValue (sprite, typeof(Sprite[]), out resValue)) {
+				if (resValue.objs != null && resValue.objs.Length > 0) {
+					Sprite sp = resValue.objs [0] as Sprite;
+					sprite.sprite = sp;
+					return sp != null;
+				}
+
+				return false;
+		};
+
+		Sprite[] sps = ResourceMgr.Instance.LoadSprites(fileName, ResourceCacheType.rctRefAdd);
+		if (sps == null || sps.Length <= 0) {
+			sprite.sprite = null;
+			SetResources(sprite, null, typeof(Sprite[]));
+			return false;
+		}
+		
+		
+		SetResources(sprite, sps, typeof(Sprite[]));
+		Sprite sp1 = sps[0];
+		sprite.sprite = sp1;
+		return sp1;
+	}
+
 	public bool LoadSprite(SpriteRenderer sprite, string fileName, string spriteName)
 	{
 		if (sprite == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(spriteName))
