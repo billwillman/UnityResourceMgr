@@ -2264,6 +2264,11 @@ public class AssetLoader: IResourceLoader
 	{
 
 #if USE_DEP_BINARY && USE_DEP_BINARY_AB
+
+		#if DEBUG
+		float startTime = Time.realtimeSinceStartup;
+		#endif
+
 		AssetBundle bundle;
 		string fileName = GetXmlFileName();
 		#if UNITY_5_3 || UNITY_5_4
@@ -2273,11 +2278,23 @@ public class AssetLoader: IResourceLoader
 		#endif
 		if (bundle != null)
 		{
+			
+		#if DEBUG
+			float usedTime = Time.realtimeSinceStartup - startTime;
+			Debug.LogFormat("加载XML AB时间：{0}", usedTime.ToString());
+		#endif
+
 			string name = System.IO.Path.GetFileNameWithoutExtension(fileName);
 			TextAsset asset = bundle.LoadAsset<TextAsset>(name);
 			if (asset != null)
 			{
 				LoadBinary(asset.bytes);
+
+		#if DEBUG
+				usedTime = Time.realtimeSinceStartup - startTime;
+				Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());
+		#endif
+
 				bundle.Unload(true);
 				if (OnFinishEvent != null)
 					OnFinishEvent(true);
