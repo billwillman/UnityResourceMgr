@@ -6,9 +6,35 @@ using System.Collections.Generic;
 
 #if UNITY_EDITOR
 	
-public abstract class IDependBinary
+public interface IDependBinary
 {
-	
+	string BundleFileName
+	{
+		get;
+	}
+
+	int CompressType
+	{
+		get;
+	}
+
+	bool IsMainAsset
+	{
+		get;
+	}
+
+	int SubFileCount
+	{
+		get;
+	}
+
+	int DependFileCount
+	{
+		get;
+	}
+
+	string GetSubFiles(int index);
+	string GetDependFiles(int index);
 }
 
 #endif
@@ -81,6 +107,22 @@ public class DependBinaryFile
 		return System.Text.Encoding.UTF8.GetString(bytes, 0, cnt);
 	}
 
+	private static bool WriteBool(Stream stream, bool value)
+	{
+		if (stream == null)
+			return false;
+		
+		int b = value ? 1 : 0;
+		stream.WriteByte((byte)b);
+		return true;
+	}
+
+	private static bool ReadBool(Stream stream)
+	{
+		int b = stream.ReadByte();
+		return b != 0;
+	}
+
 	// 文件头
 	private struct FileHeader
 	{
@@ -103,17 +145,26 @@ public class DependBinaryFile
 	{
 		public int subFileCount;
 		public int dependFileCount;
+		public bool isScene;
+		public bool isMainAsset;
+		public int compressType;
 
 		public void SaveToStream(Stream stream)
 		{
 			WriteInt(stream, subFileCount);
 			WriteInt(stream, dependFileCount);
+			WriteBool(stream, isScene);
+			WriteBool(stream, isMainAsset);
+			WriteInt(stream, compressType);
 		}
 
 		public void LoadFromStream(Stream stream)
 		{
 			subFileCount = ReadInt(stream);
 			dependFileCount = ReadInt(stream);
+			isScene = ReadBool(stream);
+			isMainAsset = ReadBool(stream);
+			compressType = ReadInt(stream);
 		}
 	}
 
@@ -152,12 +203,25 @@ public class DependBinaryFile
 
 #if UNITY_EDITOR
 
-	public static void ExportToFile(List<IDependBinary> files)
+	public static void ExportFileHeader(Stream Stream, int abFileCount, int flag)
+	{
+
+	}
+
+	public static void ExportToABFileHeader(Stream stream, IDependBinary file, string bundleName)
+	{
+	}
+
+	public static void ExportToSubFile(string subFileName)
+	{
+	}
+
+	public static void ExportToDependFile(string abFileName, int refCount)
 	{
 	}
 
 #endif
 
 	private static readonly string _CurrVersion = "_D01";
-	private static readonly int FLAG_UNCOMPRESS = 0x0;
+	public static readonly int FLAG_UNCOMPRESS = 0x0;
 }
