@@ -10,6 +10,9 @@
 // #define USE_LOWERCHAR
 #define USE_HAS_EXT
 #define USE_DEP_BINARY
+#if UNITY_5_3 || UNITY_5_4
+	#define USE_DEP_BINARY_AB
+#endif
 
 using System;
 using System.Collections;
@@ -1776,7 +1779,11 @@ public class AssetLoader: IResourceLoader
 
 	private string GetXmlFileName()
 	{
+		#if USE_DEP_BINARY_AB
+		string ret = GetCheckFileName("AssetBundles.xml", false, true);
+		#else
 		string ret = GetCheckFileName("AssetBundles.xml", true, false);
+		#endif
 		return ret;
 		/*
 		string ret = GetCheckWritePathFileName("AssetBundles.xml", isWWW);
@@ -2255,6 +2262,37 @@ public class AssetLoader: IResourceLoader
 	// 手动调用读取配置
 	public void LoadConfigs(Action<bool> OnFinishEvent)
 	{
+
+#if USE_DEP_BINARY && USE_DEP_BINARY_AB
+		AssetBundle bundle;
+		string fileName = GetXmlFileName();
+		#if UNITY_5_3 || UNITY_5_4
+		bundle = AssetBundle.LoadFromFile(fileName);
+		#else
+		bundle = AssetBundle.CreateFromFile(fileName);
+		#endif
+		if (bundle != null)
+		{
+			string name = System.IO.Path.GetFileNameWithoutExtension(fileName);
+			TextAsset asset = bundle.LoadAsset<TextAsset>(name);
+			if (asset != null)
+			{
+				LoadBinary(asset.bytes);
+				bundle.Unload(true);
+				if (OnFinishEvent != null)
+					OnFinishEvent(true);
+			} else
+			{
+				bundle.Unload(true);
+				if (OnFinishEvent != null)
+					OnFinishEvent(false);
+			}
+		} else
+		{
+			if (OnFinishEvent != null)
+				OnFinishEvent(false);
+		}
+#else
 		mConfigLoaderEvent = OnFinishEvent;
 		if (mXmlLoaderTask == null) {
 			// 已经在读取状态了不会再调用
@@ -2271,6 +2309,7 @@ public class AssetLoader: IResourceLoader
 				}
 			}
 		}
+#endif
 
 	}
 

@@ -12,6 +12,9 @@
 #define USE_UNITY5_X_BUILD
 #define USE_HAS_EXT
 #define USE_DEP_BINARY
+#if UNITY_5_3 || UNITY_5_4
+	#define USE_DEP_BINARY_AB
+#endif
 
 using UnityEngine;
 using UnityEditor;
@@ -1351,21 +1354,30 @@ class AssetBundleMgr
 		EditorUserBuildSettings.activeBuildTargetChanged -= OnBuildTargetChanged;
 		ProcessBuild_5_x(m_TempExportDir, m_TempCompressType, m_TempBuildTarget);
 	}
+
+	private AssetBundleManifest CallBuild_5_x_API(string exportDir, int compressType, BuildTarget target, bool isReBuild = true)
+	{
+		BuildAssetBundleOptions buildOpts = BuildAssetBundleOptions.DisableWriteTypeTree |
+			BuildAssetBundleOptions.DeterministicAssetBundle;
+		
+		if (isReBuild)
+			buildOpts |= BuildAssetBundleOptions.ForceRebuildAssetBundle;
+		if (compressType == 0)
+			buildOpts |= BuildAssetBundleOptions.UncompressedAssetBundle;
+	#if UNITY_5_3 || UNITY_5_4
+		else if (compressType == 2)
+			buildOpts |= BuildAssetBundleOptions.ChunkBasedCompression;
+	#endif
+
+		AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(exportDir, buildOpts, target);
+		EditorUtility.UnloadUnusedAssetsImmediate();
+
+		return manifest;
+	}
 	
 	void ProcessBuild_5_x(string exportDir, int compressType, BuildTarget target)
 	{
-		BuildAssetBundleOptions buildOpts = BuildAssetBundleOptions.DisableWriteTypeTree |
-											BuildAssetBundleOptions.DeterministicAssetBundle |
-											BuildAssetBundleOptions.ForceRebuildAssetBundle; // 永远重新打包
-		if (compressType == 0)
-			buildOpts |= BuildAssetBundleOptions.UncompressedAssetBundle;
-#if UNITY_5_3 || UNITY_5_4
-		else if (compressType == 2)
-			buildOpts |= BuildAssetBundleOptions.ChunkBasedCompression;
-#endif
-		
-		AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(exportDir, buildOpts, target);
-		EditorUtility.UnloadUnusedAssetsImmediate();
+		AssetBundleManifest manifest = CallBuild_5_x_API(exportDir, compressType, target);
 		
 		for (int i = 0; i < mAssetBundleList.Count; ++i)
 		{
@@ -1404,76 +1416,6 @@ class AssetBundleMgr
 		
 #endif
 	}
-	
-	private void BuildAssetBundleInfo_5_x(AssetBunbleInfo info, eBuildPlatform platform, string exportDir, int compressType)
-    {
-#if USE_UNITY5_X_BUILD
-        if ((info == null) || (info.IsBuilded) || string.IsNullOrEmpty(exportDir) || (info.FileType == AssetBundleFileType.abError) || (info.SubFileCount <= 0))
-            return;
-        BuildTarget target = BuildTarget.Android;
-        if (!GetBuildTarget(platform, ref target))
-            return;
-        /*
-         * Unity 5.x始终启动：
-         *      CollectDependencies
-         *      CompleteAssets
-         *      DeterministicAssetBundle
-         */
-
-        string localOutFileName = info.BundleFileName;
-		string outFileName = string.Format("{0}/{1}", exportDir, localOutFileName);
-
-        if (info.IsScene)
-        {
-            // 场景打包
-            string[] fileArr = info.GetSubFiles();
-            if (fileArr == null)
-            {
-                string errStr = string.Format("AssetBundle [{0}] Subfiles is empty", info.Path);
-                Debug.LogError(errStr);
-                return;
-            }
-
-            BuildOptions buildOpts = BuildOptions.BuildAdditionalStreamedScenes;
-            if (compressType != 1)
-                buildOpts |= BuildOptions.UncompressedAssetBundle;
-        //    BuildPipeline.BuildStreamedSceneAssetBundle(fileArr, outFileName, target, buildOpts); 
-            BuildPipeline.BuildPlayer(fileArr, outFileName, target, buildOpts);
-            info.IsBuilded = true;
-            info.CompressType = compressType;
-            return;
-        } else
-        {
-            // 非场景资源打包
-            localOutFileName = GetAssetRelativePath(localOutFileName);
-
-            UnityEditor.AssetBundleBuild[] builders = new UnityEditor.AssetBundleBuild[1];
-			builders[0].assetBundleName = localOutFileName;
-          //  builders[0].assetBundleName = System.IO.Path.GetFileNameWithoutExtension(localOutFileName);
-			//builders[0].assetBundleVariant = "assets";
-            
-            List<string> assetNameList = new List<string>();
-            assetNameList.AddRange(info.GetSubFiles());
-            // 5.x打包需要把脚本也弄上去。。。
-            if (info.ScriptFileCount > 0)
-                assetNameList.AddRange(info.GetScriptFileNames());
-
-            builders[0].assetNames = assetNameList.ToArray();
-            //builders[0].assetNames = info.GetSubFiles();
-
-            BuildAssetBundleOptions buildOpts = BuildAssetBundleOptions.DisableWriteTypeTree |
-                                                BuildAssetBundleOptions.DeterministicAssetBundle |
-                                                BuildAssetBundleOptions.ForceRebuildAssetBundle; // 永远重新打包
-			if (compressType != 1)
-				buildOpts |= BuildAssetBundleOptions.UncompressedAssetBundle;
-
-            BuildPipeline.BuildAssetBundles(exportDir, builders, buildOpts, target);
-
-			info.IsBuilded = true;
-			info.CompressType = compressType;
-        }
-#endif
-    }
 
     public static string GetAssetRelativePath(string fullPath)
     {
@@ -2050,6 +1992,18 @@ class AssetBundleMgr
         string exportDir = CreateAssetBundleDir(platform, outPath);
         if (mAssetBundleList.Count > 0)
         {
+
+		#if USE_DEP_BINARY && USE_DEP_BINARY_AB
+			AssetImporter xmlImport = AssetImporter.GetAtPath("Assets/AssetBundles.xml");
+			if (xmlImport != null)
+			{
+				if (!string.IsNullOrEmpty(xmlImport.assetBundleName))
+				{
+					xmlImport.assetBundleName = string.Empty;
+					xmlImport.SaveAndReimport();
+				}
+			}
+		#endif
 			/*
             for (int i = 0; i < mAssetBundleList.Count; ++i)
             {
@@ -2061,20 +2015,54 @@ class AssetBundleMgr
 
 		#if USE_DEP_BINARY
 			// 二进制格式
-			ExportBinarys(exportDir, isMd5);
+			#if USE_DEP_BINARY_AB
+				ExportBinarys("Assets", isMd5);
+			#else
+				ExportBinarys(exportDir, isMd5);
+			#endif
 		#else
             // export xml
             ExportXml(exportDir, isMd5);
 		#endif
+			
+            AssetDatabase.Refresh();
+
+		#if USE_DEP_BINARY && USE_DEP_BINARY_AB
+			BuildTarget target = BuildTarget.Android;
+			if (GetBuildTarget(platform, ref target))
+			{
+				if (xmlImport == null)
+					xmlImport = AssetImporter.GetAtPath("Assets/AssetBundles.xml");
+				if (xmlImport != null)
+				{
+					xmlImport.assetBundleName = "AssetBundles.xml";
+					xmlImport.SaveAndReimport();
+
+					CallBuild_5_x_API(exportDir, compressType, target, false);
+
+					AssetDatabase.Refresh();
+
+					string xmlSrcFile = string.Format("{0}/assetbundles.xml", exportDir);
+					string xmlDstFile = string.Format("{0}/AssetBundles.xml", exportDir);
+					if (File.Exists(xmlSrcFile))
+					{
+						File.Move(xmlSrcFile, xmlDstFile);
+						AssetDatabase.Refresh();
+					}
+				}
+			}
+
+		#endif
+			
+			RemoveBundleManifestFiles_5_x(exportDir);
 
 			if (isMd5)
 			{
 				ProcessVersionRes(exportDir, platform);
 				ChangeBundleFileNameToMd5(exportDir);
 			}
-			RemoveBundleManifestFiles_5_x(exportDir);
 
-            AssetDatabase.Refresh();
+			AssetDatabase.Refresh();
 
             ResetAssetBundleInfo();
         }
