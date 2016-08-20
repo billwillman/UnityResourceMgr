@@ -2280,8 +2280,10 @@ public class AssetLoader: IResourceLoader
 		{
 			
 		#if DEBUG
-			float usedTime = Time.realtimeSinceStartup - startTime;
+			float curTime = Time.realtimeSinceStartup;
+			float usedTime = curTime - startTime;
 			Debug.LogFormat("加载XML AB时间：{0}", usedTime.ToString());
+			startTime = curTime;
 		#endif
 
 			string name = System.IO.Path.GetFileNameWithoutExtension(fileName);
