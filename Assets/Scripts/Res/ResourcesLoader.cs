@@ -592,17 +592,18 @@ public class ResourcesLoader: IResourceLoader
 
 	#endregion public function
 
-	private AssetCache FindCache(string fileName)
+	private AssetCache FindCache(string fileName, System.Type resType)
 	{
 		AssetCache ret;
-		if (m_CacheMap.TryGetValue(fileName, out ret))
+		CacheKey key = CreateCacheKey(fileName, resType);
+		if (m_CacheMap.TryGetValue(key, out ret))
 			return ret;
 		return null;
 	}
 
 	private T FindCache<T>(string fileName) where T: UnityEngine.Object
 	{
-		AssetCache cache = FindCache(fileName);
+		AssetCache cache = FindCache(fileName, typeof(T));
 		if (cache == null)
 			return null;
 
@@ -618,13 +619,17 @@ public class ResourcesLoader: IResourceLoader
 		if (cache == null)
 			return;
 
-
+		if (cache.Target == null)
+			return;
+		
 		string fileName = cache.FileName;
 		if (string.IsNullOrEmpty(fileName))
 			return;
-		
-		if (m_CacheMap.ContainsKey(fileName))
-			m_CacheMap.Remove(fileName);
+
+		System.Type resType = cache.Target.GetType();
+		CacheKey key = CreateCacheKey(fileName, resType);
+		if (m_CacheMap.ContainsKey(key))
+			m_CacheMap.Remove(key);
 	}
 
 	private void AddCacheMap(AssetCache cache)
@@ -639,25 +644,43 @@ public class ResourcesLoader: IResourceLoader
 
 	private void AddCacheMap(ResourceAssetCache cache)
 	{
-		if (cache == null)
+		if (cache == null || cache.Target == null)
 			return;
+
 		string fileName = cache.FileName;
 		if (string.IsNullOrEmpty(fileName))
 			return;
 		
-		if (m_CacheMap.ContainsKey(fileName))
+		System.Type resType = cache.Target.GetType();
+		CacheKey key = CreateCacheKey(fileName, resType);
+
+		if (m_CacheMap.ContainsKey(key))
 		{
-			if (m_CacheMap[fileName] != cache)
+			if (m_CacheMap[key] != cache)
 			{
-				m_CacheMap[fileName] = cache;
+				m_CacheMap[key] = cache;
 				Debug.LogErrorFormat("[AddCacheMap] CacheMap {0} exists!", fileName);
 			}
 
 			return;
 		}
 
-		m_CacheMap.Add(fileName, cache);
+		m_CacheMap.Add(key, cache);
 	}
 
-	private Dictionary<string, AssetCache> m_CacheMap = new Dictionary<string, AssetCache>();
+	private struct CacheKey
+	{
+		public string fileName;
+		public System.Type resType;
+	}
+
+	private CacheKey CreateCacheKey(string fileName, System.Type resType)
+	{
+		CacheKey ret = new CacheKey();
+		ret.fileName = fileName;
+		ret.resType = resType;
+		return ret;
+	}
+
+	private Dictionary<CacheKey, AssetCache> m_CacheMap = new Dictionary<CacheKey, AssetCache>();
 }
