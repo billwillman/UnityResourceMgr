@@ -23,6 +23,11 @@ public interface IDependBinary
 		get;
 	}
 
+	bool IsScene
+	{
+		get;
+	}
+
 	int SubFileCount
 	{
 		get;
@@ -48,14 +53,16 @@ public class DependBinaryFile
 		if (stream == null)
 			return false;
 
-		byte b = (byte)(value & 0xFF);
-		stream.WriteByte(b);
-		b = (byte)((value & 0xFF00) >> 8);
-		stream.WriteByte(b);
-		b = (byte)((value & 0xFF0000) >> 16);
-		stream.WriteByte(b);
-		b = (byte)((value & 0xFF000000) >> 24);
-		stream.WriteByte(b);
+		int b1 = value & 0xFF;
+		int b2 = (value >> 8) & 0xFF;
+		int b3 = (value >> 16) & 0xFF;
+		int b4 = (value >> 24) & 0xFF;
+
+		stream.WriteByte ((byte)b1);
+		stream.WriteByte ((byte)b2);
+		stream.WriteByte ((byte)b3);
+		stream.WriteByte ((byte)b4);
+
 		return true;
 	}
 
@@ -72,6 +79,21 @@ public class DependBinaryFile
 		return true;
 	}
 
+	private static byte[] ReadBytes(Stream stream)
+	{
+		int cnt = ReadInt (stream);
+		if (cnt <= 0)
+			return null;
+		byte[] ret = new byte[cnt];
+		int read = stream.Read (ret, 0, cnt);
+		if (read != cnt) {
+			byte[] cp = new byte[read];
+			Buffer.BlockCopy (ret, 0, cp, 0, read);
+			ret = cp;
+		}
+		return ret;
+	}
+
 	private static bool WriteString(Stream stream, string str)
 	{
 		if (stream == null)
@@ -86,13 +108,12 @@ public class DependBinaryFile
 
 	private static int ReadInt(Stream stream)
 	{
-		int ret = stream.ReadByte();
-		int b = stream.ReadByte();
-		ret = (ret << 8) | b;
-		b = stream.ReadByte();
-		ret = (ret << 16) | b;
-		b = stream.ReadByte();
-		ret = (ret << 24) | b;
+		int b1 = stream.ReadByte();
+		int b2 = stream.ReadByte();
+		int b3 = stream.ReadByte ();
+		int b4 = stream.ReadByte ();
+
+		int ret = (b4 << 24) | (b3 << 16) | (b2 << 8) | b1;
 		return ret;
 	}
 
@@ -124,7 +145,7 @@ public class DependBinaryFile
 	}
 
 	// 文件头
-	private struct FileHeader
+	public struct FileHeader
 	{
 		// 版本号
 		public string version;
@@ -133,29 +154,38 @@ public class DependBinaryFile
 		// 标记
 		public int Flag;
 
-		public void SaveToStream(Stream stream)
+		internal void SaveToStream(Stream stream)
 		{
 			WriteString(stream, version);
 			WriteInt(stream, abFileCount);
 			WriteInt(stream, Flag);
 		}
+
+		public void LoadFromStream(Stream stream)
+		{
+			version = ReadString (stream);
+			abFileCount = ReadInt (stream);
+			Flag = ReadInt (stream);
+		}
 	}
 
-	private struct ABFileHeader
+	public struct ABFileHeader
 	{
 		public int subFileCount;
 		public int dependFileCount;
 		public bool isScene;
 		public bool isMainAsset;
 		public int compressType;
+		public string abFileName;
 
-		public void SaveToStream(Stream stream)
+		internal void SaveToStream(Stream stream)
 		{
 			WriteInt(stream, subFileCount);
 			WriteInt(stream, dependFileCount);
 			WriteBool(stream, isScene);
 			WriteBool(stream, isMainAsset);
 			WriteInt(stream, compressType);
+			WriteString (stream, abFileName);
 		}
 
 		public void LoadFromStream(Stream stream)
@@ -165,14 +195,15 @@ public class DependBinaryFile
 			isScene = ReadBool(stream);
 			isMainAsset = ReadBool(stream);
 			compressType = ReadInt(stream);
+			abFileName = ReadString (stream);
 		}
 	}
 
-	private struct SubFileInfo
+	public struct SubFileInfo
 	{
 		public string fileName;
 
-		public void SaveToStream(Stream stream)
+		internal void SaveToStream(Stream stream)
 		{
 			WriteString(stream, fileName);
 		}
@@ -183,12 +214,12 @@ public class DependBinaryFile
 		}
 	}
 
-	private struct DependInfo
+	public struct DependInfo
 	{
 		public string abFileName;
 		public int refCount;
 
-		public void SaveToStream(Stream stream)
+		internal void SaveToStream(Stream stream)
 		{
 			WriteString(stream, abFileName);
 			WriteInt(stream, refCount);
@@ -199,6 +230,39 @@ public class DependBinaryFile
 			abFileName = ReadString(stream);
 			refCount = ReadInt(stream);
 		}
+	}
+
+	public static FileHeader LoadFileHeader(Stream stream)
+	{
+		FileHeader header = new FileHeader ();
+		header.LoadFromStream (stream);
+		return header;
+	}
+
+	public static ABFileHeader LoadABFileHeader(Stream stream)
+	{
+		ABFileHeader header = new ABFileHeader ();
+		header.LoadFromStream (stream);
+		return header;
+	}
+
+	public static SubFileInfo LoadSubInfo(Stream stream)
+	{
+		SubFileInfo info = new SubFileInfo ();
+		info.LoadFromStream (stream);
+		return info;
+	}
+
+	public static DependInfo LoadDependInfo(Stream stream)
+	{
+		DependInfo info = new DependInfo ();
+		info.LoadFromStream (stream);
+		return info;
+	}
+
+	public static bool CheckFileHeader(FileHeader header)
+	{
+		return string.Compare (header.version, _CurrVersion) == 0;
 	}
 
 #if UNITY_EDITOR
@@ -214,14 +278,29 @@ public class DependBinaryFile
 
 	public static void ExportToABFileHeader(Stream stream, IDependBinary file, string bundleName)
 	{
+		ABFileHeader header = new ABFileHeader ();
+		header.compressType = file.CompressType;
+		header.dependFileCount = file.DependFileCount;
+		header.isMainAsset = file.IsMainAsset;
+		header.isScene = file.IsScene;
+		header.subFileCount = file.SubFileCount;
+		header.abFileName = bundleName;
+		header.SaveToStream (stream);
 	}
 
-	public static void ExportToSubFile(string subFileName)
+	public static void ExportToSubFile(Stream stream, string subFileName)
 	{
+		SubFileInfo info = new SubFileInfo ();
+		info.fileName = subFileName;
+		info.SaveToStream (stream);
 	}
 
-	public static void ExportToDependFile(string abFileName, int refCount)
+	public static void ExportToDependFile(Stream stream, string abFileName, int refCount)
 	{
+		DependInfo info = new DependInfo ();
+		info.abFileName = abFileName;
+		info.refCount = refCount;
+		info.SaveToStream (stream);
 	}
 
 #endif

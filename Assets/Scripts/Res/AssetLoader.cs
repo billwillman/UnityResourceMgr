@@ -9,6 +9,7 @@
 #define USE_UNITY5_X_BUILD
 // #define USE_LOWERCHAR
 #define USE_HAS_EXT
+#define USE_DEP_BINARY
 
 using System;
 using System.Collections;
@@ -2013,6 +2014,65 @@ public class AssetLoader: IResourceLoader
 		mAssetFileNameMap.Clear();
 	}
 
+	//二进制
+	private void LoadBinary(byte[] bytes)
+	{
+		if ((bytes == null) || (bytes.Length <= 0)) {
+			return;
+		}
+
+		MemoryStream stream = new MemoryStream (bytes);
+
+		DependBinaryFile.FileHeader header = DependBinaryFile.LoadFileHeader (stream);
+		if (!DependBinaryFile.CheckFileHeader (header))
+			return;
+		
+		for (int i = 0; i < header.abFileCount; ++i) {
+			DependBinaryFile.ABFileHeader abHeader = DependBinaryFile.LoadABFileHeader (stream);
+			AssetCompressType compressType = (AssetCompressType)abHeader.compressType;
+			bool isUseCreateFromFile = compressType == AssetCompressType.astNone || compressType == AssetCompressType.astUnityLzo
+														#if UNITY_5_3 || UNITY_5_4
+														|| compressType == AssetCompressType.astUnityZip
+														#endif
+														;
+
+			string assetBundleFileName = GetCheckFileName(abHeader.abFileName, false, isUseCreateFromFile);
+
+			AssetInfo asset;
+			if (!mAssetFileNameMap.TryGetValue(assetBundleFileName, out asset)) {
+				asset = new AssetInfo(assetBundleFileName);
+				asset._SetCompressType(compressType);
+				// 额外添加一个文件名的映射
+				AddFileAssetMap(assetBundleFileName, asset);
+			}
+			else {
+				;
+			}
+
+			// 子文件
+			for (int j = 0; j < abHeader.subFileCount; ++j) {
+				DependBinaryFile.SubFileInfo subInfo = DependBinaryFile.LoadSubInfo (stream);
+				string subFileName = subInfo.fileName;
+				if (string.IsNullOrEmpty (subFileName))
+					continue;
+				asset._AddSubFile(subFileName);
+				AddFileAssetMap(subFileName, asset);
+			}
+
+			// 依赖
+			for (int j = 0; j < abHeader.dependFileCount; ++j) {
+				DependBinaryFile.DependInfo depInfo = DependBinaryFile.LoadDependInfo (stream);
+				string dependFileName = GetCheckFileName(depInfo.abFileName, false, isUseCreateFromFile);
+				asset._AddDependFile(dependFileName, depInfo.refCount);
+			}
+		}
+
+		stream.Close ();
+		stream.Dispose ();
+
+		GC.Collect ();
+	}
+
 	private void LoadXml(byte[] bytes)
 	{
 		if ((bytes == null) || (bytes.Length <= 0)) {
@@ -2175,7 +2235,11 @@ public class AssetLoader: IResourceLoader
 				mConfigLoaderEvent (false);
 		} else
 		if (mXmlLoaderTask.IsOk) {
+			#if USE_DEP_BINARY
+			LoadBinary(mXmlLoaderTask.ByteData);
+			#else
 			LoadXml(mXmlLoaderTask.ByteData);
+			#endif
 			if (mConfigLoaderEvent != null)
 				mConfigLoaderEvent (true);
 		}

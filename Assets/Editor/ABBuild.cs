@@ -11,6 +11,7 @@
 #define ASSETBUNDLE_ONLYRESOURCES
 #define USE_UNITY5_X_BUILD
 #define USE_HAS_EXT
+#define USE_DEP_BINARY
 
 using UnityEngine;
 using UnityEditor;
@@ -326,7 +327,7 @@ class AssetBunbleInfo: IDependBinary
 				string resFileName = AssetBundleBuild.GetXmlFileName(fileName);
 				if (string.IsNullOrEmpty(resFileName))
 					continue;
-				DependBinaryFile.ExportToSubFile(resFileName);
+				DependBinaryFile.ExportToSubFile(stream, resFileName);
 			}
 		}
 
@@ -344,7 +345,10 @@ class AssetBunbleInfo: IDependBinary
 					fileName = AssetBunbleInfo.Md5(filePath);
 				}
 
-				DependBinaryFile.ExportToDependFile(fileName, depCnt);
+				if (depCnt <= 0)
+					depCnt = 1;
+
+				DependBinaryFile.ExportToDependFile(stream, fileName, depCnt);
 			}	
 		}
 
@@ -1626,21 +1630,6 @@ class AssetBundleMgr
 		}
 	}
 
-	private void ExportBinarys(Stream stream, bool isMd5, string outPath)
-	{
-		if (stream == null)
-			return;
-
-		int abFileCount = mAssetBundleList == null ? 0: mAssetBundleList.Count;
-		DependBinaryFile.ExportFileHeader(stream, abFileCount, DependBinaryFile.FLAG_UNCOMPRESS);
-
-		for (int i = 0; i < mAssetBundleList.Count; ++i) {
-			AssetBunbleInfo info = mAssetBundleList[i];
-			if ((info != null) && info.IsBuilded)
-				info.ExportBinary(stream, isMd5, outPath);
-		}
-	}
-
 	private void ExportXmlStr(StringBuilder builder, bool isMd5, string outPath)
 	{
 		if (builder == null)
@@ -1651,6 +1640,35 @@ class AssetBundleMgr
 			if ((info != null) && info.IsBuilded)
                 info.ExportXml(builder, isMd5, outPath);
 		}
+	}
+
+	// 导出二进制
+	private void ExportBinarys(string exportPath, bool isMd5)
+	{
+		if (string.IsNullOrEmpty (exportPath))
+			return;
+		string fullPath = Path.GetFullPath (exportPath);
+		if (string.IsNullOrEmpty (fullPath))
+			return;
+
+		string fileName = string.Format ("{0}/AssetBundles.xml", fullPath);
+		if (System.IO.File.Exists (fileName)) {
+			System.IO.File.Delete(fileName);
+		}
+
+		FileStream stream = new FileStream (fileName, FileMode.Create);
+
+		int abFileCount = mAssetBundleList == null ? 0: mAssetBundleList.Count;
+		DependBinaryFile.ExportFileHeader(stream, abFileCount, DependBinaryFile.FLAG_UNCOMPRESS);
+
+		for (int i = 0; i < mAssetBundleList.Count; ++i) {
+			AssetBunbleInfo info = mAssetBundleList[i];
+			if ((info != null) && info.IsBuilded)
+				info.ExportBinary(stream, isMd5, fullPath);
+		}
+
+		stream.Close ();
+		stream.Dispose ();
 	}
 
 	// export xml
@@ -2041,8 +2059,13 @@ class AssetBundleMgr
             }*/
 			BuildAssetBundlesInfo_5_x(platform, exportDir, compressType);
 
+		#if USE_DEP_BINARY
+			// 二进制格式
+			ExportBinarys(exportDir, isMd5);
+		#else
             // export xml
             ExportXml(exportDir, isMd5);
+		#endif
 
 			if (isMd5)
 			{
@@ -2112,8 +2135,14 @@ class AssetBundleMgr
 				BuildPipeline.PopAssetDependencies();
 			}
 
+			#if USE_DEP_BINARY
+			// 二进制格式
+			ExportBinarys(exportDir, isMd5);
+			#else
 			// export xml
 			ExportXml(exportDir, isMd5);
+			#endif
+
 			if (isMd5)
 			{
 				ProcessVersionRes(exportDir, platform);

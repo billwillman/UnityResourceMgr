@@ -605,7 +605,8 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		UpdateUsedList (t);
 
 		// 判断当前内存使用情况，如果超过内存限制，直接清除掉 mNotUsedCacheList
-		if (GetCheckMemorySize () >= cCacheMemoryLimit) {
+		uint checkMemorySize = GetCheckMemorySize ();
+		if (checkMemorySize >= cCacheMemoryLimit) {
 			ClearAllNotUsedList(true);
 		}
 	}
