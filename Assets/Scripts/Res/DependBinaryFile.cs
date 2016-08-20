@@ -205,7 +205,11 @@ public class DependBinaryFile
 
 	public static void ExportFileHeader(Stream Stream, int abFileCount, int flag)
 	{
-
+		FileHeader header = new FileHeader();
+		header.version = _CurrVersion;
+		header.abFileCount = abFileCount;
+		header.Flag = flag;
+		header.SaveToStream(Stream);
 	}
 
 	public static void ExportToABFileHeader(Stream stream, IDependBinary file, string bundleName)
