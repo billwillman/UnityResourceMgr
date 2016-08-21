@@ -3179,6 +3179,12 @@ public static class AssetBundleBuild
 	}
 #endif
 
+	[MenuItem("Assets/发布/APK_Debug(非压缩)")]
+	static public void Cmd_BuildAPK_DEBUG_UNCOMPRESS()
+	{
+		Cmd_Build(0, true, eBuildPlatform.eBuildAndroid, true);
+	}
+
 	public static void RunCmd(string command)
 	{
 
