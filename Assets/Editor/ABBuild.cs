@@ -12,9 +12,7 @@
 #define USE_UNITY5_X_BUILD
 #define USE_HAS_EXT
 #define USE_DEP_BINARY
-#if UNITY_5_3 || UNITY_5_4
-	#define USE_DEP_BINARY_AB
-#endif
+#define USE_DEP_BINARY_AB
 
 using UnityEngine;
 using UnityEditor;
@@ -2036,8 +2034,11 @@ class AssetBundleMgr
 				{
 					xmlImport.assetBundleName = "AssetBundles.xml";
 					xmlImport.SaveAndReimport();
-
+		#if UNITY_5_3 || UNITY_5_4
 					CallBuild_5_x_API(exportDir, compressType, target, false);
+		#else
+					CallBuild_5_x_API(exportDir, 0, target,  false);
+		#endif
 
 					AssetDatabase.Refresh();
 
