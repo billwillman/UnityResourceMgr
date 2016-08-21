@@ -2302,12 +2302,14 @@ public class AssetLoader: IResourceLoader
 					OnFinishEvent(true);
 			} else
 			{
+				Debug.LogErrorFormat("[LoadConfig]读取TextAsset {0} 失敗", name);
 				bundle.Unload(true);
 				if (OnFinishEvent != null)
 					OnFinishEvent(false);
 			}
 		} else
 		{
+			Debug.LogErrorFormat("[LoadConfig]加載 {0} bundle失敗", fileName);
 			if (OnFinishEvent != null)
 				OnFinishEvent(false);
 		}
