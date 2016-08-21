@@ -2246,7 +2246,7 @@ public class AssetLoader: IResourceLoader
 			#if DEBUG
 			float curTime = Time.realtimeSinceStartup;
 			float usedTime = curTime - m_LastUsedTime;
-			Debug.LogFormat("加载XML二进制：{0}", usedTime.ToString());
+			Debug.LogFormat("WWW加载XML：{0}", usedTime.ToString());
 			m_LastUsedTime = curTime;
 			#endif
 
