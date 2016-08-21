@@ -2043,9 +2043,9 @@ class AssetBundleMgr
 					AssetDatabase.Refresh();
 
 					string xmlSrcFile = string.Format("{0}/assetbundles.xml", exportDir);
-					string xmlDstFile = string.Format("{0}/AssetBundles.xml", exportDir);
 					if (File.Exists(xmlSrcFile))
 					{
+						string xmlDstFile = string.Format("{0}/AssetBundles.xml", exportDir);
 						File.Move(xmlSrcFile, xmlDstFile);
 						AssetDatabase.Refresh();
 					}
