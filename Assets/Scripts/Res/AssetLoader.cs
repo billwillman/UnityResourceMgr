@@ -2243,7 +2243,7 @@ public class AssetLoader: IResourceLoader
 		} else
 		if (mXmlLoaderTask.IsOk) {
 
-			#if DEBUG && !USE_DEP_BINARY_AB
+			#if !USE_DEP_BINARY_AB
 			float curTime = Time.realtimeSinceStartup;
 			float usedTime = curTime - m_LastUsedTime;
 			Debug.LogFormat("WWW加载XML：{0}", usedTime.ToString());
@@ -2256,7 +2256,7 @@ public class AssetLoader: IResourceLoader
 			LoadXml(mXmlLoaderTask.ByteData);
 			#endif
 
-			#if DEBUG && !USE_DEP_BINARY_AB
+			#if !USE_DEP_BINARY_AB
 			usedTime = Time.realtimeSinceStartup - m_LastUsedTime;
 			Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());
 			#endif
@@ -2273,7 +2273,7 @@ public class AssetLoader: IResourceLoader
 		mLoaderTimer = null;
 	}
 
-#if DEBUG && !USE_DEP_BINARY_AB
+#if !USE_DEP_BINARY_AB
 	private float m_LastUsedTime = 0;
 #endif
 
@@ -2281,15 +2281,13 @@ public class AssetLoader: IResourceLoader
 	public void LoadConfigs(Action<bool> OnFinishEvent)
 	{
 
-#if DEBUG && !USE_DEP_BINARY_AB
+#if !USE_DEP_BINARY_AB
 		m_LastUsedTime = Time.realtimeSinceStartup;
 #endif
 
 #if USE_DEP_BINARY && USE_DEP_BINARY_AB
 
-		#if DEBUG
 		float startTime = Time.realtimeSinceStartup;
-		#endif
 
 		AssetBundle bundle;
 		string fileName = GetXmlFileName();
@@ -2300,24 +2298,19 @@ public class AssetLoader: IResourceLoader
 		#endif
 		if (bundle != null)
 		{
-			
-		#if DEBUG
 			float curTime = Time.realtimeSinceStartup;
 			float usedTime = curTime - startTime;
 			Debug.LogFormat("加载XML AB时间：{0}", usedTime.ToString());
 			startTime = curTime;
-		#endif
 
 			string name = System.IO.Path.GetFileNameWithoutExtension(fileName);
 			TextAsset asset = bundle.LoadAsset<TextAsset>(name);
 			if (asset != null)
 			{
 				LoadBinary(asset.bytes);
-
-		#if DEBUG
+	
 				usedTime = Time.realtimeSinceStartup - startTime;
 				Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());
-		#endif
 
 				bundle.Unload(true);
 				if (OnFinishEvent != null)
