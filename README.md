@@ -22,6 +22,8 @@
    3.增加了NGUIResLoader, 方便NGUI内部UI框架调用资源加载，简化繁琐的引用计数管理（针对NGUI）
    
    4.增加BaseResLoader, 方便在MonoBehaviour中使用，简化繁琐的引用计数管理
+   
+   5.依赖文件配置读取，最新采用二进制读取，在5.3以上版本，并会打AB。5.3之前版本采用WWW读取
 
 具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
 
