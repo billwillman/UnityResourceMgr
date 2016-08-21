@@ -3176,7 +3176,7 @@ public static class AssetBundleBuild
 	[MenuItem("Assets/发布/APK_Debug(Lz4)")]
 	static public void Cmd_BuildAPK_Debug_Lz4()
 	{
-		Cmd_Build(2, true, eBuildPlatform.eBuildAndroid);
+		Cmd_Build(2, true, eBuildPlatform.eBuildAndroid, true);
 	}
 #endif
 
