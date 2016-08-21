@@ -2242,11 +2242,25 @@ public class AssetLoader: IResourceLoader
 				mConfigLoaderEvent (false);
 		} else
 		if (mXmlLoaderTask.IsOk) {
+
+			#if DEBUG
+			float curTime = Time.realtimeSinceStartup;
+			float usedTime = curTime - m_LastUsedTime;
+			Debug.LogFormat("加载XML二进制：{0}", usedTime.ToString());
+			m_LastUsedTime = curTime;
+			#endif
+
 			#if USE_DEP_BINARY
 			LoadBinary(mXmlLoaderTask.ByteData);
 			#else
 			LoadXml(mXmlLoaderTask.ByteData);
 			#endif
+
+			#if DEBUG
+			usedTime = Time.realtimeSinceStartup - m_LastUsedTime;
+			Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());
+			#endif
+
 			if (mConfigLoaderEvent != null)
 				mConfigLoaderEvent (true);
 		}
@@ -2259,9 +2273,17 @@ public class AssetLoader: IResourceLoader
 		mLoaderTimer = null;
 	}
 
+#if DEBUG && !USE_DEP_BINARY_AB
+	private float m_LastUsedTime = 0;
+#endif
+
 	// 手动调用读取配置
 	public void LoadConfigs(Action<bool> OnFinishEvent)
 	{
+
+#if DEBUG && !USE_DEP_BINARY_AB
+		m_LastUsedTime = Time.realtimeSinceStartup;
+#endif
 
 #if USE_DEP_BINARY && USE_DEP_BINARY_AB
 
