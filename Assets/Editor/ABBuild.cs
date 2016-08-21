@@ -1592,8 +1592,11 @@ class AssetBundleMgr
 		string fullPath = Path.GetFullPath (exportPath);
 		if (string.IsNullOrEmpty (fullPath))
 			return;
-
+		#if USE_DEP_BINARY_AB
+		string fileName = "Assets/AssetBundles.xml";
+		#else
 		string fileName = string.Format ("{0}/AssetBundles.xml", fullPath);
+		#endif
 		if (System.IO.File.Exists (fileName)) {
 			System.IO.File.Delete(fileName);
 		}
@@ -2015,11 +2018,7 @@ class AssetBundleMgr
 
 		#if USE_DEP_BINARY
 			// 二进制格式
-			#if USE_DEP_BINARY_AB
-				ExportBinarys("Assets", isMd5);
-			#else
-				ExportBinarys(exportDir, isMd5);
-			#endif
+			ExportBinarys(exportDir, isMd5);
 		#else
             // export xml
             ExportXml(exportDir, isMd5);
