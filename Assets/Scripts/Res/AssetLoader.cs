@@ -11,7 +11,7 @@
 #define USE_HAS_EXT
 #define USE_DEP_BINARY
 #if UNITY_5_3 || UNITY_5_4
-	#define USE_DEP_BINARY_AB
+	//#define USE_DEP_BINARY_AB
 #endif
 
 using System;
