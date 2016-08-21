@@ -2243,7 +2243,7 @@ public class AssetLoader: IResourceLoader
 		} else
 		if (mXmlLoaderTask.IsOk) {
 
-			#if DEBUG
+			#if DEBUG && !USE_DEP_BINARY_AB
 			float curTime = Time.realtimeSinceStartup;
 			float usedTime = curTime - m_LastUsedTime;
 			Debug.LogFormat("WWW加载XML：{0}", usedTime.ToString());
@@ -2256,7 +2256,7 @@ public class AssetLoader: IResourceLoader
 			LoadXml(mXmlLoaderTask.ByteData);
 			#endif
 
-			#if DEBUG
+			#if DEBUG && !USE_DEP_BINARY_AB
 			usedTime = Time.realtimeSinceStartup - m_LastUsedTime;
 			Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());
 			#endif
