@@ -620,4 +620,23 @@ public class BaseResLoader: CachedMonoBehaviour
 			iter.Dispose ();
 			return list;
 		}
+
+		public void ClearMainTexture(MeshRenderer renderer)
+		{
+			if (renderer == null)
+				return;
+			
+			ClearResource<Texture> (renderer, _cMainTex);
+		}
+			
+		public bool LoadMainTexture(MeshRenderer renderer, string fileName)
+		{
+			if (renderer == null || string.IsNullOrEmpty (fileName) || renderer.sharedMaterial == null)
+				return false;
+			ClearMainTexture (renderer);
+			Texture tex = ResourceMgr.Instance.LoadTexture (fileName, ResourceCacheType.rctRefAdd);
+			SetResource(renderer, tex, typeof(Texture), _cMainTex);
+			renderer.material.mainTexture = tex;
+			return tex != null;
+		}
 }
