@@ -223,9 +223,17 @@ public class ResourceMgrMonitorEditor: Editor
 		if (!Application.isPlaying)
 			return;
 
-		bool isChg = UpdateAssetRefMap();
-		if (isChg)
-			this.Repaint();
+		float curTime = Time.unscaledTime;
+		m_IsUPdateData = curTime - m_LastUpdateTime > 1.0f;
+		
+		if (m_IsUPdateData)
+			m_LastUpdateTime = curTime;
+
+			if (m_IsUPdateData) {
+				bool isChg = UpdateAssetRefMap ();
+				if (isChg)
+					this.Repaint ();
+			}
 	}
 
 	public override void OnInspectorGUI ()
@@ -313,4 +321,6 @@ public class ResourceMgrMonitorEditor: Editor
 	private Dictionary<string, int> mUsedAssetRefMap = new Dictionary<string, int>();
 	private Dictionary<string, int> mNotUsedAssetRefMap = new Dictionary<string, int>();
 	static private GameObject mShowTarget = null;
+	private float m_LastUpdateTime = 0;
+	private bool m_IsUPdateData = false;
 }
