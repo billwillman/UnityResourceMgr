@@ -495,6 +495,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		return target != null;
 	}
 
+	/*
 	public void DestroyComponent<T>(ref T comp) where T: UnityEngine.Component
 	{
 		if (comp == null)
@@ -544,7 +545,7 @@ public class BaseResLoader: CachedMonoBehaviour
 			ResourceMgr.Instance.DestroyObject(ret);
 		}
 		return false;
-	}
+	}*/
 
     public void ClearAniController(Animator target)
     {
