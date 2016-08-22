@@ -241,17 +241,38 @@ public class BaseResLoader: CachedMonoBehaviour
 		ResourceMgr.Instance.DestroyObject(sp);
 	}
 
+	protected int SetMaterialResource(UnityEngine.Object target, string fileName, out Material mat)
+	{
+		mat = null;
+		if (target == null || string.IsNullOrEmpty (fileName))
+			return 0;
+		ResKey key = CreateKey (target.GetInstanceID (), typeof(Material));
+		ResValue value;
+		if (FindResValue (key, out value)) {
+			if (string.Compare (value.tag, fileName) == 0)
+				// 相等说明当前已经是，所以不需要外面设置了
+				mat = value.obj as Material;
+			return 1;
+		}
+
+		mat = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
+		SetResources(target, null, typeof(Material[]));
+		SetResource(target, mat, typeof(Material), "", fileName);
+		return 2;
+	}
+
 	public bool LoadMaterial(MeshRenderer renderer, string fileName)
 	{
-		if (renderer == null || string.IsNullOrEmpty(fileName))
-			return false;
 
-		Material mat = null;
-		if (!string.IsNullOrEmpty(fileName))
-			mat = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
-		SetResources(renderer, null, typeof(Material[]));
-		SetResource(renderer, mat, typeof(Material));
-		renderer.sharedMaterial = mat;
+		Material mat;
+		int result = SetMaterialResource (renderer, fileName, out mat);
+		if (result == 0) {
+			renderer.sharedMaterial = null;
+			return false;
+		}
+
+		if (result == 2)
+			renderer.sharedMaterial = mat;
 		return mat != null;
 	}
 
@@ -267,15 +288,15 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	public bool LoadMaterial(SpriteRenderer sprite, string fileName)
 	{
-		if (sprite == null || string.IsNullOrEmpty(fileName))
-			return false;
-		Material mat = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
-		SetResource(sprite, mat, typeof(Material));
-
-		if (mat != null)
-			sprite.sharedMaterial = mat;
-		else
+		Material mat;
+		int result = SetMaterialResource (sprite, fileName, out mat);
+		if (result == 0) {
 			sprite.sharedMaterial = null;
+			return false;
+		}
+
+		if (result == 2)
+			sprite.sharedMaterial = mat;
 
 		return mat != null;
 	}

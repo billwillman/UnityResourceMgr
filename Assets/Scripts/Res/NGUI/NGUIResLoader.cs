@@ -17,6 +17,10 @@ public class NGUIResLoader: BaseResLoader  {
 		Texture tex = ResourceMgr.Instance.LoadTexture(fileName, ResourceCacheType.rctRefAdd);
 		SetResource(uiTexture, tex, typeof(Texture), _cMainTex);
 		uiTexture.mainTexture = tex;
+		Material mat = uiTexture.material;
+		if (mat != null) {
+			mat.mainTexture = tex;
+		}
 
 		return tex != null;
 	}
@@ -89,13 +93,14 @@ public class NGUIResLoader: BaseResLoader  {
 		if (uiTexture == null || string.IsNullOrEmpty(fileName))
 			return false;
 
-		Material mat = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
-		SetResource(uiTexture, mat, typeof(Material));
-		if (mat != null)
-			//uiTexture.material = mat;
-			uiTexture.material = GameObject.Instantiate(mat);
-		else
+		Material mat;
+		int result = SetMaterialResource (uiTexture, fileName, out mat);
+		if (result == 0) {
 			uiTexture.material = null;
+			return false;
+		}
+		if (result == 2)
+			uiTexture.material = GameObject.Instantiate(mat);
 
 		return mat != null;
 	}
@@ -104,14 +109,15 @@ public class NGUIResLoader: BaseResLoader  {
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName))
 			return false;
-		Material mat = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
-		SetResource(uiSprite, mat, typeof(Material));
-
-		if (mat != null)
-			//uiSprite.material = mat;
-			uiSprite.material = GameObject.Instantiate(mat);
-		else
+		Material mat;
+		int result = SetMaterialResource (uiSprite, fileName, out mat);
+		if (result == 0) {
 			uiSprite.material = null;
+			return false;
+		}
+
+		if (result == 2)
+			uiSprite.material = GameObject.Instantiate(mat);
 
 		return mat != null;
 	}
@@ -286,14 +292,16 @@ public class NGUIResLoader: BaseResLoader  {
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName))
 			return false;
-		Material mat = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
-		SetResource(uiSprite, mat, typeof(Material));
+		Material mat;
+		int result = SetMaterialResource (uiSprite, fileName, out mat);
 
-		if (mat != null)
-			//uiSprite.material = mat;
-			uiSprite.material = GameObject.Instantiate(mat);
-		else
+		if (result == 0) {
 			uiSprite.material = null;
+			return false;
+		}
+
+		if (result == 2)
+			uiSprite.material = GameObject.Instantiate(mat);
 
 		return mat != null;
 	}
