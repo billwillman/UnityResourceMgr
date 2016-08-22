@@ -224,7 +224,7 @@ public class ResourceMgrMonitorEditor: Editor
 			return;
 
 		float curTime = Time.unscaledTime;
-		m_IsUPdateData = curTime - m_LastUpdateTime > 0.5f;
+		m_IsUPdateData = curTime - m_LastUpdateTime > 0.25f;
 		
 		if (m_IsUPdateData)
 			m_LastUpdateTime = curTime;
