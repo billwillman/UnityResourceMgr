@@ -586,4 +586,38 @@ public class BaseResLoader: CachedMonoBehaviour
         target.runtimeAnimatorController = ctl;
         return ctl != null;
     }
+
+	public static void DestroyGameObj(GameObject obj)
+	{
+		if (obj == null)
+			return;
+		BaseResLoader loader = obj.GetComponent<BaseResLoader> ();
+		if (loader != null) {
+			loader.ClearAllResources ();
+		}
+		
+		GameObject.Destroy (obj);
+	}
+
+	public List<UnityEngine.Object> GetResList()
+		{
+			if (m_ResMap == null) {
+				return null;
+			}
+
+			List<UnityEngine.Object> list = new List<UnityEngine.Object> ();
+			var iter = m_ResMap.GetEnumerator ();
+			while (iter.MoveNext ()) {
+				if (iter.Current.Value.obj != null) {
+					list.Add (iter.Current.Value.obj);
+				}
+				if (iter.Current.Value.objs != null) {
+					for (int i = 0; i < iter.Current.Value.objs.Length; ++i) {
+						list.Add (iter.Current.Value.objs [i]);
+					}
+				}
+			}
+			iter.Dispose ();
+			return list;
+		}
 }
