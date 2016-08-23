@@ -331,7 +331,15 @@ public class NGUIResLoader: BaseResLoader  {
 			return altas != null;
 	}
 
-public bool LoadAtlas(ref UIAtlas target, string fileName)
+	public void ClearAtlas(ref UIAtlas target)
+	{
+		if (target == null)
+			return;
+		SetResource(target.GetInstanceID(), null, typeof(UIAtlas));
+		target = null;
+	}
+
+	public bool LoadAtlas(ref UIAtlas target, string fileName)
 	{
 			if (string.IsNullOrEmpty(fileName))
 				return false;
