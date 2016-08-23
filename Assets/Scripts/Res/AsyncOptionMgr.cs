@@ -10,6 +10,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils;
 
 public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 {
@@ -25,7 +26,9 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 		internal T opt = null;
 		internal Action<T> onProcess = null;
 		public void Release()
-		{}
+		{
+			InPool(this);
+		}
 
 		public AsyncOperation GetOperation()
 		{
@@ -43,6 +46,49 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 		{
 			get; set;
 		}
+
+		public static AsyncOperationItem<T, U> Create()
+		{
+			if (m_IsUsePool)
+			{
+				InitPool();
+				AsyncOperationItem<T, U> ret = m_Pool.GetObject();
+				ret.Reset();
+				return ret;
+			}
+
+			AsyncOperationItem<T, U> ret1 = new AsyncOperationItem<T, U>();
+			return ret1;
+		}
+
+		private static void InitPool()
+		{
+			if (m_IsInitPool)
+				return;
+			m_IsInitPool = true;
+			m_Pool.Init(0);
+		}
+
+		private static void InPool(AsyncOperationItem<T, U> item)
+		{
+			if (item == null || !m_IsUsePool)
+				return;
+			
+			InitPool();
+			item.Reset();
+			m_Pool.Store(item);
+		}
+
+		private void Reset()
+		{
+			opt = null;
+			onProcess = null;
+			UserData = default(U);
+		}
+
+		private static bool m_IsUsePool = true;
+		private static bool m_IsInitPool = false;
+		private static ObjectPool<AsyncOperationItem<T, U>> m_Pool = new ObjectPool<AsyncOperationItem<T, U>>();
 	}
 
 	#region public function
@@ -76,8 +122,8 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 
 		time = TimerMgr.Instance.CreateTimer (false, 0, true);
 		time.AddListener (OnTimerEvent);
-		AsyncOperationItem<T, U> item = new AsyncOperationItem<T, U> ();
-		//AsyncOperationItem item = AsyncOperationItem.NewItem ();
+		//AsyncOperationItem<T, U> item = new AsyncOperationItem<T, U> ();
+		AsyncOperationItem<T, U> item =  AsyncOperationItem<T, U>.Create();
 		item.opt = opt; 
 		item.onProcess = onProcess;
 		time.UserData = item;
