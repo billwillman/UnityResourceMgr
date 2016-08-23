@@ -516,58 +516,6 @@ public class BaseResLoader: CachedMonoBehaviour
 		return target != null;
 	}
 
-	/*
-	public void DestroyComponent<T>(ref T comp) where T: UnityEngine.Component
-	{
-		if (comp == null)
-			return;
-		SetResource(comp.GetInstanceID(), null, typeof(T));
-		comp = null;
-	}
-
-	public bool CreateComponent<T>(ref T comp, string fileName) where T: UnityEngine.Component
-	{
-		if (string.IsNullOrEmpty(fileName))
-			return false;
-		DestroyComponent<T>(ref comp);
-		GameObject ret = ResourceMgr.Instance.CreateGameObject(fileName);
-		if (ret != null)
-		{
-			comp = ret.GetComponent<T>();
-			if (comp != null)
-			{
-				SetResource(comp.GetInstanceID(), ret, typeof(T));
-				return true;
-			}
-
-			ResourceMgr.Instance.DestroyObject(ret);
-		}
-		return false;
-	}
-
-	public bool CreateComponent<T>(ref T comp, string fileName, Vector3 position, Quaternion rotation) where T: UnityEngine.Component
-	{
-		if (string.IsNullOrEmpty(fileName))
-			return false;
-		DestroyComponent<T>(ref comp);
-		GameObject ret = ResourceMgr.Instance.CreateGameObject(fileName);
-		if (ret != null)
-		{
-			comp = ret.GetComponent<T>();
-			if (comp != null)
-			{
-				Transform trans = ret.transform;
-				trans.position = position;
-				trans.rotation = rotation;
-				SetResource(comp.GetInstanceID(), ret, typeof(T));
-				return true;
-			}
-
-			ResourceMgr.Instance.DestroyObject(ret);
-		}
-		return false;
-	}*/
-
     public void ClearAniController(Animator target)
     {
         if (target == null)
