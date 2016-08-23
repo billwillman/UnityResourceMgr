@@ -101,6 +101,11 @@ public class ResourceAssetCache: AssetCache
 		}
 	}
 
+	public static int GetPoolCount()
+	{
+		return m_Pool.Count;
+	}
+
 	private void CheckGameObject()
 	{
 		mIsGameObject = (mTarget as GameObject) != null;

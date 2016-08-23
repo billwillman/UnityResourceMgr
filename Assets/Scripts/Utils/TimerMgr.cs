@@ -303,6 +303,14 @@ public class TimerMgr : Singleton<TimerMgr>
         UpdateTimeList(m_UnScaledPlayerList, delta);
     }
 
+	public int TimerPoolCount
+	{
+		get
+		{
+			return m_Pool.Count;
+		}
+	}
+
     protected static void UpdateTimeList(LinkedList<Timer> list, float delta)
     {
         if (list != null)

@@ -236,6 +236,38 @@ public class ResourceMgrMonitorEditor: Editor
 			}
 	}
 
+	void DrawObjectPoolInfos()
+	{
+		EditorGUILayout.Space();
+		EditorGUILayout.Space();
+
+		EditorGUILayout.LabelField("對象池列表");
+
+		EditorGUILayout.LabelField("TimerMgr Pool");
+		EditorGUILayout.IntField(TimerMgr.Instance.TimerPoolCount);
+
+		EditorGUILayout.Space();
+		EditorGUILayout.LabelField("ResourcesCache Pool");
+		EditorGUILayout.IntField(ResourceAssetCache.GetPoolCount());
+
+		EditorGUILayout.Space();
+		EditorGUILayout.LabelField("AssetBundleCache Pool");
+		EditorGUILayout.IntField(AssetBundleCache.GetPoolCount());
+
+		#if UNITY_5_3 || UNITY_5_4
+		EditorGUILayout.Space();
+		EditorGUILayout.LabelField("BundleCreateAsyncTask Pool");
+		EditorGUILayout.IntField(BundleCreateAsyncTask.GetPoolCount());
+		#endif
+
+		EditorGUILayout.Space();
+		EditorGUILayout.LabelField("WWWFileLoadTask Pool");
+		EditorGUILayout.IntField(WWWFileLoadTask.GetPoolCount());
+
+		EditorGUILayout.Space();
+		EditorGUILayout.Space();
+	}
+
 	public override void OnInspectorGUI ()
 	{
 		DrawDefaultInspector ();
@@ -243,6 +275,8 @@ public class ResourceMgrMonitorEditor: Editor
 		if (Application.isPlaying) {
 
 			DrawSearchTarget();
+
+			DrawObjectPoolInfos();
 
 			// 正在使用列表
 			DrawCacheMap(mUsedAssetRefMap, "正在使用列表");

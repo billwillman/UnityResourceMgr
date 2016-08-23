@@ -120,6 +120,11 @@ public class BundleCreateAsyncTask: ITask
 	public BundleCreateAsyncTask()
 	{}
 
+	public static int GetPoolCount()
+	{
+		return m_Pool.Count;
+	}
+
 	public static BundleCreateAsyncTask Create(string createFileName)
 	{
 		if (string.IsNullOrEmpty(createFileName))
@@ -494,6 +499,11 @@ public class WWWFileLoadTask: ITask
 	public Action<WWWFileLoadTask> OnProcess {
 		get;
 		set;
+	}
+
+	public static int GetPoolCount()
+	{
+		return m_Pool.Count;
 	}
 
 	private void ItemPoolReset()

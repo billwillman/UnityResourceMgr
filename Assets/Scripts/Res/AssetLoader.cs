@@ -77,6 +77,11 @@ public class AssetBundleCache: AssetCache
 		}
 	}
 
+	public static int GetPoolCount()
+	{
+		return m_Pool.Count;
+	}
+
 	private static AssetBundleCache GetPool(AssetInfo target)
 	{
 		InitPool();
