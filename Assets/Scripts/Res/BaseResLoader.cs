@@ -639,4 +639,19 @@ public class BaseResLoader: CachedMonoBehaviour
 			renderer.material.mainTexture = tex;
 			return tex != null;
 		}
+
+	public GameObject CreateGameObject(string fileName)
+	{
+		GameObject ret = ResourceMgr.Instance.CreateGameObject(fileName);
+		return ret;
+	}
+
+	public T CreateGameObject<T>(string fileName) where T: UnityEngine.Component
+	{
+		GameObject obj = ResourceMgr.Instance.CreateGameObject(fileName);
+		if (obj == null)
+			return null;
+		T ret = obj.GetComponent<T>();
+		return ret;
+	}
 }
