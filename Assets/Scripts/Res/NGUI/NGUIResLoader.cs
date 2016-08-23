@@ -305,6 +305,31 @@ public class NGUIResLoader: BaseResLoader  {
 
 		return mat != null;
 	}
+
+	public bool LoadAltas(UISprite uiSprite, string fileName)
+	{
+			if (uiSprite == null || string.IsNullOrEmpty (fileName))
+				return false;
+
+			GameObject obj = ResourceMgr.Instance.LoadPrefab (fileName, ResourceCacheType.rctRefAdd);
+			if (obj == null) {
+				ClearResource<UIAtlas> (uiSprite);
+				uiSprite.atlas = null;
+				return false;
+			}
+
+			UIAtlas altas = obj.GetComponent<UIAtlas> ();
+			if (altas == null) {
+				ResourceMgr.Instance.DestroyObject (obj);
+				ClearResource<UIAtlas> (uiSprite);
+				uiSprite.atlas = null;
+				return false;
+			}
+
+			SetResource (uiSprite, obj, typeof(UIAtlas));
+			uiSprite.atlas = altas;
+			return altas != null;
+	}
 }
 
 #endif
