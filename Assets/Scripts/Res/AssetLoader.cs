@@ -209,11 +209,18 @@ public class AssetInfo
 		}
 	}
 
+	private bool DoCheckTaskVaild(ITask task)
+	{
+		if (task == null)
+			return false;
+		return task.UserData != null;
+	}
+
 	private void OnTimerEvt(Timer obj, float timer)
 	{
 		if (m_TaskList != null)
 		{
-			m_TaskList.Process();
+			m_TaskList.Process(DoCheckTaskVaild);
 			if (m_TaskList.IsEmpty)
 			{
 				if (m_EndEvt != null)

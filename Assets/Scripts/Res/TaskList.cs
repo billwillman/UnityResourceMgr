@@ -708,10 +708,21 @@ public class TaskList
 		}
 	}
 
-	public void Process()
+	public void Process(Func<ITask, bool> onCheckTaskVaild = null)
 	{
 		LinkedListNode<ITask> node = mTaskList.First;
 		if ((node != null) && (node.Value != null)) {
+
+			if (onCheckTaskVaild != null)
+			{
+				if (!onCheckTaskVaild(node.Value))
+				{
+					mTaskIDs.Remove(node.Value.GetHashCode());
+					mTaskList.RemoveFirst();
+					return;
+				}
+			}
+
 			if (node.Value.IsDone)
 			{
 				TaskEnd(node.Value);
@@ -756,6 +767,14 @@ public class TaskList
 
 		mTaskList.Clear ();
 		mTaskIDs.Clear();
+	}
+
+	public int Count
+	{
+		get
+		{
+			return mTaskList.Count;
+		}
 	}
 
 	private void TaskEnd(ITask task)
