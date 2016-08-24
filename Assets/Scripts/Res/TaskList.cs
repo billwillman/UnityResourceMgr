@@ -717,8 +717,7 @@ public class TaskList
 			{
 				if (!onCheckTaskVaild(node.Value))
 				{
-					mTaskIDs.Remove(node.Value.GetHashCode());
-					mTaskList.RemoveFirst();
+					RemoveTask(node);
 					return;
 				}
 			}
@@ -726,8 +725,7 @@ public class TaskList
 			if (node.Value.IsDone)
 			{
 				TaskEnd(node.Value);
-				mTaskIDs.Remove(node.Value.GetHashCode());
-				mTaskList.RemoveFirst();
+				RemoveTask(node);
 				return;
 			}
 
@@ -736,8 +734,7 @@ public class TaskList
 			if (node.Value.IsDone)
 			{
 				TaskEnd(node.Value);
-				mTaskIDs.Remove(node.Value.GetHashCode());
-				mTaskList.RemoveFirst();
+				RemoveTask(node);
 			}
 		}
 	}
@@ -767,6 +764,30 @@ public class TaskList
 
 		mTaskList.Clear ();
 		mTaskIDs.Clear();
+	}
+
+	private void RemoveTask(LinkedListNode<ITask> node)
+	{
+		if (node == null || node.Value == null)
+			return;
+		int hashCode = node.Value.GetHashCode();
+		if (mTaskIDs.Contains(hashCode))
+		{
+			mTaskIDs.Remove(hashCode);
+			mTaskList.Remove(node);
+		}
+	}
+
+	public void RemoveTask(ITask task)
+	{
+		if (task == null)
+			return;
+		int hashCode = task.GetHashCode();
+		if (mTaskIDs.Contains(hashCode))
+		{
+			mTaskIDs.Remove(hashCode);
+			mTaskList.Remove(task);
+		}
 	}
 
 	public int Count

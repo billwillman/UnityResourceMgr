@@ -241,6 +241,10 @@ public class AssetInfo
 				if (m_EndEvt != null)
 					m_EndEvt(false);
 				ClearTaskData();
+			} else
+			{
+				if (m_TaskList != null)
+					m_TaskList.RemoveTask(task);
 			}
 		}
 	}
