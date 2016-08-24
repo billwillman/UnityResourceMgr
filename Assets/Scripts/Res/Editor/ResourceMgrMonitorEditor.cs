@@ -231,6 +231,44 @@ public class ResourceMgrMonitorEditor: Editor
 
 			if (m_IsUPdateData) {
 				bool isChg = UpdateAssetRefMap ();
+				
+			int cnt = TimerMgr.Instance.TimerPoolCount;
+			if (cnt != m_LastTimeCnt)
+			{
+				m_LastTimeCnt = cnt;
+				isChg = true;
+			}
+
+			cnt = ResourceAssetCache.GetPoolCount();
+			if (cnt != m_LastResCacheCnt)
+			{
+				m_LastResCacheCnt = cnt;
+				isChg = true;
+			}
+
+			cnt = AssetBundleCache.GetPoolCount();
+			if (cnt != m_LastBundleCacheCnt)
+			{
+				m_LastBundleCacheCnt = cnt;
+				isChg = true;
+			}
+
+			#if UNITY_5_3 || UNITY_5_4
+			cnt = BundleCreateAsyncTask.GetPoolCount();
+			if (cnt != m_LastBundleCreateCnt)
+			{
+				m_LastBundleCreateCnt = cnt;
+				isChg = true;
+			}
+			#endif
+
+			cnt = WWWFileLoadTask.GetPoolCount();
+			if (cnt != m_LastWWWCreateCnt)
+			{
+				m_LastWWWCreateCnt = cnt;
+				isChg = true;
+			}
+
 				if (isChg)
 					this.Repaint ();
 			}
@@ -244,25 +282,25 @@ public class ResourceMgrMonitorEditor: Editor
 		EditorGUILayout.LabelField("對象池列表");
 
 		EditorGUILayout.LabelField("TimerMgr Pool");
-		EditorGUILayout.IntField(TimerMgr.Instance.TimerPoolCount);
+		EditorGUILayout.IntField(m_LastTimeCnt);
 
 		EditorGUILayout.Space();
 		EditorGUILayout.LabelField("ResourcesCache Pool");
-		EditorGUILayout.IntField(ResourceAssetCache.GetPoolCount());
+		EditorGUILayout.IntField(m_LastResCacheCnt);
 
 		EditorGUILayout.Space();
 		EditorGUILayout.LabelField("AssetBundleCache Pool");
-		EditorGUILayout.IntField(AssetBundleCache.GetPoolCount());
+		EditorGUILayout.IntField(m_LastBundleCacheCnt);
 
 		#if UNITY_5_3 || UNITY_5_4
 		EditorGUILayout.Space();
 		EditorGUILayout.LabelField("BundleCreateAsyncTask Pool");
-		EditorGUILayout.IntField(BundleCreateAsyncTask.GetPoolCount());
+		EditorGUILayout.IntField(m_LastBundleCreateCnt);
 		#endif
 
 		EditorGUILayout.Space();
 		EditorGUILayout.LabelField("WWWFileLoadTask Pool");
-		EditorGUILayout.IntField(WWWFileLoadTask.GetPoolCount());
+		EditorGUILayout.IntField(m_LastWWWCreateCnt);
 
 		EditorGUILayout.Space();
 		EditorGUILayout.Space();
@@ -357,4 +395,10 @@ public class ResourceMgrMonitorEditor: Editor
 	static private GameObject mShowTarget = null;
 	private float m_LastUpdateTime = 0;
 	private bool m_IsUPdateData = false;
+
+	private int m_LastTimeCnt = 0;
+	private int m_LastResCacheCnt = 0;
+	private int m_LastBundleCacheCnt = 0;
+	private int m_LastBundleCreateCnt = 0;
+	private int m_LastWWWCreateCnt = 0;
 }
