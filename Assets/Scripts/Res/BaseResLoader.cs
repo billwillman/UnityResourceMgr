@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#define USE_CHECK_VISIBLE
+using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,10 +11,13 @@ public class BaseResLoader: CachedMonoBehaviour
 	protected static readonly string _cMainMat = "_Mat_0";
 	private Dictionary<ResKey, ResValue> m_ResMap = null;
 
+	#if USE_CHECK_VISIBLE
 	private bool m_IsCheckedVisible = false;
+	#endif
 
 	private void CheckVisible()
 	{
+		#if USE_CHECK_VISIBLE
 		if (m_IsCheckedVisible)
 			return;
 		m_IsCheckedVisible = true;
@@ -25,6 +29,7 @@ public class BaseResLoader: CachedMonoBehaviour
 			obj.SetActive(true);
 			obj.SetActive(false);
 		}
+		#endif
 	}
 
 	private void CheckResMap()
