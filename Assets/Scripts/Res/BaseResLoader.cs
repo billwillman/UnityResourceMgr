@@ -69,11 +69,33 @@ public class BaseResLoader: CachedMonoBehaviour
 		return ret;
 	}
 
-	protected struct ResKey
+    protected struct ResKey : IEquatable<ResKey>
 	{
 		public int instanceId;
 		public System.Type resType;
 		public string resName;
+
+        public bool Equals(ResKey other) {
+            return this == other;
+        }
+
+        public override bool Equals(object obj) {
+            if (obj is ResKey) {
+                ResKey other = (ResKey)obj;
+                return Equals(other);
+            }
+            else
+                return false;
+
+        }
+
+        public override int GetHashCode() {
+            int ret = FilePathMgr.InitHashValue();
+            FilePathMgr.HashCode(ref ret, instanceId);
+            FilePathMgr.HashCode(ref ret, resType);
+            FilePathMgr.HashCode(ref ret, resName);
+            return ret;
+        }
 
         public static bool operator ==(ResKey a, ResKey b) {
             return (a.instanceId == b.instanceId) && (a.resType == b.resType) && (string.Compare(a.resName, b.resName) == 0);
