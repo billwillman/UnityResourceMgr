@@ -115,6 +115,48 @@ namespace Utils
 			cnt = stream.Read(bytes, 0, cnt);
 			return System.Text.Encoding.UTF8.GetString(bytes, 0, cnt);
 		}
+
+        public static int InitHashValue() {
+            return _cHash;
+        }
+
+        public static void HashCode(ref int hash, byte value) {
+            hash = ((hash << 5) + hash) + value;
+        }
+
+        public static void HashCode(ref int hash, int value) {
+            int v = value & 0xFF;
+            HashCode(ref hash, (byte)v);
+
+            v = (value >> 8) & 0xFF;
+            HashCode(ref hash, (byte)v);
+
+            v = (value >> 16) & 0xFF;
+            HashCode(ref hash, (byte)v);
+
+            v = (value >> 24) & 0xFF;
+            HashCode(ref hash, (byte)v);
+        }
+
+        public static void HashCode(ref int hash, System.Object obj) {
+            if (obj == null)
+                return;
+            int hashValue = obj.GetHashCode();
+            HashCode(ref hash, hashValue);
+        }
+
+        public static void HashCode(ref int hash, string str) {
+            if (string.IsNullOrEmpty(str))
+                return;
+
+            for (int i = 0; i < str.Length; ++i) {
+                char c = str[i];
+                int v = (int)c;
+                HashCode(ref hash, v);
+            }
+        }
+
+        private static readonly int _cHash = 5381;
 	}
 }
 
