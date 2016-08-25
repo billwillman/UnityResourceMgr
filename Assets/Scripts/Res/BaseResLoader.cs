@@ -74,6 +74,14 @@ public class BaseResLoader: CachedMonoBehaviour
 		public int instanceId;
 		public System.Type resType;
 		public string resName;
+
+        public static bool operator ==(ResKey a, ResKey b) {
+            return (a.instanceId == b.instanceId) && (a.resType == b.resType) && (string.Compare(a.resName, b.resName) == 0);
+        }
+
+        public static bool operator !=(ResKey a, ResKey b) {
+            return !(a == b);
+        }
 	}
 
 	protected struct ResValue
