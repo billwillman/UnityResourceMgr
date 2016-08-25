@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils;
 
 public class ResourceAssetCache: AssetCache
 {
@@ -673,10 +674,45 @@ public class ResourcesLoader: IResourceLoader
 		m_CacheMap.Add(key, cache);
 	}
 
-	private struct CacheKey
+	private struct CacheKey: IEquatable<CacheKey>
 	{
 		public string fileName;
 		public System.Type resType;
+
+		public bool Equals(CacheKey other) {
+			return this == other;
+		}
+
+		public override bool Equals(object obj) {
+			if (obj == null)
+				return false;
+
+			if (GetType() != obj.GetType())
+				return false;
+
+			if (obj is CacheKey) {
+				CacheKey other = (CacheKey)obj;
+				return Equals(other);
+			}
+			else
+				return false;
+
+		}
+
+		public override int GetHashCode() {
+			int ret = FilePathMgr.InitHashValue();
+			FilePathMgr.HashCode(ref ret, fileName);
+			FilePathMgr.HashCode(ref ret, resType);
+			return ret;
+		}
+
+		public static bool operator ==(CacheKey a, CacheKey b) {
+			return (a.resType == b.resType) && (string.Compare(a.fileName, b.fileName) == 0);
+		}
+
+		public static bool operator !=(CacheKey a, CacheKey b) {
+			return !(a == b);
+		}
 	}
 
 	private CacheKey CreateCacheKey(string fileName, System.Type resType)

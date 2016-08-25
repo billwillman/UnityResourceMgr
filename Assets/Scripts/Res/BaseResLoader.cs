@@ -69,7 +69,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		return ret;
 	}
 
-    protected struct ResKey : IEquatable<ResKey>
+	protected struct ResKey : IEquatable<ResKey>
 	{
 		public int instanceId;
 		public System.Type resType;
@@ -80,6 +80,12 @@ public class BaseResLoader: CachedMonoBehaviour
         }
 
         public override bool Equals(object obj) {
+			if (obj == null)
+				return false;
+			
+			if (GetType() != obj.GetType())
+				return false;
+			
             if (obj is ResKey) {
                 ResKey other = (ResKey)obj;
                 return Equals(other);

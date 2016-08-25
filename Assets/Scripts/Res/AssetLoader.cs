@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using XmlParser;
+using Utils;
 
 public class AssetBundleCache: AssetCache
 {
@@ -572,10 +573,45 @@ public class AssetInfo
 		return AddAsyncOperation(fileName, objType, request, onProcess);
 	}
 
-	protected struct AsyncLoadKey
+	protected struct AsyncLoadKey: IEquatable<AsyncLoadKey>
 	{
 		public string fileName;
 		public System.Type type;
+
+		public bool Equals(AsyncLoadKey other) {
+			return this == other;
+		}
+
+		public override bool Equals(object obj) {
+			if (obj == null)
+				return false;
+
+			if (GetType() != obj.GetType())
+				return false;
+
+			if (obj is AsyncLoadKey) {
+				AsyncLoadKey other = (AsyncLoadKey)obj;
+				return Equals(other);
+			}
+			else
+				return false;
+
+		}
+
+		public override int GetHashCode() {
+			int ret = FilePathMgr.InitHashValue();
+			FilePathMgr.HashCode(ref ret, fileName);
+			FilePathMgr.HashCode(ref ret, type);
+			return ret;
+		}
+
+		public static bool operator ==(AsyncLoadKey a, AsyncLoadKey b) {
+			return (a.type == b.type) && (string.Compare(a.fileName, b.fileName) == 0);
+		}
+
+		public static bool operator !=(AsyncLoadKey a, AsyncLoadKey b) {
+			return !(a == b);
+		}
 	}
 
 	private bool AddAsyncOperation(string fileName, System.Type objType, AssetBundleRequest request, Action<AssetBundleRequest> onProcess)
