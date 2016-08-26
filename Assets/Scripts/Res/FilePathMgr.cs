@@ -145,6 +145,15 @@ namespace Utils
             HashCode(ref hash, hashValue);
         }
 
+		public static void HashCode(ref int hash, UnityEngine.Object obj)
+		{
+			if (obj == null)
+				return;
+			int instanceId = obj.GetInstanceID();
+			HashCode(ref hash, instanceId);
+		}
+
+		/*
         public static void HashCode(ref int hash, string str) {
             if (string.IsNullOrEmpty(str))
                 return;
@@ -154,7 +163,7 @@ namespace Utils
                 int v = (int)c;
                 HashCode(ref hash, v);
             }
-        }
+        }*/
 
         private static readonly int _cHash = 5381;
 	}
