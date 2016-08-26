@@ -40,7 +40,7 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	protected bool FindResValue(ResKey key, out ResValue value)
 	{
-		value = new ResValue ();
+		value = null;
 		if (m_ResMap == null)
 			return false;
 		return m_ResMap.TryGetValue (key, out value);
@@ -55,7 +55,7 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	protected bool FindResValue(UnityEngine.Object target, System.Type resType, out ResValue value, string resName = "")
 	{
-		value = new ResValue ();
+		value = null;
 		if (target == null)
 			return false;
 		return FindResValue (target.GetInstanceID (), resType, out value, resName);
@@ -112,11 +112,45 @@ public class BaseResLoader: CachedMonoBehaviour
         }
 	}
 
-	protected struct ResValue
+	protected class ResValue
 	{
 		public UnityEngine.Object obj;
 		public UnityEngine.Object[] objs;
 		public string tag;
+
+        public void Release() {
+            InPool(this);
+        }
+
+        public static ResValue Create() {
+            InitPool();
+            ResValue ret = m_Pool.GetObject();
+            return ret;
+        }
+
+        private void Reset() {
+            obj = null;
+            objs = null;
+            tag = string.Empty;
+        }
+
+        private static void InPool(ResValue obj) {
+            if (obj == null)
+                return;
+            InitPool();
+            obj.Reset();
+            m_Pool.Store(obj);
+        }
+
+        private static void InitPool() {
+            if (m_InitPool)
+                return;
+            m_InitPool = true;
+            m_Pool.Init(0);
+        }
+
+        private static bool m_InitPool = false;
+        private static ObjectPool<ResValue> m_Pool = new ObjectPool<ResValue>();
 	}
 
 	protected static ResKey CreateKey(int instanceId, System.Type resType, string resName = "")
@@ -130,7 +164,7 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	protected ResValue CreateValue(UnityEngine.Object obj, string tag = "")
 	{
-		ResValue ret = new ResValue();
+        ResValue ret = ResValue.Create();
 		ret.obj = obj;
 		ret.objs = null;
 		ret.tag = tag;
@@ -139,7 +173,7 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	protected ResValue CreateValue(UnityEngine.Object[] objs, string tag = "")
 	{
-		ResValue ret = new ResValue();
+        ResValue ret = ResValue.Create();
 		ret.obj = null;
 		ret.objs = objs;
 		ret.tag = tag;
@@ -184,6 +218,7 @@ public class BaseResLoader: CachedMonoBehaviour
 					ResourceMgr.Instance.DestroyObjects(res.objs);
 			}
 			m_ResMap.Remove(key);
+            res.Release();
 		}
 	}
 
@@ -264,6 +299,9 @@ public class BaseResLoader: CachedMonoBehaviour
 				if (iter.Current.Value.objs != null)
 					ResourceMgr.Instance.DestroyObjects(iter.Current.Value.objs);
 			}
+
+            // 進入池
+            iter.Current.Value.Release();
 		}
 		iter.Dispose();
 		m_ResMap.Clear();
