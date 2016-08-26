@@ -46,6 +46,11 @@ public class BaseResLoader: CachedMonoBehaviour
 		return m_ResMap.TryGetValue (key, out value);
 	}
 
+    protected bool Contains(ResKey key) {
+        if (m_ResMap == null)
+            return false;
+        return m_ResMap.ContainsKey(key);
+    }
 
 	protected bool FindResValue(int instanceId, System.Type resType, out ResValue value, string resName = "")
 	{
