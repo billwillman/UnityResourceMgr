@@ -7,8 +7,12 @@ using Utils;
 
 public class BaseResLoader: CachedMonoBehaviour
 {
-	protected static readonly string _cMainTex = "_MainTex";
-	protected static readonly string _cMainMat = "_Mat_0";
+	public static readonly string _cMainTex = "_MainTex";
+	public static readonly string _cMainMat = "_Mat_0";
+	public static readonly string _cMat1 = "_Mat_1";
+	public static readonly string _cMat2 = "_Mat_2";
+	public static readonly string _cMat3 = "_Mat_3";
+
 	private Dictionary<ResKey, ResValue> m_ResMap = null;
 
 	#if USE_CHECK_VISIBLE
