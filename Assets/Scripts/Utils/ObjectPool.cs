@@ -50,6 +50,12 @@ namespace Utils
             m_objStack.Push(obj);
         }
 
+		// 少用，调用这个池的作用就没有了
+		public void Clear() {
+			if (m_objStack != null)
+				m_objStack.Clear();
+		}
+
 		public int Count
 		{
 			get
