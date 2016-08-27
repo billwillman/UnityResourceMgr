@@ -288,7 +288,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		SetResources(target.GetInstanceID(), res, resType, resName, tag);
 	}
 
-	protected void ClearAllResources()
+	public void ClearAllResources()
 	{
 		if (m_ResMap == null)
 			return;
