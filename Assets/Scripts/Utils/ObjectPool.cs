@@ -66,6 +66,12 @@ namespace Utils
 			}
 		}
 
+		public Stack<T>.Enumerator GetIter() {
+			if (m_objStack == null)
+				return new Stack<T>.Enumerator();
+			return m_objStack.GetEnumerator();
+		}
+
         private Stack<T> m_objStack = null;
         private Action<T> m_resetAction = null;
         private CreateFunc m_createFunc = null;
