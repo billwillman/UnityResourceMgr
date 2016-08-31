@@ -26,6 +26,7 @@ namespace AutoUpdate
 		void LoadLocalResVersion()
 		{
 			AutoUpdateMgr.Instance.LocalResVersion = string.Empty;
+			AutoUpdateMgr.Instance.LocalFileListContentMd5 = string.Empty;
 
 			if (File.Exists(m_VersionName))
 			{
@@ -105,36 +106,103 @@ namespace AutoUpdate
 			
 			m_FileListName = string.Format("{0}/{1}", writePath, AutoUpdateMgr._cFileListTxt);
 			m_VersionName = string.Format("{0}/{1}", writePath, AutoUpdateMgr._cVersionTxt);
+
+			DoNextCopyVersion();
+		}
+
+		private void DoNextCopyVersion()
+		{
+			
+			if (!File.Exists(m_VersionName))
+				CopyVersion();
+			else
+				DoCopyFileList();
+
+			//CopyVersion();
+		}
+
+		private void DoCopyFileList()
+		{
 			if (!File.Exists(m_FileListName))
 				CopyFileList();
 			else
+				ToNextState();
+		}
+
+		/*
+		private bool DoChecWriteNewVersion(byte[] pkgBuf)
+		{
+			if (pkgBuf == null || pkgBuf.Length <= 0)
+				return false;
+			
+			if (string.IsNullOrEmpty(m_VersionName))
+				return true;
+			if (!File.Exists(m_VersionName))
+				return true;
+
+			string str = string.Empty;
+			FileStream stream = new FileStream(m_VersionName, FileMode.Open, FileAccess.Read);
+			try
 			{
-				if (!File.Exists(m_VersionName))
-					CopyVersion();
-				else
-					ToNextState();
+				if (stream.Length <= 0)
+					return true;
+				byte[] buf = new byte[stream.Length];
+				stream.Read(buf, 0, buf.Length);
+				str = System.Text.Encoding.ASCII.GetString(buf);
+				if (string.IsNullOrEmpty(str))
+					return true;
+			} finally
+			{
+				stream.Close();
+				stream.Dispose();
 			}
 
-		}
+			string persistVer;
+			string persistMd5;
+			if (AutoUpdateMgr.Instance.GetResVer(str, out persistVer, out persistMd5))
+			{
+				string ss = System.Text.Encoding.ASCII.GetString(pkgBuf);
+				if (string.IsNullOrEmpty(ss))
+					return false;
+				string pkgVer;
+				string pkgMd5;
+				if (!AutoUpdateMgr.Instance.GetResVer(ss, out pkgVer, out pkgMd5))
+					return false;
+
+				int comp = string.Compare(pkgVer, persistVer, StringComparison.CurrentCultureIgnoreCase);
+
+				bool ret = comp > 0;
+
+
+
+				return ret;
+			}
+
+			return true;
+		}*/
 
 		private void OnVersionLoaded(ITask task)
 		{
 			if (task.IsOk)
 			{
 				WWWFileLoadTask t = task as WWWFileLoadTask;
-				FileStream stream = new FileStream(m_VersionName, FileMode.Create, FileAccess.Write);
-				try
+
+				//if (DoChecWriteNewVersion(t.ByteData))
 				{
-					stream.Write(t.ByteData, 0, t.ByteData.Length);
-				} finally
-				{
-					stream.Close();
-					stream.Dispose();
-					stream = null;
+					FileStream stream = new FileStream(m_VersionName, FileMode.Create, FileAccess.Write);
+					try
+					{
+						stream.Write(t.ByteData, 0, t.ByteData.Length);
+					} finally
+					{
+						stream.Close();
+						stream.Dispose();
+						stream = null;
+					}
 				}
 			}
 
-			ToNextState();
+			DoCopyFileList();
 		}
 
 		private void OnFileListloaded(ITask task)
@@ -155,10 +223,7 @@ namespace AutoUpdate
 			}
 
 
-			if (!File.Exists(m_VersionName))
-				CopyVersion();
-			else
-				ToNextState();
+			ToNextState();
 		}
 	}
 
