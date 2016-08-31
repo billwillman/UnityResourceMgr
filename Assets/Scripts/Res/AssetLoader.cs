@@ -281,8 +281,10 @@ public class AssetInfo
 			if (asycTask.IsOk)
 				info.mBundle = asycTask.Bundle;
 
-			if (info.m_AsyncTask != null)
+			if (info.m_AsyncTask != null) {
+				info.m_AsyncTask.Release ();
 				info.m_AsyncTask = null;
+			}
 		}
 
 		info.IsUsing = false;
@@ -301,8 +303,10 @@ public class AssetInfo
 		{
 			if (wwwTask.IsOk)
 				info.mBundle = wwwTask.Bundle;
-			if (info.m_WWWTask != null)
+			if (info.m_WWWTask != null) {
+				info.m_WWWTask.Release ();
 				info.m_WWWTask = null;
+			}
 		}
 
 		info.IsUsing = false;
