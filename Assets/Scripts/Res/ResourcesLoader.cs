@@ -484,6 +484,16 @@ public class ResourcesLoader: IResourceLoader
 		return LoadObjectAsync<AnimationClip> (fileName, cacheType, onProcess);
 	}
 
+	public override ScriptableObject LoadScriptableObject (string fileName, ResourceCacheType cacheType)
+	{
+		return LoadObject<ScriptableObject> (fileName, cacheType);
+	}
+
+	public override bool LoadScriptableObjectAsync (string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.ScriptableObject> onProcess)
+	{
+		return LoadObjectAsync<ScriptableObject> (fileName, cacheType, onProcess);
+	}
+
 	public override Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType) {
 		if (string.IsNullOrEmpty(fileName))
 			return null;

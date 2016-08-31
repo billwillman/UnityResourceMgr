@@ -1569,6 +1569,16 @@ public class AssetLoader: IResourceLoader
 		return LoadObjectAsync<AnimationClip> (TransFileName(fileName, ".anim"), cacheType, onProcess);
 	}
 
+	public override ScriptableObject LoadScriptableObject (string fileName, ResourceCacheType cacheType)
+	{
+		return LoadObject<ScriptableObject> (TransFileName(fileName, ".asset"), cacheType);
+	}
+
+	public override bool LoadScriptableObjectAsync (string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.ScriptableObject> onProcess)
+	{
+		return LoadObjectAsync<ScriptableObject> (TransFileName (fileName, ".asset"), cacheType, onProcess);
+	}
+
 #if UNITY_5
 	public override ShaderVariantCollection LoadShaderVarCollection(string fileName, 
 	                                                                ResourceCacheType cacheType)

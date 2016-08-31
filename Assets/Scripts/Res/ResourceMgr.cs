@@ -712,6 +712,22 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			return ret;
 		return mResLoader.LoadSpritesAsync(fileName, cacheType, onProcess);
 	}
+		
+	public ScriptableObject LoadScriptableObject(string fileName, ResourceCacheType cacheType)
+	{
+		ScriptableObject ret = mAssetLoader.LoadScriptableObject (fileName, cacheType);
+		if (ret != null)
+			return ret;
+		return mResLoader.LoadScriptableObject (fileName, cacheType);
+	}
+
+	public bool LoadScriptableObjectAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, ScriptableObject> onProcess)
+	{
+		bool ret = mAssetLoader.LoadScriptableObjectAsync (fileName, cacheType, onProcess);
+		if (ret)
+			return ret;
+		return mResLoader.LoadScriptableObjectAsync (fileName, cacheType, onProcess);
+	}
 
 #if UNITY_5
 
