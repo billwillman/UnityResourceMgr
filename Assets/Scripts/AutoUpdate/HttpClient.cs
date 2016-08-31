@@ -215,6 +215,12 @@ namespace NsHttpClient
 
 		private void OnResponse(IAsyncResult result)
 		{
+			if (m_TimeOutTimer != null)
+			{
+				m_TimeOutTimer.Dispose();
+				m_TimeOutTimer = null;
+			}
+
 			HttpWebRequest req = result.AsyncState as HttpWebRequest;
 			if (req == null)
 				return;
@@ -246,6 +252,12 @@ namespace NsHttpClient
 
 		private void Close()
 		{
+			if (m_TimeOutTimer != null)
+			{
+				m_TimeOutTimer.Dispose();
+				m_TimeOutTimer = null;
+			}
+
 			if (m_Listener != null)
 				m_Listener.OnClose();
 
@@ -254,6 +266,14 @@ namespace NsHttpClient
 				m_Req.Abort();
 				m_Req = null;
 			}
+		}
+
+		private void OnTimeOutTime(Timer obj, float timer)
+		{
+			// 408请求超时
+			if (m_Listener != null)
+				m_Listener.OnError(408);
+			Dispose();
 		}
 
 		private void Start()
@@ -266,6 +286,11 @@ namespace NsHttpClient
 			}
 			AsyncCallback callBack = new AsyncCallback(OnResponse);
 			m_Req.BeginGetResponse(callBack, m_Req);
+
+			if (m_TimeOutTimer != null)
+				m_TimeOutTimer.Dispose();
+			m_TimeOutTimer = TimerMgr.Instance.CreateTimer(true, m_TimeOut, true, true);
+			m_TimeOutTimer.AddListener(OnTimeOutTime);
 		}
 
 		protected override void OnFree(bool isManual)
@@ -288,6 +313,7 @@ namespace NsHttpClient
 
 		private string m_Url;
 		private float m_TimeOut;
+		private Timer m_TimeOutTimer = null;
 		private AsyncCallback m_CallBack;
 		private HttpWebRequest m_Req = null;
 		private IHttpClientListener m_Listener = null;
