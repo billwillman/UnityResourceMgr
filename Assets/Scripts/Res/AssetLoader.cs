@@ -923,6 +923,13 @@ public class AssetInfo
 		}
 	}
 
+	public HashSet<string>.Enumerator GetSubFilesIter()
+	{
+		if (mChildFileNameHashs == null)
+			return new HashSet<string>.Enumerator ();
+		return mChildFileNameHashs.GetEnumerator ();
+	}
+
 	/*
 	public void _AddSubFile(int hashCode)
 	{
