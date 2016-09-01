@@ -3195,7 +3195,7 @@ public static class AssetBundleBuild
 		command = " /c " + command;
 		processCommand("cmd.exe", command);
 #elif UNITY_EDITOR_MAC
-            command = "-al " + command;
+            command = " -al " + command;
             processCommand("ls", command);
 #endif
 	}
