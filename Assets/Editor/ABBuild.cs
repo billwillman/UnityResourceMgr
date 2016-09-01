@@ -3194,6 +3194,9 @@ public static class AssetBundleBuild
 #if UNITY_EDITOR_WIN
 		command = " /c " + command;
 		processCommand("cmd.exe", command);
+#elif UNITY_EDITOR_MAC
+            command = "-al " + command;
+            processCommand("ls", command);
 #endif
 	}
 
