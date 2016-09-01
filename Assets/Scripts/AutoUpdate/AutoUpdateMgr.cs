@@ -475,7 +475,7 @@ namespace AutoUpdate
 
 		internal void UpdateToUpdateTxt(ResListFile.ResDiffInfo[] newInfos)
 		{
-			if (newInfos == null)
+			if (newInfos == null || m_UpdateFile = null)
 				return;
 			if (newInfos.Length <= 0)
 			{
