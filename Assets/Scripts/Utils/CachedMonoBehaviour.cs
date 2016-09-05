@@ -21,7 +21,9 @@ namespace Utils
         {
             get
             {
-                return GetCachedComponent<Transform>();
+				if (m_CachedTransform == null)
+					m_CachedTransform = this.transform;
+				return m_CachedTransform;
             }
         }
 
@@ -66,5 +68,6 @@ namespace Utils
         private Dictionary<System.Type, UnityEngine.Component> m_CachedCompentMap = null;
 		private HashSet<System.Type> m_CahcedCompentInitMap = null;
         private GameObject m_CachedGameObj = null;
+		private Transform m_CachedTransform = null;
     }
 }
