@@ -33,6 +33,22 @@ namespace Utils
 			}
 		}
 
+		public bool IsNotUsed
+		{
+			get
+			{
+				return State == TimeObjState.to_NotUsed;
+			}
+		}
+
+		public bool IsInPool
+		{
+			get
+			{
+				return State == TimeObjState.to_None;
+			}
+		}
+
 		internal TimeObjState State
 		{
 			get;
