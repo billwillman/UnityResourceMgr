@@ -256,6 +256,16 @@ namespace Utils
 				m_Pool.Clear();
 		}
 
+		public int GetPoolCount()
+		{
+			return m_Pool.Count;
+		}
+
+		public int GetNotUsedListCount()
+		{
+			return m_NotUsedList.Count;
+		}
+
 		private Dictionary<K, T> m_NotUsedHashMap = new Dictionary<K, T>();
 		private LinkedList<ITimePoolObj<K>> m_NotUsedList = new LinkedList<ITimePoolObj<K>>();
 		private ObjectPool<T> m_Pool = new ObjectPool<T>();
