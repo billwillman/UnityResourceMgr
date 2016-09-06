@@ -238,6 +238,24 @@ namespace Utils
 			}
 		}
 
+		public void Clear(bool isClearPool)
+		{
+			var node = m_NotUsedList.First;
+			while (node != null)
+			{
+				var obj = node.Value;
+				node = node.Next;
+				if (isClearPool)
+					obj.Destroy(true);
+				else
+					InPool(obj as T);
+			}
+			m_NotUsedList.Clear();
+			m_NotUsedHashMap.Clear();
+			if (isClearPool)
+				m_Pool.Clear();
+		}
+
 		private Dictionary<K, T> m_NotUsedHashMap = new Dictionary<K, T>();
 		private LinkedList<ITimePoolObj<K>> m_NotUsedList = new LinkedList<ITimePoolObj<K>>();
 		private ObjectPool<T> m_Pool = new ObjectPool<T>();
