@@ -50,7 +50,7 @@ namespace AutoUpdate
 								if (string.Compare(key, "res", StringComparison.CurrentCultureIgnoreCase) == 0)
 								{
 									AutoUpdateMgr.Instance.LocalResVersion = lines[i].Substring(idx + 1).Trim();
-								} else if (string.Compare(key, "fileList", StringComparison.OrdinalIgnoreCase) == 0)
+								} else if (string.Compare(key, "fileList", StringComparison.CurrentCultureIgnoreCase) == 0)
 								{
 									AutoUpdateMgr.Instance.LocalFileListContentMd5 = lines[i].Substring(idx + 1).Trim();
 								}

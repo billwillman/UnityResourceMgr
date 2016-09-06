@@ -79,7 +79,7 @@ namespace AutoUpdate
 			DebugFileError();
 			AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_FileDown, status);
 
-			StartNextDownload();
+			// StartNextDownload();
 		}
 
 		void StartNextDownload()
