@@ -32,6 +32,8 @@ namespace AutoUpdate
 					File.Delete(fileName);
 			}
 			iter.Dispose();
+
+			Clear();
 		}
 
 		public bool LoadFromFile(string fileName)

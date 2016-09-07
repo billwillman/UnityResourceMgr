@@ -283,6 +283,26 @@ public class ResListFile
 		}
 	}
 
+	public void DeleteAllFiles()
+	{
+		string writePath = Utils.FilePathMgr.Instance.WritePath;
+		if (string.IsNullOrEmpty(writePath))
+			return;
+		
+		var iter = m_ContentMd5ToNameMd5Map.GetEnumerator();
+		while (iter.MoveNext())
+		{
+			string fileName = string.Format("{0}/{1}", writePath, iter.Current.Key);
+			if (File.Exists(fileName))
+				File.Delete(fileName);
+			fileName = string.Format("{0}/{1}", writePath, iter.Current.Value);
+			if (File.Exists(fileName))
+				File.Delete(fileName);
+		}
+		iter.Dispose();
+		Clear();
+	}
+
 	public ResDiffInfo[] AllToDiffInfos()
 	{
 		List<ResDiffInfo> list = new List<ResDiffInfo>();

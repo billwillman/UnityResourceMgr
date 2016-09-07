@@ -10,6 +10,7 @@ namespace AutoUpdate
 	{
 		private string m_FileListName = string.Empty;
 		private string m_VersionName = string.Empty;
+		private string m_UpdateName = string.Empty;
 
 		private void CopyFileList()
 		{
@@ -81,10 +82,8 @@ namespace AutoUpdate
 			var cfg = AutoUpdateMgr.Instance.LocalUpdateFile;
 			cfg.Clear();
 
-			string writePath = AutoUpdateMgr.Instance.WritePath;
-			string fileName = string.Format("{0}/{1}", writePath, AutoUpdateMgr._cUpdateTxt);
-			if (File.Exists(fileName))
-				cfg.LoadFromFile(fileName);
+			if (File.Exists(m_UpdateName))
+				cfg.LoadFromFile(m_UpdateName);
 		}
 
 		void ToNextState()
@@ -106,19 +105,22 @@ namespace AutoUpdate
 			
 			m_FileListName = string.Format("{0}/{1}", writePath, AutoUpdateMgr._cFileListTxt);
 			m_VersionName = string.Format("{0}/{1}", writePath, AutoUpdateMgr._cVersionTxt);
+			m_UpdateName = string.Format("{0}/{1}", writePath, AutoUpdateMgr._cUpdateTxt);
 
 			DoNextCopyVersion();
 		}
 
 		private void DoNextCopyVersion()
 		{
-			
+			/*
 			if (!File.Exists(m_VersionName))
 				CopyVersion();
 			else
 				DoCopyFileList();
+			*/
 
-			//CopyVersion();
+			// 不管如何都讀一次Version,因爲要判斷APK包的版本和可寫目錄的版本，是否一致
+			CopyVersion();
 		}
 
 		private void DoCopyFileList()
@@ -129,7 +131,32 @@ namespace AutoUpdate
 				ToNextState();
 		}
 
-		/*
+		// 刪除所有可寫目錄文件
+		private void RemovePersistFiles()
+		{
+			// 刪除Update.txt裏的文件
+			if (File.Exists(m_UpdateName))
+			{
+				AutoUpdateCfgFile cfg = new AutoUpdateCfgFile();
+				cfg.LoadFromFile(m_UpdateName);
+				cfg.RemoveAllDowningFiles();
+				File.Delete(m_UpdateName);
+			}
+
+			// 刪除FileList裏的文件
+			if (File.Exists(m_FileListName))
+			{
+				ResListFile cfg = new ResListFile();
+				cfg.LoadFromFile(m_FileListName);
+				cfg.DeleteAllFiles();
+				File.Delete(m_FileListName);
+			}
+
+			// 刪除Version和FileList文件
+			if (File.Exists(m_VersionName))
+				File.Delete(m_VersionName);
+		}
+
 		private bool DoChecWriteNewVersion(byte[] pkgBuf)
 		{
 			if (pkgBuf == null || pkgBuf.Length <= 0)
@@ -173,13 +200,14 @@ namespace AutoUpdate
 
 				bool ret = comp > 0;
 
-
+				if (ret)
+					RemovePersistFiles();
 
 				return ret;
 			}
 
 			return true;
-		}*/
+		}
 
 		private void OnVersionLoaded(ITask task)
 		{
@@ -187,7 +215,7 @@ namespace AutoUpdate
 			{
 				WWWFileLoadTask t = task as WWWFileLoadTask;
 
-				//if (DoChecWriteNewVersion(t.ByteData))
+				if (DoChecWriteNewVersion(t.ByteData))
 				{
 					FileStream stream = new FileStream(m_VersionName, FileMode.Create, FileAccess.Write);
 					try
