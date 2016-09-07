@@ -107,6 +107,11 @@ namespace Utils
 			return ret;
 		}
 
+		// 只有在NotUsedList池子里的资源才是没有被清理，否则都是被清理了
+		public bool IsNoDestroy(K key) {
+            return m_NotUsedHashMap.ContainsKey(key);
+        }
+
 		private T GetFromNotUsed(K key)
 		{
 			T ret;
