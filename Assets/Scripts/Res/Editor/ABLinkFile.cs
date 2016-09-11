@@ -19,8 +19,21 @@ public class ABLinkFileCfg
 	{
 		if (isClear)
 			Clear();	
-		byte[] buf = ResourceMgr.Instance.LoadBytes(fileName);
-		return Load(buf);
+		if (!File.Exists(fileName))
+			return false;
+
+		bool ret = false;
+		FileStream stream = new FileStream(fileName, FileMode.Open);
+		if (stream.Length > 0)
+		{
+			byte[] buf = new byte[stream.Length];
+			stream.Read(buf, 0, buf.Length);
+			ret = Load(buf);
+		}
+
+		stream.Close();
+		stream.Dispose();
+		return ret;
 	}
 
 	private bool Load(Byte[] buf)
@@ -101,7 +114,7 @@ public class ABLinkFileCfg
 	{
 		if (string.IsNullOrEmpty(dstFileName))
 			return;
-		string dstDir = Path.GetFileName(dstFileName);
+		string dstDir = Path.GetDirectoryName(dstFileName);
 		if (string.IsNullOrEmpty(dstDir))
 			return;
 

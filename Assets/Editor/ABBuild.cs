@@ -225,13 +225,6 @@ class AssetBunbleInfo: IDependBinary
 			return;
 		}
 
-		if (!System.IO.Directory.Exists(fullPath))
-		{
-			FileType = AssetBundleFileType.abError;
-			FullPath = string.Empty;
-			return;
-		}
-
 		FileType = AssetBundleFileType.abDirFiles;
 		Path = Path.ToLower();
 		FullPath = fullPath.ToLower();
@@ -1201,7 +1194,7 @@ class AssetBundleMgr
 		int curIdx = 0;
 		while (true)
 		{
-			string dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, CurTagIdx);
+			string dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
 			int curCnt;
 			if (cfg.GetDstDirCnt(dstDir, out curCnt))
 			{
