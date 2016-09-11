@@ -1216,7 +1216,7 @@ class AssetBundleMgr
 			int curCnt;
 			if (!cfg.GetDstDirCnt(dstDir, out curCnt))
 				curCnt = 0;
-			if (curCnt + 1 == maxCnt)
+			if (curCnt + 1 > maxCnt)
 			{
 				++curIdx;
 				dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
