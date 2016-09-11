@@ -1214,12 +1214,20 @@ class AssetBundleMgr
 
 			string dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
 			int curCnt;
-			if (!cfg.GetDstDirCnt(dstDir, out curCnt))
-				curCnt = 0;
-			if (curCnt + 1 > maxCnt)
+
+			while (true)
 			{
-				++curIdx;
-				dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
+				if (!cfg.GetDstDirCnt(dstDir, out curCnt))
+				{
+					curCnt = 0;
+					break;
+				}
+				if (curCnt + 1 > maxCnt)
+				{
+					++curIdx;
+					dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
+				} else
+					break;
 			}
 
 
