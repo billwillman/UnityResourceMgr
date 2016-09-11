@@ -53,10 +53,8 @@ public class ABLinkFileCfg
 	{
 		if (m_GroupDict != null)
 			m_GroupDict.Clear();
-		#if UNITY_EDITOR
 		if (m_DirFileCntMap != null)
 			m_DirFileCntMap.Clear();
-		#endif
 	}
 
 	public Dictionary<string, string>.Enumerator GetIter()
@@ -101,7 +99,6 @@ public class ABLinkFileCfg
 
 	private void AddDstDirCnt(string dstFileName)
 	{
-		#if UNITY_EDITOR
 		if (string.IsNullOrEmpty(dstFileName))
 			return;
 		string dstDir = Path.GetFileName(dstFileName);
@@ -115,12 +112,8 @@ public class ABLinkFileCfg
 			m_DirFileCntMap[dstDir] += 1;
 		else
 			m_DirFileCntMap.Add(dstDir, 1);
-		#endif
 	}
-
-
-	#if UNITY_EDITOR
-
+		
 	public Dictionary<string, int>.Enumerator GetDstDirCntIter()
 	{
 		if (m_DirFileCntMap == null)
@@ -137,9 +130,6 @@ public class ABLinkFileCfg
 			return false;
 		return m_DirFileCntMap.TryGetValue(dstDir, out cnt);
 	}
-
-	#endif
-
 
 	public bool SaveToFile(string fileName)
 	{
@@ -192,7 +182,5 @@ public class ABLinkFileCfg
 	}
 		
 	private Dictionary<string, string> m_GroupDict = null;
-	#if UNITY_EDITOR
 	private Dictionary<string, int> m_DirFileCntMap = null;
-	#endif
 }
