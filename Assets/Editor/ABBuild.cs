@@ -215,6 +215,47 @@ class AssetBunbleInfo: IDependBinary
         return ret;
     }
 
+	public AssetBunbleInfo(string fullPath, string[] fileNames)
+	{
+		Path = GetLocalPath(fullPath);
+		if (fileNames == null || fileNames.Length <= 0 || string.IsNullOrEmpty (Path))
+		{
+			FileType = AssetBundleFileType.abError;
+			FullPath = string.Empty;
+			return;
+		}
+
+		if (!System.IO.Directory.Exists(fullPath))
+		{
+			FileType = AssetBundleFileType.abError;
+			FullPath = string.Empty;
+			return;
+		}
+
+		FileType = AssetBundleFileType.abDirFiles;
+		Path = Path.ToLower();
+		FullPath = fullPath.ToLower();
+
+		List<string> fileList = this.FileList;
+		for (int i = 0; i < fileNames.Length; ++i)
+		{
+			string fileName = fileNames[i];
+			if (!AssetBundleBuild.FileIsResource(fileName))
+				continue;
+			fileName = GetLocalPath(fileName);
+			if (string.IsNullOrEmpty(fileName))
+				continue;
+			fileList.Add(fileName.ToLower());
+		}
+
+		BuildDepends();
+		CheckIsScene();
+
+		Set_5_x_AssetBundleNames();
+
+		IsBuilded = false;
+	}
+
 	public AssetBunbleInfo(string fullPath)
 	{
 		Path = GetLocalPath(fullPath);
@@ -1097,6 +1138,156 @@ class AssetBundleMgr
 		set;
 	}
 
+	private bool GetSplitABCnt(string dir, out int cnt)
+	{
+		cnt = 0;
+		if (string.IsNullOrEmpty(dir))
+			return false;
+		string dirName = Path.GetFileName(dir);
+		if (dirName.StartsWith("["))
+		{
+			int idx = dirName.IndexOf(']');
+			if (idx <= 1)
+				return false;
+			string numStr = dirName.Substring(1, idx - 1);
+			int num;
+			if (int.TryParse(numStr, out num) && num > 0)
+			{
+				cnt = num;
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private bool IsSplitABDir(string dir)
+	{
+		int num;
+		return GetSplitABCnt(dir, out num);
+	}
+
+	private void BuildSplitABDir(string splitDir, ABLinkFileCfg cfg)
+	{
+		if (cfg == null || string.IsNullOrEmpty(splitDir))
+			return;
+		string[] files = Directory.GetFiles(splitDir, "*.*", SearchOption.TopDirectoryOnly);
+		if (files == null || files.Length <= 0)
+			return;
+
+		int maxCnt;
+		if (!GetSplitABCnt(splitDir, out maxCnt) || maxCnt <= 0)
+			return;
+
+		List<string> resFiles = new List<string>();
+		for (int i = 0; i < files.Length; ++i)
+		{
+			string fileName = files[i];
+			if (AssetBundleBuild.FileIsResource(fileName))
+				resFiles.Add(fileName);
+		}
+
+		if (resFiles.Count <= 0)
+			return;
+
+		// 查找最合适的
+		int idx = splitDir.IndexOf(']');
+		string subDir = splitDir.Substring(idx + 1).Trim();
+		if (string.IsNullOrEmpty(subDir))
+			return;
+
+		splitDir = AssetBunbleInfo.GetLocalPath(splitDir);
+
+		int curIdx = 0;
+		while (true)
+		{
+			string dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, CurTagIdx);
+			int curCnt;
+			if (cfg.GetDstDirCnt(dstDir, out curCnt))
+			{
+				if (curCnt < maxCnt)
+					break;
+			} else
+				break;
+
+			++curIdx;
+		}
+
+		for (int i = 0; i < resFiles.Count; ++i)
+		{
+			string srcFileName = AssetBunbleInfo.GetLocalPath(resFiles[i]);
+			if (cfg.ContainsLink(srcFileName))
+				continue;
+
+			string dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
+			int curCnt;
+			if (!cfg.GetDstDirCnt(dstDir, out curCnt))
+				curCnt = 0;
+			if (curCnt + 1 == maxCnt)
+			{
+				++curIdx;
+				dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
+			}
+
+
+			string dstFileName = string.Format("{0}/{1}", dstDir, Path.GetFileName(srcFileName));
+			cfg.AddLink(srcFileName, dstFileName);
+			++curCnt;
+		}
+
+		Dictionary<string, List<string>> dirFileMap = new Dictionary<string, List<string>>();
+		var iter = cfg.GetIter();
+		while (iter.MoveNext())
+		{
+			string dstFileName = iter.Current.Value;
+			string dstDir = Path.GetDirectoryName(dstFileName);
+			if (dirFileMap.ContainsKey(dstDir))
+				dirFileMap[dstDir].Add(iter.Current.Key);
+			else
+			{
+				List<string> list = new List<string>();
+				list.Add(iter.Current.Key);
+				dirFileMap.Add(dstDir, list);
+			}
+		}
+		iter.Dispose();
+
+		var dirIter = dirFileMap.GetEnumerator();
+		while (dirIter.MoveNext())
+		{
+			if (mAssetBundleMap.ContainsKey(dirIter.Current.Key))
+				continue;
+			var list = dirIter.Current.Value;
+			string[] fileNames = list.ToArray();
+			string fullPath = Path.GetFullPath(dirIter.Current.Key);
+			AssetBunbleInfo ab = new AssetBunbleInfo(fullPath, fileNames);
+			mAssetBundleMap.Add(ab.Path, ab);
+		}
+		dirIter.Dispose();
+	}
+
+	private void BuildSplitABDirs(HashSet<string> splitABDirs)
+	{
+		if (splitABDirs == null || splitABDirs.Count <= 0)
+			return;
+
+		string abSplitCfgFileName = Path.GetFullPath("buildABSplit.cfg");
+		ABLinkFileCfg abLinkCfg = new ABLinkFileCfg();
+		if (File.Exists(abSplitCfgFileName))
+		{
+			abLinkCfg.LoadFromFile(abSplitCfgFileName);
+		}
+		var abSplitIter = splitABDirs.GetEnumerator();
+		while (abSplitIter.MoveNext())
+		{
+			BuildSplitABDir(abSplitIter.Current, abLinkCfg);
+			EditorUtility.UnloadUnusedAssetsImmediate();
+		}
+		abSplitIter.Dispose();
+
+		abLinkCfg.SaveToFile(abSplitCfgFileName);
+	}
+
 	// 生成
 	public void BuildDirs(List<string> dirList)
 	{
@@ -1108,11 +1299,35 @@ class AssetBundleMgr
 		List<string> abFiles = new List<string> ();
 		HashSet<string> NotUsedDirHash = new HashSet<string> ();
         string notUsedSplit = "/" + AssetBundleBuild._NotUsed;
+		// 需要分割的目錄
+		HashSet<string> splitABDirs = new HashSet<string>();
 		for (int i = 0; i < dirList.Count; ++i) {
 			string dir = dirList[i];
 
 			if (NotUsedDirHash.Contains(dir))
 				continue;
+
+			if (IsSplitABDir(dir))
+			{
+				// 分割的對象
+				if (!splitABDirs.Contains(dir))
+				{
+					string[] files = System.IO.Directory.GetFiles(dir);
+					if (files != null && files.Length > 0)
+					{
+						for (int j = 0; i < files.Length; ++j)
+						{
+							string fileName = files[j];
+							if (AssetBundleBuild.FileIsResource(fileName))
+							{
+								splitABDirs.Add(dir);
+								break;
+							}
+						}
+					}
+				}
+				continue;
+			}
 
             string abDir = dir;
             int notUsedIdx = abDir.IndexOf(notUsedSplit);
@@ -1165,6 +1380,9 @@ class AssetBundleMgr
 				mAssetBundleMap.Add(info.Path, info);
 			}
 		}
+
+		// 加入Split的AB LINK
+		BuildSplitABDirs(splitABDirs);
 
 		RefreshAllDependCount ();
 
