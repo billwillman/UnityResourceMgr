@@ -1251,10 +1251,13 @@ class AssetBundleMgr
 			if (mAssetBundleMap.ContainsKey(dirIter.Current.Key))
 				continue;
 			var list = dirIter.Current.Value;
+			// 排个序
+			list.Sort();
 			string[] fileNames = list.ToArray();
 			string fullPath = Path.GetFullPath(dirIter.Current.Key);
 			AssetBunbleInfo ab = new AssetBunbleInfo(fullPath, fileNames);
 			mAssetBundleMap.Add(ab.Path, ab);
+			mAssetBundleList.Add(ab);
 		}
 		dirIter.Dispose();
 	}
