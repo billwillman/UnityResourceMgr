@@ -96,7 +96,13 @@ public class AssetBundleCache: AssetCache
 		if (cache == null)
 			return;
 		InitPool();
+		cache.Reset();
 		m_Pool.Store(cache);
+	}
+
+	private void Reset()
+	{
+		mTarget = null;
 	}
 
 	private static void InitPool() {
