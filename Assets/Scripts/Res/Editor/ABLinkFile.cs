@@ -103,8 +103,11 @@ public class ABLinkFileCfg
 
 		if (m_GroupDict == null)
 			m_GroupDict = new Dictionary<string, string>();
-		m_GroupDict.Add(srcFileName, dstFileName);
-		AddDstDirCnt(dstFileName);
+        if (!m_GroupDict.ContainsKey(srcFileName))
+        {
+            m_GroupDict.Add(srcFileName, dstFileName);
+            AddDstDirCnt(dstFileName);
+        }
 		return true;
 	}
 

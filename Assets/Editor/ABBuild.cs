@@ -1256,15 +1256,16 @@ class AssetBundleMgr
 		var dirIter = dirFileMap.GetEnumerator();
 		while (dirIter.MoveNext())
 		{
-			if (mAssetBundleMap.ContainsKey(dirIter.Current.Key))
+            string path = dirIter.Current.Key.ToLower();
+            if (mAssetBundleMap.ContainsKey(path))
 				continue;
 			var list = dirIter.Current.Value;
 			// 排个序
 			list.Sort();
 			string[] fileNames = list.ToArray();
-			string fullPath = Path.GetFullPath(dirIter.Current.Key);
+			string fullPath = Path.GetFullPath(path);
 			AssetBunbleInfo ab = new AssetBunbleInfo(fullPath, fileNames);
-			mAssetBundleMap.Add(ab.Path, ab);
+			mAssetBundleMap.Add(path, ab);
 			mAssetBundleList.Add(ab);
 		}
 		dirIter.Dispose();
