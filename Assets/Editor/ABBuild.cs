@@ -1388,7 +1388,9 @@ class AssetBundleMgr
 		// 加入Split的AB LINK
 		BuildSplitABDirs(splitABDirs);
 
-		RefreshAllDependCount ();
+        EditorUtility.ClearProgressBar();
+
+        RefreshAllDependCount ();
 
 		mAssetBundleList.Sort (AssetBunbleInfo.OnSort);
 #if USE_UNITY5_X_BUILD
