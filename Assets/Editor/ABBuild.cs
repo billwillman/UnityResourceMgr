@@ -1256,10 +1256,10 @@ class AssetBundleMgr
 		var dirIter = dirFileMap.GetEnumerator();
 		while (dirIter.MoveNext())
 		{
-            string path = dirIter.Current.Key.ToLower();
+            string path = AssetBunbleInfo.GetLocalPath(dirIter.Current.Key).ToLower();
             if (mAssetBundleMap.ContainsKey(path))
-				continue;
-			var list = dirIter.Current.Value;
+                continue;
+            var list = dirIter.Current.Value;
 			// 排个序
 			list.Sort();
 			string[] fileNames = list.ToArray();
@@ -1645,7 +1645,7 @@ class AssetBundleMgr
         if (string.IsNullOrEmpty(fullPath))
             return string.Empty;
         fullPath = fullPath.Replace("\\", "/");
-        int index = fullPath.IndexOf("Assets/");
+        int index = fullPath.IndexOf("Assets/", StringComparison.CurrentCultureIgnoreCase);
         if (index < 0)
             return fullPath;
         string ret = fullPath.Substring(index);
