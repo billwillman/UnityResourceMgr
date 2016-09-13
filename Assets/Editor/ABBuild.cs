@@ -3563,6 +3563,9 @@ public static class AssetBundleBuild
 				dir = dir.Replace('\\', '/');
 				_CopyAllDirs(dir, dstAssets, null);
 			}
+
+			dstAssets = outPath + '/' + "ProjectSettings";
+			_CopyAllFiles("ProjectSettings", dstAssets, null);
 		}
 
     // 拷贝非资源文件夹
