@@ -3506,7 +3506,64 @@ public static class AssetBundleBuild
 
 	static private void Cmd_SvnOther(string outPath, List<string> resPaths)
 	{
+		if (string.IsNullOrEmpty (outPath) || resPaths == null || resPaths.Count <= 1)
+				return;
+			string url = resPaths [0].Trim ();
+			if (string.IsNullOrEmpty (url))
+				return;
+			
+			// SVN更新
+			for (int i = 1; i < resPaths.Count; ++i) {
+				string path = string.Format ("{0}/{1}", outPath, resPaths [i]);
+				path = Path.GetFullPath (path);
+				if (Directory.Exists (path)) {
+					// svn update
+					#if UNITY_EDITOR_WIN
+					string cmd = string.Format("TortoiseProc.exe /command:update /path:\"{0}\" /closeonend:3", path);
+					RunCmd(cmd);
+					#endif
+				} else {
+					// svn checkout
+					#if UNITY_EDITOR_WIN
+					string cmd = string.Format("TortoiseProc.exe /command:checkout /path:\"{0}\" /url:\"{1}/{2}\"", path, url, resPaths[i]);
+					RunCmd(cmd);
+					#endif
+				}
+			}
 	}
+
+	static private void Cmd_CopyList(string outPath, List<string> copyList)
+		{
+			if (string.IsNullOrEmpty(outPath) || copyList == null || copyList.Count <= 0)
+				return;
+
+			string dstAssets = outPath + '/' + "Assets";
+			if (!System.IO.Directory.Exists(dstAssets)) {
+				if (System.IO.Directory.CreateDirectory(dstAssets) == null)
+					return;
+			}
+
+			// 刪除原來文件
+			var delDirs = System.IO.Directory.GetDirectories(dstAssets);
+			if (delDirs != null) {
+				for (int i = 0; i < delDirs.Length; ++i) {
+					System.IO.Directory.Delete(delDirs[i], true);
+				}
+			}
+
+			var delFiles = System.IO.Directory.GetFiles(dstAssets);
+			if (delFiles != null) {
+				for (int i = 0; i < delFiles.Length; ++i) {
+					System.IO.File.Delete(delFiles[i]);
+				}
+			}
+
+			for (int i = 0; i < copyList.Count; ++i) {
+				string dir = copyList[i];
+				dir = dir.Replace('\\', '/');
+				_CopyAllDirs(dir, dstAssets, null);
+			}
+		}
 
     // 拷贝非资源文件夹
     // resPaths: 资源目录列表
