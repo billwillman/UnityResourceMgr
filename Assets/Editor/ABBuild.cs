@@ -2807,6 +2807,34 @@ public static class AssetBundleBuild
 		return ret;
 	}*/
 
+	private static List<string> GetResAllDirPath(List<string> rootDir)
+		{
+			if (rootDir == null || rootDir.Count <= 0)
+				return null;
+			List<string> ret = null;
+			for (int i = 0; i < rootDir.Count; ++i) {
+				List<string> list = AssetBundleBuild.GetAllLocalSubDirs (rootDir [i]);
+				if (list != null && list.Count > 0)
+				{
+					if (ret == null)
+						ret = new List<string>();
+					ret.AddRange (list);
+				}
+
+				if (DirExistResource(rootDir[i]))
+				{
+					if (ret == null)
+						ret = new List<string>();
+					ret.Add(rootDir[i]);
+				}
+			}
+
+			if (ret != null)
+				ret.Sort(OnDirSort);
+
+			return ret;
+		}
+
 	private static List<string> GetResAllDirPath()
 	{
 #if ASSETBUNDLE_ONLYRESOURCES
