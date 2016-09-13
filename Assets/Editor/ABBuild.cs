@@ -3543,23 +3543,25 @@ public static class AssetBundleBuild
 					return;
 			}
 
-			// 刪除原來文件
-			var delDirs = System.IO.Directory.GetDirectories(dstAssets);
-			if (delDirs != null) {
-				for (int i = 0; i < delDirs.Length; ++i) {
-					System.IO.Directory.Delete(delDirs[i], true);
-				}
-			}
-
-			var delFiles = System.IO.Directory.GetFiles(dstAssets);
-			if (delFiles != null) {
-				for (int i = 0; i < delFiles.Length; ++i) {
-					System.IO.File.Delete(delFiles[i]);
-				}
-			}
-
 			for (int i = 0; i < copyList.Count; ++i) {
-				string dir = copyList[i];
+				string dir = copyList [i];
+				string dstDir = Path.GetFullPath(outPath + '/' + dir);
+				if (Directory.Exists (dstDir)) {
+					var subDirs = System.IO.Directory.GetDirectories (dstDir);
+					if (subDirs != null) {
+						for (int j = 0; j < subDirs.Length; ++j) {
+							System.IO.Directory.Delete (subDirs [j], true);
+						}
+					}
+
+					var subFiles = System.IO.Directory.GetFiles (dstDir);
+					if (subFiles != null) {
+						for (int j = 0; j < subFiles.Length; ++j) {
+							System.IO.File.Delete (subFiles [j]);
+						}
+					}
+				}
+
 				dir = dir.Replace('\\', '/');
 				_CopyAllDirs(dir, dstAssets, null);
 			}
