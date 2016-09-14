@@ -1334,7 +1334,7 @@ class AssetBundleMgr
 				if (!isFound)
 				{
 					// 打印出来
-					Debug.LogErrorFormat("<color=yellow>[{0}]</color><color=white>依赖被额外包含</color><color=red>{1}</color>", 
+					Debug.LogWarningFormat("<color=yellow>[{0}]</color><color=white>依赖被额外包含</color><color=red>{1}</color>", 
 						info.BundleFileName, depFileName);
 				}
 			}
