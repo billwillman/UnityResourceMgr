@@ -1293,6 +1293,71 @@ class AssetBundleMgr
 		abLinkCfg.SaveToFile(abSplitCfgFileName);
 	}
 
+#if USE_UNITY5_X_BUILD
+
+	private void CheckRongYuRes(AssetBunbleInfo info)
+	{
+		if (info == null)
+			return;
+		for (int i = 0; i < info.SubFileCount; ++i)
+		{
+			string subFileName = info.GetSubFiles(i);
+			string[] depFileList = AssetDatabase.GetDependencies(subFileName, false);
+			if (depFileList == null || depFileList.Length <= 0)
+				continue;
+			for (int j = 0; j < depFileList.Length; ++j)
+			{
+				string depFileName = depFileList[j];
+
+				if (!AssetBundleBuild.FileIsResource(depFileName))
+					continue;
+
+				bool isFound = false;
+				for (int k = 0; k < info.SubFileCount; ++k)
+				{
+					if (string.Compare(depFileName, info.GetSubFiles(k), true) == 0)
+					{
+						isFound = true;
+						break;
+					}
+				}
+
+				if (isFound)
+					continue;
+
+				AssetImporter importer = AssetImporter.GetAtPath(depFileName);
+				if (importer == null)
+					continue;
+
+				isFound = !string.IsNullOrEmpty(importer.assetBundleName);
+
+				if (!isFound)
+				{
+					// 打印出来
+					Debug.LogErrorFormat("<color=yellow>[{0}]</color><color=white>依赖被额外包含</color><color=red>{1}</color>", 
+						info.BundleFileName, depFileName);
+				}
+			}
+		}
+	}
+
+	// 打印未被打包但引用的资源
+	private void CheckRongYuRes()
+	{
+		if (mAssetBundleList == null || mAssetBundleList.Count <= 0)
+			return;
+		for (int i = 0; i < mAssetBundleList.Count; ++i)
+		{
+			AssetBunbleInfo info = mAssetBundleList[i];
+			if (info == null)
+				continue;
+			CheckRongYuRes(info);
+			EditorUtility.UnloadUnusedAssetsImmediate();
+		}
+	}
+
+#endif
+
 	// 生成
 	public void BuildDirs(List<string> dirList)
 	{
@@ -2238,6 +2303,9 @@ class AssetBundleMgr
                     BuildAssetBundleInfo_5_x(info, platform, exportDir, compressType);
             }*/
 			BuildAssetBundlesInfo_5_x(platform, exportDir, compressType);
+
+			// 是否存在冗余资源，如果有打印出来
+			CheckRongYuRes();
 
 		#if USE_DEP_BINARY
 			// 二进制格式
