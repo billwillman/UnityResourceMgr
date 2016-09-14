@@ -3600,7 +3600,7 @@ public static class AssetBundleBuild
 		}
 	} 
 
-	static private void Cmd_SvnOther(string outPath, List<string> resPaths)
+	static private void Cmd_Svn(string outPath, List<string> resPaths)
 	{
 		if (string.IsNullOrEmpty (outPath) || resPaths == null || resPaths.Count <= 1)
 				return;
