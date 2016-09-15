@@ -1385,7 +1385,7 @@ class AssetBundleMgr
 					string[] files = System.IO.Directory.GetFiles(dir);
 					if (files != null && files.Length > 0)
 					{
-						for (int j = 0; i < files.Length; ++j)
+						for (int j = 0; j < files.Length; ++j)
 						{
 							string fileName = files[j];
 							if (AssetBundleBuild.FileIsResource(fileName))
