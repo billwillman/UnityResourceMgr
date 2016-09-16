@@ -1182,6 +1182,7 @@ public class AssetLoader: IResourceLoader
 	}
 
 	public override bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.Object[]> onProcess) {
+		fileName = TransFileName (fileName, ".tex");
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
 #endif
@@ -1273,7 +1274,7 @@ public class AssetLoader: IResourceLoader
 
 	// 加载Sprite
 	public override Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType) {
-
+		fileName = TransFileName (fileName, ".tex");
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
 #endif
