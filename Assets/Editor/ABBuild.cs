@@ -1946,30 +1946,30 @@ class AssetBundleMgr
 	public string GetUnityEditorPath()
 	{
 #if UNITY_EDITOR_WIN
-		string pathList = System.Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
-		if (string.IsNullOrEmpty(pathList))
-			return string.Empty;
+			string pathList = System.Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
+			if (string.IsNullOrEmpty(pathList))
+				return string.Empty;
 
-		char[] split = new char[1];
-		split[0] = ';';
-		string[] paths = pathList.Split(split, StringSplitOptions.RemoveEmptyEntries);
-		if (paths == null || paths.Length <= 0)
-			return string.Empty;
-		for (int i = 0; i < paths.Length; ++i)
-		{
-			string p = paths[i];
-			if (string.IsNullOrEmpty(p))
-				continue;
-			p = p.Replace('\\', '/');
-			int idx = p.IndexOf("/Unity", StringComparison.CurrentCultureIgnoreCase);
-			int idx1 = p.IndexOf("/Editor", StringComparison.CurrentCultureIgnoreCase);
-			if (idx >= 0 && idx1 > idx)
-			{
+			char[] split = new char[1];
+			split[0] = ';';
+			string[] paths = pathList.Split(split, StringSplitOptions.RemoveEmptyEntries);
+			if (paths == null || paths.Length <= 0)
+				return string.Empty;
+			for (int i = 0; i < paths.Length; ++i) {
+				string p = paths[i];
+				if (string.IsNullOrEmpty(p))
+					continue;
+				int unityIdx = p.IndexOf("Unity", StringComparison.CurrentCultureIgnoreCase);
+				if (unityIdx < 0)
+					continue;
+				p = p.Replace('\\', '/');
+				int editorIdx = p.IndexOf("/Editor", StringComparison.CurrentCultureIgnoreCase);
+				if (editorIdx < 0 || editorIdx <= unityIdx)
+					continue;
 				return p;
 			}
-		}
 #endif
-		return string.Empty;
+			return string.Empty;
 	}
 
 	public bool BuildCSharpProject(string ProjFileName, string buildExe)
