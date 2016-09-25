@@ -1567,6 +1567,16 @@ public class AssetLoader: IResourceLoader
 		return LoadObjectAsync<Texture> (TransFileName(fileName, ".tex"), cacheType, onProcess);
 	}
 
+	public override Font LoadFont (string fileName, ResourceCacheType cacheType)
+	{
+		return LoadObject<Font>(TransFileName(fileName, ".ttf"), cacheType);
+	}
+
+	public override bool LoadFontAsync (string fileName, ResourceCacheType cacheType, Action<float, bool, Font> onProcess)
+	{
+		return LoadObjectAsync<Font> (TransFileName (fileName, ".ttf"), cacheType, onProcess);
+	}
+
 	public override RuntimeAnimatorController LoadAniController(string fileName, ResourceCacheType cacheType)
 	{
 		return LoadObject<RuntimeAnimatorController> (TransFileName(fileName, ".controller"), cacheType);

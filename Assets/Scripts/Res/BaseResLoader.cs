@@ -604,6 +604,25 @@ public class BaseResLoader: CachedMonoBehaviour
 		return target != null;
 	}
 
+	public void ClearFont(TextMesh textMesh)
+	{
+		if (textMesh == null)
+			return;
+		SetResource (textMesh.GetInstanceID (), null, typeof(Font));
+	}
+
+	public bool LoadFont(TextMesh textMesh, string fileName)
+	{
+		if (textMesh == null)
+			return false;
+		ClearFont (textMesh);
+		Font font = ResourceMgr.Instance.LoadFont (fileName, ResourceCacheType.rctRefAdd);
+		if (font != null)
+			SetResource (textMesh.GetInstanceID (), font, typeof(Font));
+		textMesh.font = font;
+		return font != null;
+	}
+
     public void ClearAniController(Animator target)
     {
         if (target == null)

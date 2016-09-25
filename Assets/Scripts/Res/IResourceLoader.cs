@@ -22,6 +22,8 @@ public abstract class IResourceLoader
 	public abstract bool OnSceneLoad(string sceneName);
 	public abstract bool OnSceneLoadAsync(string sceneName, Action onEnd);
 	public abstract bool OnSceneClose(string sceneName);
+	public abstract Font LoadFont (string fileName, ResourceCacheType cacheType);
+	public abstract bool LoadFontAsync (string fileName, ResourceCacheType cacheType, Action<float, bool, Font> onProcess);
 	public abstract GameObject LoadPrefab(string fileName, ResourceCacheType cacheType);
 	public abstract bool LoadPrefabAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, GameObject> onProcess);
 	public abstract Material LoadMaterial(string fileName, ResourceCacheType cacheType);

@@ -464,6 +464,16 @@ public class ResourcesLoader: IResourceLoader
 		return LoadObjectAsync<Texture> (fileName, cacheType, onProcess);
 	}
 
+	public override Font LoadFont (string fileName, ResourceCacheType cacheType)
+	{
+		return LoadObject<Font> (fileName, cacheType);
+	}
+
+	public override bool LoadFontAsync (string fileName, ResourceCacheType cacheType, Action<float, bool, Font> onProcess)
+	{
+		return LoadObjectAsync<Font> (fileName, cacheType, onProcess);
+	}
+
 	public override RuntimeAnimatorController LoadAniController(string fileName, ResourceCacheType cacheType)
 	{
 		return LoadObject<RuntimeAnimatorController> (fileName, cacheType);
