@@ -2115,7 +2115,7 @@ class AssetBundleMgr
 						string value = AssetBunbleInfo.Md5(files[i], false) + ext;
 
 						bool isFirstDown = false;
-						if (isFirstDown != null && i < isFirstDowns.Length)
+						if (isFirstDowns != null && i < isFirstDowns.Length)
 							isFirstDown = isFirstDowns[i]; 
 
 						if (!resFile.AddFile(f, value, isFirstDown))
