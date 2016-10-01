@@ -766,10 +766,14 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 #endif
 
+	private AsyncOperation m_UnUsedOpr = null;
+
 	public void UnloadUnUsed()
 	{
 		// 清除�?有未使用�?		AssetCacheManager.Instance.ClearUnUsed ();
-		Resources.UnloadUnusedAssets ();
+		
+		if (m_UnUsedOpr == null || m_UnUsedOpr.isDone)
+			m_UnUsedOpr = Resources.UnloadUnusedAssets ();
 	}
 
 	public IResourceLoader AssetLoader
