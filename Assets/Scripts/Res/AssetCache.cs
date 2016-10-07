@@ -169,7 +169,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 	public static readonly int cCacheTickCount = 5;
 	// 内存警告上限
 	public static readonly bool cIsUseCacheMemoryClear = true;
-	public static readonly uint cCacheMemoryLimit = 1024 * 1024 * 90; // 90M
+	public static readonly uint cCacheMemoryLimit = 1024 * 1024 * 200; // 200M
 	public static readonly int cAssetBundleMaxCount = 200;
 	public static readonly bool cIsCheckAssetBundleCount = false;
 
@@ -202,9 +202,9 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		}*/
 
 		if (Application.isEditor)
-			return Profiler.GetTotalAllocatedMemory () / 2;
+			return Profiler.GetTotalReservedMemory () / 2;
 		else
-			return Profiler.GetTotalAllocatedMemory ();
+			return Profiler.GetTotalReservedMemory ();
 			//return Profiler.usedHeapSize;
 	}
 
