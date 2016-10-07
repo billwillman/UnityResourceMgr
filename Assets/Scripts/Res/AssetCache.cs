@@ -168,6 +168,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 	// 每次从列表判断次数
 	public static readonly int cCacheTickCount = 5;
 	// 内存警告上限
+	public static readonly bool cIsUseCacheMemoryClear = true;
 	public static readonly uint cCacheMemoryLimit = 1024 * 1024 * 90; // 90M
 	public static readonly int cAssetBundleMaxCount = 200;
 	public static readonly bool cIsCheckAssetBundleCount = false;
@@ -605,11 +606,16 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		UpdateUsedList (t);
 
 		// 判断当前内存使用情况，如果超过内存限制，直接清除掉 mNotUsedCacheList
-		uint checkMemorySize = GetCheckMemorySize ();
-		if (checkMemorySize >= cCacheMemoryLimit) {
-			ClearAllNotUsedList(true);
-			// 再做一次Unload清理
-            ResourceMgr.Instance.UnloadUnUsed();
+		if (cIsUseCacheMemoryClear) {
+			#if !UNITY_EDITOR
+			uint checkMemorySize = GetCheckMemorySize ();
+            if (checkMemorySize >= cCacheMemoryLimit)
+             {
+                ClearAllNotUsedList(true);
+                // 再做一次Unload清理
+                ResourceMgr.Instance.UnloadUnUsed();
+              }
+			#endif
 		}
 	}
 
