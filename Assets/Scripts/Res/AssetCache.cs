@@ -608,6 +608,8 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		uint checkMemorySize = GetCheckMemorySize ();
 		if (checkMemorySize >= cCacheMemoryLimit) {
 			ClearAllNotUsedList(true);
+			// 再做一次Unload清理
+            ResourceMgr.Instance.UnloadUnUsed();
 		}
 	}
 
