@@ -887,7 +887,8 @@ public class AssetInfo
 			m_OrgResMap.Clear();
 			m_AsyncLoadDict.Clear();
 
-			Sprites = null;
+		//	Sprites = null;
+			m_Sprites = null;
 
 			mBundle.Unload(false);
 			mBundle = null;
