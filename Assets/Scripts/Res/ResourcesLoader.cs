@@ -540,35 +540,6 @@ public class ResourcesLoader: IResourceLoader
 	}
 
 	public override Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType) {
-		if (string.IsNullOrEmpty(fileName))
-			return null;
-
-		Texture tex = LoadObject<Texture>(fileName, ResourceCacheType.rctTemp);
-		if (tex == null)
-			return null;
-		AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(tex);
-		if (cache == null)
-			return null;
-
-		ResourceAssetCache resCache = cache as ResourceAssetCache;
-		if (resCache == null)
-			return null;
-
-		if (!IsResLoaderFileName(ref fileName))
-			return null;
-
-		Sprite[] ret = resCache.Sprites;
-		if (ret == null)
-			ret = Resources.LoadAll<Sprite>(fileName);
-		if (ret == null || ret.Length <= 0)
-			return null;
-		
-		AddRefSprites(resCache, ret, cacheType);
-
-		return ret;
-	}
-
-	public override bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.Object[]> onProcess) {
 		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctRefAdd,
 			delegate(float process, bool isDone, Texture obj) {
 				if (isDone) {
@@ -587,24 +558,25 @@ public class ResourcesLoader: IResourceLoader
 
 					ResourceMgr.Instance.DestroyObject(obj);
 
-					ResourceAssetCache resCache = cache as ResourceAssetCache;
-					if (resCache == null)
+                    ResourceAssetCache resCache = cache as ResourceAssetCache;
+                    if (resCache == null)
+                    {
+                        if (onProcess != null)
+                            onProcess(process, isDone, null);
+                        return;
+					}
+
+                    Sprite[] ret = resCache.Sprites;
+                    if (ret == null)
 					{
-						if (onProcess != null)
-							onProcess(process, isDone, null);
-						return;
+						if (!IsResLoaderFileName(ref fileName)) {
+							if (onProcess != null)
+								onProcess(process, isDone, null);
+							return;
+						}
+                        ret = Resources.LoadAll<Sprite>(fileName);
 					}
-
-					if (!IsResLoaderFileName(ref fileName)) {
-						if (onProcess != null)
-							onProcess(process, isDone, null);
-						return;
-					}
-
-					Sprite[] ret = resCache.Sprites;
-					if (ret == null)
-						ret = Resources.LoadAll<Sprite>(fileName);
-					if (ret == null || ret.Length <= 0) {
+                    if (ret == null || ret.Length <= 0) {
 						if (onProcess != null)
 							onProcess(process, isDone, null);
 						return;
