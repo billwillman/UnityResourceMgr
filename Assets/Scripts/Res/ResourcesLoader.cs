@@ -539,62 +539,92 @@ public class ResourcesLoader: IResourceLoader
 		return LoadObjectAsync<ScriptableObject> (fileName, cacheType, onProcess);
 	}
 
-	public override Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType) {
-		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctRefAdd,
-			delegate(float process, bool isDone, Texture obj) {
-				if (isDone) {
-					if (obj == null) {
-						if (onProcess != null)
-							onProcess(process, isDone, null);
-						return;
-					}
+		public override Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType) {
+			if (string.IsNullOrEmpty(fileName))
+				return null;
 
-					AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(obj);
-					if (cache == null) {
-						if (onProcess != null)
-							onProcess(process, isDone, null);
-						return;
-					}
+			Texture tex = LoadObject<Texture>(fileName, ResourceCacheType.rctTemp);
+			if (tex == null)
+				return null;
+			AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(tex);
+			if (cache == null)
+				return null;
 
-					ResourceMgr.Instance.DestroyObject(obj);
+            ResourceAssetCache resCache = cache as ResourceAssetCache;
+            if (resCache == null)
+				return null;
 
-                    ResourceAssetCache resCache = cache as ResourceAssetCache;
-                    if (resCache == null)
-                    {
-                        if (onProcess != null)
-                            onProcess(process, isDone, null);
-                        return;
-					}
+            Sprite[] ret = resCache.Sprites;
+            if (ret == null)
+			{
+				if (!IsResLoaderFileName(ref fileName))
+					return null;
+                ret = Resources.LoadAll<Sprite>(fileName);
+			}
+            if (ret == null || ret.Length <= 0)
+				return null;
 
-                    Sprite[] ret = resCache.Sprites;
-                    if (ret == null)
-					{
-						if (!IsResLoaderFileName(ref fileName)) {
+			AddRefSprites(resCache, ret, cacheType);
+
+			return ret;
+		}
+
+		public override bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.Object[]> onProcess) {
+			return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctRefAdd,
+				delegate(float process, bool isDone, Texture obj) {
+					if (isDone) {
+						if (obj == null) {
 							if (onProcess != null)
 								onProcess(process, isDone, null);
 							return;
 						}
-                        ret = Resources.LoadAll<Sprite>(fileName);
-					}
-                    if (ret == null || ret.Length <= 0) {
+
+						AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(obj);
+						if (cache == null) {
+							if (onProcess != null)
+								onProcess(process, isDone, null);
+							return;
+						}
+
+						ResourceMgr.Instance.DestroyObject(obj);
+
+                        ResourceAssetCache resCache = cache as ResourceAssetCache;
+                        if (resCache == null)
+                        {
+                            if (onProcess != null)
+                                onProcess(process, isDone, null);
+                            return;
+						}
+
+                        Sprite[] ret = resCache.Sprites;
+                        if (ret == null)
+						{
+							if (!IsResLoaderFileName(ref fileName)) {
+								if (onProcess != null)
+									onProcess(process, isDone, null);
+								return;
+							}
+                            ret = Resources.LoadAll<Sprite>(fileName);
+						}
+                        if (ret == null || ret.Length <= 0) {
+							if (onProcess != null)
+								onProcess(process, isDone, null);
+							return;
+						}
+
+						AddRefSprites(resCache, ret, cacheType);
+
 						if (onProcess != null)
-							onProcess(process, isDone, null);
+							onProcess(process, isDone, ret);
+
 						return;
 					}
 
-					AddRefSprites(resCache, ret, cacheType);
-
 					if (onProcess != null)
-						onProcess(process, isDone, ret);
-
-					return;
+						onProcess(process, isDone, null);
 				}
-
-				if (onProcess != null)
-					onProcess(process, isDone, null);
-			}
-		);
-	}
+			);
+		}
 
 #if UNITY_5
 	public override ShaderVariantCollection LoadShaderVarCollection(string fileName, 
