@@ -226,6 +226,7 @@ public class AssetInfo
 	private TaskList m_TaskList = null;
 	private Timer m_Timer = null;
 	private Action<bool> m_EndEvt = null;
+	private Sprite[] m_Sprites = null;
 	internal void ClearTaskData()
 	{
 		m_EndEvt = null;
@@ -294,6 +295,30 @@ public class AssetInfo
 				if (m_TaskList != null)
 					m_TaskList.RemoveTask(task);
 			}
+		}
+	}
+
+	internal Sprite[] Sprites
+	{
+		get
+		{
+			return m_Sprites;
+		}
+
+		set
+		{
+			if (m_Sprites == value)
+				return;
+			if (m_Sprites != null)
+			{
+				for (int i = 0; i < m_Sprites.Length; ++i)
+				{
+					Sprite sp = m_Sprites[i];
+					if (sp != null)
+						Resources.UnloadAsset(sp);
+				}
+			}
+			m_Sprites = value;
 		}
 	}
 
@@ -843,6 +868,8 @@ public class AssetInfo
 			m_OrgResMap.Clear();
 			m_AsyncLoadDict.Clear();
 
+			Sprites = null;
+
 			mBundle.Unload(true);
 			mBundle = null;
 			mCache = null;
@@ -859,6 +886,8 @@ public class AssetInfo
 
 			m_OrgResMap.Clear();
 			m_AsyncLoadDict.Clear();
+
+			Sprites = null;
 
 			mBundle.Unload(false);
 			mBundle = null;
@@ -1190,22 +1219,10 @@ public class AssetLoader: IResourceLoader
 			delegate(float process, bool isDone, Texture obj) {
 				if (isDone) {
 					if (obj != null) {
-						AssetInfo asset = FindAssetInfo(fileName);
-						if (asset == null || asset.Cache == null) {
-							if (onProcess != null)
-								onProcess(process, isDone, null);
-							return;
-						}
 
 						bool b = _LoadSpritesAsync(fileName, obj, cacheType, onProcess);
 						if (!b)
-						{
-							ResourceMgr.Instance.DestroyObject(obj);
-							if (onProcess != null)
-								onProcess(process, isDone, null);
 							return;
-						}
-
 
 						if (onProcess != null)
 							onProcess(process * 0.9f, false, null);
@@ -1223,20 +1240,43 @@ public class AssetLoader: IResourceLoader
 			}
 		);
 	}
-
+		
 	private bool _LoadSpritesAsync(string fileName, Texture texture, ResourceCacheType cacheType, Action<float, bool, UnityEngine.Object[]> onProcess)
 	{
 		if (texture == null)
 			return false;
+
 		AssetInfo asset = FindAssetInfo(fileName);
 		if (asset == null || asset.Cache == null)
+		{
+			if (onProcess != null)
+				onProcess(1.0f, true, null);
 			return false;
+		}
+
+		Sprite[] sps = asset.Sprites;
+		if (sps != null)
+		{
+			ResourceMgr.Instance.DestroyObject(texture);
+
+			AssetCacheManager.Instance.CacheAddRefCount(asset.Cache, sps.Length);
+			for (int i = 0; i < sps.Length; ++i) {
+				AssetCacheManager.Instance._OnLoadObject(sps[i], asset.Cache);
+			}
+
+			if (onProcess != null)
+				onProcess(1.0f, true, sps);
+			return false;
+		}
+
 		bool ret = asset.LoadSubsAsync<Sprite>(fileName, 
 		   delegate (AssetBundleRequest req) {
 
 			if (req.isDone)
 			{
 				ResourceMgr.Instance.DestroyObject(texture);
+				
+				asset.Sprites = req.allAssets as Sprite[];
 				if (req.allAssets != null && req.allAssets.Length > 0 && cacheType == ResourceCacheType.rctRefAdd)
 				{
 					AssetCacheManager.Instance.CacheAddRefCount(asset.Cache, req.allAssets.Length);
@@ -1252,15 +1292,28 @@ public class AssetLoader: IResourceLoader
 		  }
 		);
 
-		return ret;
+		if (!ret)
+		{
+			ResourceMgr.Instance.DestroyObject(texture);
+			if (onProcess != null)
+				onProcess(1.0f, true, null);
+			return false;
+		}
+
+		return true;
 	}
 
 	private Sprite[] _LoadSprites(string fileName, ResourceCacheType cacheType) {
 		AssetInfo asset = FindAssetInfo(fileName);
 		if (asset == null || asset.Cache == null)
 			return null;
-
-		Sprite[] ret = asset.LoadSubs<Sprite>(fileName);
+		
+		Sprite[] ret = asset.Sprites;
+		if (ret == null)
+		{
+			ret = asset.LoadSubs<Sprite>(fileName);
+			asset.Sprites = ret;
+		}
 
 		if (ret != null && ret.Length > 0 && cacheType == ResourceCacheType.rctRefAdd) {
 			AssetCacheManager.Instance.CacheAddRefCount(asset.Cache, ret.Length);

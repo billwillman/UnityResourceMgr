@@ -145,6 +145,7 @@ public class ResourceAssetCache: AssetCache
 			loader.OnCacheDestroy(this);
 		
         mTarget = null;
+		Sprites = null;
 		mFileName = string.Empty;
         if (m_PoolUsed)
         {
