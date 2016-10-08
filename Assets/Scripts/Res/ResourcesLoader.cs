@@ -156,6 +156,11 @@ public class ResourceAssetCache: AssetCache
 				{
 #if USE_UNLOADASSET
 					Resources.UnloadAsset (mTarget);
+#else
+					// 针对Sprite特殊处理
+					Sprite sp = mTarget as Sprite;
+					if (sp != null)
+						Resources.UnloadAsset(sp);
 #endif
 				}
 				//if (Application.isEditor)

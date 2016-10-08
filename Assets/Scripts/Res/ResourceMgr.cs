@@ -330,12 +330,6 @@ public class ResourceMgr: Singleton<ResourceMgr>
 					UnityEngine.GameObject.DestroyImmediate (obj);
 
 			}
-		} else
-		{
-			// 针对Sprite处理一下
-			Sprite sp = obj as Sprite;
-			if (sp != null)
-				Resources.UnloadAsset(sp);
 		}
 	}
 	
