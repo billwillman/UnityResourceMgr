@@ -191,23 +191,6 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	protected virtual bool InternalDestroyResource(ResKey key, ResValue res)
 	{
-		if (key.resType == typeof(Sprite))
-		{
-			if (res.obj != null)
-				Resources.UnloadAsset(res.obj);
-		} else if (key.resType == typeof(Sprite[]))
-		{
-			if (res.objs != null)
-			{
-				for (int i = 0; i < res.objs.Length; ++i)
-				{
-					UnityEngine.Object obj = res.objs[i];
-					if (obj != null)
-						Resources.UnloadAsset(obj);
-				}
-			}
-		}
-
 		return true;
 	}
 
@@ -325,7 +308,6 @@ public class BaseResLoader: CachedMonoBehaviour
 	{
 		if (sp == null)
 			return;
-		Resources.UnloadAsset(sp);
 		ResourceMgr.Instance.DestroyObject(sp);
 	}
 
