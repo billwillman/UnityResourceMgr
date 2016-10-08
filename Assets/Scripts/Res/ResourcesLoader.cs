@@ -102,6 +102,32 @@ public class ResourceAssetCache: AssetCache
 		}
 	}
 
+	internal Sprite[] Sprites
+	{
+		get
+		{
+			return mSprites;
+		}
+
+		set
+		{
+			if (mSprites == value)
+				return;
+
+			if (mSprites != null)
+			{
+				for (int i = 0; i < mSprites.Length; ++i)
+				{
+					Sprite sp = mSprites[i];
+					if (sp != null)
+						Resources.UnloadAsset(sp);
+				}
+			}
+
+			mSprites = value;
+		}
+	}
+
 	public static int GetPoolCount()
 	{
 		return m_Pool.Count;
@@ -156,18 +182,15 @@ public class ResourceAssetCache: AssetCache
 				{
 #if USE_UNLOADASSET
 					Resources.UnloadAsset (mTarget);
-#else
-					// 针对Sprite特殊处理
-					Sprite sp = mTarget as Sprite;
-					if (sp != null)
-						Resources.UnloadAsset(sp);
 #endif
 				}
 				//if (Application.isEditor)
 				//	LogMgr.Instance.LogWarning("ResourceAssetCache OnUnLoad: GameObject is not UnLoad in EditorMode!");
 				//GameObject.DestroyImmediate(mTarget, true);
 			}
+
 			mTarget = null;
+			this.Sprites = null;
 		}
 
 		mFileName = string.Empty;
@@ -206,6 +229,7 @@ public class ResourceAssetCache: AssetCache
 	private UnityEngine.Object mTarget = null;
 	private bool mIsGameObject = false;
 	private string mFileName = string.Empty;
+	private Sprite[] mSprites = null;
 
 	// 缓冲池
 	private static bool m_PoolUsed = true;
@@ -238,9 +262,13 @@ public class ResourcesLoader: IResourceLoader
 		return false;
 	}
 
-	private void AddRefSprites(AssetCache cache, Sprite[] sprites, ResourceCacheType cacheType) {
+	private void AddRefSprites(ResourceAssetCache cache, Sprite[] sprites, ResourceCacheType cacheType) {
 		if (cache == null || sprites == null || sprites.Length <= 0)
 			return;
+
+		// 设置一次
+		cache.Sprites = sprites;
+
 		if (cacheType != ResourceCacheType.rctNone) {
 			if (cacheType == ResourceCacheType.rctRefAdd)
 				AssetCacheManager.Instance._AddOrUpdateUsedList(cache, sprites.Length);
@@ -520,13 +548,20 @@ public class ResourcesLoader: IResourceLoader
 		if (cache == null)
 			return null;
 
-		if (!IsResLoaderFileName(ref fileName))
-			return null;
-		Sprite[] ret = Resources.LoadAll<Sprite>(fileName);
-		if (ret == null || ret.Length <= 0)
+		ResourceAssetCache resCache = cache as ResourceAssetCache;
+		if (resCache == null)
 			return null;
 
-		AddRefSprites(cache, ret, cacheType);
+		if (!IsResLoaderFileName(ref fileName))
+			return null;
+
+		Sprite[] ret = resCache.Sprites;
+		if (ret == null)
+			ret = Resources.LoadAll<Sprite>(fileName);
+		if (ret == null || ret.Length <= 0)
+			return null;
+		
+		AddRefSprites(resCache, ret, cacheType);
 
 		return ret;
 	}
@@ -550,20 +585,30 @@ public class ResourcesLoader: IResourceLoader
 
 					ResourceMgr.Instance.DestroyObject(obj);
 
+					ResourceAssetCache resCache = cache as ResourceAssetCache;
+					if (resCache == null)
+					{
+						if (onProcess != null)
+							onProcess(process, isDone, null);
+						return;
+					}
+
 					if (!IsResLoaderFileName(ref fileName)) {
 						if (onProcess != null)
 							onProcess(process, isDone, null);
 						return;
 					}
 
-					Sprite[] ret = Resources.LoadAll<Sprite>(fileName);
+					Sprite[] ret = resCache.Sprites;
+					if (ret == null)
+						ret = Resources.LoadAll<Sprite>(fileName);
 					if (ret == null || ret.Length <= 0) {
 						if (onProcess != null)
 							onProcess(process, isDone, null);
 						return;
 					}
 
-					AddRefSprites(cache, ret, cacheType);
+					AddRefSprites(resCache, ret, cacheType);
 
 					if (onProcess != null)
 						onProcess(process, isDone, ret);
