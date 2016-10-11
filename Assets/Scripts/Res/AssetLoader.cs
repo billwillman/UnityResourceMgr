@@ -307,7 +307,34 @@ public class AssetInfo
 
     internal void OnUnloadAsset(UnityEngine.Object asset)
     {
+        UnityEngine.Object target = null;
+        if (m_OrgResMap != null)
+        {
+            Sprite sp = asset as Sprite;
+            var iter = m_OrgResMap.GetEnumerator();
+            while (iter.MoveNext())
+            {
+                if (iter.Current.Value == asset)
+                {
+                    m_OrgResMap.Remove(iter.Current.Key);
+                    break;
+                }
+                else if (sp != null)
+                {
+                    if (iter.Current.Value == sp.texture)
+                    {
+                        m_OrgResMap.Remove(iter.Current.Key);
+                        target = iter.Current.Value;
+                        break;
+                    }
+                }
+            }
+            iter.Dispose();
+        }
+
         AssetCacheManager.Instance._RemoveOrgObj(asset, true);
+        if (target != null)
+            AssetCacheManager.Instance._RemoveOrgObj(target, true);
     }
 
 	public TaskList CreateTaskList(Action<bool> onEnd)

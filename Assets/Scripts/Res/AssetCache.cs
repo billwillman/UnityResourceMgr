@@ -386,10 +386,10 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
         {
             cache.RemoveObj(orgId);
             mObjCacheMap.Remove(orgId);
-
-            if (isUnloadAsset)
-                Resources.UnloadAsset(orgObj);
         }
+
+        if (isUnloadAsset)
+            Resources.UnloadAsset(orgObj);
     }
 
     internal void _OnUnloadAsset(AssetCache cache, UnityEngine.Object orgObj)
