@@ -567,7 +567,7 @@ public class AssetInfo
 #endif
 
 		UnityEngine.Object search = null;
-		if (GetOrgResMap(fileName, out search) && search != null)
+		if (GetOrgResMap(fileName, out search))
 			return search;
 
 		string realFileName = Path.GetFileNameWithoutExtension (fileName);
@@ -601,7 +601,9 @@ public class AssetInfo
 		obj = null;
 		if (string.IsNullOrEmpty(fileName))
 			return false;
-		return m_OrgResMap.TryGetValue(fileName, out obj);
+		if (!m_OrgResMap.TryGetValue(fileName, out obj))
+			return false;
+		return obj != null;
 	}
 
 	public void AddOrgResMap(string fileName, UnityEngine.Object obj)
@@ -1413,7 +1415,7 @@ public class AssetLoader: IResourceLoader
 		// AddRefAssetCache(asset, isNew, cacheType);
 
 		UnityEngine.Object search;
-		if (asset.GetOrgResMap(fileName, out search) && search != null)
+		if (asset.GetOrgResMap(fileName, out search))
 		{
 			bool isNew = asset.Cache == null;
 			AddRefAssetCache(asset, isNew, cacheType);
