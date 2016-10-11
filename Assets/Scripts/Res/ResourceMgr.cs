@@ -309,7 +309,6 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			return;
 		}
 
-        isUnloadAsset = isUnloadAsset || (obj is Sprite);
         if (!UnLoadOrgObject (obj, isUnloadAsset)) {
 			UnityEngine.GameObject gameObj = obj as GameObject;
 			if (gameObj != null)
@@ -716,8 +715,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		}
 	}
 
-	public void DestroySprites(Sprite[] sprites) {
-		DestroyObjects<Sprite>(sprites);
+	public void DestroySprites(Sprite[] sprites, bool isUnloadAsset = false) {
+		DestroyObjects<Sprite>(sprites, isUnloadAsset);
 	}
 
 	public void DestroyObjects(UnityEngine.Object[] objs, bool isUnloadAsset = false)
