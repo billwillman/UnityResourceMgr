@@ -309,7 +309,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			return;
 		}
 
-		if (!UnLoadOrgObject (obj, isUnloadAsset)) {
+        isUnloadAsset = isUnloadAsset || (obj is Sprite);
+        if (!UnLoadOrgObject (obj, isUnloadAsset)) {
 			UnityEngine.GameObject gameObj = obj as GameObject;
 			if (gameObj != null)
 			{
@@ -707,35 +708,35 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return true;
 	}
 
-	private void DestroyObjects<T>(T[] objs) where T : UnityEngine.Object {
+	private void DestroyObjects<T>(T[] objs, bool isUnloadAsset = false) where T : UnityEngine.Object {
 		if (objs == null || objs.Length <= 0)
 			return;
 		for (int i = 0; i < objs.Length; ++i) {
-			DestroyObject(objs[i]);
+			DestroyObject(objs[i], isUnloadAsset);
 		}
 	}
 
-	public void DestroySprites(Sprite[] sprites) {
-		DestroyObjects<Sprite>(sprites);
+	public void DestroySprites(Sprite[] sprites, bool isUnloadAsset = false) {
+		DestroyObjects<Sprite>(sprites, isUnloadAsset);
 	}
 
-	public void DestroyObjects(UnityEngine.Object[] objs)
+	public void DestroyObjects(UnityEngine.Object[] objs, bool isUnloadAsset = false)
 	{
-		DestroyObjects<UnityEngine.Object>(objs);
+		DestroyObjects<UnityEngine.Object>(objs, isUnloadAsset);
 	}
 
-	public Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType) {
-		Sprite[] ret = mAssetLoader.LoadSprites(fileName, cacheType);
+	public Sprite[] LoadSprites(string fileName) {
+		Sprite[] ret = mAssetLoader.LoadSprites(fileName);
 		if (ret != null)
 			return ret;
-		return mResLoader.LoadSprites(fileName, cacheType);
+		return mResLoader.LoadSprites(fileName);
 	}
 
-	public bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess, ResourceCacheType cacheType) {
-		bool ret = mAssetLoader.LoadSpritesAsync(fileName, cacheType, onProcess);
+	public bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess) {
+		bool ret = mAssetLoader.LoadSpritesAsync(fileName, onProcess);
 		if (ret)
 			return ret;
-		return mResLoader.LoadSpritesAsync(fileName, cacheType, onProcess);
+		return mResLoader.LoadSpritesAsync(fileName, onProcess);
 	}
 		
 	public ScriptableObject LoadScriptableObject(string fileName, ResourceCacheType cacheType)

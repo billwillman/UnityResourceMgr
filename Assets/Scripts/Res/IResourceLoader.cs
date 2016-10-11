@@ -41,8 +41,8 @@ public abstract class IResourceLoader
 	public abstract bool LoadAnimationClipAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, AnimationClip> onProcess);
 	public abstract Shader LoadShader(string fileName, ResourceCacheType cacheType);
 	public abstract bool LoadShaderAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Shader> onProcess);
-	public abstract Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType);
-	public abstract bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.Object[]> onProcess);
+	public abstract Sprite[] LoadSprites(string fileName);
+	public abstract bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess);
 	public abstract ScriptableObject LoadScriptableObject (string fileName, ResourceCacheType cacheType);
 	public abstract bool LoadScriptableObjectAsync (string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.ScriptableObject> onProcess);
 #if UNITY_5

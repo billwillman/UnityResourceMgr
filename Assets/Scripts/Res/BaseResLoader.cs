@@ -285,11 +285,11 @@ public class BaseResLoader: CachedMonoBehaviour
 		{
 			if (InternalDestroyResource(iter.Current.Key, iter.Current.Value))
 			{
-				if (iter.Current.Value.obj != null)
-					ResourceMgr.Instance.DestroyObject(iter.Current.Value.obj);
+                if (iter.Current.Value.obj != null)
+                    ResourceMgr.Instance.DestroyObject(iter.Current.Value.obj);
 
-				if (iter.Current.Value.objs != null)
-					ResourceMgr.Instance.DestroyObjects(iter.Current.Value.objs);
+                if (iter.Current.Value.objs != null)
+                    ResourceMgr.Instance.DestroyObjects(iter.Current.Value.objs);
 			}
 
             // 進入池
@@ -401,7 +401,7 @@ public class BaseResLoader: CachedMonoBehaviour
 			}
 		};
 
-		Sprite[] sps = ResourceMgr.Instance.LoadSprites(fileName, ResourceCacheType.rctRefAdd);
+		Sprite[] sps = ResourceMgr.Instance.LoadSprites(fileName);
 		if (sps == null || sps.Length <= 0) {
 			sprite.sprite = null;
 			SetResources(sprite, null, typeof(Sprite[]));
@@ -441,7 +441,7 @@ public class BaseResLoader: CachedMonoBehaviour
 			return false;
 		};
 
-		Sprite[] sps = ResourceMgr.Instance.LoadSprites(fileName, ResourceCacheType.rctRefAdd);
+		Sprite[] sps = ResourceMgr.Instance.LoadSprites(fileName);
 		bool isFound = false;
 		for (int i = 0; i < sps.Length; ++i)
 		{

@@ -234,7 +234,6 @@ public class AssetInfo
 	private TaskList m_TaskList = null;
 	private Timer m_Timer = null;
 	private Action<bool> m_EndEvt = null;
-	private Sprite[] m_Sprites = null;
 	internal void ClearTaskData()
 	{
 		m_EndEvt = null;
@@ -308,51 +307,8 @@ public class AssetInfo
 
     internal void OnUnloadAsset(UnityEngine.Object asset)
     {
-        if (asset is Sprite)
-            Sprites = null;
-        else
-        {
-            RemoveObj(asset);
-            Resources.UnloadAsset(asset);
-        }
+        AssetCacheManager.Instance._RemoveOrgObj(asset, true);
     }
-
-    private void RemoveObj(UnityEngine.Object target)
-    {
-        if (mCache != null)
-        {
-            int orgId = target.GetInstanceID();
-            mCache.RemoveObj(orgId);
-            AssetCacheManager.Instance._RemoveObjCacheMap(orgId);
-        }
-    }
-
-    internal Sprite[] Sprites
-	{
-		get
-		{
-			return m_Sprites;
-		}
-
-		set
-		{
-			if (m_Sprites == value)
-				return;
-			if (m_Sprites != null)
-			{
-				for (int i = 0; i < m_Sprites.Length; ++i)
-				{
-					Sprite sp = m_Sprites[i];
-                    if (sp != null)
-                    {
-                        RemoveObj(sp);
-                        Resources.UnloadAsset(sp);
-                    }
-				}
-			}
-			m_Sprites = value;
-		}
-	}
 
 	public TaskList CreateTaskList(Action<bool> onEnd)
 	{
@@ -902,8 +858,6 @@ public class AssetInfo
 			m_OrgResMap.Clear();
 			m_AsyncLoadDict.Clear();
 
-			Sprites = null;
-
 			mBundle.Unload(true);
 			mBundle = null;
 			mCache = null;
@@ -920,9 +874,6 @@ public class AssetInfo
 
 			m_OrgResMap.Clear();
 			m_AsyncLoadDict.Clear();
-
-		//	Sprites = null;
-			m_Sprites = null;
 
 			mBundle.Unload(false);
 			mBundle = null;
@@ -1245,7 +1196,7 @@ public class AssetLoader: IResourceLoader
 		return asset;
 	}
 
-	public override bool LoadSpritesAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.Object[]> onProcess) {
+	public override bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess) {
 		fileName = TransFileName (fileName, ".tex");
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
@@ -1255,7 +1206,7 @@ public class AssetLoader: IResourceLoader
 				if (isDone) {
 					if (obj != null) {
 
-						bool b = _LoadSpritesAsync(fileName, obj, cacheType, onProcess);
+						bool b = _LoadSpritesAsync(fileName, obj, ResourceCacheType.rctRefAdd, onProcess);
 						if (!b)
 							return;
 
@@ -1289,32 +1240,13 @@ public class AssetLoader: IResourceLoader
 			return false;
 		}
 
-		Sprite[] sps = asset.Sprites;
-		if (sps != null)
-		{
-			ResourceMgr.Instance.DestroyObject (texture);
-			_OnLoadSprites (asset, sps, cacheType);
-			if (onProcess != null)
-				onProcess(1.0f, true, sps);
-			return false;
-		}
-
 		bool ret = asset.LoadSubsAsync<Sprite>(fileName, 
 		   delegate (AssetBundleRequest req) {
 
 			if (req.isDone)
 			{
 				ResourceMgr.Instance.DestroyObject(texture);
-
-				if (req.allAssets != null && req.allAssets.Length > 0)
-				{
-					Sprite[] newSps = new Sprite[req.allAssets.Length];
-					for (int i = 0; i < req.allAssets.Length; ++i)
-					{
-							newSps[i] = req.allAssets[i] as Sprite;
-					}
-					_OnLoadSprites(asset, newSps, cacheType);
-				}
+				_OnLoadSprites(asset, req.allAssets, cacheType);
 			}
 
 			if (onProcess != null)
@@ -1334,12 +1266,11 @@ public class AssetLoader: IResourceLoader
 		return true;
 	}
 
-	private void _OnLoadSprites(AssetInfo asset, Sprite[] ret, ResourceCacheType cacheType)
+	private void _OnLoadSprites(AssetInfo asset, UnityEngine.Object[] ret, ResourceCacheType cacheType)
 	{
 		if (asset == null || ret == null || ret.Length <= 0)
 			return;
 
-		asset.Sprites = ret;
 		if (ret != null && ret.Length > 0 && cacheType != ResourceCacheType.rctNone) {
 			if (cacheType == ResourceCacheType.rctRefAdd)
 				AssetCacheManager.Instance.CacheAddRefCount(asset.Cache, ret.Length);
@@ -1354,9 +1285,7 @@ public class AssetLoader: IResourceLoader
 		if (asset == null || asset.Cache == null)
 			return null;
 		
-		Sprite[] ret = asset.Sprites;
-		if (ret == null)
-			ret = asset.LoadSubs<Sprite>(fileName);
+         Sprite[]  ret = asset.LoadSubs<Sprite>(fileName);
 
 		_OnLoadSprites (asset, ret, cacheType);
 
@@ -1364,7 +1293,7 @@ public class AssetLoader: IResourceLoader
 	}
 
 	// 加载Sprite
-	public override Sprite[] LoadSprites(string fileName, ResourceCacheType cacheType) {
+	public override Sprite[] LoadSprites(string fileName) {
 		fileName = TransFileName (fileName, ".tex");
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
@@ -1373,7 +1302,7 @@ public class AssetLoader: IResourceLoader
 		if (tex == null)
 			return null;
 
-		Sprite[] ret = _LoadSprites(fileName, cacheType);
+		Sprite[] ret = _LoadSprites(fileName, ResourceCacheType.rctRefAdd);
 
 		return ret;
 	}

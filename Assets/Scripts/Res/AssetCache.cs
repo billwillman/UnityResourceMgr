@@ -24,13 +24,16 @@ public abstract class AssetCache
 	{
 		RemoveAllObj ();
 		OnUnLoad ();
-	}
+        mRefCount = 0;
+    }
 
 	public void UnUsed()
 	{
 		RemoveAllObj();
 		OnUnUsed();
-	}
+        mRefCount = 0;
+
+    }
 
     public void UnloadAsset(UnityEngine.Object asset)
     {
@@ -372,10 +375,21 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
         }
     }
 
-    internal void _RemoveObjCacheMap(int orgId)
+    internal void _RemoveOrgObj(UnityEngine.Object orgObj, bool isUnloadAsset)
     {
-        if (mObjCacheMap.ContainsKey(orgId))
+        if (orgObj == null)
+            return;
+
+        int orgId = orgObj.GetInstanceID();
+        AssetCache cache;
+        if (mObjCacheMap.TryGetValue(orgId, out cache))
+        {
+            cache.RemoveObj(orgId);
             mObjCacheMap.Remove(orgId);
+
+            if (isUnloadAsset)
+                Resources.UnloadAsset(orgObj);
+        }
     }
 
     internal void _OnUnloadAsset(AssetCache cache, UnityEngine.Object orgObj)

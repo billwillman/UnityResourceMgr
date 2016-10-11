@@ -251,7 +251,7 @@ public class NGUIResLoader: BaseResLoader  {
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(spriteName))
 			return false;
-		Sprite[] sps = ResourceMgr.Instance.LoadSprites(fileName, ResourceCacheType.rctRefAdd);
+		Sprite[] sps = ResourceMgr.Instance.LoadSprites(fileName);
 		bool isFound = false;
 		for (int i = 0; i < sps.Length; ++i)
 		{
