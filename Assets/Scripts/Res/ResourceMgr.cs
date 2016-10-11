@@ -716,8 +716,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		}
 	}
 
-	public void DestroySprites(Sprite[] sprites, bool isUnloadAsset = false) {
-		DestroyObjects<Sprite>(sprites, isUnloadAsset);
+	public void DestroySprites(Sprite[] sprites) {
+		DestroyObjects<Sprite>(sprites);
 	}
 
 	public void DestroyObjects(UnityEngine.Object[] objs, bool isUnloadAsset = false)
