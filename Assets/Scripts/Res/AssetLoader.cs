@@ -307,10 +307,8 @@ public class AssetInfo
 
     internal void OnUnloadAsset(UnityEngine.Object asset)
     {
-        UnityEngine.Object target = null;
         if (m_OrgResMap != null)
         {
-            Sprite sp = asset as Sprite;
             var iter = m_OrgResMap.GetEnumerator();
             while (iter.MoveNext())
             {
@@ -319,22 +317,17 @@ public class AssetInfo
                     m_OrgResMap.Remove(iter.Current.Key);
                     break;
                 }
-                else if (sp != null)
-                {
-                    if (iter.Current.Value == sp.texture)
-                    {
-                        m_OrgResMap.Remove(iter.Current.Key);
-                        target = iter.Current.Value;
-                        break;
-                    }
-                }
             }
             iter.Dispose();
         }
 
+        UnityEngine.Object target = null;
+        if (asset is Sprite)
+            target = ((Sprite)asset).texture;
+
         AssetCacheManager.Instance._RemoveOrgObj(asset, true);
         if (target != null)
-            AssetCacheManager.Instance._RemoveOrgObj(target, true);
+            OnUnloadAsset(target);
     }
 
 	public TaskList CreateTaskList(Action<bool> onEnd)
