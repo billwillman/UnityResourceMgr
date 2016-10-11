@@ -133,8 +133,14 @@ public class ResourceAssetCache: AssetCache
 				for (int i = 0; i < mSprites.Length; ++i)
 				{
 					Sprite sp = mSprites[i];
-					if (sp != null)
-						Resources.UnloadAsset(sp);
+                    if (sp != null)
+                    {
+                        int orgId = sp.GetInstanceID();
+                        AssetCacheManager.Instance._RemoveObjCacheMap(orgId);
+                        // 再清理一次
+                        RemoveObj(orgId);
+                        Resources.UnloadAsset(sp);
+                    }
 				}
 			}
 
@@ -163,61 +169,78 @@ public class ResourceAssetCache: AssetCache
 		mSprites = null;
 		
 		mFileName = string.Empty;
-        if (m_PoolUsed)
+		if (m_PoolUsed) {
+			InPool (this);
+		} else {
+			ClearLinkListNode ();
+		}
+    }
+
+    protected override void OnUnloadAsset(UnityEngine.Object asset)
+    {
+        Sprite sp = asset as Sprite;
+        if (sp != null)
         {
-            InPool(this);
+            this.Sprites = null;
+        } else
+        if (mTarget == asset && !mIsGameObject)
+        {
+            // 直接立即清理
+            AssetCacheManager.Instance._Unload(this);
+            Resources.UnloadAsset(asset);
         }
     }
 
-	protected override void OnUnLoad()
-	{
-		ResourcesLoader loader = ResourceMgr.Instance.ResLoader as ResourcesLoader;
-		if (loader != null)
-			loader.OnCacheDestroy(this);
+    protected override void OnUnLoad()
+    {
+        ResourcesLoader loader = ResourceMgr.Instance.ResLoader as ResourcesLoader;
+        if (loader != null)
+            loader.OnCacheDestroy(this);
 
-		if (mIsGameObject)
-		{
-			/*
+        if (mIsGameObject)
+        {
+            /*
 			 * 使用GameObject.DestroyImmediate(mTarget, true) 会导致UnityEditor中 文件的操作无法使用,以及第二次使用Resources.Load失败
 			 * GameObject.DestroyObject 和 GameObject.Destroy， 使用GameObject.DestroyImmediate(mTarget, false)会提示使用 DestroyImmediate(mTarget, true)
 			 * 使用Resources.UnloadAsset 会提示错误：只能释放不可见的资源，不能是GameObject
 			 */
-	
-			// GameObject.DestroyImmediate(mTarget, true);
-			// GameObject.DestroyObject(mTarget);
-			  	
-			if (Application.isEditor)
-				LogMgr.Instance.LogWarning("ResourceAssetCache OnUnLoad: GameObject is not UnLoad in EditorMode!");
-			//	else
-			//		Resources.UnloadAsset(mTarget);
-					// GameObject.DestroyImmediate(mTarget, true);
-		} else
-		{
-			// texture, material etc.
-			if (mTarget != null)
-			{
+
+            // GameObject.DestroyImmediate(mTarget, true);
+            // GameObject.DestroyObject(mTarget);
+
+            if (Application.isEditor)
+                LogMgr.Instance.LogWarning("ResourceAssetCache OnUnLoad: GameObject is not UnLoad in EditorMode!");
+            //	else
+            //		Resources.UnloadAsset(mTarget);
+            // GameObject.DestroyImmediate(mTarget, true);
+        }
+        else
+        {
+            // texture, material etc.
+            if (mTarget != null)
+            {
 #if USE_UNLOADASSET
 				Resources.UnloadAsset (mTarget);
 #endif
-			}
-			//if (Application.isEditor)
-			//	LogMgr.Instance.LogWarning("ResourceAssetCache OnUnLoad: GameObject is not UnLoad in EditorMode!");
-			//GameObject.DestroyImmediate(mTarget, true);
-		}
+            }
+            //if (Application.isEditor)
+            //	LogMgr.Instance.LogWarning("ResourceAssetCache OnUnLoad: GameObject is not UnLoad in EditorMode!");
+            //GameObject.DestroyImmediate(mTarget, true);
+        }
 
-		mTarget = null;
-		mTargetType = null;
-		this.Sprites = null;
+        mTarget = null;
+        mTargetType = null;
+        this.Sprites = null;
 
-		mFileName = string.Empty;
+        mFileName = string.Empty;
 
-		if (m_PoolUsed)
-		{
-			InPool(this);
-		}
-	}
+		if (m_PoolUsed) {
+			InPool (this);
+		} else
+			ClearLinkListNode ();
+    }
 
-	private static void InitPool() {
+    private static void InitPool() {
 		if (!m_PoolInited) {
 			m_Pool.Init(0);
 			m_PoolInited = true;

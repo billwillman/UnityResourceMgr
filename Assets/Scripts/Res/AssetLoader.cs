@@ -92,10 +92,10 @@ public class AssetBundleCache: AssetCache
 			mTarget = null;
 		}
 
-		if (m_PoolUsed)
-		{
-			InPool(this);
-		}
+		if (m_PoolUsed) {
+			InPool (this);
+		} else
+			ClearLinkListNode ();
 	}
 
 	protected override void OnUnUsed()
@@ -106,13 +106,21 @@ public class AssetBundleCache: AssetCache
 			mTarget = null;
 		}
 
-		if (m_PoolUsed)
-		{
-			InPool(this);
-		}
+		if (m_PoolUsed) {
+			InPool (this);
+		} else
+			ClearLinkListNode ();
 	}
-	
-	public AssetInfo Target {
+
+    protected override void OnUnloadAsset(UnityEngine.Object asset)
+    {
+        if (mTarget != null)
+        {
+            mTarget.OnUnloadAsset(asset);
+        }
+    }
+
+    public AssetInfo Target {
 		get
 		{
 			return mTarget;
@@ -298,7 +306,28 @@ public class AssetInfo
 		}
 	}
 
-	internal Sprite[] Sprites
+    internal void OnUnloadAsset(UnityEngine.Object asset)
+    {
+        if (asset is Sprite)
+            Sprites = null;
+        else
+        {
+            RemoveObj(asset);
+            Resources.UnloadAsset(asset);
+        }
+    }
+
+    private void RemoveObj(UnityEngine.Object target)
+    {
+        if (mCache != null)
+        {
+            int orgId = target.GetInstanceID();
+            mCache.RemoveObj(orgId);
+            AssetCacheManager.Instance._RemoveObjCacheMap(orgId);
+        }
+    }
+
+    internal Sprite[] Sprites
 	{
 		get
 		{
@@ -314,8 +343,11 @@ public class AssetInfo
 				for (int i = 0; i < m_Sprites.Length; ++i)
 				{
 					Sprite sp = m_Sprites[i];
-					if (sp != null)
-						Resources.UnloadAsset(sp);
+                    if (sp != null)
+                    {
+                        RemoveObj(sp);
+                        Resources.UnloadAsset(sp);
+                    }
 				}
 			}
 			m_Sprites = value;

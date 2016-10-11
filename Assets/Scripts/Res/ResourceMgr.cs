@@ -289,7 +289,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		AssetCacheManager.Instance._OnDestroyGameObject(instId);
 	}
 
-	public void DestroyObject(UnityEngine.Object obj)
+    // isUnloadAsset is used by not GameObject
+    public void DestroyObject(UnityEngine.Object obj, bool isUnloadAsset = false)
 	{
 		if (obj == null)
 			return;
@@ -308,7 +309,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			return;
 		}
 
-		if (!UnLoadOrgObject (obj)) {
+		if (!UnLoadOrgObject (obj, isUnloadAsset)) {
 			UnityEngine.GameObject gameObj = obj as GameObject;
 			if (gameObj != null)
 			{
@@ -507,16 +508,24 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadMaterialAsync (fileName, cacheType, onProcess);
 	}
 
-	// if use ResourceCacheType.rctTempAdd you must call UnLoadOrgObject
-	private bool UnLoadOrgObject(UnityEngine.Object orgObj)
+    // if use ResourceCacheType.rctTempAdd you must call UnLoadOrgObject
+    // isUnloadAsset is not used by GameObject
+    private bool UnLoadOrgObject(UnityEngine.Object orgObj, bool isUnloadAsset)
 	{
 		if (orgObj == null)
 			return false;
 		AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache (orgObj);
 		if (cache == null)
 			return false;
-		return AssetCacheManager.Instance.CacheDecRefCount (cache);
-	}
+
+        bool ret = AssetCacheManager.Instance.CacheDecRefCount(cache);
+        if (ret && isUnloadAsset)
+        {
+            AssetCacheManager.Instance._OnUnloadAsset(cache, orgObj);
+        }
+
+        return ret;
+    }
 	
 	public AudioClip LoadAudioClip(string fileName, ResourceCacheType cacheType)
 	{

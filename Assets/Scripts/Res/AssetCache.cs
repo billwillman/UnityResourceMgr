@@ -18,6 +18,7 @@ public abstract class AssetCache
 	protected abstract void OnUnLoad();
 	protected virtual void OnUnUsed()
 	{}
+    protected abstract void OnUnloadAsset(UnityEngine.Object asset);
 
 	public void UnLoad()
 	{
@@ -30,6 +31,18 @@ public abstract class AssetCache
 		RemoveAllObj();
 		OnUnUsed();
 	}
+
+    public void UnloadAsset(UnityEngine.Object asset)
+    {
+        if (asset == null)
+            return;
+        int id = asset.GetInstanceID();
+        if (mObjSet.Contains(id))
+        {
+            mObjSet.Remove(id);
+            OnUnloadAsset(asset);
+        }
+    }
 
 	public int RefCount
 	{
@@ -103,6 +116,14 @@ public abstract class AssetCache
 		get;
 		set;
 	}
+		
+	internal LinkedListNode<AssetCache> LinkListNode {
+		get {
+			if (m_LinkListNode == null)
+				m_LinkListNode = new LinkedListNode<AssetCache> (this);
+			return m_LinkListNode;
+		}
+	}
 
 	public void AddObj(int id)
 	{
@@ -156,9 +177,18 @@ public abstract class AssetCache
 		return true;
 	}
 
+	protected void ClearLinkListNode()
+	{
+		if (m_LinkListNode == null)
+			return;
+		m_LinkListNode.Value = null;
+		m_LinkListNode = null;
+	}
+
 	private int mRefCount = 0;
 //	private int mPrefabRefCnt = 0;
 	private HashSet<int> mObjSet = null;
+	protected LinkedListNode<AssetCache> m_LinkListNode = null;
 }
 
 public class AssetCacheManager: Singleton<AssetCacheManager>
@@ -289,7 +319,8 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		newCache._AddRefCount (refCount);
 		newCache.LastUsedTime = GetCurrentTime ();
 		mCacheSet.Add (newCache);
-		mUsedCacheList.AddLast (newCache);
+		LinkedListNode<AssetCache> node = newCache.LinkListNode;
+		mUsedCacheList.AddLast (node);
 	}
 
 	public void _OnLoadObject(UnityEngine.Object orgObj, AssetCache cache)
@@ -315,12 +346,48 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 
 		if (!mCacheSet.Contains (cache)) {
 			mCacheSet.Add(cache);
-			LinkedListNode<AssetCache> node = new LinkedListNode<AssetCache>(cache);
+			LinkedListNode<AssetCache> node = cache.LinkListNode;
 			mNotUsedCacheList.AddLast(node);
 		}
 
 		mObjCacheMap.Add (orgObj.GetInstanceID (), cache);
 	}
+
+    internal void _Unload(AssetCache cache)
+    {
+        if (cache == null)
+            return;
+
+        LinkedListNode<AssetCache> node = cache.LinkListNode;
+        if (node != null)
+        {
+            if (node.List == mUsedCacheList)
+                mUsedCacheList.Remove(node);
+            else if (node.List == mNotUsedCacheList)
+                mNotUsedCacheList.Remove(node);
+            else if (node.List == mTempAssetList)
+                RemoveTempAsset(cache);
+
+            RemoveCache(cache);
+        }
+    }
+
+    internal void _RemoveObjCacheMap(int orgId)
+    {
+        if (mObjCacheMap.ContainsKey(orgId))
+            mObjCacheMap.Remove(orgId);
+    }
+
+    internal void _OnUnloadAsset(AssetCache cache, UnityEngine.Object orgObj)
+    {
+        if (cache == null || orgObj == null || orgObj is GameObject)
+            return;
+
+        if (mCacheSet.Contains(cache))
+        {
+            cache.UnloadAsset(orgObj);
+        }
+    }
 	
 	public bool CacheDecRefCount(AssetCache cache, int refCount = 1, bool isUseTime = true)
 	{
@@ -411,7 +478,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 					if ((!checkRef) || (node.Value.IsNotUsed()))
 					{
 						RemoveCache(node.Value);
-						node.Value = null;
+						//node.Value = null;
 						delNode = node;
 					} else
 						usedNode = node;
@@ -445,7 +512,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 				if (node.Value != null)
 				{
 					RemoveCache(node.Value);
-					node.Value = null;
+					//node.Value = null;
 				}
 				node = node.Next;
 			}
@@ -558,7 +625,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 				if (delNode != null)
 				{
 					RemoveCache(delNode.Value);
-					delNode.Value = null;
+					//delNode.Value = null;
 					mNotUsedCacheList.Remove(delNode);
 				} else
 				if (usedNode != null)
@@ -656,8 +723,23 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 	{
 		if (cache == null)
 			return;
-		mTempAssetList.AddLast(cache);
+        if (!mTempDict.Contains(cache))
+        {
+            mTempDict.Add(cache);
+            mTempAssetList.AddLast(cache.LinkListNode);
+        }
 	}
+
+    private void RemoveTempAsset(AssetCache cache)
+    {
+        if (cache == null)
+            return;
+        if (mTempDict.Contains(cache))
+        {
+            mTempDict.Remove(cache);
+            mTempAssetList.Remove(cache.LinkListNode);
+        }
+    }
 
 	// 资源更新清理
 	public void AutoUpdateClear()
@@ -670,6 +752,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 			first = first.Next;
 		}
 		mTempAssetList.Clear();
+        mTempDict.Clear();
 
 		first = mNotUsedCacheList.First;
 		while (first != null)
@@ -697,19 +780,19 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 	private void UnLoadTempAssetInfo()
 	{
 		var node = mTempAssetList.First;
-		while (node != null)
-		{
+        while (node != null)
+        {
             bool isRemove = (node.Value != null) && node.Value.IsNotUsed();
             if (isRemove)
-				node.Value.UnLoad();
+                RemoveCache(node.Value);
 
-            isRemove = isRemove || node.Value == null;
+            //    isRemove = isRemove || node.Value == null;
             var delNode = node;
-			node = node.Next;
-            if (isRemove)
-                mTempAssetList.Remove(delNode);
-		}
-	}
+            node = node.Next;
+            //  if (isRemove)
+            RemoveTempAsset(delNode.Value);
+        }
+    }
 
     private static readonly string _Event_CACHEDESTROY_START = "OnCacheStartDestroy";
     private static readonly string _EVENT_CACHEDESTROY_END = "OnCacheEndDestroy";
@@ -728,4 +811,5 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 	private Timer mRunTime = null;
 	// ResourceCacheType == none
 	private LinkedList<AssetCache> mTempAssetList = new LinkedList<AssetCache>();
+    private HashSet<AssetCache> mTempDict = new HashSet<AssetCache>();
 }
