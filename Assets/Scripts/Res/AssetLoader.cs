@@ -1292,13 +1292,8 @@ public class AssetLoader: IResourceLoader
 		Sprite[] sps = asset.Sprites;
 		if (sps != null)
 		{
-			ResourceMgr.Instance.DestroyObject(texture);
-
-			AssetCacheManager.Instance.CacheAddRefCount(asset.Cache, sps.Length);
-			for (int i = 0; i < sps.Length; ++i) {
-				AssetCacheManager.Instance._OnLoadObject(sps[i], asset.Cache);
-			}
-
+			ResourceMgr.Instance.DestroyObject (texture);
+			_OnLoadSprites (asset, sps, cacheType);
 			if (onProcess != null)
 				onProcess(1.0f, true, sps);
 			return false;
@@ -1310,14 +1305,15 @@ public class AssetLoader: IResourceLoader
 			if (req.isDone)
 			{
 				ResourceMgr.Instance.DestroyObject(texture);
-				
-				asset.Sprites = req.allAssets as Sprite[];
-				if (req.allAssets != null && req.allAssets.Length > 0 && cacheType == ResourceCacheType.rctRefAdd)
+
+				if (req.allAssets != null && req.allAssets.Length > 0)
 				{
-					AssetCacheManager.Instance.CacheAddRefCount(asset.Cache, req.allAssets.Length);
-					for (int i = 0; i < req.allAssets.Length; ++i) {
-						AssetCacheManager.Instance._OnLoadObject(req.allAssets[i], asset.Cache);
+					Sprite[] newSps = new Sprite[req.allAssets.Length];
+					for (int i = 0; i < req.allAssets.Length; ++i)
+					{
+							newSps[i] = req.allAssets[i] as Sprite;
 					}
+					_OnLoadSprites(asset, newSps, cacheType);
 				}
 			}
 
@@ -1338,6 +1334,21 @@ public class AssetLoader: IResourceLoader
 		return true;
 	}
 
+	private void _OnLoadSprites(AssetInfo asset, Sprite[] ret, ResourceCacheType cacheType)
+	{
+		if (asset == null || ret == null || ret.Length <= 0)
+			return;
+
+		asset.Sprites = ret;
+		if (ret != null && ret.Length > 0 && cacheType != ResourceCacheType.rctNone) {
+			if (cacheType == ResourceCacheType.rctRefAdd)
+				AssetCacheManager.Instance.CacheAddRefCount(asset.Cache, ret.Length);
+			for (int i = 0; i < ret.Length; ++i) {
+				AssetCacheManager.Instance._OnLoadObject(ret[i], asset.Cache);
+			}
+		}
+	}
+
 	private Sprite[] _LoadSprites(string fileName, ResourceCacheType cacheType) {
 		AssetInfo asset = FindAssetInfo(fileName);
 		if (asset == null || asset.Cache == null)
@@ -1345,17 +1356,9 @@ public class AssetLoader: IResourceLoader
 		
 		Sprite[] ret = asset.Sprites;
 		if (ret == null)
-		{
 			ret = asset.LoadSubs<Sprite>(fileName);
-			asset.Sprites = ret;
-		}
 
-		if (ret != null && ret.Length > 0 && cacheType == ResourceCacheType.rctRefAdd) {
-			AssetCacheManager.Instance.CacheAddRefCount(asset.Cache, ret.Length);
-			for (int i = 0; i < ret.Length; ++i) {
-				AssetCacheManager.Instance._OnLoadObject(ret[i], asset.Cache);
-			}
-		}
+		_OnLoadSprites (asset, ret, cacheType);
 
 		return ret;
 	}
