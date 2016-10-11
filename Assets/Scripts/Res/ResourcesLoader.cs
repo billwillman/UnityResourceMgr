@@ -33,27 +33,29 @@ public class ResourceAssetCache: AssetCache
 	
 	void CheckTag()
 	{
-		if (mTarget == null)
+		if (mTargetType == null || mTarget == null)
 			return;
 		if (string.IsNullOrEmpty(mTag))
 		{
-			if (mTarget is GameObject)
+			if (mTargetType == typeof(GameObject))
 				mTag = "obj";
 			else
-				if (mTarget is AudioClip)
+				if (mTargetType == typeof(AudioClip))
 					mTag = "audio";
 			else
-				if (mTarget is Texture)
+				if (mTargetType == typeof(Texture))
 					mTag = "tex";
 			else
-				if (mTarget is Shader)
+				if (mTargetType == typeof(Shader))
 					mTag = "shader";
 			else
-				if (mTarget is Material)
+				if (mTargetType == typeof(Material))
 					mTag = "mat";
 			else
-				if (mTarget is RuntimeAnimatorController)
+				if (mTargetType == typeof(RuntimeAnimatorController))
 					mTag = "AniController";
+			else
+				mTag = "[UnKnown]";						
 			
 			if (!string.IsNullOrEmpty(mTag))
 			{
@@ -70,6 +72,10 @@ public class ResourceAssetCache: AssetCache
 	public ResourceAssetCache(UnityEngine.Object target, string fileName)
 	{
 		mTarget = target;
+		if (mTarget != null)
+			mTargetType = mTarget.GetType();
+		else
+			mTargetType = null;
 		mFileName = fileName;
 		CheckGameObject();
 	}
@@ -91,6 +97,14 @@ public class ResourceAssetCache: AssetCache
 		get 
 		{
 			return mTarget;
+		}
+	}
+
+	public System.Type TargetType
+	{
+		get
+		{
+			return mTargetType;
 		}
 	}
 
@@ -135,7 +149,7 @@ public class ResourceAssetCache: AssetCache
 
 	private void CheckGameObject()
 	{
-		mIsGameObject = (mTarget as GameObject) != null;
+		mIsGameObject = (mTargetType == typeof(GameObject));
 	}
 
     protected override void OnUnUsed()
@@ -145,6 +159,7 @@ public class ResourceAssetCache: AssetCache
 			loader.OnCacheDestroy(this);
 		
         mTarget = null;
+		mTargetType = null;
 		mSprites = null;
 		
 		mFileName = string.Empty;
@@ -160,40 +175,39 @@ public class ResourceAssetCache: AssetCache
 		if (loader != null)
 			loader.OnCacheDestroy(this);
 
-		if (mTarget != null) {
-			if (mIsGameObject)
-			{
-				/*
-				 * 使用GameObject.DestroyImmediate(mTarget, true) 会导致UnityEditor中 文件的操作无法使用,以及第二次使用Resources.Load失败
-				 * GameObject.DestroyObject 和 GameObject.Destroy， 使用GameObject.DestroyImmediate(mTarget, false)会提示使用 DestroyImmediate(mTarget, true)
-				 * 使用Resources.UnloadAsset 会提示错误：只能释放不可见的资源，不能是GameObject
-				 */
+		if (mIsGameObject)
+		{
+			/*
+			 * 使用GameObject.DestroyImmediate(mTarget, true) 会导致UnityEditor中 文件的操作无法使用,以及第二次使用Resources.Load失败
+			 * GameObject.DestroyObject 和 GameObject.Destroy， 使用GameObject.DestroyImmediate(mTarget, false)会提示使用 DestroyImmediate(mTarget, true)
+			 * 使用Resources.UnloadAsset 会提示错误：只能释放不可见的资源，不能是GameObject
+			 */
 	
-				// GameObject.DestroyImmediate(mTarget, true);
-				// GameObject.DestroyObject(mTarget);
+			// GameObject.DestroyImmediate(mTarget, true);
+			// GameObject.DestroyObject(mTarget);
 			  	
-				if (Application.isEditor)
-					LogMgr.Instance.LogWarning("ResourceAssetCache OnUnLoad: GameObject is not UnLoad in EditorMode!");
+			if (Application.isEditor)
+				LogMgr.Instance.LogWarning("ResourceAssetCache OnUnLoad: GameObject is not UnLoad in EditorMode!");
 			//	else
 			//		Resources.UnloadAsset(mTarget);
 					// GameObject.DestroyImmediate(mTarget, true);
-			} else
+		} else
+		{
+			// texture, material etc.
+			if (mTarget != null)
 			{
-				// texture, material etc.
-				if (mTarget != null)
-				{
 #if USE_UNLOADASSET
-					Resources.UnloadAsset (mTarget);
+				Resources.UnloadAsset (mTarget);
 #endif
-				}
-				//if (Application.isEditor)
-				//	LogMgr.Instance.LogWarning("ResourceAssetCache OnUnLoad: GameObject is not UnLoad in EditorMode!");
-				//GameObject.DestroyImmediate(mTarget, true);
 			}
-
-			mTarget = null;
-			this.Sprites = null;
+			//if (Application.isEditor)
+			//	LogMgr.Instance.LogWarning("ResourceAssetCache OnUnLoad: GameObject is not UnLoad in EditorMode!");
+			//GameObject.DestroyImmediate(mTarget, true);
 		}
+
+		mTarget = null;
+		mTargetType = null;
+		this.Sprites = null;
 
 		mFileName = string.Empty;
 
@@ -223,12 +237,14 @@ public class ResourceAssetCache: AssetCache
 		InitPool();
 		ResourceAssetCache ret = m_Pool.GetObject();
 		ret.mTarget = target;
+		ret.mTargetType = target.GetType();
 		ret.mFileName = fileName;
 		ret.CheckGameObject();
 		return ret;
 	}
 
 	private UnityEngine.Object mTarget = null;
+	private Type mTargetType = null;
 	private bool mIsGameObject = false;
 	private string mFileName = string.Empty;
 	private Sprite[] mSprites = null;
@@ -699,14 +715,14 @@ public class ResourcesLoader: IResourceLoader
 		if (cache == null)
 			return;
 
-		if (cache.Target == null)
+		if (cache.TargetType == null)
 			return;
 		
 		string fileName = cache.FileName;
 		if (string.IsNullOrEmpty(fileName))
 			return;
 
-		System.Type resType = cache.Target.GetType();
+		System.Type resType = cache.TargetType;
 		CacheKey key = CreateCacheKey(fileName, resType);
 		if (m_CacheMap.ContainsKey(key))
 			m_CacheMap.Remove(key);
@@ -724,20 +740,21 @@ public class ResourcesLoader: IResourceLoader
 
 	private void AddCacheMap(ResourceAssetCache cache)
 	{
-		if (cache == null || cache.Target == null)
+		if (cache == null || cache.Target == null || cache.TargetType == null)
 			return;
 
 		string fileName = cache.FileName;
 		if (string.IsNullOrEmpty(fileName))
 			return;
 		
-		System.Type resType = cache.Target.GetType();
+		System.Type resType = cache.TargetType;
 		CacheKey key = CreateCacheKey(fileName, resType);
 
 		if (m_CacheMap.ContainsKey(key))
 		{
 			if (m_CacheMap[key] != cache)
 			{
+				//AssetCache oldCache = m_CacheMap[key];
 				m_CacheMap[key] = cache;
 				Debug.LogErrorFormat("[AddCacheMap] CacheMap {0} exists!", fileName);
 			}
