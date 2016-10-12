@@ -119,6 +119,14 @@ public abstract class AssetCache
 		get;
 		set;
 	}
+
+	internal bool HasLinkListNode
+	{
+		get
+		{
+			return m_LinkListNode != null;
+		}
+	}
 		
 	internal LinkedListNode<AssetCache> LinkListNode {
 		get {
@@ -361,18 +369,21 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
         if (cache == null)
             return;
 
-        LinkedListNode<AssetCache> node = cache.LinkListNode;
-        if (node != null)
-        {
-            if (node.List == mUsedCacheList)
-                mUsedCacheList.Remove(node);
-            else if (node.List == mNotUsedCacheList)
-                mNotUsedCacheList.Remove(node);
-            else if (node.List == mTempAssetList)
-                RemoveTempAsset(cache);
+		if (cache.HasLinkListNode)
+		{
+			LinkedListNode<AssetCache> node = cache.LinkListNode;
+        	if (node != null)
+        	{
+            	if (node.List == mUsedCacheList)
+                	mUsedCacheList.Remove(node);
+            	else if (node.List == mNotUsedCacheList)
+                	mNotUsedCacheList.Remove(node);
+            	else if (node.List == mTempAssetList)
+                	RemoveTempAsset(cache);
+        	}
+		}
 
-            RemoveCache(cache);
-        }
+		RemoveCache(cache);
     }
 
     internal void _RemoveOrgObj(UnityEngine.Object orgObj, bool isUnloadAsset)
