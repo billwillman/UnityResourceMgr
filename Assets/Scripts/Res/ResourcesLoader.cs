@@ -752,6 +752,9 @@ public class ResourcesLoader: IResourceLoader
 		m_CacheMap.Add(key, cache);
 	}
 
+	private sealed class CacheKeyComparser: StructComparser<CacheKey>
+	{}
+
 	private struct CacheKey: IEquatable<CacheKey>
 	{
 		public string fileName;
@@ -801,5 +804,5 @@ public class ResourcesLoader: IResourceLoader
 		return ret;
 	}
 
-	private Dictionary<CacheKey, AssetCache> m_CacheMap = new Dictionary<CacheKey, AssetCache>();
+	private Dictionary<CacheKey, AssetCache> m_CacheMap = new Dictionary<CacheKey, AssetCache>(CacheKeyComparser.Default);
 }

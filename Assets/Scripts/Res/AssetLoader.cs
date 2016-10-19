@@ -20,6 +20,9 @@ using System.IO;
 using XmlParser;
 using Utils;
 
+public class AsyncLoadKeyComparser: StructComparser<AsyncLoadKey>
+{}
+
 public struct AsyncLoadKey: IEquatable<AsyncLoadKey>
 {
 	public string fileName;
@@ -1011,7 +1014,7 @@ public class AssetInfo
 	//private HashSet<int> mChildFileNameHashs = null;
 	private HashSet<string> mChildFileNameHashs = null;
 	// 異步加載保存池(減少IO操作)
-	private Dictionary<AsyncLoadKey, AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest, AsyncLoadKey>> m_AsyncLoadDict = new Dictionary<AsyncLoadKey, AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest, AsyncLoadKey>>();
+	private Dictionary<AsyncLoadKey, AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest, AsyncLoadKey>> m_AsyncLoadDict = new Dictionary<AsyncLoadKey, AsyncOperationMgr.AsyncOperationItem<AssetBundleRequest, AsyncLoadKey>>(AsyncLoadKeyComparser.Default);
 	private Dictionary<string, UnityEngine.Object> m_OrgResMap = new Dictionary<string, UnityEngine.Object>();
 	// 依赖的AssetBundle文件名（包含路径）
 	private List<DependFileInfo> mDependFileNames = null;

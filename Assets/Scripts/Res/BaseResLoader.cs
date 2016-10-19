@@ -39,7 +39,7 @@ public class BaseResLoader: CachedMonoBehaviour
 	private void CheckResMap()
 	{
 		if (m_ResMap == null)
-			m_ResMap = new Dictionary<ResKey, ResValue> ();
+			m_ResMap = new Dictionary<ResKey, ResValue> (ResKeyComparser.Default);
 	}
 
 	protected bool FindResValue(ResKey key, out ResValue value)
@@ -77,6 +77,9 @@ public class BaseResLoader: CachedMonoBehaviour
 		string ret = string.Format("_Mat_{0:D}", matIdx);
 		return ret;
 	}
+
+	protected class ResKeyComparser: StructComparser<ResKey>
+	{}
 
 	protected struct ResKey : IEquatable<ResKey>
 	{
