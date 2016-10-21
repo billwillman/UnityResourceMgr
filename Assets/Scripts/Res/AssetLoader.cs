@@ -431,6 +431,8 @@ public class AssetInfo
 		m_AsyncTask = BundleCreateAsyncTask.Create(mFileName);
 		if (m_AsyncTask != null)
 		{
+			// 优化AB加载
+			m_AsyncTask.StartLoad();
 			m_AsyncTask.UserData = this;
 			m_AsyncTask.AddResultEvent(OnLocalAsyncResult);
 			taskList.AddTask(m_AsyncTask, true);

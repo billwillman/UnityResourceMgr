@@ -141,6 +141,14 @@ public class BundleCreateAsyncTask: ITask
 		return ret;
 	}
 
+	public void StartLoad()
+	{
+		if (m_Req == null)
+		{
+			m_Req = AssetBundle.LoadFromFileAsync(m_FileName);
+		}
+	}
+
 	public override void Release()
 	{
 		base.Release();
@@ -150,10 +158,8 @@ public class BundleCreateAsyncTask: ITask
 
 	public override void Process()
 	{
-		if (m_Req == null)
-		{
-			m_Req = AssetBundle.LoadFromFileAsync(m_FileName);
-		}
+		// 可以加载后面的LOAD
+		//StartLoad();
 
 		if (m_Req == null)
 		{
