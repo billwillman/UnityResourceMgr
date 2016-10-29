@@ -138,6 +138,9 @@ namespace NsHttpClient
 			lock(m_Lock)
 			{
 				node = m_MsgList.First;
+				if (node == null)
+					return;
+				
 				m_MsgList.RemoveFirst();
 			}
 
