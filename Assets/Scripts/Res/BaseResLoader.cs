@@ -680,7 +680,7 @@ public class BaseResLoader: CachedMonoBehaviour
 			return tex != null;
 		}
 
-	public GameObject CreateGameObject(string fileName)
+	public static GameObject CreateGameObject(string fileName)
 	{
 		GameObject ret = ResourceMgr.Instance.CreateGameObject(fileName);
 		return ret;
