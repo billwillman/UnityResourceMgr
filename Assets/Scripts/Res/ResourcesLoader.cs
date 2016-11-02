@@ -69,27 +69,24 @@ public class ResourceAssetCache: AssetCache
 	
 	private string mTag = string.Empty;
 #endif
-	public ResourceAssetCache(UnityEngine.Object target, string fileName)
+	public ResourceAssetCache(UnityEngine.Object target, string fileName, System.Type targetType)
 	{
 		mTarget = target;
-		if (mTarget != null)
-			mTargetType = mTarget.GetType();
-		else
-			mTargetType = null;
-		mFileName = fileName;
+        mTargetType = targetType;
+        mFileName = fileName;
 		CheckGameObject();
 	}
 
 	public ResourceAssetCache()
 	{}
 
-	public static ResourceAssetCache Create(UnityEngine.Object target, string fileName)
+	public static ResourceAssetCache Create(UnityEngine.Object target, string fileName, System.Type targetType)
 	{
 		ResourceAssetCache ret;
 		if (m_PoolUsed)
-			ret = GetPool(target, fileName);
+			ret = GetPool(target, fileName, targetType);
 		else
-			ret = new ResourceAssetCache(target, fileName);
+			ret = new ResourceAssetCache(target, fileName, targetType);
 		return ret;
 	}
 
@@ -227,12 +224,12 @@ public class ResourceAssetCache: AssetCache
 		m_Pool.Store(cache);
 	}
 
-	private static ResourceAssetCache GetPool(UnityEngine.Object target, string fileName)
+	private static ResourceAssetCache GetPool(UnityEngine.Object target, string fileName, System.Type targetType)
 	{
 		InitPool();
 		ResourceAssetCache ret = m_Pool.GetObject();
 		ret.mTarget = target;
-		ret.mTargetType = target.GetType();
+		ret.mTargetType = targetType;
 		ret.mFileName = fileName;
 		ret.CheckGameObject();
 		return ret;
@@ -288,13 +285,13 @@ public class ResourcesLoader: IResourceLoader
 		}
 	}
 
-	private AssetCache AddRefCache(string orgFileName, UnityEngine.Object obj, ResourceCacheType cacheType)
+	private AssetCache AddRefCache(string orgFileName, UnityEngine.Object obj, ResourceCacheType cacheType, System.Type objType)
 	{
 		AssetCache cache = null;
 		if (obj && (cacheType != ResourceCacheType.rctNone)) {
 			cache = AssetCacheManager.Instance.FindOrgObjCache (obj);
 			if (cache == null)
-				cache = ResourceMgr.Instance.ResLoader.CreateCache (obj, orgFileName);
+				cache = ResourceMgr.Instance.ResLoader.CreateCache (obj, orgFileName, objType);
 			if (cache != null) {
 				if (cacheType == ResourceCacheType.rctRefAdd)
 					AssetCacheManager.Instance._AddOrUpdateUsedList (cache);
@@ -305,7 +302,7 @@ public class ResourcesLoader: IResourceLoader
 			if (cache == null)
 			{
 				// 第一次加载
-				cache = ResourceMgr.Instance.ResLoader.CreateCache (obj, orgFileName);
+				cache = ResourceMgr.Instance.ResLoader.CreateCache (obj, orgFileName, objType);
 				if (cache != null)
 				{
 					AssetCacheManager.Instance._AddTempAsset(cache);
@@ -341,7 +338,7 @@ public class ResourcesLoader: IResourceLoader
 			}
 		}
 
-		AssetCache cache = AddRefCache(orgFileName, ret, cacheType);
+		AssetCache cache = AddRefCache(orgFileName, ret, cacheType, typeof(T));
 
 #if USE_HAS_EXT
 		if (isFirstLoad && cache != null)
@@ -363,7 +360,7 @@ public class ResourcesLoader: IResourceLoader
 		T obj = FindCache<T>(orgFileName);
 		if (obj != null)
 		{
-			if (AddRefCache(orgFileName, obj, cacheType) != null)
+			if (AddRefCache(orgFileName, obj, cacheType, typeof(T)) != null)
 			{
 				if (onProcess != null)
 					onProcess(1.0f, true, obj);
@@ -389,7 +386,7 @@ public class ResourcesLoader: IResourceLoader
 				return false;
 			}
 
-			AssetCache cache = AddRefCache(orgFileName, orgObj, cacheType);
+			AssetCache cache = AddRefCache(orgFileName, orgObj, cacheType, typeof(T));
 
 			#if USE_HAS_EXT
 			AddCacheMap(cache);
@@ -412,7 +409,7 @@ public class ResourcesLoader: IResourceLoader
 					return;
 				}
 
-				AssetCache cache = AddRefCache(orgFileName, orgObj, cacheType);
+				AssetCache cache = AddRefCache(orgFileName, orgObj, cacheType, typeof(T));
 				#if USE_HAS_EXT
 				AddCacheMap(cache);
 				#endif
@@ -664,12 +661,12 @@ public class ResourcesLoader: IResourceLoader
 		return true;
 	}
 
-	public override AssetCache CreateCache(UnityEngine.Object orgObj, string fileName)
+	public override AssetCache CreateCache(UnityEngine.Object orgObj, string fileName, System.Type orgType)
 	{
 		if (orgObj == null)
 			return null;
 
-		ResourceAssetCache cache = ResourceAssetCache.Create(orgObj, fileName);
+		ResourceAssetCache cache = ResourceAssetCache.Create(orgObj, fileName, orgType);
 		return cache;
 	}
 

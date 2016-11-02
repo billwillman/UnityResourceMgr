@@ -49,6 +49,6 @@ public abstract class IResourceLoader
 	public abstract ShaderVariantCollection LoadShaderVarCollection(string fileName, ResourceCacheType cacheType);
 	public abstract bool LoadShaderVarCollectionAsync(string fileName, ResourceCacheType ResourceCacheType, Action<float, bool, ShaderVariantCollection> onProcess);
 #endif
-	public abstract AssetCache CreateCache(UnityEngine.Object orgObj, string fileName);
+	public abstract AssetCache CreateCache(UnityEngine.Object orgObj, string fileName, System.Type orgType);
 	#endregion public function 
 }

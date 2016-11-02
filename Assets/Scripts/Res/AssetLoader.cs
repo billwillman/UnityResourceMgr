@@ -1365,7 +1365,7 @@ public class AssetLoader: IResourceLoader
 			if (isNew)
 			{
 				if (asset.Cache == null)
-					asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(ret, fileName);
+					asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(ret, fileName, null);
 				AssetCacheManager.Instance._AddTempAsset(asset.Cache);
 				// asset.UnUsed ();
 			}
@@ -1373,7 +1373,7 @@ public class AssetLoader: IResourceLoader
 		else
 		if (ret != null) {
 			if (asset.Cache == null)
-				asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(ret, fileName);
+				asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(ret, fileName, null);
 	
 			if (asset.Cache != null)
 				AssetCacheManager.Instance._OnLoadObject(ret, asset.Cache);
@@ -1490,7 +1490,7 @@ public class AssetLoader: IResourceLoader
 			if (isNew && (obj != null))
 			{
 				if (asset.Cache == null)
-					asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(obj, fileName);
+					asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(obj, fileName, null);
 				AssetCacheManager.Instance._AddTempAsset(asset.Cache);
 				// asset.UnUsed ();
 			}
@@ -1498,14 +1498,14 @@ public class AssetLoader: IResourceLoader
 		else
 		if (obj != null) {
 			if (asset.Cache == null)
-				asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(obj, fileName);
+				asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(obj, fileName, null);
 			
 			if (asset.Cache != null)
 				AssetCacheManager.Instance._OnLoadObject(obj, asset.Cache);
 		}
 	}
 
-	public override AssetCache CreateCache(UnityEngine.Object orgObj, string fileName)
+	public override AssetCache CreateCache(UnityEngine.Object orgObj, string fileName, System.Type orgType)
 	{
 		if (string.IsNullOrEmpty (fileName))
 			return null;
