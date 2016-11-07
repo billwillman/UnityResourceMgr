@@ -685,10 +685,17 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 		System.Type type = typeof(Shader);
 
-		if (!PreLoadAssetBundle(abFileName, type, onEnd))
+        // ‘§œ»º”‘ÿShader
+		if (!PreLoadAssetBundle(abFileName, type, 
+            delegate() {
+                Shader.WarmupAllShaders();
+                if (onEnd != null)
+                    onEnd();
+            }
+            ))
 			return false;
 
-		Shader.WarmupAllShaders();
+		
 		return true;
 	}
 
