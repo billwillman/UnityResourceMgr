@@ -933,13 +933,13 @@ public class AssetInfo
 		if ((asset.DependFileCount <= 0) || asset.IsUsing)
 			return;
 
-		asset.IsUsing = true;
+		asset.IsLocalUsing = true;
 
 		AssetLoader loader = Loader;
 		for (int i = 0; i < asset.DependFileCount; ++i) {
 			string fileName = asset.GetDependFileName(i);
 			AssetInfo dependInfo = loader.FindAssetInfo(fileName);
-			if ((dependInfo != null) && (!dependInfo.IsUsing))
+			if ((dependInfo != null) && (!dependInfo.IsLocalUsing))
 			{
 				if (dependInfo.Cache != null)
 				{
@@ -950,7 +950,7 @@ public class AssetInfo
 			}
 		}
 
-		asset.IsUsing = false;
+		asset.IsLocalUsing = false;
 	}
 
 	// 是否是预加载
@@ -1864,7 +1864,7 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return;
 
-		if ((!asset.IsVaild ()) || asset.IsLocalUsing)
+		if (!asset.IsUsing && (!asset.IsVaild ()) || asset.IsLocalUsing)
 			return;
 
 		asset.IsLocalUsing = true;
