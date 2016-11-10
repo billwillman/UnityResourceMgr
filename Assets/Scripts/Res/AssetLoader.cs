@@ -1805,7 +1805,7 @@ public class AssetLoader: IResourceLoader
 		return ret;
 	}
 
-    internal bool LoadAssetInfo(AssetInfo asset, ref int addCount, bool isRoot = true)
+    internal bool LoadAssetInfo(AssetInfo asset, ref int addCount/*, bool isRoot = true*/)
 	{
 		if (asset == null)
 			return false;
@@ -1813,8 +1813,8 @@ public class AssetLoader: IResourceLoader
 		if (asset.IsVaild () || asset.IsLocalUsing)
 			return true;
 
-        if (!isRoot && asset.IsUsing)
-            return true;
+      //  if (!isRoot && asset.IsUsing)
+      //      return true;
 
 		asset.IsLocalUsing = true;
 		// 首先先加载依赖AssetInfo
@@ -1832,7 +1832,7 @@ public class AssetLoader: IResourceLoader
 					return false;
 #endif
                 }
-                if (!LoadAssetInfo(depend, ref addCount, false))
+                if (!LoadAssetInfo(depend, ref addCount/*, false*/))
 				{
 					asset.IsLocalUsing = false;
 					return false;
