@@ -11,6 +11,7 @@
 #define USE_HAS_EXT
 #define USE_DEP_BINARY
 #define USE_DEP_BINARY_AB
+#define USE_ABFILE_ASYNC
 
 using System;
 using System.Collections;
@@ -207,7 +208,7 @@ public class AssetInfo
 	}
 
 	// 正在加载中
-	public bool IsUsing {
+	internal bool IsUsing {
 		get;
 		set;
 	}
@@ -1457,12 +1458,18 @@ public class AssetLoader: IResourceLoader
 			asset.CompressType == AssetCompressType.astUnityZip ||
 			asset.CompressType == AssetCompressType.astNone
 			) {
+		#if USE_ABFILE_ASYNC
 			return LoadAsyncAssetInfo(asset, null, ref addCount,
 				delegate(bool isOk) {
 					if (isOk) {
 						DoLoadObjectAsync<T>(asset, fileName, cacheType, onProcess);
 					}
 				});
+		#else
+		if (!LoadAssetInfo (asset, ref addCount))
+			return false;
+		return DoLoadObjectAsync<T>(asset, fileName, cacheType, onProcess);
+		#endif
 		}
 		else
 #endif
