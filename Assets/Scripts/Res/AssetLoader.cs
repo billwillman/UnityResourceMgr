@@ -213,6 +213,11 @@ public class AssetInfo
 		set;
 	}
 
+    internal bool IsLocalUsing {
+        get;
+        set;
+    }
+
 	internal WWWFileLoadTask WWWTask
 	{
 		get
@@ -281,7 +286,7 @@ public class AssetInfo
 		if (m_TaskList != null)
 		{
 			m_TaskList.Process(DoCheckTaskVaild);
-			if (m_TaskList.IsEmpty)
+			if (m_TaskList != null && m_TaskList.IsEmpty)
 			{
 				if (m_EndEvt != null)
 					m_EndEvt(true);
@@ -296,7 +301,9 @@ public class AssetInfo
 			return;
 		if (task.IsDone)
 		{
-			if (task.IsFail)
+            AssetInfo assetInfo = task.UserData as AssetInfo;
+            bool isFail = task.IsFail && !assetInfo.IsVaild();
+            if (isFail)
 			{
 				if (m_EndEvt != null)
 					m_EndEvt(false);
@@ -435,7 +442,6 @@ public class AssetInfo
 			// 优化AB加载
 			m_AsyncTask.StartLoad();
 			m_AsyncTask.UserData = this;
-			m_AsyncTask.AddResultEvent(OnLocalAsyncResult);
 			taskList.AddTask(m_AsyncTask, true);
 			if (taskList.UserData != null)
 			{
@@ -445,7 +451,9 @@ public class AssetInfo
 					m_AsyncTask.AddResultEvent(parent.OnTaskResult);
 				}
 			}
-		} else
+
+            m_AsyncTask.AddResultEvent(OnLocalAsyncResult);
+        } else
 			return false;
 		
 		return true;
@@ -514,7 +522,7 @@ public class AssetInfo
 
 	//	mIsLoading = false;
 		if (mCompressType == AssetCompressType.astNone) {
-			ClearTaskData();
+		//	ClearTaskData();
 #if UNITY_5_3 || UNITY_5_4
 			mBundle = AssetBundle.LoadFromFile (mFileName);
 #else
@@ -529,7 +537,7 @@ public class AssetInfo
 #endif
 			) {
 			// Lz4 new compressType
-			ClearTaskData();
+		//	ClearTaskData();
 #if UNITY_5_3 || UNITY_5_4
 			mBundle = AssetBundle.LoadFromFile(mFileName);
 #else
@@ -1797,15 +1805,18 @@ public class AssetLoader: IResourceLoader
 		return ret;
 	}
 
-	internal bool LoadAssetInfo(AssetInfo asset, ref int addCount)
+    internal bool LoadAssetInfo(AssetInfo asset, ref int addCount, bool isRoot = true)
 	{
 		if (asset == null)
 			return false;
 
-		if (asset.IsVaild () || asset.IsUsing)
+		if (asset.IsVaild () || asset.IsLocalUsing)
 			return true;
 
-		asset.IsUsing = true;
+        if (!isRoot && asset.IsUsing)
+            return true;
+
+		asset.IsLocalUsing = true;
 		// 首先先加载依赖AssetInfo
 		for (int i = 0; i < asset.DependFileCount; ++i) {
 			string fileName = asset.GetDependFileName(i);
@@ -1814,16 +1825,16 @@ public class AssetLoader: IResourceLoader
 				AssetInfo depend = FindAssetInfo(fileName);
 				if (depend == null)
 				{
-					#if USE_UNITY5_X_BUILD
+#if USE_UNITY5_X_BUILD
 					continue;
-					#else
-					asset.IsUsing = false;
+#else
+					asset.IsLocalUsing = false;
 					return false;
-					#endif
-				}
-				if (!LoadAssetInfo(depend, ref addCount))
+#endif
+                }
+                if (!LoadAssetInfo(depend, ref addCount, false))
 				{
-					asset.IsUsing = false;
+					asset.IsLocalUsing = false;
 					return false;
 				}
 			}
@@ -1832,7 +1843,7 @@ public class AssetLoader: IResourceLoader
 		addCount += 1;
 		AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 
-		asset.IsUsing = false;
+		asset.IsLocalUsing = false;
 		bool ret = asset.Load ();
 		return ret;
 	}
@@ -1853,17 +1864,17 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return;
 
-		if ((!asset.IsVaild ()) || asset.IsUsing)
+		if ((!asset.IsVaild ()) || asset.IsLocalUsing)
 			return;
 
-		asset.IsUsing = true;
+		asset.IsLocalUsing = true;
 
 		for (int i = 0; i < asset.DependFileCount; ++i) {
 			string fileName = asset.GetDependFileName(i);
 			if (!string.IsNullOrEmpty(fileName))
 			{
 				AssetInfo depend = FindAssetInfo(fileName);
-				if ((depend != null) && (!depend.IsUsing))
+				if ((depend != null) && (!depend.IsLocalUsing))
 				{
 					if (depend.Cache == null)
 					{
@@ -1876,7 +1887,7 @@ public class AssetLoader: IResourceLoader
 			}
 		}
 
-		asset.IsUsing = false;
+		asset.IsLocalUsing = false;
 	}
 
 	private string GetCheckFileName(string fileName, bool isWWW, bool isUseABCreateFromFile)
