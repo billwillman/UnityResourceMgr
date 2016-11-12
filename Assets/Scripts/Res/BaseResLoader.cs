@@ -286,6 +286,10 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	public void ClearAllResources()
 	{
+
+		// 关闭所有携程
+		StopAllCoroutines();
+
 		if (m_ResMap == null)
 			return;
 		
