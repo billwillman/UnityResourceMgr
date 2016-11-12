@@ -481,7 +481,6 @@ public class AssetInfo
 		if (m_WWWTask != null)
 		{
 			m_WWWTask.UserData = this;
-			m_WWWTask.AddResultEvent(OnLocalWWWResult);
 			taskList.AddTask(m_WWWTask, true);
 			if (taskList.UserData != null)
 			{
@@ -491,6 +490,8 @@ public class AssetInfo
 					m_WWWTask.AddResultEvent(parent.OnTaskResult);
 				}
 			}
+			
+			m_WWWTask.AddResultEvent(OnLocalWWWResult);
 		} else
 			return false;
 		
