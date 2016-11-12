@@ -340,6 +340,46 @@ public class BaseResLoader: CachedMonoBehaviour
 		return 2;
 	}
 
+	public delegate bool OnGetItem<T>(int index, out T a, out string fileName);
+	public delegate bool OnGetItem1<T>(int index, out T a, out string fileName, out string param);
+
+	protected IEnumerator LoadAsync<T>(int start, int end, OnGetItem<T> onGetItem, Func<T, string, bool> onLoad) where T: UnityEngine.Object
+	{
+		if (start < 0 || end < 0 || end > start || onGetItem == null || onLoad == null)
+			yield break;
+
+		for (int i = start; i < end; ++i)
+		{
+			T target;
+			string fileName;
+			if (!onGetItem(i, out target, out fileName))
+				yield break;
+			if (target != null && !string.IsNullOrEmpty(fileName))
+				onLoad(target, fileName);
+
+			yield return target;
+		}
+	}
+
+	protected IEnumerator LoadAsync<T>(int start, int end, OnGetItem1<T> onGetItem, Func<T, string, string, bool> onLoad) where T: UnityEngine.Object
+	{
+		if (start < 0 || end < 0 || end > start || onGetItem == null || onLoad == null)
+			yield break;
+
+		for (int i = start; i < end; ++i)
+		{
+			T target;
+			string fileName;
+			string param;
+			if (!onGetItem(i, out target, out fileName, out param))
+				yield break;
+			if (target != null && !string.IsNullOrEmpty(fileName))
+				onLoad(target, fileName, param);
+
+			yield return target;
+		}
+	}
+
 	public bool LoadMaterial(MeshRenderer renderer, string fileName)
 	{
 
@@ -699,5 +739,37 @@ public class BaseResLoader: CachedMonoBehaviour
 			return null;
 		T ret = obj.GetComponent<T>();
 		return ret;
+	}
+
+	/*------------------------------------------ 异步方法 ---------------------------------------------*/
+
+	public void LoadMaterialAsync(int start, int end, OnGetItem<MeshRenderer> onGetItem)
+	{
+		StartCoroutine(LoadAsync<MeshRenderer>(start, end, onGetItem, LoadMaterial));
+	}
+
+	public void LoadMaterialAsync(int start, int end, OnGetItem<SpriteRenderer> onGetItem)
+	{
+		StartCoroutine(LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadMaterial));
+	}
+
+	public void LoadMainTextureAsync(int start, int end, OnGetItem<MeshRenderer> onGetItem)
+	{
+		StartCoroutine(LoadAsync<MeshRenderer>(start, end, onGetItem, LoadMainTexture));
+	}
+
+	public void LoadFontAsync(int start, int end, OnGetItem<TextMesh> onGetItem)
+	{
+		StartCoroutine(LoadAsync<TextMesh>(start, end, onGetItem, LoadFont));
+	}
+
+	public void LoadAniControllerAsync(int start, int end, OnGetItem<Animator> onGetItem)
+	{
+		StartCoroutine(LoadAsync<Animator>(start, end, onGetItem, LoadAniController));
+	}
+
+	public void LoadSpriteAsync(int start, int end, OnGetItem1<SpriteRenderer> onGetItem)
+	{
+		StartCoroutine(LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadSprite));
 	}
 }

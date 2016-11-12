@@ -355,6 +355,73 @@ public class NGUIResLoader: BaseResLoader  {
 			SetResource(target, obj, typeof(UIAtlas));
 			return true;
 	}
+
+	/*------------------------------------------ 异步方法 ---------------------------------------------*/
+
+	public void LoadMainTextureAsync(int start, int end, OnGetItem<UITexture> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UITexture>(start, end, onGetItem, LoadMainTexture));
+	}
+
+	public void LoadShaderAsync(int start, int end, OnGetItem<UITexture> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UITexture>(start, end, onGetItem, LoadShader));
+	}
+
+	public void LoadMaterialAsync(int start, int end, OnGetItem<UITexture> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UITexture>(start, end, onGetItem, LoadMaterial));
+	}
+
+	public void LoadMaterialAsync(int start, int end, OnGetItem<UISprite> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UISprite>(start, end, onGetItem, LoadMaterial));
+	}
+
+	public void LoadMainTextureAsync(int start, int end, OnGetItem<UISprite> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UISprite>(start, end, onGetItem, LoadMainTexture));
+	}
+
+	public void LoadMainTextureAsync(int start, int end, OnGetItem<UI2DSprite> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UI2DSprite>(start, end, onGetItem, LoadMainTexture));
+	}
+
+	public void LoadShaderAsync(int start, int end, OnGetItem<UI2DSprite> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UI2DSprite>(start, end, onGetItem, LoadShader));
+	}
+
+	public void LoadMaterialAsync(int start, int end, OnGetItem<UI2DSprite> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UI2DSprite>(start, end, onGetItem, LoadMaterial));
+	}
+
+	public void LoadAltasAsync(int start, int end, OnGetItem<UISprite> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UISprite>(start, end, onGetItem, LoadAltas));
+	}
+
+	public void LoadTextureAsync(int start, int end, OnGetItem1<UITexture> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UITexture>(start, end, onGetItem, LoadTexture));
+	}
+
+	public void LoadTextureAsync(int start, int end, OnGetItem1<UISprite> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UISprite>(start, end, onGetItem, LoadTexture));
+	}
+
+	public void LoadTextureAsync(int start, int end, OnGetItem1<UI2DSprite> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UI2DSprite>(start, end, onGetItem, LoadTexture));
+	}
+
+	public void LoadSpriteAsync(int start, int end, OnGetItem1<UI2DSprite> onGetItem)
+	{
+		StartCoroutine(LoadAsync<UI2DSprite>(start, end, onGetItem, LoadSprite));
+	}
 }
 
 #endif
