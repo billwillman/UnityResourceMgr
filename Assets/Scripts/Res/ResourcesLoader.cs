@@ -254,14 +254,16 @@ public class ResourcesLoader: IResourceLoader
 			return false;
 		int startIdx = fileName.IndexOf (cResourcesStartPath, StringComparison.CurrentCultureIgnoreCase);
 		if (startIdx >= 0) {
-			fileName = fileName.Remove (0, startIdx + cResourcesStartPath.Length);
+			startIdx +=  cResourcesStartPath.Length;
 #if USE_HAS_EXT
 			int idx = fileName.LastIndexOf('.');
 			if (idx > 0)
 			{
-				fileName = fileName.Substring(0, idx);
+				fileName = fileName.Substring(startIdx, idx - startIdx);
 			} else if (idx == 0)
 				fileName = string.Empty;
+#else
+			fileName = fileName.Remove (0, startIdx);
 #endif
 			return true;
 		}
