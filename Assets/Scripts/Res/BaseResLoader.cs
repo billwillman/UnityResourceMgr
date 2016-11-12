@@ -238,7 +238,10 @@ public class BaseResLoader: CachedMonoBehaviour
 	protected void SetResource(UnityEngine.Object target, UnityEngine.Object res, System.Type resType, string resName = "", string tag = "")
 	{
 		if (target == null)
+		{
+			ResourceMgr.Instance.DestroyObject(res);
 			return;
+		}
 		SetResource(target.GetInstanceID(), res, resType, resName, tag);
 	}
 
@@ -274,7 +277,10 @@ public class BaseResLoader: CachedMonoBehaviour
 	protected void SetResources(UnityEngine.Object target, UnityEngine.Object[] res, System.Type resType, string resName = "", string tag = "")
 	{
 		if (target == null)
+		{
+			ResourceMgr.Instance.DestroyObjects(res);
 			return;
+		}
 		SetResources(target.GetInstanceID(), res, resType, resName, tag);
 	}
 
