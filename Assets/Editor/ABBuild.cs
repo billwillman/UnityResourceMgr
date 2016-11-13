@@ -1636,11 +1636,12 @@ class AssetBundleMgr
 	private string m_TempExportDir;
 	private int m_TempCompressType;
 	private BuildTarget m_TempBuildTarget;
+	private bool m_TempIsAppendForce;
 	
 	private void OnBuildTargetChanged()
 	{
 		EditorUserBuildSettings.activeBuildTargetChanged -= OnBuildTargetChanged;
-		ProcessBuild_5_x(m_TempExportDir, m_TempCompressType, m_TempBuildTarget, false);
+		ProcessBuild_5_x(m_TempExportDir, m_TempCompressType, m_TempBuildTarget, m_TempIsAppendForce);
 	}
 
 	private AssetBundleManifest CallBuild_5_x_API(string exportDir, int compressType, BuildTarget target, bool isReBuild = true)
@@ -1696,6 +1697,7 @@ class AssetBundleMgr
 			m_TempExportDir = exportDir;
 			m_TempCompressType = compressType;
 			m_TempBuildTarget = target;
+			m_TempIsAppendForce = isForceAppend;
 			EditorUserBuildSettings.SwitchActiveBuildTarget(target);
 			return;
 		}
@@ -3253,6 +3255,12 @@ public static class AssetBundleBuild
 	[MenuItem("Assets/平台打包/Android MD5(Lz4)")]
 	static public void OnBuildPlatformAndroidLz4Md5() {
 		BuildPlatform(eBuildPlatform.eBuildAndroid, 2, true);
+	}
+
+	[MenuItem("Assets/平台打包/增量Android MD5(Lz4)")]
+	static public void OnAppendBuildPlatformAndroidLz4Md5()
+	{
+		BuildPlatform(eBuildPlatform.eBuildAndroid, 2, true, null, true);
 	}
 
 	[MenuItem("Assets/平台打包/IOS(Lz4)")]
