@@ -1640,7 +1640,7 @@ class AssetBundleMgr
 	private void OnBuildTargetChanged()
 	{
 		EditorUserBuildSettings.activeBuildTargetChanged -= OnBuildTargetChanged;
-		ProcessBuild_5_x(m_TempExportDir, m_TempCompressType, m_TempBuildTarget);
+		ProcessBuild_5_x(m_TempExportDir, m_TempCompressType, m_TempBuildTarget, false);
 	}
 
 	private AssetBundleManifest CallBuild_5_x_API(string exportDir, int compressType, BuildTarget target, bool isReBuild = true)
@@ -1663,9 +1663,9 @@ class AssetBundleMgr
 		return manifest;
 	}
 	
-	void ProcessBuild_5_x(string exportDir, int compressType, BuildTarget target)
+	void ProcessBuild_5_x(string exportDir, int compressType, BuildTarget target, bool isForceAppend)
 	{
-		AssetBundleManifest manifest = CallBuild_5_x_API(exportDir, compressType, target);
+		AssetBundleManifest manifest = CallBuild_5_x_API(exportDir, compressType, target, !isForceAppend);
 		
 		for (int i = 0; i < mAssetBundleList.Count; ++i)
 		{
@@ -1681,7 +1681,7 @@ class AssetBundleMgr
 	
 #endif
 
-	private void BuildAssetBundlesInfo_5_x(eBuildPlatform platform, string exportDir, int compressType)
+	private void BuildAssetBundlesInfo_5_x(eBuildPlatform platform, string exportDir, int compressType, bool isForceAppend)
 	{	
 #if USE_UNITY5_X_BUILD
 		if (string.IsNullOrEmpty(exportDir))
@@ -1700,7 +1700,7 @@ class AssetBundleMgr
 			return;
 		}
 
-		ProcessBuild_5_x(exportDir, compressType, target);
+		ProcessBuild_5_x(exportDir, compressType, target, isForceAppend);
 		
 #endif
 	}
@@ -2275,7 +2275,7 @@ class AssetBundleMgr
 	}
 
     // 5.x打包方法
-    private void BuildAssetBundles_5_x(eBuildPlatform platform, int compressType, string outPath, bool isMd5)
+    private void BuildAssetBundles_5_x(eBuildPlatform platform, int compressType, string outPath, bool isMd5, bool isForceAppend)
     {
 #if USE_UNITY5_X_BUILD
         // 5.x不再需要收集依赖PUSH和POP
@@ -2302,7 +2302,7 @@ class AssetBundleMgr
                 if ((info != null) && (!info.IsBuilded) && (info.SubFileCount > 0) && (info.FileType != AssetBundleFileType.abError))
                     BuildAssetBundleInfo_5_x(info, platform, exportDir, compressType);
             }*/
-			BuildAssetBundlesInfo_5_x(platform, exportDir, compressType);
+			BuildAssetBundlesInfo_5_x(platform, exportDir, compressType, isForceAppend);
 
 			// 是否存在冗余资源，如果有打印出来
 			CheckRongYuRes();
@@ -2346,8 +2346,9 @@ class AssetBundleMgr
 			}
 
 		#endif
-			
-			RemoveBundleManifestFiles_5_x(exportDir);
+
+			if (!isForceAppend)
+				RemoveBundleManifestFiles_5_x(exportDir);
 
 			if (isMd5)
 			{
@@ -2374,7 +2375,8 @@ class AssetBundleMgr
 	}
 
 	// isCompress
-	public void BuildAssetBundles(eBuildPlatform platform, int compressType, bool isMd5 = false, string outPath = null)
+	public void BuildAssetBundles(eBuildPlatform platform, int compressType, bool isMd5 = false, string outPath = null, 
+								  bool isForceAppend = false)
 	{
 		AssetBundleRefHelper.ClearFileMetaMap();
 		AssetBunbleInfo.ClearMd5FileMap();
@@ -2383,7 +2385,7 @@ class AssetBundleMgr
         string appVersion = Application.unityVersion;
         if (appVersion.StartsWith("5."))
         {
-            BuildAssetBundles_5_x(platform, compressType, outPath, isMd5);
+			BuildAssetBundles_5_x(platform, compressType, outPath, isMd5, isForceAppend);
             return;
         }
 #else
@@ -3076,7 +3078,8 @@ public static class AssetBundleBuild
 		}
 	}
 
-	static public void BuildPlatform(eBuildPlatform platform, int compressType = 0, bool isMd5 = false, string outPath = null)
+	static public void BuildPlatform(eBuildPlatform platform, int compressType = 0, bool isMd5 = false, 
+									 string outPath = null, bool isForceAppend = false)
 	{
 		// GetResAllDirPath ();
 		// 编译平台`
@@ -3084,7 +3087,7 @@ public static class AssetBundleBuild
 		List<string> resList = GetResAllDirPath();
 		// resList.Add("Assets/Scene");
 		mMgr.BuildDirs(resList);
-        mMgr.BuildAssetBundles(platform, compressType, isMd5, outPath);
+		mMgr.BuildAssetBundles(platform, compressType, isMd5, outPath, isForceAppend);
 		/*
 		string outpath = GetAndCreateDefaultOutputPackagePath (platform);
 		string outFileName = outpath + "/" + GetCurrentPackageVersion (platform);
@@ -3226,6 +3229,11 @@ public static class AssetBundleBuild
 		BuildPlatform(eBuildPlatform.eBuildWindow, 2, true);
 	}
 
+	[MenuItem("Assets/平台打包/增量Windows Md5(Lz4)")]
+	static public void OnAppendBuildPlatformWinLz4Md5()
+	{
+		BuildPlatform(eBuildPlatform.eBuildWindow, 2, true, null, true);
+	}
 
 	[MenuItem("Assets/平台打包/OSX(Lz4)")]
 	static public void OnBuildPlatformOSXLz4() {
@@ -3448,7 +3456,7 @@ public static class AssetBundleBuild
 		}
 		
 		// build AssetsBundle to Target
-		BuildPlatform(platform, compressType, isMd5, targetStreamingAssetsPath); 
+		BuildPlatform(platform, compressType, isMd5, targetStreamingAssetsPath, false); 
 
 		string logFileName = string.Empty;
 		string funcName = string.Empty;
