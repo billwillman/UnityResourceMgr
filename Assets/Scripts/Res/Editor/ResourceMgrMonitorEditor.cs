@@ -332,6 +332,11 @@ public class ResourceMgrMonitorEditor: Editor
 		{
 			AssetCacheManager.Instance.ClearUnUsed();
 		}
+
+		if (GUILayout.Button("UnloadUsed"))
+		{
+			ResourceMgr.Instance.UnloadUnUsed();
+		}
 	}
 
 	string GetBundleKey(string fileName)
