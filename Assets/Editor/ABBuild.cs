@@ -3226,7 +3226,12 @@ public static class AssetBundleBuild
 		BuildPlatform(eBuildPlatform.eBuildWindow, 2);
 	}
 
-	[MenuItem("Assets/平台打包/Windows Md5(Lz4)")]
+    [MenuItem("Assets/平台打包/增量Windows(Lz4)")]
+    static public void OnAppendBuildPlatformWinLz4() {
+        BuildPlatform(eBuildPlatform.eBuildWindow, 2, false, null, true);
+    }
+
+    [MenuItem("Assets/平台打包/Windows Md5(Lz4)")]
 	static public void OnBuildPlatformWinLz4Md5() {
 		BuildPlatform(eBuildPlatform.eBuildWindow, 2, true);
 	}
