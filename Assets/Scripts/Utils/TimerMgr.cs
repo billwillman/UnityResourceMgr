@@ -69,6 +69,7 @@ public class Timer : DisposeObject
 		m_IsPlayOnce = isOnce;
 		m_PerTime = delayTime;
 		m_IngoreScaleTime = ingoreScaleTime;
+		m_IsRuned = false;
 	}
 
 	public void PoolReset()
@@ -76,6 +77,7 @@ public class Timer : DisposeObject
 		ClearAllListener();
 		m_UserData = null;
 		m_IsDispose = false;
+		m_IsRuned = false;
 		Stop();
 	}
 
@@ -195,9 +197,17 @@ public class Timer : DisposeObject
         {
             if (m_EventHandler != null)
             {
+				// 因为有可能在Timer回调里产生Timer,所以增加一个判断，
+				// 防止里面创建后被删除
+				m_IsRuned = true;
 				delta = m_PerTime - (m_DelayTime - delta);
                 m_EventHandler(this, delta);
-            }
+			} else
+				m_IsRuned = true;
+
+			if (!m_IsRuned)
+				return;
+			
             if (m_IsPlayOnce)
             {
                 Stop();
@@ -221,6 +231,8 @@ public class Timer : DisposeObject
     private bool m_IsPlaying = false;
     private bool m_IngoreScaleTime = false;
     private LinkedListNode<Timer> m_TimerNode = null; 
+	// 是否已经运行过了
+	private bool m_IsRuned = false;
 }
 
 
