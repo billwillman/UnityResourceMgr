@@ -195,6 +195,7 @@ public class Timer : DisposeObject
         {
             if (m_EventHandler != null)
             {
+				delta = m_PerTime - (m_DelayTime - delta);
                 m_EventHandler(this, delta);
             }
             if (m_IsPlayOnce)
