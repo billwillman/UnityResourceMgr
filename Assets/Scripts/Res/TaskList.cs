@@ -345,14 +345,16 @@ public class WWWFileLoadTask: ITask
                 {
 #if UNITY_EDITOR
                     var target = UnityEditor.EditorUserBuildSettings.activeBuildTarget;
-                    if (target == UnityEditor.BuildTarget.StandaloneOSXIntel || 
-                        target == UnityEditor.BuildTarget.StandaloneOSXIntel64 || 
-                        target == UnityEditor.BuildTarget.StandaloneOSXUniversal)
-                        ret += "/Mac";
-                    else if (target == UnityEditor.BuildTarget.Android)
-                        ret += "/Android";
-                    else if (target == UnityEditor.BuildTarget.iOS)
-                        ret += "/IOS";
+                        if (target == UnityEditor.BuildTarget.StandaloneOSXIntel ||
+                            target == UnityEditor.BuildTarget.StandaloneOSXIntel64 ||
+                            target == UnityEditor.BuildTarget.StandaloneOSXUniversal)
+                            ret += "/Mac";
+                        else if (target == UnityEditor.BuildTarget.Android)
+                            ret += "/Android";
+                        else if (target == UnityEditor.BuildTarget.iOS)
+                            ret += "/IOS";
+                        else if (target == UnityEditor.BuildTarget.StandaloneWindows || target == UnityEditor.BuildTarget.StandaloneWindows64)
+                            ret += "/Windows";
 #else
 					ret += "/Mac";
 #endif
