@@ -1155,6 +1155,13 @@ public class AssetLoader: IResourceLoader
 		asset.PreLoadAll(type, OnPreaLoadObj);
 	}
 
+    public string GetShaderFileNameByName(string shaderName) {
+        string ret;
+        if (mShaderNameMap.TryGetValue(shaderName, out ret))
+            return ret;
+        return string.Empty;
+    }
+
 	public bool PreloadAllType(string abFileName, System.Type type, Action onEnd = null)
 	{
 		if (type == null || string.IsNullOrEmpty(abFileName))
@@ -2171,7 +2178,9 @@ public class AssetLoader: IResourceLoader
 		}
 
 		mAssetFileNameMap.Clear();
-	}
+        mShaderNameMap.Clear();
+
+    }
 
 	//二进制
 	private void LoadBinary(byte[] bytes)
@@ -2216,6 +2225,8 @@ public class AssetLoader: IResourceLoader
 					continue;
 				asset._AddSubFile(subFileName);
 				AddFileAssetMap(subFileName, asset);
+                if (!string.IsNullOrEmpty(subInfo.shaderName))
+                    mShaderNameMap.Add(subInfo.shaderName, subInfo.fileName);
 			}
 
 			// 依赖
@@ -2326,8 +2337,10 @@ public class AssetLoader: IResourceLoader
 				string subFileName = subFile.GetValue("@fileName");
 				if (string.IsNullOrEmpty(subFileName))
 					continue;
-
-				/*
+                string shaderName = node.GetValue("@shaderName");
+                if (!string.IsNullOrEmpty(shaderName))
+                    mShaderNameMap.Add(shaderName, subFileName);
+                /*
 				int hashCode;
 				string hashCodeStr = subFile.GetValue("@hashCode");
 				if (string.IsNullOrEmpty(hashCodeStr))
@@ -2339,7 +2352,7 @@ public class AssetLoader: IResourceLoader
 				}
 				
 				asset._AddSubFile(hashCode);*/
-				asset._AddSubFile(subFileName);
+                asset._AddSubFile(subFileName);
 				AddFileAssetMap(subFileName, asset);
 			}
 			// 3.DependFiles
@@ -2538,6 +2551,7 @@ public class AssetLoader: IResourceLoader
 	// FileHash AssetBundle FileName
 	// private Dictionary<int, AssetInfo> mAssetFileNameMap = new Dictionary<int, AssetInfo>();
 	private Dictionary<string, AssetInfo> mAssetFileNameMap = new Dictionary<string, AssetInfo>();
+    private Dictionary<string, string> mShaderNameMap = new Dictionary<string, string>();
 	private WWWFileLoadTask mXmlLoaderTask = null;
 	private Timer mLoaderTimer = null;
 	// 读取配置事件

@@ -106,15 +106,19 @@ public class DependBinaryFile
 	public struct SubFileInfo
 	{
 		public string fileName;
+        // shader名字(只有资源是Shader才有)
+        public string shaderName;
 
 		internal void SaveToStream(Stream stream)
 		{
 			FilePathMgr.Instance.WriteString(stream, fileName);
+            FilePathMgr.Instance.WriteString(stream, shaderName);
 		}
 
 		public void LoadFromStream(Stream stream)
 		{
 			fileName = FilePathMgr.Instance.ReadString(stream);
+            shaderName = FilePathMgr.Instance.ReadString(stream);
 		}
 	}
 
@@ -192,11 +196,12 @@ public class DependBinaryFile
 		header.SaveToStream (stream);
 	}
 
-	public static void ExportToSubFile(Stream stream, string subFileName)
+	public static void ExportToSubFile(Stream stream, string subFileName, string shaderName = "")
 	{
 		SubFileInfo info = new SubFileInfo ();
 		info.fileName = subFileName;
-		info.SaveToStream (stream);
+        info.shaderName = shaderName;
+        info.SaveToStream (stream);
 	}
 
 	public static void ExportToDependFile(Stream stream, string abFileName, int refCount)

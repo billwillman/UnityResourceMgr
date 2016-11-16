@@ -815,6 +815,13 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		UnloadUnUsed();
 	}
 
+    public string GetABShaderFileNameByName(string shaderName) {
+        AssetLoader loader = mAssetLoader as AssetLoader;
+        if (loader != null)
+            return loader.GetShaderFileNameByName(shaderName);
+        return string.Empty;
+    }
+
 	/*
 	protected IResourceLoader GetLoader(ref string path)
 	{
