@@ -338,6 +338,26 @@ class AssetBunbleInfo: IDependBinary
 		IsScene = isSceneFiles;
 	}
 
+    // 获得ShaderName名字
+    private string GetShaderName(string fileName) {
+        if (string.IsNullOrEmpty(fileName))
+            return string.Empty;
+        string extName = System.IO.Path.GetExtension(fileName);
+        if (string.IsNullOrEmpty(extName))
+            return string.Empty;
+        string ret = string.Empty;
+        if (string.Compare(extName, ".shader", true) == 0) {
+            fileName = "Assets/" + fileName;
+            Shader shader = AssetDatabase.LoadAssetAtPath<Shader>(fileName);
+            if (shader != null) {
+                ret = shader.name;
+                EditorUtility.UnloadUnusedAssetsImmediate();
+            }
+        }
+
+        return ret;
+    }
+
 	public void ExportBinary(Stream stream, bool isMd5, string outPath)
 	{
 		if ((stream == null) || (FileType == AssetBundleFileType.abError))
@@ -362,7 +382,8 @@ class AssetBunbleInfo: IDependBinary
 				string resFileName = AssetBundleBuild.GetXmlFileName(fileName);
 				if (string.IsNullOrEmpty(resFileName))
 					continue;
-				DependBinaryFile.ExportToSubFile(stream, resFileName);
+                string shaderName = GetShaderName(resFileName);
+                DependBinaryFile.ExportToSubFile(stream, resFileName, shaderName);
 			}
 		}
 
@@ -421,8 +442,14 @@ class AssetBunbleInfo: IDependBinary
 				string resFileName = AssetBundleBuild.GetXmlFileName(fileName);
 				if (string.IsNullOrEmpty(resFileName))
 					continue;
-				// builder.AppendFormat("\t\t\t<SubFile fileName=\"{0}\" hashCode=\"{1}\"/>", resFileName, System.Convert.ToString(Animator.StringToHash(resFileName)));
-				builder.AppendFormat("\t\t\t<SubFile fileName=\"{0}\"/>", resFileName);
+                // builder.AppendFormat("\t\t\t<SubFile fileName=\"{0}\" hashCode=\"{1}\"/>", resFileName, System.Convert.ToString(Animator.StringToHash(resFileName)));
+
+                // 判断如果 
+                string shaderName = GetShaderName(resFileName);
+                if (string.IsNullOrEmpty(shaderName))
+                    builder.AppendFormat("\t\t\t<SubFile fileName=\"{0}\"/>", resFileName);
+                else
+                    builder.AppendFormat("\t\t\t<SubFile fileName=\"{0}\" shaderName=\"{1}\"/>", resFileName, shaderName);
 				builder.AppendLine();
 			}
 
@@ -445,6 +472,10 @@ class AssetBunbleInfo: IDependBinary
 					string filePath = outPath + '/' + fileName;
 					fileName = AssetBunbleInfo.Md5(filePath);
 				}
+
+                if (string.IsNullOrEmpty(fileName))
+                    continue;
+
 				if (depCnt > 1)
 					builder.AppendFormat("\t\t\t<DependFile fileName=\"{0}\" refCount=\"{1}\"/>", fileName, depCnt);
 				else
