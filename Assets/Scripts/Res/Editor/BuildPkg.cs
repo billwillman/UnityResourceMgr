@@ -70,7 +70,7 @@ public class BuildPkg
 				if (!int.TryParse (dirValue [1].Trim (), out cnt) || cnt <= 0)
 					continue;
 				if (m_SplitABDirList == null)
-					m_SplitABDirList = new List<SplitABDirInfo> ();
+					m_SplitABDirList = new List<PkgSplitABDirInfo> ();
 					
 				PkgSplitABDirInfo info = new PkgSplitABDirInfo ();
 				info.splitCnt = cnt;
@@ -142,7 +142,7 @@ public class BuildPkg
 		}
 	}
 
-	public List<SplitABDirInfo> SplitABDirs {
+	public List<PkgSplitABDirInfo> SplitABDirs {
 		get {
 			return m_SplitABDirList;
 		}
