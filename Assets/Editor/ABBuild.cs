@@ -1140,6 +1140,12 @@ static class AssetBundleRefHelper
 class AssetBundleMgr
 {
 
+	public List<PkgSplitABDirInfo> ExternSplitABDirs
+	{
+		get;
+		set;
+	}
+
 	public AssetBunbleInfo FindAssetBundle(string fileName)
 	{
 		if (string.IsNullOrEmpty (fileName))
@@ -1179,6 +1185,22 @@ class AssetBundleMgr
 			{
 				cnt = num;
 				return true;
+			}
+		}
+
+		// 外部分离目录
+		if (ExternSplitABDirs != null)
+		{
+			for (int i = 0; i < ExternSplitABDirs.Count; ++i)
+			{
+				PkgSplitABDirInfo info = ExternSplitABDirs[i];
+				if (string.IsNullOrEmpty(info.dirPath) || info.splitCnt <= 0)
+					continue;
+				if (string.Compare(info.dirPath, dir, true) == 0)
+				{
+					cnt = info.splitCnt;
+					return true;
+				}
 			}
 		}
 
@@ -3109,6 +3131,11 @@ public static class AssetBundleBuild
 		default:
 			return true;
 		}
+	}
+
+	static public void SetExternalABSplitDirs(List<PkgSplitABDirInfo> list)
+	{
+		mMgr.ExternSplitABDirs = list;
 	}
 
 	static public void BuildPlatform(eBuildPlatform platform, int compressType = 0, bool isMd5 = false, 
