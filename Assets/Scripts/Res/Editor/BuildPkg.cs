@@ -19,7 +19,7 @@ public class BuildPkg
 	// 读取配置
 	public bool LoadFromFile (string fileName)
 	{
-		string allPath = Path.GetFullPath (fileName);
+//		string allPath = Path.GetFullPath (fileName);
 		if (!File.Exists (fileName))
 			return false;
 			

@@ -3835,7 +3835,7 @@ public static class AssetBundleBuild
 		List<string> packetFileList = new List<string>();
 		if (topFiles != null)
 		{
-			string dstTopFilePath = outPath + "/Assets";
+		//	string dstTopFilePath = outPath + "/Assets";
 			for (int i = 0; i < topFiles.Length; ++i)
 			{
 				string filePath = topFiles[i];
