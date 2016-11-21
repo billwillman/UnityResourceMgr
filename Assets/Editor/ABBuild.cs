@@ -2349,7 +2349,7 @@ class AssetBundleMgr
 
 		// write version file
 		string versionFileName = streamAssetsPath + "/version.txt";
-		//string versionFileName1 = resDir + "/version.txt";
+		string versionFileName2 = resDir + "/version.txt";
 		string versionFileName1 = Path.GetFullPath(outPath + "/version.txt");
 		fileStream = new FileStream(versionFileName, FileMode.Create, FileAccess.Write);
 		try
@@ -2366,6 +2366,7 @@ class AssetBundleMgr
 		}
 
 		File.Copy(versionFileName, versionFileName1, true);
+		File.Copy(versionFileName, versionFileName2, true);
 	}
 
 //	private static readonly bool _cIsOnlyFileNameMd5 = true;
@@ -2504,7 +2505,7 @@ class AssetBundleMgr
 			string versionDir = AssetBundleBuild.GetCurrentPackageVersion(platform);
 			CreateBundleResUpdateFiles(streamAssetsPath, "outPath", versionDir, true);
 			BuildCSharpProjectUpdateFile(streamAssetsPath, "outPath", versionDir);
-			BuildVersionZips("outPath", versionDir);
+			//BuildVersionZips("outPath", versionDir);
 		}
 	}
 
