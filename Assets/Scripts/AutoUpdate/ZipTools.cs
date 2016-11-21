@@ -166,6 +166,9 @@ namespace AutoUpdate
             if (diffFileList == null || diffFileList.Count <= 0)
                 return false;
 
+			// 增加fileList.txt
+			diffFileList.Add("fileList.txt");
+
 			string zipFileName = string.Format("{0}/{1}.zip", outDir, GetZipFileName(oldVersion, newVersion));
 
 			for (int i = 0; i < diffFileList.Count; ++i)

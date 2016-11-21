@@ -14,6 +14,7 @@ namespace AutoUpdate
 		auPrepare,
 		// 请求检查版本
 		auCheckVersionReq,
+		auGetResZipReq,
 		// 请求资源列表
 		auGetResListReq,
 		// 获得某个更新文件
@@ -28,7 +29,8 @@ namespace AutoUpdate
 		auError_None = 0,
 		auError_NoGetVersion = 1,
 		auError_NoGetFileList = 2,
-		auError_FileDown = 3
+		auError_FileDown = 3,
+		auError_ResZipReq = 4
 	}
 
 	public class AutoUpdateMgr: Singleton<AutoUpdateMgr>
