@@ -149,19 +149,34 @@ namespace AutoUpdate
             }
         }
 
-        public static void BuildVersionZip(string outDir, string oldVersion, string newVersion,
+		public static string GetZipFileName(string oldVersion, string newVersion)
+		{
+			string ret = string.Format("{0}-{1}", oldVersion, newVersion);
+			return ret;
+		}
+
+        public static bool BuildVersionZip(string outDir, string oldVersion, string newVersion,
                                            ResListFile oldFileList, ResListFile newFileList) {
             if (string.IsNullOrEmpty(outDir) ||
                 string.IsNullOrEmpty(newVersion) || newFileList == null ||
                 string.IsNullOrEmpty(oldVersion) || oldFileList == null)
-                return;
+                return false;
 
             List<string> diffFileList = CompareDiffList(oldFileList, newFileList);
             if (diffFileList == null || diffFileList.Count <= 0)
-                return;
+                return false;
 
-            string zipFileName = string.Format("{0}/{1}-{2}.zip", outDir, oldVersion, newVersion);
+			string zipFileName = string.Format("{0}/{1}.zip", outDir, GetZipFileName(oldVersion, newVersion));
+
+			for (int i = 0; i < diffFileList.Count; ++i)
+			{
+				string fileName = string.Format("{0}/{1}/{2}", outDir, newVersion, diffFileList[i]);
+				diffFileList[i] = Path.GetFullPath(fileName);
+			}
+
             Compress(zipFileName, diffFileList.ToArray());
+
+			return true;
         }
 
         private static List<string> CompareDiffList(ResListFile oldFileList, ResListFile newFileList) {

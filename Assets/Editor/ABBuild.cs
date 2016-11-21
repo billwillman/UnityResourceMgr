@@ -22,6 +22,7 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using AutoUpdate;
 
 public enum eBuildPlatform
 {
@@ -2191,6 +2192,82 @@ class AssetBundleMgr
 
 	}
 
+	private void BuildVersionZips(string outPath, string version)
+	{
+		outPath = Path.GetFullPath(outPath);
+		string resDir = outPath + '/' + version;
+		string fileListFileName1 = resDir + "/fileList.txt";
+		string versionFileName1 = outPath + "/version.txt";
+		// 生成个版本ZIP包
+		// 写入ZIP版本位置(只写在更新的version里)
+		ResListFile myResFileList = new ResListFile();
+		if (!myResFileList.LoadFromFile(fileListFileName1))
+			return;
+
+		FileStream fileStream = new FileStream(versionFileName1, FileMode.Open);
+		try
+		{
+			fileStream.Seek(0, SeekOrigin.End);
+			string zipStr = string.Empty;
+			string[] subDirs = Directory.GetDirectories(outPath);
+			if (subDirs != null)
+			{
+				for (int i = 0; i < subDirs.Length; ++i)
+				{
+					string subDir = subDirs[i];
+					string subName = Path.GetFileName(subDir);
+					if (string.Compare(version, subName) == 0)
+						continue;
+					string ff = string.Format("{0}/fileList.txt", subDir);
+					if (!File.Exists(ff))
+						continue;
+					ResListFile otherFileList = new ResListFile();
+					if (!otherFileList.LoadFromFile(ff))
+						continue;
+
+					// 要生成两个ZIP包
+					string zipFileName = string.Format("{0}/{1}.zip", outPath, ZipTools.GetZipFileName(version, subName));
+					if (File.Exists(zipFileName))
+						File.Delete(zipFileName);
+
+					zipFileName = string.Format("{0}/{1}.zip", outPath, ZipTools.GetZipFileName(subName, version));
+					if (File.Exists(zipFileName))
+						File.Delete(zipFileName);
+
+					if (ZipTools.BuildVersionZip(outPath, version, subName, myResFileList, otherFileList))
+					{
+						string zipName = ZipTools.GetZipFileName(version, subName);
+						if (string.IsNullOrEmpty(zipStr))
+							zipStr = zipName;
+						else
+							zipStr += ";" + zipName;
+					}
+
+					if (ZipTools.BuildVersionZip(outPath, subName, version, otherFileList, myResFileList))
+					{
+						string zipName = ZipTools.GetZipFileName(version, subName);
+						if (string.IsNullOrEmpty(zipStr))
+							zipStr = zipName;
+						else
+							zipStr += ";" + zipName;
+					}
+				}
+
+				if (!string.IsNullOrEmpty(zipStr))
+				{
+					zipStr = "\r\nzip=" + zipStr;
+					byte[] zipBytes = System.Text.Encoding.ASCII.GetBytes(zipStr);
+					fileStream.Write(zipBytes, 0, zipBytes.Length);
+				}
+			}
+
+		} finally
+		{
+			fileStream.Close();
+			fileStream.Dispose();
+		}
+	}
+
 	private void CreateBundleResUpdateFiles(string streamAssetsPath, string outPath, string version, bool isRemoveVersionDir)
 	{
 		string resDir = outPath + '/' + version;
@@ -2268,11 +2345,12 @@ class AssetBundleMgr
 			fileStream.Dispose();
 		}
 
-		File.Copy(fileListFileName, fileListFileName1);
+		File.Copy(fileListFileName, fileListFileName1, true);
 
 		// write version file
 		string versionFileName = streamAssetsPath + "/version.txt";
-		string versionFileName1 = resDir + "/version.txt";
+		//string versionFileName1 = resDir + "/version.txt";
+		string versionFileName1 = Path.GetFullPath(outPath + "/version.txt");
 		fileStream = new FileStream(versionFileName, FileMode.Create, FileAccess.Write);
 		try
 		{
@@ -2287,7 +2365,7 @@ class AssetBundleMgr
 			fileStream.Dispose();
 		}
 
-		File.Copy(versionFileName, versionFileName1);
+		File.Copy(versionFileName, versionFileName1, true);
 	}
 
 //	private static readonly bool _cIsOnlyFileNameMd5 = true;
@@ -2426,6 +2504,7 @@ class AssetBundleMgr
 			string versionDir = AssetBundleBuild.GetCurrentPackageVersion(platform);
 			CreateBundleResUpdateFiles(streamAssetsPath, "outPath", versionDir, true);
 			BuildCSharpProjectUpdateFile(streamAssetsPath, "outPath", versionDir);
+			BuildVersionZips("outPath", versionDir);
 		}
 	}
 
