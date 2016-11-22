@@ -2328,6 +2328,7 @@ class AssetBundleMgr
 		FileStream fileStream = new FileStream(fileListFileName, FileMode.Create, FileAccess.Write);
 		try
 		{
+			int writeBytes = 0;
 			for (int i = 0; i < fileList.Count; ++i)
 			{
 				string flieListStr = fileList[i];
@@ -2336,7 +2337,15 @@ class AssetBundleMgr
 					flieListStr += "\r\n";
 					byte[] fileListBytes = System.Text.Encoding.ASCII.GetBytes(flieListStr);
 					if (fileListBytes != null && fileListBytes.Length > 0)
+					{
 						fileStream.Write(fileListBytes, 0, fileListBytes.Length);
+						writeBytes += fileListBytes.Length;
+						if (writeBytes > 2048)
+						{
+							writeBytes = 0;
+							fileStream.Flush();
+						}
+					}
 				}
 			}
 		} 

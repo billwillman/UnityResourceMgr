@@ -258,6 +258,7 @@ namespace AutoUpdate
 			FileStream stream = new FileStream(m_SaveFileName, FileMode.Create, FileAccess.Write);
 			try
 			{
+				int writeBytes = 0;
 				Dictionary<string, AutoUpdateCfgItem>.Enumerator iter = m_Dict.GetEnumerator();
 				while (iter.MoveNext())
 				{
@@ -265,7 +266,13 @@ namespace AutoUpdate
 					                         iter.Current.Value.readBytes, 
 					                         iter.Current.Value.isDone.ToString());
 					byte[] dst = System.Text.Encoding.ASCII.GetBytes(s);
-					stream.Write(dst, 0, dst.Length);                        
+					stream.Write(dst, 0, dst.Length);     
+					writeBytes += dst.Length;
+					if (writeBytes > 2048)
+					{
+						writeBytes = 0;
+						stream.Flush();
+					}
 				}
 				iter.Dispose();
 			} finally

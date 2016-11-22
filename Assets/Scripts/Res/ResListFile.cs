@@ -158,6 +158,7 @@ public class ResListFile
 		FileStream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
 		try
 		{
+			int writeBytes = 0;
 			for (int i = 0; i < infos.Length; ++i)
 			{
 				string s = string.Format("{0}=0;false\r\n", infos[i].fileContentMd5);
@@ -165,6 +166,12 @@ public class ResListFile
 				if (bytes != null)
 				{
 					stream.Write(bytes, 0, bytes.Length);
+					writeBytes += bytes.Length;
+					if (writeBytes > 2048)
+					{
+						writeBytes = 0;
+						stream.Flush();
+					}
 				}
 			}
 		} finally
@@ -186,11 +193,18 @@ public class ResListFile
 		{
 			Dictionary<string, ResInfo>.Enumerator iter = m_FileMd5Map.GetEnumerator();
 
+			int writeBytes = 0;
 			while (iter.MoveNext())
 			{
 				string s = string.Format("{0}=0;false\r\n", iter.Current.Value.fileContentMd5);
 				byte[] dst = System.Text.Encoding.ASCII.GetBytes(s);
 				stream.Write(dst, 0, dst.Length);
+				writeBytes += dst.Length;
+				if (writeBytes > 2048)
+				{
+					writeBytes = 0;
+					stream.Flush();
+				}
 			}
 
 			iter.Dispose();
@@ -213,6 +227,7 @@ public class ResListFile
 		{
 			Dictionary<string, ResInfo>.Enumerator iter = m_FileMd5Map.GetEnumerator();
 
+			int writeBytes = 0;
 			while (iter.MoveNext())
 			{
 				string keyValue = string.Format("{0}={1};{2}\r\n", iter.Current.Key, 
@@ -220,6 +235,12 @@ public class ResListFile
 				                                iter.Current.Value.isFirstDown.ToString());
 				byte[] dst = System.Text.Encoding.ASCII.GetBytes(keyValue);
 				stream.Write(dst, 0, dst.Length);
+				writeBytes += dst.Length;
+				if (writeBytes > 2048)
+				{
+					writeBytes = 0;
+					stream.Flush();
+				}
 			}
 
 			iter.Dispose();
