@@ -12,6 +12,9 @@
 #define USE_DEP_BINARY
 #define USE_DEP_BINARY_AB
 #define USE_ABFILE_ASYNC
+// 是否使用LoadFromFile读取压缩AB
+#define USE_LOADFROMFILECOMPRESS
+#define USE_WWWCACHE
 
 using System;
 using System.Collections;
@@ -480,7 +483,10 @@ public class AssetInfo
 		m_WWWTask = WWWFileLoadTask.LoadFileName(mFileName);
 		if (m_WWWTask != null)
 		{
-			m_WWWTask.UserData = this;
+#if USE_WWWCACHE
+            m_WWWTask.IsUsedCached = true;
+#endif
+            m_WWWTask.UserData = this;
 			taskList.AddTask(m_WWWTask, true);
 			if (taskList.UserData != null)
 			{
@@ -533,8 +539,9 @@ public class AssetInfo
 				return false;
 		} else 
 		if (mCompressType == AssetCompressType.astUnityLzo
+
 #if UNITY_5_3 || UNITY_5_4
-			|| mCompressType == AssetCompressType.astUnityZip
+            || mCompressType == AssetCompressType.astUnityZip
 #endif
 			) {
 			// Lz4 new compressType
@@ -1072,18 +1079,21 @@ public class AssetLoader: IResourceLoader
 	{
 		if (string.IsNullOrEmpty (sceneName))
 			return false;
-		#if USE_LOWERCHAR
+#if USE_LOWERCHAR
 		sceneName = sceneName.ToLower();
-		#endif
+#endif
 		sceneName += ".unity";
 		AssetInfo asset = FindAssetInfo (sceneName);
 		if (asset == null)
 			return false;
 		int addCount = 0;
 #if UNITY_5_3 || UNITY_5_4
-		if (asset.CompressType == AssetCompressType.astUnityLzo || 
-			asset.CompressType == AssetCompressType.astUnityZip || 
-			asset.CompressType == AssetCompressType.astNone
+		if (
+#if USE_LOADFROMFILECOMPRESS
+            asset.CompressType == AssetCompressType.astUnityLzo ||
+			asset.CompressType == AssetCompressType.astUnityZip ||
+#endif
+            asset.CompressType == AssetCompressType.astNone
 		   )
 		{
 				return LoadAsyncAssetInfo(asset, null, ref addCount,
@@ -1098,7 +1108,12 @@ public class AssetLoader: IResourceLoader
 				);
 		} else
 #endif
-		if (asset.CompressType == AssetCompressType.astUnityZip)
+		if (
+#if UNITY_5_3 || UNITY_5_4
+            asset.CompressType == AssetCompressType.astUnityLzo ||
+#endif
+            asset.CompressType == AssetCompressType.astUnityZip
+            )
 		{
 			return LoadWWWAsseetInfo(asset, null, ref addCount, 
 			                  delegate (bool isOk) {
@@ -1125,9 +1140,9 @@ public class AssetLoader: IResourceLoader
 	{
 		if (string.IsNullOrEmpty (sceneName))
 			return false;
-		#if USE_LOWERCHAR
+#if USE_LOWERCHAR
 		sceneName = sceneName.ToLower();
-		#endif
+#endif
 		sceneName += ".unity";
 		AssetInfo asset = FindAssetInfo (sceneName);
 		if (asset == null)
@@ -1351,9 +1366,9 @@ public class AssetLoader: IResourceLoader
 
 	public T LoadObject<T>(string fileName, ResourceCacheType cacheType) where T: UnityEngine.Object
 	{
-		#if USE_LOWERCHAR
+#if USE_LOWERCHAR
 		fileName = fileName.ToLower();
-		#endif
+#endif
 		AssetInfo asset = FindAssetInfo(fileName);
 		if (asset == null)
 			return null;
@@ -1460,9 +1475,9 @@ public class AssetLoader: IResourceLoader
 
 	public bool LoadObjectAsync<T>(string fileName, ResourceCacheType cacheType, Action<float, bool, T> onProcess) where T: UnityEngine.Object
 	{
-		#if USE_LOWERCHAR
+#if USE_LOWERCHAR
 		fileName = fileName.ToLower();
-		#endif
+#endif
 		AssetInfo asset = FindAssetInfo(fileName);
 		if (asset == null)
 			return false;
@@ -1470,26 +1485,34 @@ public class AssetLoader: IResourceLoader
 		int addCount = 0;
 		//	bool isNew = asset.IsNew();
 #if UNITY_5_3 || UNITY_5_4
-		if (asset.CompressType == AssetCompressType.astUnityLzo || 
+		if (
+#if USE_LOADFROMFILECOMPRESS
+            asset.CompressType == AssetCompressType.astUnityLzo ||
 			asset.CompressType == AssetCompressType.astUnityZip ||
-			asset.CompressType == AssetCompressType.astNone
+#endif
+            asset.CompressType == AssetCompressType.astNone
 			) {
-		#if USE_ABFILE_ASYNC
+#if USE_ABFILE_ASYNC
 			return LoadAsyncAssetInfo(asset, null, ref addCount,
 				delegate(bool isOk) {
 					if (isOk) {
 						DoLoadObjectAsync<T>(asset, fileName, cacheType, onProcess);
 					}
 				});
-		#else
+#else
 		if (!LoadAssetInfo (asset, ref addCount))
 			return false;
 		return DoLoadObjectAsync<T>(asset, fileName, cacheType, onProcess);
-		#endif
+#endif
 		}
 		else
 #endif
-		if (asset.CompressType == AssetCompressType.astUnityZip)
+		if (
+#if UNITY_5_3 || UNITY_5_4
+            asset.CompressType == AssetCompressType.astUnityLzo ||
+#endif
+            asset.CompressType == AssetCompressType.astUnityZip      
+            )
 		{
 			return LoadWWWAsseetInfo(asset, null, ref addCount,
 			                  delegate (bool isOk){
@@ -1687,7 +1710,7 @@ public class AssetLoader: IResourceLoader
 	{
 		return LoadObjectAsync<ShaderVariantCollection> (TransFileName(fileName, ".shaderVar"), cacheType, onProcess);
 	}
-#endif	
+#endif
 
 #if UNITY_5_3 || UNITY_5_4
 
@@ -1790,12 +1813,12 @@ public class AssetLoader: IResourceLoader
 				AssetInfo depend = FindAssetInfo(fileName);
 				if (depend == null)
 				{
-					#if USE_UNITY5_X_BUILD
+#if USE_UNITY5_X_BUILD
 					continue;
-					#else
+#else
 					asset.IsUsing = false;
 					return false;
-					#endif
+#endif
 				}
 				if (!LoadWWWAsseetInfo(depend, taskList, ref addCount))
 				{
@@ -1938,11 +1961,11 @@ public class AssetLoader: IResourceLoader
 
 	private string GetXmlFileName()
 	{
-		#if USE_DEP_BINARY_AB
+#if USE_DEP_BINARY_AB
 		string ret = GetCheckFileName("AssetBundles.xml", false, true);
-		#else
+#else
 		string ret = GetCheckFileName("AssetBundles.xml", true, false);
-		#endif
+#endif
 		return ret;
 		/*
 		string ret = GetCheckWritePathFileName("AssetBundles.xml", isWWW);
@@ -2198,11 +2221,16 @@ public class AssetLoader: IResourceLoader
 		for (int i = 0; i < header.abFileCount; ++i) {
 			DependBinaryFile.ABFileHeader abHeader = DependBinaryFile.LoadABFileHeader (stream);
 			AssetCompressType compressType = (AssetCompressType)abHeader.compressType;
-			bool isUseCreateFromFile = compressType == AssetCompressType.astNone || compressType == AssetCompressType.astUnityLzo
-														#if UNITY_5_3 || UNITY_5_4
+			bool isUseCreateFromFile = compressType == AssetCompressType.astNone
+#if USE_LOADFROMFILECOMPRESS
+                                                        || compressType == AssetCompressType.astUnityLzo
+
+#if UNITY_5_3 || UNITY_5_4
 														|| compressType == AssetCompressType.astUnityZip
-														#endif
-														;
+#endif
+
+#endif
+                                                        ;
 
 			string assetBundleFileName = GetCheckFileName(abHeader.abFileName, false, isUseCreateFromFile);
 
@@ -2309,10 +2337,14 @@ public class AssetLoader: IResourceLoader
 					compressType = (AssetCompressType)compressValue;
 			}
 
-			bool isUseCreateFromFile = compressType == AssetCompressType.astNone ||
-										compressType == AssetCompressType.astUnityLzo
+			bool isUseCreateFromFile = compressType == AssetCompressType.astNone
+#if USE_LOADFROMFILECOMPRESS
+                                        || compressType == AssetCompressType.astUnityLzo
+
 #if UNITY_5_3 || UNITY_5_4
                                         || compressType == AssetCompressType.astUnityZip
+#endif
+
 #endif
                                         ;
 			string assetBundleFileName = GetCheckFileName(localFileName, false, isUseCreateFromFile);
@@ -2408,23 +2440,23 @@ public class AssetLoader: IResourceLoader
 		} else
 		if (mXmlLoaderTask.IsOk) {
 
-			#if !USE_DEP_BINARY_AB
+#if !USE_DEP_BINARY_AB
 			float curTime = Time.realtimeSinceStartup;
 			float usedTime = curTime - m_LastUsedTime;
 			Debug.LogFormat("WWW加载XML：{0}", usedTime.ToString());
 			m_LastUsedTime = curTime;
-			#endif
+#endif
 
-			#if USE_DEP_BINARY
+#if USE_DEP_BINARY
 			LoadBinary(mXmlLoaderTask.ByteData);
-			#else
+#else
 			LoadXml(mXmlLoaderTask.ByteData);
-			#endif
+#endif
 
-			#if !USE_DEP_BINARY_AB
+#if !USE_DEP_BINARY_AB
 			usedTime = Time.realtimeSinceStartup - m_LastUsedTime;
 			Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());
-			#endif
+#endif
 
 			if (mConfigLoaderEvent != null)
 				mConfigLoaderEvent (true);
@@ -2456,11 +2488,11 @@ public class AssetLoader: IResourceLoader
 
 		AssetBundle bundle;
 		string fileName = GetXmlFileName();
-		#if UNITY_5_3 || UNITY_5_4
+#if UNITY_5_3 || UNITY_5_4
 		bundle = AssetBundle.LoadFromFile(fileName);
-		#else
+#else
 		bundle = AssetBundle.CreateFromFile(fileName);
-		#endif
+#endif
 		if (bundle != null)
 		{
 			float curTime = Time.realtimeSinceStartup;

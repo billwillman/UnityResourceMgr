@@ -539,6 +539,7 @@ public class WWWFileLoadTask: ITask
 		_Owner = null;
 		mByteData = null;
 		mBundle = null;
+        IsUsedCached = false;
 	}
 
 	private static WWWFileLoadTask GetNewTask()
