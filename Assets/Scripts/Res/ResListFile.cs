@@ -15,7 +15,9 @@ public class ResListFile
 	public struct ResInfo
 	{
 		public string fileContentMd5;
-		public bool isFirstDown;
+        // 文件大小
+        public long fileSize;
+        public bool isFirstDown;
 	}
 
 	public void Load(ResListFile other)
@@ -93,20 +95,26 @@ public class ResListFile
 				continue;
 			}
 
+            string[] values = value.Split(';');
+            
 			ResInfo info = new ResInfo();
-			int idx = value.IndexOf(';');
-			if (idx < 0)
+			if (values == null || values.Length <= 1)
 			{
 				info.fileContentMd5 = value;
 				info.isFirstDown = false;
 			}
 			else
 			{
-				string s = value.Substring(idx + 1).Trim();
-				if (!bool.TryParse(s, out info.isFirstDown))
+                string s = values[1];
+                if (!bool.TryParse(s, out info.isFirstDown))
 					info.isFirstDown = false;
-				info.fileContentMd5 = value.Substring(0, idx);
-			}
+                info.fileContentMd5 = values[0];
+
+                if (values.Length > 2) {
+                    if (!long.TryParse(values[2], out info.fileSize))
+                        info.fileSize = 0;
+                }
+            }
 
 
 			m_FileMd5Map.Add(key, info);
