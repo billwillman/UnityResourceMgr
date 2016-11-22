@@ -53,7 +53,7 @@ namespace AutoUpdate
 				url = string.Format("{0}/{1}", resAddr, AutoUpdateMgr._cVersionTxt);
 			else
 			{
-				float t = UnityEngine.Time.realtimeSinceStartup;
+				long t = DateTime.UtcNow.Ticks;
 				url = string.Format("{0}/{1}?time={2}", resAddr, AutoUpdateMgr._cVersionTxt, t.ToString());
 			}
 			target.CreateHttpTxt(url, OnReadEvent, OnError);

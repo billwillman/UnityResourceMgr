@@ -66,7 +66,7 @@ namespace AutoUpdate
 				url = string.Format("{0}/{1}/{2}", resAddr, ver, AutoUpdateMgr._cFileListTxt);
 			else
 			{
-				float t = UnityEngine.Time.realtimeSinceStartup;
+				long t = DateTime.UtcNow.Ticks;
 				url = string.Format("{0}/{1}/{2}?time={3}", resAddr, ver, AutoUpdateMgr._cFileListTxt, t.ToString());
 			}
 			AutoUpdateMgr.Instance.CreateHttpTxt(url, OnReadEvent, OnError);
