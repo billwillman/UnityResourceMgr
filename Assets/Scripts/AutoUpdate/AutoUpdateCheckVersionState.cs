@@ -46,7 +46,16 @@ namespace AutoUpdate
 		
 		public override  void Enter(AutoUpdateMgr target)
 		{
-			string url = string.Format("{0}/{1}", target.ResServerAddr, AutoUpdateMgr._cVersionTxt);
+			string resAddr = target.ResServerAddr;
+			bool isHttps = resAddr.IndexOf("https://", StringComparison.CurrentCultureIgnoreCase) >= 0;
+			string url;
+			if (isHttps)
+				url = string.Format("{0}/{1}", resAddr, AutoUpdateMgr._cVersionTxt);
+			else
+			{
+				float t = UnityEngine.Time.realtimeSinceStartup;
+				url = string.Format("{0}/{1}?time={2}", resAddr, AutoUpdateMgr._cVersionTxt, t.ToString());
+			}
 			target.CreateHttpTxt(url, OnReadEvent, OnError);
 		}
 

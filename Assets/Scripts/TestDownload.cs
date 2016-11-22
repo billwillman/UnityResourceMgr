@@ -25,7 +25,7 @@ public class TestDownload : MonoBehaviour {
 
     void OnBtnDownClick()
     {
-        AutoUpdateMgr.Instance.StartAutoUpdate("http://192.168.1.102:1983");
+		AutoUpdateMgr.Instance.StartAutoUpdate("http://192.168.1.102:1983/outPath");
     }
 
     void StateChanged(AutoUpdateState state)

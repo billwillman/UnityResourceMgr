@@ -58,8 +58,17 @@ namespace AutoUpdate
 		
 		void DoGetServerFileList()
 		{
+			string resAddr = AutoUpdateMgr.Instance.ResServerAddr;
+			bool isHttps = resAddr.IndexOf("https://", StringComparison.CurrentCultureIgnoreCase) >= 0;
 			string ver = AutoUpdateMgr.Instance.CurrServeResrVersion;
-			string url = string.Format("{0}/{1}/{2}", AutoUpdateMgr.Instance.ResServerAddr, ver, AutoUpdateMgr._cFileListTxt);
+			string url;
+			if (isHttps)
+				url = string.Format("{0}/{1}/{2}", resAddr, ver, AutoUpdateMgr._cFileListTxt);
+			else
+			{
+				float t = UnityEngine.Time.realtimeSinceStartup;
+				url = string.Format("{0}/{1}/{2}?time={3}", resAddr, ver, AutoUpdateMgr._cFileListTxt, t.ToString());
+			}
 			AutoUpdateMgr.Instance.CreateHttpTxt(url, OnReadEvent, OnError);
 		}
 		
