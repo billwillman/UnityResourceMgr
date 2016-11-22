@@ -299,6 +299,12 @@ public class WWWFileLoadTask: ITask
 	public WWWFileLoadTask()
 	{}
 
+    // 是否使用LoadFromCacheOrDownload
+    public bool IsUsedCached {
+        get;
+        set;
+    }
+
 	public static WWWFileLoadTask Create(string wwwFileName)
 	{
 		if (string.IsNullOrEmpty(wwwFileName))
@@ -451,7 +457,10 @@ public class WWWFileLoadTask: ITask
 	public override void Process()
 	{
 		if (mLoader == null) {
-			mLoader = new WWW (mWWWFileName);
+            if (IsUsedCached)
+                mLoader = WWW.LoadFromCacheOrDownload(mWWWFileName, 0);
+            else
+			    mLoader = new WWW (mWWWFileName);
 		}
 
 		if (mLoader == null) {
