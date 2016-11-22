@@ -1,3 +1,6 @@
+// 是否允许版本回退
+#define _CanBackVer
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -167,6 +170,7 @@ namespace AutoUpdate
 			if (!File.Exists(m_VersionName))
 				return true;
 
+			#if !_CanBackVer
 			string str = string.Empty;
 			FileStream stream = new FileStream(m_VersionName, FileMode.Open, FileAccess.Read);
 			try
@@ -207,6 +211,9 @@ namespace AutoUpdate
 			}
 
 			return true;
+			#else
+			return false;
+			#endif
 		}
 
 		private void OnVersionLoaded(ITask task)

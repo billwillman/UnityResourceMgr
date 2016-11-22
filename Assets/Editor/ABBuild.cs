@@ -2367,6 +2367,8 @@ class AssetBundleMgr
 
 		File.Copy(versionFileName, versionFileName1, true);
 		File.Copy(versionFileName, versionFileName2, true);
+
+		// 写入package信息
 	}
 
 //	private static readonly bool _cIsOnlyFileNameMd5 = true;
