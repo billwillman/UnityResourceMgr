@@ -59,7 +59,7 @@ namespace AutoUpdate
 		void DoGetServerFileList()
 		{
 			string resAddr = AutoUpdateMgr.Instance.ResServerAddr;
-			bool isHttps = resAddr.IndexOf("https://", StringComparison.CurrentCultureIgnoreCase) >= 0;
+			bool isHttps = resAddr.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase);
 			string ver = AutoUpdateMgr.Instance.CurrServeResrVersion;
 			string url;
 			if (isHttps)

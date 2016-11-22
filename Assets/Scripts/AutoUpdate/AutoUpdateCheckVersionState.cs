@@ -47,7 +47,7 @@ namespace AutoUpdate
 		public override  void Enter(AutoUpdateMgr target)
 		{
 			string resAddr = target.ResServerAddr;
-			bool isHttps = resAddr.IndexOf("https://", StringComparison.CurrentCultureIgnoreCase) >= 0;
+			bool isHttps = resAddr.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase);
 			string url;
 			if (isHttps)
 				url = string.Format("{0}/{1}", resAddr, AutoUpdateMgr._cVersionTxt);
