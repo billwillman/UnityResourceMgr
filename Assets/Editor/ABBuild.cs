@@ -13,6 +13,7 @@
 #define USE_HAS_EXT
 #define USE_DEP_BINARY
 #define USE_DEP_BINARY_AB
+//#define USE_ZIPVER
 
 using UnityEngine;
 using UnityEditor;
@@ -2507,9 +2508,11 @@ class AssetBundleMgr
 			string versionDir = AssetBundleBuild.GetCurrentPackageVersion(platform);
 			CreateBundleResUpdateFiles(streamAssetsPath, "outPath", versionDir, true);
 			BuildCSharpProjectUpdateFile(streamAssetsPath, "outPath", versionDir);
-			//BuildVersionZips("outPath", versionDir);
-		}
-	}
+#if USE_ZIPVER
+            BuildVersionZips("outPath", versionDir);
+#endif
+        }
+    }
 
 	// isCompress
 	public void BuildAssetBundles(eBuildPlatform platform, int compressType, bool isMd5 = false, string outPath = null, 
