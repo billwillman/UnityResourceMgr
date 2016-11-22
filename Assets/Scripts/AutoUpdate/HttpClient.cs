@@ -74,7 +74,12 @@ namespace NsHttpClient
 				return;
 			}
 
-			m_Rep = rep;
+			/*
+			if (rep.StatusCode == HttpStatusCode.PartialContent)
+				m_Rep = rep;
+			else*/
+				m_Rep = rep;
+			
 			m_OrgStream = rep.GetResponseStream();
 			if (m_OrgStream == null)
 			{
@@ -229,7 +234,7 @@ namespace NsHttpClient
 				HttpWebResponse rep = req.EndGetResponse(result) as HttpWebResponse;
 				if (rep == null)
 					return;
-				if (rep.StatusCode != HttpStatusCode.OK)
+				if (rep.StatusCode != HttpStatusCode.OK && rep.StatusCode != HttpStatusCode.PartialContent)
 				{
 					rep.Close();
 					if (m_Listener != null)

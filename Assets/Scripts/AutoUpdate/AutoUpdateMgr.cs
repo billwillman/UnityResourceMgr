@@ -45,7 +45,7 @@ namespace AutoUpdate
 
 			// 是否允许版本回退
 			#if _CanBackVer
-			return ret != 0;
+			return ret == 0;
 			#else
 			return ret >= 0;
 			#endif
@@ -228,6 +228,8 @@ namespace AutoUpdate
 			m_ResServerAddr = url;
 
 			DownProcess = 0;
+			TotalDownM = 0;
+			CurDownM = 0;
 			m_HttpConnectTimeOut = connectTimeOut;
 			m_HttpFileBufSize = httpFileBufSize;
 
@@ -331,6 +333,46 @@ namespace AutoUpdate
 			TasksUpdate ();
 			StateUpdate ();
 			StateMsgUpdate ();
+		}
+
+		// 需要下载的兆
+		public double TotalDownM
+		{
+			get
+			{
+				lock (m_Lock)
+				{
+					return m_TotalDownM;
+				}
+			}
+
+			internal set
+			{
+				lock (m_Lock)
+				{
+					m_TotalDownM = value;
+				}
+			}
+		}
+
+		// 已经下载的兆数
+		public double CurDownM
+		{
+			get
+			{
+				lock (m_Lock)
+				{
+					return m_CurDownM;
+				}
+			}
+
+			internal set
+			{
+				lock (m_Lock)
+				{
+					m_CurDownM = value;
+				}
+			}
 		}
 
 		void StateMsgUpdate ()
@@ -439,6 +481,23 @@ namespace AutoUpdate
 				m_UpdateFile.SaveToLastFile ();
 		}
 
+		// 需要更新的文件大小
+		internal void UpdateTotalDownloadBytes(ResListFile.ResDiffInfo[] newInfos)
+		{
+			double downBytes = 0;
+			double M = 1024 * 1024;
+			if (newInfos != null && newInfos.Length > 0)
+			{
+				for (int i = 0; i < newInfos.Length; ++i)
+				{
+					ResListFile.ResDiffInfo info = newInfos[i];
+					downBytes += ((double)info.fileSize)/M;
+				}
+			}
+				
+			TotalDownM = downBytes;
+		}
+
 		internal void UpdateToUpdateTxt (ResListFile.ResDiffInfo[] newInfos)
 		{
 			if (newInfos == null || m_UpdateFile == null)
@@ -512,6 +571,8 @@ namespace AutoUpdate
 		private ResListFile m_LocalResListFile = new ResListFile ();
 		private ResListFile m_ServerResListFile = new ResListFile ();
 		private AutoUpdateCfgFile m_UpdateFile = null;
+		private double m_TotalDownM = 0;
+		private double m_CurDownM = 0;
 		private float m_DownProcess = 0;
 		private object m_Lock = new object ();
 		// 资源服务器地址 例如：http://192.168.199.147:1983

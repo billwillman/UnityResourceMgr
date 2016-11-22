@@ -37,6 +37,15 @@ namespace AutoUpdate
 		void OnHttpRead(HttpClientResponse response, long totalRead)
 		{
 			AutoUpdateCfgItem item = m_Items[m_Curr];
+
+			long delta = totalRead - response.ReadBytes;
+			if (delta > 0)
+			{
+				double curM = AutoUpdateMgr.Instance.CurDownM;
+				curM += ((double)delta)/((double)1024 * 1024);
+				AutoUpdateMgr.Instance.CurDownM = curM;
+			}
+
 			item.readBytes = totalRead;
 			if (totalRead >= response.MaxReadBytes)
 			{
@@ -109,7 +118,15 @@ namespace AutoUpdate
 
 				item = m_Items[m_Curr];
 				if (item.isDone)
+				{
+					// 写回到下载
+					double m1 = ((double)item.readBytes)/((double)(1024 * 1024));
+					double curM1 = AutoUpdateMgr.Instance.CurDownM;
+					curM1 += m1;
+					AutoUpdateMgr.Instance.CurDownM = curM1;
+
 					++m_Curr;
+				}
 				else
 					break;
 			}
@@ -117,6 +134,12 @@ namespace AutoUpdate
 			string url = string.Format("{0}/{1}/{2}", AutoUpdateMgr.Instance.ResServerAddr, 
 			                           AutoUpdateMgr.Instance.CurrServeResrVersion,
 			                           item.fileContentMd5);
+
+			// 原来下载过直接跳过
+			double m = ((double)item.readBytes)/((double)(1024 * 1024));
+			double curM = AutoUpdateMgr.Instance.CurDownM;
+			curM += m;
+			AutoUpdateMgr.Instance.CurDownM = curM;
 
 			AutoUpdateMgr.Instance.CreateHttpFile(url, item.readBytes, OnHttpRead, OnHttpError);
 		}

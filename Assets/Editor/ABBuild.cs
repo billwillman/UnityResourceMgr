@@ -2175,7 +2175,14 @@ class AssetBundleMgr
 						if (isFirstDowns != null && i < isFirstDowns.Length)
 							isFirstDown = isFirstDowns[i]; 
 
-						if (!resFile.AddFile(f, value, isFirstDown))
+						long fileSize = 0;
+						if (File.Exists(files[i]))
+						{
+							FileInfo fileInfo = new FileInfo(files[i]);
+							fileSize = fileInfo.Length;
+						}
+
+						if (!resFile.AddFile(f, value, isFirstDown, fileSize))
 							Debug.LogErrorFormat("【BuildCSharpProjectUpdateFile】 file {0} error!", f);
 						else
 							isNews = true;
@@ -2309,6 +2316,10 @@ class AssetBundleMgr
 				newMd5FileName = resDir + '/' + newMd5FileName;
 				if (File.Exists(bundleFileName))
 				{
+					FileInfo fileInfo = new FileInfo(bundleFileName);
+					long fileSize = fileInfo.Length;
+					fileCompareStr += string.Format(";{0}", fileSize.ToString());
+
 					fileList.Add(fileCompareStr);
 					if (!File.Exists(newMd5FileName))
 					{

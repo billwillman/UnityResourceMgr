@@ -6,6 +6,10 @@ public class TestDownload : MonoBehaviour {
 
     public UIButton m_BtnDownload = null;
     public UISlider m_Progress = null;
+	public UILabel m_LbDown = null;
+
+	private double m_LastM = 0;
+	private double m_LastTotalM = 0;
 
     void InitUI()
     {
@@ -72,5 +76,16 @@ public class TestDownload : MonoBehaviour {
         float value = AutoUpdateMgr.Instance.DownProcess;
         if (m_Progress != null)
             m_Progress.value = value;
+
+		if (m_LbDown != null)
+		{
+			if (m_LastM != AutoUpdateMgr.Instance.CurDownM || m_LastTotalM != AutoUpdateMgr.Instance.TotalDownM)
+			{
+				m_LastM = AutoUpdateMgr.Instance.CurDownM;
+				m_LastTotalM = AutoUpdateMgr.Instance.TotalDownM;
+				string s = string.Format("{0}/{1} M", m_LastM.ToString(), m_LastTotalM.ToString());
+				m_LbDown.text = s;
+			}
+		}
     }
 }

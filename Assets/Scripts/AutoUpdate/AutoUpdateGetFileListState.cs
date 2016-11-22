@@ -34,6 +34,7 @@ namespace AutoUpdate
 					ResListFile.ResDiffInfo[] infos = resListFile.AllToDiffInfos();
 
 					AutoUpdateMgr.Instance.UpdateToUpdateTxt(infos);
+					AutoUpdateMgr.Instance.UpdateTotalDownloadBytes(infos);
 
 					ToNextState();
 					return;
@@ -47,6 +48,7 @@ namespace AutoUpdate
 				ResListFile.ResDiffInfo[] diffInfos = srcListFile.GetDiffInfos(dstListFile);
 
 				AutoUpdateMgr.Instance.UpdateToUpdateTxt(diffInfos);
+				AutoUpdateMgr.Instance.UpdateTotalDownloadBytes(diffInfos);
 				ToNextState();
 			}
 		}
@@ -77,17 +79,19 @@ namespace AutoUpdate
 			string ver = target.CurrServeResrVersion;
 			if (string.IsNullOrEmpty(ver))
 			{
-				AutoUpdateMgr.Instance.EndAutoUpdate();
+				target.EndAutoUpdate();
 				return;
 			}
 			
 			string writePath = target.WritePath;
 			if (string.IsNullOrEmpty(writePath))
 			{
-				AutoUpdateMgr.Instance.EndAutoUpdate();
+				target.EndAutoUpdate();
 				return;
 			}
-			
+
+			target.TotalDownM = 0;
+			target.CurDownM = 0;
 			DoGetServerFileList();
 		}
 	}
