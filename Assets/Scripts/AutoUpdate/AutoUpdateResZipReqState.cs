@@ -39,6 +39,10 @@ namespace AutoUpdate
 		private void OnHttpError(HttpClientResponse rep, int status)
 		{
 			AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_ResZipReq, status);
+			if (status == 404)
+			{
+				ToNextState();
+			}
 		}
 
 		public override  void Enter(AutoUpdateMgr target)
@@ -51,9 +55,9 @@ namespace AutoUpdate
 
 			long read = 0;
 			AutoUpdateCfgItem item;
-			string updateFileName = string.Format("{0}.zip", m_ZipFileName);
+			m_ZipFileName = string.Format("{0}.zip", m_ZipFileName);
 			bool isSaveUpdateFile = false;
-			if (updateFile.FindItem(updateFileName, out item))
+			if (updateFile.FindItem(m_ZipFileName, out item))
 			{
 				if (item.isDone)
 				{
@@ -65,14 +69,14 @@ namespace AutoUpdate
 			} else
 			{
 				item = new AutoUpdateCfgItem();
-				item.fileContentMd5 = updateFileName;
+				item.fileContentMd5 = m_ZipFileName;
 				item.isDone = false;
 				item.readBytes = 0;
 				updateFile.AddOrSet(item);
 				isSaveUpdateFile = true;
 			}
 
-			isSaveUpdateFile = isSaveUpdateFile || updateFile.RemoveDowningZipFiles(updateFileName);
+			isSaveUpdateFile = isSaveUpdateFile || updateFile.RemoveDowningZipFiles(m_ZipFileName);
 			if (isSaveUpdateFile)
 				updateFile.SaveToLastFile();
 
@@ -80,11 +84,11 @@ namespace AutoUpdate
 			bool isHttps = resAddr.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase);
 			string url;
 			if (isHttps)
-				url = string.Format("{0}/{1}.zip", resAddr, m_ZipFileName);
+				url = string.Format("{0}/{1}", resAddr, m_ZipFileName);
 			else
 			{
 				long tt = DateTime.UtcNow.Ticks;
-				url = string.Format("{0}/{1}.zip?time={2}", resAddr, m_ZipFileName, tt.ToString());
+				url = string.Format("{0}/{1}?time={2}", resAddr, m_ZipFileName, tt.ToString());
 			}
 			target.CreateHttpFile(url, read, OnHttpRead, OnHttpError); 
 		}
