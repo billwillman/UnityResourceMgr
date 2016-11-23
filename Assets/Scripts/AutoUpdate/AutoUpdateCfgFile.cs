@@ -35,6 +35,46 @@ namespace AutoUpdate
 
 			Clear();
 		}
+			
+		public bool RemoveDowningZipFiles(string noDeleteZipFile)
+		{
+			if (!noDeleteZipFile.EndsWith(".zip", StringComparison.CurrentCultureIgnoreCase))
+				noDeleteZipFile += ".zip";
+			
+			string writePath = AutoUpdateMgr.Instance.WritePath;
+			if (string.IsNullOrEmpty(writePath))
+				return false;
+
+			List<string> delKeyList = null;
+			Dictionary<string, AutoUpdateCfgItem>.Enumerator iter = m_Dict.GetEnumerator();
+			while (iter.MoveNext())
+			{
+				if (string.Compare(iter.Current.Value.fileContentMd5, noDeleteZipFile) == 0)
+					continue;
+				
+				string fileName = string.Format("{0}/{1}", writePath, iter.Current.Value.fileContentMd5);
+				if (File.Exists(fileName))
+					File.Delete(fileName);
+
+				if (delKeyList == null)
+					delKeyList = new List<string>();
+				delKeyList.Add(iter.Current.Key);
+			}
+			iter.Dispose();
+
+			bool isChg = false;
+			if (delKeyList != null && delKeyList.Count > 0)
+			{
+				isChg = true;
+				for (int i = 0; i < delKeyList.Count; ++i)
+				{
+					string key = delKeyList[i];
+					m_Dict.Remove(key);
+				}
+			}
+
+			return isChg;
+		}
 
 		public bool LoadFromFile(string fileName)
 		{

@@ -9,7 +9,7 @@ namespace AutoUpdate
 
 		private void ToNextState()
 		{
-			
+			AutoUpdateMgr.Instance.ChangeState(AutoUpdateState.auGetResListReq);
 		}
 
 		private void OnHttpRead(HttpClientResponse rep, long totalRead)
@@ -51,7 +51,9 @@ namespace AutoUpdate
 
 			long read = 0;
 			AutoUpdateCfgItem item;
-			if (updateFile.FindItem(m_ZipFileName, out item))
+			string updateFileName = string.Format("{0}.zip", m_ZipFileName);
+			bool isSaveUpdateFile = false;
+			if (updateFile.FindItem(updateFileName, out item))
 			{
 				if (item.isDone)
 				{
@@ -60,9 +62,30 @@ namespace AutoUpdate
 				}
 
 				read = item.readBytes;
+			} else
+			{
+				item = new AutoUpdateCfgItem();
+				item.fileContentMd5 = updateFileName;
+				item.isDone = false;
+				item.readBytes = 0;
+				updateFile.AddOrSet(item);
+				isSaveUpdateFile = true;
 			}
 
-			string url = string.Format("{0}/{1}.zip", target.ResServerAddr, m_ZipFileName);
+			isSaveUpdateFile = isSaveUpdateFile || updateFile.RemoveDowningZipFiles(updateFileName);
+			if (isSaveUpdateFile)
+				updateFile.SaveToLastFile();
+
+			string resAddr = target.ResServerAddr;
+			bool isHttps = resAddr.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase);
+			string url;
+			if (isHttps)
+				url = string.Format("{0}/{1}.zip", resAddr, m_ZipFileName);
+			else
+			{
+				long tt = DateTime.UtcNow.Ticks;
+				url = string.Format("{0}/{1}.zip?time={2}", resAddr, m_ZipFileName, tt.ToString());
+			}
 			target.CreateHttpFile(url, read, OnHttpRead, OnHttpError); 
 		}
 	}
