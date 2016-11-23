@@ -14,7 +14,7 @@
 #define USE_ABFILE_ASYNC
 // 是否使用LoadFromFile读取压缩AB
 #define USE_LOADFROMFILECOMPRESS
-#define USE_WWWCACHE
+//#define USE_WWWCACHE
 
 using System;
 using System.Collections;
