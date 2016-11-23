@@ -222,7 +222,6 @@ namespace AutoUpdate
 
 #if UNITY_EDITOR
 
-        private static string m_TempZipFileName = string.Empty;
         private static string[] m_ZipFiles = null;
         private static int m_ZipCompressIdx = -1;
         private static FileStream m_outStream = null;
@@ -243,7 +242,6 @@ namespace AutoUpdate
                 m_outStream = null;
             }
 
-            m_TempZipFileName = string.Empty;
             m_ZipFiles = null;
             m_ZipCompressIdx = -1;
         }
@@ -348,7 +346,6 @@ namespace AutoUpdate
 			if (string.IsNullOrEmpty (zipFileName) || files == null || files.Length <= 0)
 				return;
 
-			m_TempZipFileName = zipFileName;
 			EditorUtility.DisplayProgressBar ("压缩中...", zipFileName, 0);
 
 			m_ZipFiles = files;
