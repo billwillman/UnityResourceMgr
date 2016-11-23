@@ -38,11 +38,11 @@ namespace AutoUpdate
 
 		private void OnHttpError(HttpClientResponse rep, int status)
 		{
-			AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_ResZipReq, status);
 			if (status == 404)
 			{
 				ToNextState();
-			}
+			} else
+				AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_ResZipReq, status);
 		}
 
 		public override  void Enter(AutoUpdateMgr target)
