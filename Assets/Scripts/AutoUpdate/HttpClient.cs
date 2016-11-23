@@ -251,7 +251,7 @@ namespace NsHttpClient
 			{
 				UnityEngine.Debug.LogErrorFormat("OnResponse Exception: {0}", except.ToString());
 				if (m_Listener != null)
-					m_Listener.OnError(500); 
+					m_Listener.OnError(-1); 
 			}
 		}
 
