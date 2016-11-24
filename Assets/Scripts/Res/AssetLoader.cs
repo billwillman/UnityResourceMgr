@@ -2253,8 +2253,13 @@ public class AssetLoader: IResourceLoader
 					continue;
 				asset._AddSubFile(subFileName);
 				AddFileAssetMap(subFileName, asset);
-                if (!string.IsNullOrEmpty(subInfo.shaderName))
-                    mShaderNameMap.Add(subInfo.shaderName, subInfo.fileName);
+                if (!string.IsNullOrEmpty(subInfo.shaderName)) {
+                    if (!mShaderNameMap.ContainsKey(subInfo.shaderName))
+                        mShaderNameMap.Add(subInfo.shaderName, subInfo.fileName);
+                    else {
+                        Debug.LogWarningFormat("ShaderName: {0} has exists!!!", subInfo.shaderName);
+                    }
+                }
 			}
 
 			// 依赖
@@ -2370,8 +2375,12 @@ public class AssetLoader: IResourceLoader
 				if (string.IsNullOrEmpty(subFileName))
 					continue;
                 string shaderName = node.GetValue("@shaderName");
-                if (!string.IsNullOrEmpty(shaderName))
-                    mShaderNameMap.Add(shaderName, subFileName);
+                if (!string.IsNullOrEmpty(shaderName)) {
+                    if (!mShaderNameMap.ContainsKey(shaderName))
+                        mShaderNameMap.Add(shaderName, subFileName);
+                    else
+                        Debug.LogWarningFormat("ShaderName: {0} has exists!!!", shaderName);
+                }
                 /*
 				int hashCode;
 				string hashCodeStr = subFile.GetValue("@hashCode");
