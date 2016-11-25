@@ -139,7 +139,7 @@ public class BundleCreateAsyncTask: ITask
 	public static BundleCreateAsyncTask LoadFileAtStreamingAssetsPath(string fileName, bool usePlatform, int priority = 0)
 	{
 		fileName = WWWFileLoadTask.GetStreamingAssetsPath(usePlatform, true) + "/" + fileName;
-		BundleCreateAsyncTask ret = new BundleCreateAsyncTask(fileName, priority);
+		BundleCreateAsyncTask ret = Create(fileName, priority);
 		return ret;
 	}
 
