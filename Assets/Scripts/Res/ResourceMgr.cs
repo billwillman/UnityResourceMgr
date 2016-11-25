@@ -57,7 +57,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return true;
 	}
 
-	private bool DoLoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess, bool isLoadedActive)
+	private bool DoLoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess, bool isLoadedActive, int priority)
 	{
 		AsyncOperation opt;
 		if (isAdd) {
@@ -84,6 +84,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		}
 
 		opt.allowSceneActivation = isLoadedActive;
+		opt.priority = priority;
 		if (isLoadedActive)
 			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt, onProcess) != null;
 		else {
@@ -99,12 +100,12 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	}
 
 	// isLoadedActive: 是否加载完就激活
-	public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess, bool isLoadedActive = true)
+	public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess, bool isLoadedActive = true, int priority = 0)
 	{
 		if (mAssetLoader.OnSceneLoadAsync (sceneName, 
 		                                   delegate {
-											   DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive);
-		                                  })) {
+												DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive, priority);
+										}, priority)) {
 			LogMgr.Instance.Log (string.Format ("Loading AssetBundle Scene: {0}", sceneName));
 		} else {
 #if UNITY_EDITOR
@@ -113,8 +114,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 #endif
 			if (mResLoader.OnSceneLoadAsync(sceneName,
 			                                delegate {
-												DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive);
-											}))
+												DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive, priority);
+											}, priority))
 				LogMgr.Instance.Log(string.Format("Loading Resources Scene: {0}", sceneName));
 			else
 				return false;
@@ -349,9 +350,9 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadPrefab(fileName, cacheType);
 	}
 
-	public bool LoadPrefabAsync(string fileName, Action<float, bool, GameObject> onProcess, ResourceCacheType cacheType)
+	public bool LoadPrefabAsync(string fileName, Action<float, bool, GameObject> onProcess, ResourceCacheType cacheType, int priority = 0)
 	{
-		bool ret = mAssetLoader.LoadPrefabAsync (fileName, cacheType, onProcess);
+		bool ret = mAssetLoader.LoadPrefabAsync (fileName, cacheType, onProcess, priority);
 		if (ret)
 			return ret;
 		/*
@@ -360,10 +361,10 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadPrefabAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadPrefabAsync(fileName, cacheType, onProcess);
+		return mResLoader.LoadPrefabAsync(fileName, cacheType, onProcess, priority);
 	}
 
-	public bool CreateGameObjectAsync(string fileName, Action<float, bool, GameObject> onProcess)
+	public bool CreateGameObjectAsync(string fileName, Action<float, bool, GameObject> onProcess, int priority = 0)
 	{
 		bool ret = CreatePrefabAsync(fileName,
 		  delegate (float process, bool isDone, GameObject instObj){
@@ -381,13 +382,13 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 			if (onProcess != null)
 				onProcess(process, isDone, instObj);
-		  }
+			}, priority
 		);
 
 		return ret;
 	}
 
-	public bool CreateGameObjectAsync(string fileName, float delayDestroyTime, Action<float, bool, GameObject> onProcess)
+	public bool CreateGameObjectAsync(string fileName, float delayDestroyTime, Action<float, bool, GameObject> onProcess, int priority = 0)
 	{
 		bool ret = CreatePrefabAsync(fileName,
 		                             delegate (float process, bool isDone, GameObject instObj){
@@ -406,7 +407,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			
 			if (onProcess != null)
 				onProcess(process, isDone, instObj);
-		}
+			}, priority
 		);
 		
 		return ret;
@@ -422,7 +423,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return null;
 	}
 
-	private bool CreatePrefabAsync(string fileName, Action<float, bool, GameObject> onProcess)
+	private bool CreatePrefabAsync(string fileName, Action<float, bool, GameObject> onProcess, int priority)
 	{
 		bool ret = LoadPrefabAsync (fileName,
 		                           delegate (float t, bool isDone, GameObject orgObj) {
@@ -441,7 +442,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 			if (onProcess != null)
 				onProcess(t, isDone, null);
-		}, ResourceCacheType.rctRefAdd
+			}, ResourceCacheType.rctRefAdd, priority
 		);
 
 		return ret;
@@ -464,9 +465,9 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	}
 
 	// if use addRefCount you must call UnLoadOrgObject
-	public bool LoadTextureAsync(string fileName, Action<float, bool, Texture> onProcess, ResourceCacheType cacheType)
+	public bool LoadTextureAsync(string fileName, Action<float, bool, Texture> onProcess, ResourceCacheType cacheType, int priority = 0)
 	{
-		bool ret = mAssetLoader.LoadTextureAsync (fileName, cacheType, onProcess);
+		bool ret = mAssetLoader.LoadTextureAsync (fileName, cacheType, onProcess, priority);
 		if (ret)
 			return ret;
 		/*
@@ -475,7 +476,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadTextureAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadTextureAsync (fileName, cacheType, onProcess);
+		return mResLoader.LoadTextureAsync (fileName, cacheType, onProcess, priority);
 	}
 
 	// if use addRefCount you must call UnLoadOrgObject
@@ -494,9 +495,9 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	}
 
 	// if use addRefCount you must call UnLoadOrgObject
-	public bool LoadMaterialAsync(string fileName, Action<float, bool, Material> onProcess, ResourceCacheType cacheType)
+	public bool LoadMaterialAsync(string fileName, Action<float, bool, Material> onProcess, ResourceCacheType cacheType, int priority = 0)
 	{
-		bool ret = mAssetLoader.LoadMaterialAsync (fileName, cacheType, onProcess);
+		bool ret = mAssetLoader.LoadMaterialAsync (fileName, cacheType, onProcess, priority);
 		if (ret)
 			return ret;
 		/*
@@ -505,7 +506,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadMaterialAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadMaterialAsync (fileName, cacheType, onProcess);
+		return mResLoader.LoadMaterialAsync (fileName, cacheType, onProcess, priority);
 	}
 
     // if use ResourceCacheType.rctTempAdd you must call UnLoadOrgObject
@@ -541,9 +542,9 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadAudioClip (fileName, cacheType);
 	}
 
-	public bool LoadAudioClipAsync(string fileName, Action<float, bool, AudioClip> onProcess, ResourceCacheType cacheType)
+	public bool LoadAudioClipAsync(string fileName, Action<float, bool, AudioClip> onProcess, ResourceCacheType cacheType, int priority = 0)
 	{
-		bool ret = mAssetLoader.LoadAudioClipAsync (fileName, cacheType, onProcess);
+		bool ret = mAssetLoader.LoadAudioClipAsync (fileName, cacheType, onProcess, priority);
 		if (ret)
 			return ret;
 		/*
@@ -552,7 +553,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadAudioClipAsync (fileName, cacheType, onProcess);*/
-		return mResLoader.LoadAudioClipAsync (fileName, cacheType, onProcess);
+		return mResLoader.LoadAudioClipAsync (fileName, cacheType, onProcess, priority);
 	}
 
 	public byte[] LoadBytes(string fileName, ResourceCacheType cacheType = ResourceCacheType.rctNone)
@@ -578,9 +579,9 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadText (fileName, cacheType);
 	}
 
-	public bool LoadTextAsync(string fileName, Action<float, bool, TextAsset> onProcess, ResourceCacheType cacheType = ResourceCacheType.rctNone)
+	public bool LoadTextAsync(string fileName, Action<float, bool, TextAsset> onProcess, ResourceCacheType cacheType = ResourceCacheType.rctNone, int priority = 0)
 	{
-		bool ret = mAssetLoader.LoadTextAsync (fileName, cacheType, onProcess);
+		bool ret = mAssetLoader.LoadTextAsync (fileName, cacheType, onProcess, priority);
 		if (ret)
 			return ret;
 		/*
@@ -589,7 +590,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadTextAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadTextAsync (fileName, cacheType, onProcess);
+		return mResLoader.LoadTextAsync (fileName, cacheType, onProcess, priority);
 	}
 
 	public AnimationClip LoadAnimationClip(string fileName, ResourceCacheType cacheType)
@@ -606,9 +607,9 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadAnimationClip (fileName, cacheType);
 	}
 
-	public bool LoadAnimationClipAsync(string fileName, Action<float, bool, AnimationClip> onProcess, ResourceCacheType cacheType)
+	public bool LoadAnimationClipAsync(string fileName, Action<float, bool, AnimationClip> onProcess, ResourceCacheType cacheType, int priority = 0)
 	{
-		bool ret = mAssetLoader.LoadAnimationClipAsync (fileName, cacheType, onProcess);
+		bool ret = mAssetLoader.LoadAnimationClipAsync (fileName, cacheType, onProcess, priority);
 		if (ret)
 			return ret;
 		/*
@@ -617,7 +618,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadAnimationClipAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadAnimationClipAsync(fileName, cacheType, onProcess);
+		return mResLoader.LoadAnimationClipAsync(fileName, cacheType, onProcess, priority);
 	}
 
 	public RuntimeAnimatorController LoadAniController(string fileName, ResourceCacheType cacheType)
@@ -634,9 +635,9 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadAniController (fileName, cacheType);
 	}
 
-	public bool LoadAniControllerAsync(string fileName, Action<float, bool, RuntimeAnimatorController> onProcess, ResourceCacheType cacheType)
+	public bool LoadAniControllerAsync(string fileName, Action<float, bool, RuntimeAnimatorController> onProcess, ResourceCacheType cacheType, int priority = 0)
 	{
-		bool ret = mAssetLoader.LoadAniControllerAsync (fileName, cacheType, onProcess);
+		bool ret = mAssetLoader.LoadAniControllerAsync (fileName, cacheType, onProcess, priority);
 		if (ret)
 			return ret;
 		/*
@@ -645,7 +646,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadAniControllerAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadAniControllerAsync (fileName, cacheType, onProcess);
+		return mResLoader.LoadAniControllerAsync (fileName, cacheType, onProcess, priority);
 	}
 
 	public Shader LoadShader(string fileName, ResourceCacheType cacheType)
@@ -656,12 +657,12 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadShader(fileName, cacheType);
 	}
 
-	public bool LoadShaderAsync(string fileName, Action<float, bool, Shader> onProcess, ResourceCacheType cacheType)
+	public bool LoadShaderAsync(string fileName, Action<float, bool, Shader> onProcess, ResourceCacheType cacheType, int priority = 0)
 	{
-		bool ret = mAssetLoader.LoadShaderAsync(fileName, cacheType, onProcess);
+		bool ret = mAssetLoader.LoadShaderAsync(fileName, cacheType, onProcess, priority);
 		if (ret)
 			return ret;
-		return mResLoader.LoadShaderAsync(fileName, cacheType, onProcess);
+		return mResLoader.LoadShaderAsync(fileName, cacheType, onProcess, priority);
 	}
 
 	public Font LoadFont(string fileName, ResourceCacheType cacheType)
@@ -672,15 +673,15 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadFont (fileName, cacheType);
 	}
 
-	public bool LoadFontAsync(string fileName, Action<float, bool, Font> onProcess, ResourceCacheType cacheType)
+	public bool LoadFontAsync(string fileName, Action<float, bool, Font> onProcess, ResourceCacheType cacheType, int priority = 0)
 	{
-		bool ret = mAssetLoader.LoadFontAsync (fileName, cacheType, onProcess);
+		bool ret = mAssetLoader.LoadFontAsync (fileName, cacheType, onProcess, priority);
 		if (ret)
 			return ret;
-		return mResLoader.LoadFontAsync (fileName, cacheType, onProcess);
+		return mResLoader.LoadFontAsync (fileName, cacheType, onProcess, priority);
 	}
 
-	public bool PreLoadAndBuildAssetBundleShaders(string abFileName, Action onEnd = null)
+	public bool PreLoadAndBuildAssetBundleShaders(string abFileName, Action onEnd = null, int priority = 0)
 	{
 
 		System.Type type = typeof(Shader);
@@ -691,7 +692,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
                 Shader.WarmupAllShaders();
                 if (onEnd != null)
                     onEnd();
-            }
+			}, priority
             ))
 			return false;
 
@@ -699,7 +700,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return true;
 	}
 
-	public bool PreLoadAssetBundle(string abFileName, System.Type type, Action onEnd = null)
+	public bool PreLoadAssetBundle(string abFileName, System.Type type, Action onEnd = null, int priority = 0)
 	{
 		if (mAssetLoader == null || type == null)
 			return false;
@@ -708,7 +709,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if (loader == null)
 			return false;
 
-		if (!loader.PreloadAllType(abFileName, type, onEnd))
+		if (!loader.PreloadAllType(abFileName, type, onEnd, priority))
 			return false;
 
 		return true;
@@ -738,11 +739,11 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadSprites(fileName);
 	}
 
-	public bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess) {
-		bool ret = mAssetLoader.LoadSpritesAsync(fileName, onProcess);
+	public bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess, int priority = 0) {
+		bool ret = mAssetLoader.LoadSpritesAsync(fileName, onProcess, priority);
 		if (ret)
 			return ret;
-		return mResLoader.LoadSpritesAsync(fileName, onProcess);
+		return mResLoader.LoadSpritesAsync(fileName, onProcess, priority);
 	}
 		
 	public ScriptableObject LoadScriptableObject(string fileName, ResourceCacheType cacheType)
@@ -753,12 +754,12 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return mResLoader.LoadScriptableObject (fileName, cacheType);
 	}
 
-	public bool LoadScriptableObjectAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, ScriptableObject> onProcess)
+	public bool LoadScriptableObjectAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, ScriptableObject> onProcess, int priority = 0)
 	{
-		bool ret = mAssetLoader.LoadScriptableObjectAsync (fileName, cacheType, onProcess);
+		bool ret = mAssetLoader.LoadScriptableObjectAsync (fileName, cacheType, onProcess, priority);
 		if (ret)
 			return ret;
-		return mResLoader.LoadScriptableObjectAsync (fileName, cacheType, onProcess);
+		return mResLoader.LoadScriptableObjectAsync (fileName, cacheType, onProcess, priority);
 	}
 
 #if UNITY_5
@@ -772,12 +773,12 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	}
 
 	public bool LoadShaderVarCollectionAsync(string fileName, Action<float, bool, ShaderVariantCollection> onProcess, 
-	                                         ResourceCacheType cacheType)
+		ResourceCacheType cacheType, int priority = 0)
 	{
-		bool ret = mAssetLoader.LoadShaderVarCollectionAsync(fileName, cacheType, onProcess);
+		bool ret = mAssetLoader.LoadShaderVarCollectionAsync(fileName, cacheType, onProcess, priority);
 		if (ret)
 			return ret;
-		return mResLoader.LoadShaderVarCollectionAsync(fileName, cacheType, onProcess);
+		return mResLoader.LoadShaderVarCollectionAsync(fileName, cacheType, onProcess, priority);
 	}
 
 #endif

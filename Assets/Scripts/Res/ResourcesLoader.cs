@@ -350,7 +350,7 @@ public class ResourcesLoader: IResourceLoader
 		return ret;
 	}
 
-	public bool LoadObjectAsync<T>(string fileName, ResourceCacheType cacheType, Action<float, bool, T> onProcess) where T: UnityEngine.Object
+	public bool LoadObjectAsync<T>(string fileName, ResourceCacheType cacheType, int priority, Action<float, bool, T> onProcess) where T: UnityEngine.Object
 	{
 		if (string.IsNullOrEmpty (fileName))
 			return false;
@@ -397,6 +397,8 @@ public class ResourcesLoader: IResourceLoader
 			return true;
 		}
 
+		request.priority = priority;
+
 		var ret = AsyncOperationMgr.Instance.AddAsyncOperation<ResourceRequest, System.Object> (request,
 		                                              delegate (ResourceRequest req) {
 			if (req.isDone)
@@ -433,9 +435,9 @@ public class ResourcesLoader: IResourceLoader
 		return LoadObject<Shader>(fileName, cacheType);
 	}
 
-	public override bool LoadShaderAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Shader> onProcess)
+	public override bool LoadShaderAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Shader> onProcess, int priority = 0)
 	{
-		return LoadObjectAsync<Shader> (fileName, cacheType, onProcess);
+		return LoadObjectAsync<Shader> (fileName, cacheType, priority, onProcess);
 	}
 
 	public override GameObject LoadPrefab(string fileName, ResourceCacheType cacheType)
@@ -443,9 +445,9 @@ public class ResourcesLoader: IResourceLoader
 		return LoadObject<GameObject> (fileName, cacheType);
 	}
 
-	public override bool LoadPrefabAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, GameObject> onProcess)
+	public override bool LoadPrefabAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, GameObject> onProcess, int priority = 0)
 	{
-		return LoadObjectAsync<GameObject> (fileName, cacheType, onProcess);
+		return LoadObjectAsync<GameObject> (fileName, cacheType, priority, onProcess);
 	}
 
 	public override AudioClip LoadAudioClip(string fileName, ResourceCacheType cache)
@@ -453,9 +455,9 @@ public class ResourcesLoader: IResourceLoader
 		return LoadObject<AudioClip> (fileName, cache);
 	}
 
-	public override bool LoadAudioClipAsync(string fileName, ResourceCacheType cache, Action<float, bool, AudioClip> onProcess)
+	public override bool LoadAudioClipAsync(string fileName, ResourceCacheType cache, Action<float, bool, AudioClip> onProcess, int priority = 0)
 	{
-		return LoadObjectAsync<AudioClip> (fileName, cache, onProcess);
+		return LoadObjectAsync<AudioClip> (fileName, cache, priority, onProcess);
 	}
 
 	public override string LoadText(string fileName, ResourceCacheType cache)
@@ -474,9 +476,9 @@ public class ResourcesLoader: IResourceLoader
 		return text.bytes;
 	}
 
-	public override bool LoadTextAsync (string fileName, ResourceCacheType cache, Action<float, bool, TextAsset> onProcess)
+	public override bool LoadTextAsync (string fileName, ResourceCacheType cache, Action<float, bool, TextAsset> onProcess, int priority = 0)
 	{
-		return LoadObjectAsync<TextAsset> (fileName, cache, onProcess);
+		return LoadObjectAsync<TextAsset> (fileName, cache, priority, onProcess);
 	}
 
 	// not used addToCache
@@ -486,9 +488,9 @@ public class ResourcesLoader: IResourceLoader
 	}
 
 	// not used addToCache
-	public override bool LoadMaterialAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Material> onProcess)
+	public override bool LoadMaterialAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Material> onProcess, int priority = 0)
 	{
-		return LoadObjectAsync<Material> (fileName, cacheType, onProcess);
+		return LoadObjectAsync<Material> (fileName, cacheType, priority, onProcess);
 	}
 
 	// not used addToCache
@@ -498,9 +500,9 @@ public class ResourcesLoader: IResourceLoader
 	}
 
 	// not used addToCache
-	public override bool LoadTextureAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Texture> onProcess)
+	public override bool LoadTextureAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, Texture> onProcess, int priority = 0)
 	{
-		return LoadObjectAsync<Texture> (fileName, cacheType, onProcess);
+		return LoadObjectAsync<Texture> (fileName, cacheType, priority, onProcess);
 	}
 
 	public override Font LoadFont (string fileName, ResourceCacheType cacheType)
@@ -508,9 +510,9 @@ public class ResourcesLoader: IResourceLoader
 		return LoadObject<Font> (fileName, cacheType);
 	}
 
-	public override bool LoadFontAsync (string fileName, ResourceCacheType cacheType, Action<float, bool, Font> onProcess)
+	public override bool LoadFontAsync (string fileName, ResourceCacheType cacheType, Action<float, bool, Font> onProcess, int priority = 0)
 	{
-		return LoadObjectAsync<Font> (fileName, cacheType, onProcess);
+		return LoadObjectAsync<Font> (fileName, cacheType, priority, onProcess);
 	}
 
 	public override RuntimeAnimatorController LoadAniController(string fileName, ResourceCacheType cacheType)
@@ -518,9 +520,9 @@ public class ResourcesLoader: IResourceLoader
 		return LoadObject<RuntimeAnimatorController> (fileName, cacheType);
 	}
 
-	public override bool LoadAniControllerAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, RuntimeAnimatorController> onProcess)
+	public override bool LoadAniControllerAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, RuntimeAnimatorController> onProcess, int priority = 0)
 	{
-		return LoadObjectAsync<RuntimeAnimatorController> (fileName, cacheType, onProcess);
+		return LoadObjectAsync<RuntimeAnimatorController> (fileName, cacheType, priority, onProcess);
 	}
 
 	public override AnimationClip LoadAnimationClip(string fileName, ResourceCacheType cacheType)
@@ -528,9 +530,9 @@ public class ResourcesLoader: IResourceLoader
 		return LoadObject<AnimationClip> (fileName, cacheType);
 	}
 
-	public override bool LoadAnimationClipAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, AnimationClip> onProcess)
+	public override bool LoadAnimationClipAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, AnimationClip> onProcess, int priority = 0)
 	{
-		return LoadObjectAsync<AnimationClip> (fileName, cacheType, onProcess);
+		return LoadObjectAsync<AnimationClip> (fileName, cacheType, priority, onProcess);
 	}
 
 	public override ScriptableObject LoadScriptableObject (string fileName, ResourceCacheType cacheType)
@@ -538,9 +540,9 @@ public class ResourcesLoader: IResourceLoader
 		return LoadObject<ScriptableObject> (fileName, cacheType);
 	}
 
-	public override bool LoadScriptableObjectAsync (string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.ScriptableObject> onProcess)
+	public override bool LoadScriptableObjectAsync (string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.ScriptableObject> onProcess, int priority = 0)
 	{
-		return LoadObjectAsync<ScriptableObject> (fileName, cacheType, onProcess);
+		return LoadObjectAsync<ScriptableObject> (fileName, cacheType, priority, onProcess);
 	}
 
 		public override Sprite[] LoadSprites(string fileName) {
@@ -571,8 +573,8 @@ public class ResourcesLoader: IResourceLoader
 			return ret;
 		}
 
-		public override bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess) {
-			return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctRefAdd,
+	public override bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess, int priority = 0) {
+		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctRefAdd, priority,
 				delegate(float process, bool isDone, Texture obj) {
 					if (isDone) {
 						if (obj == null) {
@@ -603,7 +605,7 @@ public class ResourcesLoader: IResourceLoader
                             if (onProcess != null)
                                 onProcess(process, isDone, null);
                             return;
-                        }
+						}
                         Sprite[] ret = Resources.LoadAll<Sprite>(fileName);
 
                         if (ret == null || ret.Length <= 0) {
@@ -634,9 +636,9 @@ public class ResourcesLoader: IResourceLoader
 	}
 	
 	public override bool LoadShaderVarCollectionAsync(string fileName, ResourceCacheType cacheType, 
-	                                                  Action<float, bool, ShaderVariantCollection> onProcess)
+		Action<float, bool, ShaderVariantCollection> onProcess, int priority = 0)
 	{
-		return LoadObjectAsync<ShaderVariantCollection> (fileName, cacheType, onProcess);
+		return LoadObjectAsync<ShaderVariantCollection> (fileName, cacheType, priority, onProcess);
 	}
 #endif	
 
@@ -647,7 +649,7 @@ public class ResourcesLoader: IResourceLoader
 		return true;
 	}
 
-	public override bool OnSceneLoadAsync(string sceneName, Action onEnd)
+	public override bool OnSceneLoadAsync(string sceneName, Action onEnd, int priority = 0)
 	{
 		if (onEnd != null)
 			onEnd();

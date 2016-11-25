@@ -106,7 +106,7 @@ public abstract class ITask
 // LoadFromFileAsync
 public class BundleCreateAsyncTask: ITask
 {
-	public BundleCreateAsyncTask(string createFileName)
+	public BundleCreateAsyncTask(string createFileName, int priority = 0)
 	{
 		if (string.IsNullOrEmpty(createFileName))
 		{
@@ -115,6 +115,7 @@ public class BundleCreateAsyncTask: ITask
 		}
 
 		m_FileName = createFileName;
+		m_Priority = priority;
 	}
 
 	public BundleCreateAsyncTask()
@@ -125,19 +126,20 @@ public class BundleCreateAsyncTask: ITask
 		return m_Pool.Count;
 	}
 
-	public static BundleCreateAsyncTask Create(string createFileName)
+	public static BundleCreateAsyncTask Create(string createFileName, int priority = 0)
 	{
 		if (string.IsNullOrEmpty(createFileName))
 			return null;
 		BundleCreateAsyncTask ret = GetNewTask();
 		ret.m_FileName = createFileName;
+		ret.m_Priority = priority;
 		return ret;
 	}
 
-	public static BundleCreateAsyncTask LoadFileAtStreamingAssetsPath(string fileName, bool usePlatform)
+	public static BundleCreateAsyncTask LoadFileAtStreamingAssetsPath(string fileName, bool usePlatform, int priority = 0)
 	{
 		fileName = WWWFileLoadTask.GetStreamingAssetsPath(usePlatform, true) + "/" + fileName;
-		BundleCreateAsyncTask ret = new BundleCreateAsyncTask(fileName);
+		BundleCreateAsyncTask ret = new BundleCreateAsyncTask(fileName, priority);
 		return ret;
 	}
 
@@ -146,6 +148,8 @@ public class BundleCreateAsyncTask: ITask
 		if (m_Req == null)
 		{
 			m_Req = AssetBundle.LoadFromFileAsync(m_FileName);
+			if (m_Req != null)
+				m_Req.priority = m_Priority;
 		}
 	}
 
@@ -248,6 +252,7 @@ public class BundleCreateAsyncTask: ITask
 		m_Bundle = null;
 		m_Progress = 0;
 		m_FileName = string.Empty;
+		m_Priority = 0;
 		mResult = 0;
 		UserData = null;
 		_Owner = null;
@@ -269,6 +274,7 @@ public class BundleCreateAsyncTask: ITask
 	}
 
 	private string m_FileName = string.Empty;
+	private int m_Priority = 0;
 	private AssetBundleCreateRequest m_Req = null;
 	private float m_Progress = 0;
 	private AssetBundle m_Bundle = null;
@@ -286,7 +292,7 @@ public class BundleCreateAsyncTask: ITask
 public class WWWFileLoadTask: ITask
 {
 	// 注意：必须是WWW支持的文件名 PC上需要加 file:///
-	public WWWFileLoadTask(string wwwFileName)
+	public WWWFileLoadTask(string wwwFileName, ThreadPriority priority = ThreadPriority.BelowNormal)
 	{
 		if (string.IsNullOrEmpty(wwwFileName)) {
 			TaskFail();
@@ -294,6 +300,7 @@ public class WWWFileLoadTask: ITask
 		}
 
 		mWWWFileName = wwwFileName;
+		mPriority = priority;
 	}
 
 	public WWWFileLoadTask()
@@ -305,29 +312,30 @@ public class WWWFileLoadTask: ITask
         set;
     }
 
-	public static WWWFileLoadTask Create(string wwwFileName)
+	public static WWWFileLoadTask Create(string wwwFileName, ThreadPriority priority = ThreadPriority.BelowNormal)
 	{
 		if (string.IsNullOrEmpty(wwwFileName))
 			return null;
 		WWWFileLoadTask ret = GetNewTask();
 		ret.mWWWFileName = wwwFileName;
+		ret.mPriority = priority;
 		return ret;
 	}
 
 	
 	// 传入为普通文件名(推荐使用这个函数)
-	public static WWWFileLoadTask LoadFileName(string fileName)
+	public static WWWFileLoadTask LoadFileName(string fileName, ThreadPriority priority = ThreadPriority.BelowNormal)
 	{
 		string wwwFileName = ConvertToWWWFileName(fileName);
-		WWWFileLoadTask ret = Create(wwwFileName);
+		WWWFileLoadTask ret = Create(wwwFileName, priority);
 		return ret;
 	}
 	
 	// 读取StreamingAssets目录下的文件，只需要相对于StreamingAssets的路径即可(推荐使用这个函数)
-	public static WWWFileLoadTask LoadFileAtStreamingAssetsPath(string fileName, bool usePlatform)
+	public static WWWFileLoadTask LoadFileAtStreamingAssetsPath(string fileName, bool usePlatform,  ThreadPriority priority = ThreadPriority.BelowNormal)
 	{
 		fileName = GetStreamingAssetsPath(usePlatform) + "/" + fileName;
-		WWWFileLoadTask ret = LoadFileName(fileName);
+		WWWFileLoadTask ret = LoadFileName(fileName, priority);
 		return ret;
 	}
 
@@ -461,6 +469,8 @@ public class WWWFileLoadTask: ITask
                 mLoader = WWW.LoadFromCacheOrDownload(mWWWFileName, 0);
             else
 			    mLoader = new WWW (mWWWFileName);
+
+			mLoader.threadPriority = mPriority;
 		}
 
 		if (mLoader == null) {
@@ -534,6 +544,7 @@ public class WWWFileLoadTask: ITask
 		OnProcess = null;
 		mProgress = 0;
 		mWWWFileName = string.Empty;
+		mPriority = ThreadPriority.Normal;
 		mResult = 0;
 		UserData = null;
 		_Owner = null;
@@ -584,6 +595,7 @@ public class WWWFileLoadTask: ITask
 	private byte[] mByteData = null;
 	private AssetBundle mBundle = null;
 	private string mWWWFileName = string.Empty;
+	private ThreadPriority mPriority = ThreadPriority.Normal;
 	private float mProgress = 0;
 
 
