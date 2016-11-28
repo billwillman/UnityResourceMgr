@@ -431,17 +431,33 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 
 	public bool CacheAddRefCount(AssetCache cache, int refCount = 1, bool isUseTime = true)
 	{
-		if (cache == null)
-			return false;
-		if (mCacheSet.Contains (cache)) {
-			cache._AddRefCount(refCount);
-			if (isUseTime)
-				cache.LastUsedTime = GetCurrentTime();
-			return true;
-		} 
+        if (cache == null)
+            return false;
 
-		return false;
-	}
+        // 判断一下Temp, 如果有，直接删除掉
+        bool hasInTemp = mTempDict.Contains(cache);
+        if (hasInTemp) {
+            RemoveTempAsset(cache);
+        }
+
+        if (mCacheSet.Contains(cache)) {
+            cache._AddRefCount(refCount);
+            if (isUseTime)
+                cache.LastUsedTime = GetCurrentTime();
+            return true;
+        }
+        else if (hasInTemp) {
+            // 在Temp队列里
+            cache._AddRefCount(refCount);
+            cache.LastUsedTime = GetCurrentTime();
+            mCacheSet.Add(cache);
+            LinkedListNode<AssetCache> node = cache.LinkListNode;
+            mUsedCacheList.AddLast(node);
+            return true;
+        }
+
+        return false;
+    }
 
 	// instObj 为实例化的对象
 	public void _OnDestroyGameObject(int instObjId)
