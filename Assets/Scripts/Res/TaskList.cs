@@ -292,7 +292,7 @@ public class BundleCreateAsyncTask: ITask
 public class WWWFileLoadTask: ITask
 {
 	// 注意：必须是WWW支持的文件名 PC上需要加 file:///
-	public WWWFileLoadTask(string wwwFileName, ThreadPriority priority = ThreadPriority.BelowNormal)
+	public WWWFileLoadTask(string wwwFileName, ThreadPriority priority = ThreadPriority.Normal)
 	{
 		if (string.IsNullOrEmpty(wwwFileName)) {
 			TaskFail();
@@ -312,7 +312,7 @@ public class WWWFileLoadTask: ITask
         set;
     }
 
-	public static WWWFileLoadTask Create(string wwwFileName, ThreadPriority priority = ThreadPriority.BelowNormal)
+	public static WWWFileLoadTask Create(string wwwFileName, ThreadPriority priority = ThreadPriority.Normal)
 	{
 		if (string.IsNullOrEmpty(wwwFileName))
 			return null;
@@ -324,7 +324,7 @@ public class WWWFileLoadTask: ITask
 
 	
 	// 传入为普通文件名(推荐使用这个函数)
-	public static WWWFileLoadTask LoadFileName(string fileName, ThreadPriority priority = ThreadPriority.BelowNormal)
+	public static WWWFileLoadTask LoadFileName(string fileName, ThreadPriority priority = ThreadPriority.Normal)
 	{
 		string wwwFileName = ConvertToWWWFileName(fileName);
 		WWWFileLoadTask ret = Create(wwwFileName, priority);
@@ -332,7 +332,7 @@ public class WWWFileLoadTask: ITask
 	}
 	
 	// 读取StreamingAssets目录下的文件，只需要相对于StreamingAssets的路径即可(推荐使用这个函数)
-	public static WWWFileLoadTask LoadFileAtStreamingAssetsPath(string fileName, bool usePlatform,  ThreadPriority priority = ThreadPriority.BelowNormal)
+	public static WWWFileLoadTask LoadFileAtStreamingAssetsPath(string fileName, bool usePlatform,  ThreadPriority priority = ThreadPriority.Normal)
 	{
 		fileName = GetStreamingAssetsPath(usePlatform) + "/" + fileName;
 		WWWFileLoadTask ret = LoadFileName(fileName, priority);
