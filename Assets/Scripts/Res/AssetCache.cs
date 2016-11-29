@@ -351,6 +351,9 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 			return;
 		}
 
+		// 从Temp列表清除
+		RemoveTempAsset(cache);
+
 		// 设置一次时间(防止短时间删除删除)
 		cache.LastUsedTime = GetCurrentTime();
 		cache.AddObj (orgObj.GetInstanceID ());
