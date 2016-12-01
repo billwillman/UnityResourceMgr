@@ -20,15 +20,13 @@ namespace Utils
             if (m_objStack.Count > 0)
             {
                 T t = m_objStack.Pop();
+                if (m_resetAction != null)
+                {
+                    m_resetAction(t);
+                }
                 return t;
             }
-            T ret = (m_createFunc != null) ? m_createFunc() : new T();
-            if (ret != null) {
-                if (m_resetAction != null)
-                    m_resetAction (ret);
-            }
-
-            return ret;
+            return (m_createFunc != null) ? m_createFunc() : new T();
         }
 
         public void Init(int poolSize, CreateFunc createFunc = null, Action<T> resetAction = null)
@@ -39,11 +37,7 @@ namespace Utils
             for (int i = 0; i < poolSize; i++)
             {
                 T item = (m_createFunc != null) ? m_createFunc() : new T();
-                if (item != null) {
-                    if (m_resetAction != null)
-                        m_resetAction (item);
-                    m_objStack.Push (item);
-                }
+                m_objStack.Push(item);
             }
         }
 
