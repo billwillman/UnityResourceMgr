@@ -52,6 +52,8 @@ namespace AutoUpdate
 			{
 				item.isDone = true;
 			}
+
+			m_Items[m_Curr] = item;
 			AutoUpdateMgr.Instance.DownloadUpdateToUpdateTxt(item);
 
 			float currProcess = 0;
