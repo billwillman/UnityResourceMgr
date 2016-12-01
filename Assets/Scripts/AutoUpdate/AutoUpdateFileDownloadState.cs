@@ -44,9 +44,10 @@ namespace AutoUpdate
 				double curM = AutoUpdateMgr.Instance.CurDownM;
 				curM += ((double)delta)/((double)1024 * 1024);
 				AutoUpdateMgr.Instance.CurDownM = curM;
+				item.readBytes += delta;
 			}
 
-			item.readBytes = totalRead;
+			//item.readBytes = totalRead;
 			if (totalRead >= response.MaxReadBytes)
 			{
 				item.isDone = true;
