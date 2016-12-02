@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using Utils;
 
 namespace AutoUpdate
 {
@@ -11,6 +12,31 @@ namespace AutoUpdate
 		public string fileContentMd5;
 		public long readBytes;
 		public bool isDone;
+
+		public static AutoUpdateCfgItem LoadBinary(Stream stream)
+		{
+			AutoUpdateCfgItem ret = new AutoUpdateCfgItem();
+			ret.fileContentMd5 = FilePathMgr.Instance.ReadString(stream);
+			ret.readBytes = FilePathMgr.Instance.ReadLong(stream);
+			ret.isDone = FilePathMgr.Instance.ReadBool(stream);
+			return ret;
+		}
+
+		public bool SaveBinary(Stream stream)
+		{
+			if (stream == null)
+				return false;
+			bool ret = FilePathMgr.Instance.WriteString(stream, fileContentMd5);
+			if (!ret)
+				return ret;
+			ret = FilePathMgr.Instance.WriteLong(stream, readBytes);
+			if (!ret)
+				return ret;
+			ret =FilePathMgr.Instance.WriteBool(stream, isDone);
+			if (!ret)
+				return ret;
+			return ret;
+		}
 	}
 
 	// update.txt
@@ -136,6 +162,17 @@ namespace AutoUpdate
 		public Dictionary<string, AutoUpdateCfgItem>.Enumerator GetIter()
 		{
 			return m_Dict.GetEnumerator();
+		}
+
+		public void LoadBinary(Stream stream)
+		{
+			if (stream == null)
+				return;
+			int cnt = FilePathMgr.Instance.ReadInt(stream);
+			for (int i = 0; i < cnt; ++i)
+			{
+				
+			}
 		}
 
 		public void Load(string str)

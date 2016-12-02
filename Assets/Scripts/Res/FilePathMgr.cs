@@ -20,6 +20,22 @@ namespace Utils
 			}
 		}
 
+		public bool WriteLong(Stream stream, long value)
+		{
+			if (stream == null)
+				return false;
+
+			int high = (int)((ulong)value & 0xFFFFFFFF00000000) >> 32;
+			int low = (int)((ulong)value & 0xFFFFFFFF);
+			bool ret = WriteInt(stream, low);
+			if (!ret)
+				return ret;
+			ret = WriteInt(stream, high);
+			if (!ret)
+				return ret;
+			return ret;
+		}
+
 		public bool WriteInt(Stream stream, int value)
 		{
 			if (stream == null)
@@ -61,6 +77,14 @@ namespace Utils
 
 			byte[] bytes = System.Text.Encoding.UTF8.GetBytes(str);
 			return WriteBytes(stream, bytes);
+		}
+
+		public long ReadLong(Stream stream)
+		{
+			long low = ReadInt(stream);
+			long high = ReadInt(stream);
+			long ret = (high << 32) | low;
+			return ret;
 		}
 
 		public int ReadInt(Stream stream)
