@@ -2118,7 +2118,7 @@ class AssetBundleMgr
 		if (File.Exists(srcFileName))
 		{
 			externFiles.Add(srcFileName);
-			firstDowns.Add(true);
+			firstDowns.Add(false);
 			string md5Str = AssetBunbleInfo.Md5(srcFileName, false);
 			string dstFileName = resDir + "/" + md5Str + ".xml";
 			File.Copy(srcFileName, dstFileName);
