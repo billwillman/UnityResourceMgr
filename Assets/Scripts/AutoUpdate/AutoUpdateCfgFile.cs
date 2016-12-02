@@ -1,3 +1,5 @@
+#define _UpdateCfgBinary
+
 using System;
 using System.IO;
 using System.Collections;
@@ -32,7 +34,7 @@ namespace AutoUpdate
 			ret = FilePathMgr.Instance.WriteLong(stream, readBytes);
 			if (!ret)
 				return ret;
-			ret =FilePathMgr.Instance.WriteBool(stream, isDone);
+			ret = FilePathMgr.Instance.WriteBool(stream, isDone);
 			if (!ret)
 				return ret;
 			return ret;
@@ -110,10 +112,14 @@ namespace AutoUpdate
 			FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
 			try
 			{
+				#if _UpdateCfgBinary
+				LoadBinary(stream);
+				#else
 				byte[] src = new byte[stream.Length];
 				stream.Read(src, 0, src.Length);
 				string str = System.Text.Encoding.ASCII.GetString(src);
 				Load (str);
+				#endif
 			} finally
 			{
 				stream.Close();
@@ -171,7 +177,8 @@ namespace AutoUpdate
 			int cnt = FilePathMgr.Instance.ReadInt(stream);
 			for (int i = 0; i < cnt; ++i)
 			{
-				
+				AutoUpdateCfgItem item = AutoUpdateCfgItem.LoadBinary(stream);
+				AddOrSet(item);
 			}
 		}
 
@@ -335,6 +342,22 @@ namespace AutoUpdate
 			FileStream stream = new FileStream(m_SaveFileName, FileMode.Create, FileAccess.Write);
 			try
 			{
+				#if _UpdateCfgBinary
+				int writeItemCnt = 0;
+				Dictionary<string, AutoUpdateCfgItem>.Enumerator iter = m_Dict.GetEnumerator();
+				FilePathMgr.Instance.WriteInt(stream, m_Dict.Count);
+				while (iter.MoveNext())
+				{
+					iter.Current.Value.SaveBinary(stream);
+					++writeItemCnt;
+					if (writeItemCnt > 50)
+					{
+						writeItemCnt = 0;
+						stream.Flush();
+					}
+				}
+				iter.Dispose();
+				#else
 				int writeBytes = 0;
 				Dictionary<string, AutoUpdateCfgItem>.Enumerator iter = m_Dict.GetEnumerator();
 				while (iter.MoveNext())
@@ -352,6 +375,7 @@ namespace AutoUpdate
 					}
 				}
 				iter.Dispose();
+				#endif
 			} finally
 			{
 				stream.Close();
