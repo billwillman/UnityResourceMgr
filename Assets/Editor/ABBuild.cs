@@ -2392,6 +2392,66 @@ class AssetBundleMgr
 		// 写入package信息
 	}
 
+	private void ChangeFileListFileNameToMd5(string outPath)
+	{
+		outPath = Path.GetFullPath(outPath);
+		outPath = outPath.Replace('\\', '/');
+
+		// 修改FileList文件名为MD5，来自version.txt
+		string versionFileName = string.Format("{0}/version.txt", outPath);
+		if (File.Exists(versionFileName))
+		{
+			// 读取version.txt中fileList的MD5信息
+			FileStream versionFileStream = new FileStream(versionFileName, FileMode.Open, FileAccess.Read);
+			try
+			{
+				if (versionFileStream.Length > 0)
+				{
+					byte[] bytes = new byte[versionFileStream.Length];
+					if (bytes != null && bytes.Length > 0)
+					{
+						versionFileStream.Read(bytes, 0, bytes.Length);
+						string str = System.Text.Encoding.ASCII.GetString(bytes);
+						if (!string.IsNullOrEmpty(str))
+						{
+							string[] lines = str.Split('\n');
+							if (lines != null && lines.Length > 0)
+							{
+								string fileListMd5 = string.Empty;
+								for (int i = 0; i < lines.Length; ++i)
+								{
+									string s = lines[i].Trim();
+									if (string.IsNullOrEmpty(s))
+										continue;
+									if (s.StartsWith("fileList="))
+									{
+										fileListMd5 = s.Substring(9);
+										break;
+									}
+								}
+
+								if (!string.IsNullOrEmpty(fileListMd5))
+								{
+									string oldFileListFileName = string.Format("{0}/fileList.txt", outPath);
+									if (File.Exists(oldFileListFileName))
+									{
+										string newFileListFileName = string.Format("{0}/{1}.txt", outPath, fileListMd5);
+										File.Copy(oldFileListFileName, newFileListFileName, true);
+										File.Delete(oldFileListFileName);
+									}
+								}
+							}
+						}
+					}
+				}
+			} finally
+			{
+				versionFileStream.Close();
+				versionFileStream.Dispose();
+			}
+		}
+	}
+
 //	private static readonly bool _cIsOnlyFileNameMd5 = true;
 	private void ChangeBundleFileNameToMd5(string outPath)
 	{
@@ -2528,6 +2588,10 @@ class AssetBundleMgr
 			string versionDir = AssetBundleBuild.GetCurrentPackageVersion(platform);
 			CreateBundleResUpdateFiles(streamAssetsPath, "outPath", versionDir, true);
 			BuildCSharpProjectUpdateFile(streamAssetsPath, "outPath", versionDir);
+
+			// 修改fileList的文件名为MD5
+			string fileListRootPath = string.Format("outPath/{0}", versionDir);
+			ChangeFileListFileNameToMd5(fileListRootPath);
 #if USE_ZIPVER
             BuildVersionZips("outPath", versionDir);
 #endif
