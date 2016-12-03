@@ -220,10 +220,13 @@ namespace NsHttpClient
 
 		private void OnResponse(IAsyncResult result)
 		{
-			if (m_TimeOutTimer != null)
+			lock (m_TimerLock)
 			{
-				m_TimeOutTimer.Dispose();
-				m_TimeOutTimer = null;
+				if (m_TimeOutTimer != null)
+				{
+					m_TimeOutTimer.Dispose();
+					m_TimeOutTimer = null;
+				}
 			}
 
 			HttpWebRequest req = result.AsyncState as HttpWebRequest;
@@ -257,10 +260,13 @@ namespace NsHttpClient
 
 		private void Close()
 		{
-			if (m_TimeOutTimer != null)
+			lock (m_TimerLock)
 			{
-				m_TimeOutTimer.Dispose();
-				m_TimeOutTimer = null;
+				if (m_TimeOutTimer != null)
+				{
+					m_TimeOutTimer.Dispose();
+					m_TimeOutTimer = null;
+				}
 			}
 
 			if (m_Listener != null)
@@ -292,10 +298,13 @@ namespace NsHttpClient
 			AsyncCallback callBack = new AsyncCallback(OnResponse);
 			m_Req.BeginGetResponse(callBack, m_Req);
 
-			if (m_TimeOutTimer != null)
-				m_TimeOutTimer.Dispose();
-			m_TimeOutTimer = TimerMgr.Instance.CreateTimer(true, m_TimeOut, true, true);
-			m_TimeOutTimer.AddListener(OnTimeOutTime);
+			lock (m_TimerLock)
+			{
+				if (m_TimeOutTimer != null)
+					m_TimeOutTimer.Dispose();
+				m_TimeOutTimer = TimerMgr.Instance.CreateTimer(true, m_TimeOut, true, true);
+				m_TimeOutTimer.AddListener(OnTimeOutTime);
+			}
 		}
 
 		protected override void OnFree(bool isManual)
@@ -319,6 +328,7 @@ namespace NsHttpClient
 		private string m_Url;
 		private float m_TimeOut;
 		private Timer m_TimeOutTimer = null;
+		private System.Object m_TimerLock = new object();;
 		private AsyncCallback m_CallBack;
 		private HttpWebRequest m_Req = null;
 		private IHttpClientListener m_Listener = null;
