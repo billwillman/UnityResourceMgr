@@ -40,8 +40,6 @@ namespace NsHttpClient
 						m_Stream = new FileStream (m_WriteFileName, mode, FileAccess.Write);
 						if (m_Process > 0)
 							m_Stream.Seek (m_Process, SeekOrigin.Begin);
-
-						UnityEngine.Debug.Log ("Http FileStream Start!!!");
 					}
 
 					if (m_Stream == null)
