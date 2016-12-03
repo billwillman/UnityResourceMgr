@@ -22,13 +22,11 @@ namespace NsHttpClient
 		{
 			get
 			{
-				string ret;
 				lock (m_TxtLock)
 				{
-					ret = m_Txt;
+					return m_Txt;
 				}
-
-				return ret;
+					
 			}
 		}
 		
