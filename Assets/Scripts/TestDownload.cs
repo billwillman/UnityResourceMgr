@@ -73,17 +73,25 @@ public class TestDownload : MonoBehaviour {
         TimerMgr.Instance.UnScaleTick(Time.unscaledDeltaTime);
 
         AutoUpdateMgr.Instance.Update();
-        float value = AutoUpdateMgr.Instance.DownProcess;
+		float value;
+
+		if (AutoUpdateMgr.Instance.TotalDownM > float.Epsilon)
+			value = (float)(AutoUpdateMgr.Instance.CurDownM/AutoUpdateMgr.Instance.TotalDownM);
+		else if (AutoUpdateMgr.Instance.DownProcess > float.Epsilon)
+			value = 1f; 
+		else
+			value = 0;
+
         if (m_Progress != null)
             m_Progress.value = value;
-
+		
 		if (m_LbDown != null)
 		{
 			if (m_LastM != AutoUpdateMgr.Instance.CurDownM || m_LastTotalM != AutoUpdateMgr.Instance.TotalDownM)
 			{
 				m_LastM = AutoUpdateMgr.Instance.CurDownM;
 				m_LastTotalM = AutoUpdateMgr.Instance.TotalDownM;
-				string s = string.Format("{0}/{1} M", m_LastM.ToString(), m_LastTotalM.ToString());
+				string s = string.Format("{0}/{1} M", m_LastM.ToString("F2"), m_LastTotalM.ToString("F2"));
 				m_LbDown.text = s;
 			}
 		}
