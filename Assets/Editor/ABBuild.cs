@@ -3306,6 +3306,138 @@ public static class AssetBundleBuild
 	{
 		mMgr.ExternSplitABDirs = list;
 	}
+	
+	// 打AB根据路径列表，用于BuildPkg.txt中AssetBundles项
+	static void BuildABFromPathList(string outPath, string[] list) {
+			if (string.IsNullOrEmpty(outPath) || list == null || list.Length <= 0)
+                return;
+
+			List<string> resList = new List<string> ();
+			for (int i = 0; i < list.Length; ++i) {
+				string path = list[i];
+                if (string.IsNullOrEmpty(path))
+                    continue;
+
+				var subList = AssetBundleBuild.GetAllLocalSubDirs(path);
+				if (subList != null && subList.Count > 0)
+					resList.AddRange (subList);
+
+                if (DirExistResource(path)) {
+                    resList.AddRange(list);
+                }
+            }
+
+            if (resList.Count <= 0) {
+                Debug.LogError("需打包的所有目录中不包含可打包的资源");
+                return;
+            }
+
+			string targetStreamingAssetsPath = "Assets/StreamingAssets/";
+            BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
+            eBuildPlatform platform;
+            switch (buildTarget) {
+                case BuildTarget.Android:
+					platform = eBuildPlatform.eBuildAndroid;		
+					targetStreamingAssetsPath += "Android";
+                    break;
+                case BuildTarget.iOS:
+                    platform = eBuildPlatform.eBuildIOS;
+					targetStreamingAssetsPath += "IOS";
+                    break;
+                case BuildTarget.StandaloneWindows:
+                    platform = eBuildPlatform.eBuildWindow;
+					targetStreamingAssetsPath += "Windows";
+                    break;
+                case BuildTarget.StandaloneWindows64:
+                    platform = eBuildPlatform.eBuildWindow;
+					targetStreamingAssetsPath += "Windows";
+                    break;
+                case BuildTarget.StandaloneOSXIntel:
+                    platform = eBuildPlatform.eBuildMac;
+					targetStreamingAssetsPath += "Mac";
+                    break;
+                case BuildTarget.StandaloneOSXIntel64:
+                    platform = eBuildPlatform.eBuildMac;
+					targetStreamingAssetsPath += "Mac";
+                    break;
+                default:
+                    return;
+            }
+
+			// Delete outPath StreaingAssets subDirs
+			targetStreamingAssetsPath = outPath + '/' + targetStreamingAssetsPath;
+			if (System.IO.Directory.Exists (targetStreamingAssetsPath)) {
+				string[] subDirs = System.IO.Directory.GetDirectories (targetStreamingAssetsPath);
+				if (subDirs != null) {
+					for (int i = 0; i < subDirs.Length; ++i) {
+						System.IO.Directory.Delete (subDirs [i], true);
+					}
+				}
+
+				string[] subFiles = System.IO.Directory.GetFiles (targetStreamingAssetsPath);
+				if (subFiles != null) {
+					for (int i = 0; i < subFiles.Length; ++i) {
+						System.IO.File.Delete (subFiles [i]);
+					}
+				}
+			} else {
+				System.IO.Directory.CreateDirectory(targetStreamingAssetsPath);
+			}
+
+			List<string> buildList = GetResAllDirPath (resList);
+
+			// 开始打包
+			mMgr.BuildDirs(buildList);
+			string abOutPath = outPath + "/Assets/StreamingAssets";
+			mMgr.BuildAssetBundles(platform, 2, false, abOutPath);
+        }
+		
+		public static void BuildFromBuildPkg()
+		{
+			// 判斷目錄是否存在
+			string dir = System.IO.Path.GetFullPath ("outPath");
+			if (!Directory.Exists (dir)) {
+				if (Directory.CreateDirectory (dir) == null)
+					return;
+			}
+
+			// 1.生成新工程
+			string outPath = "outPath/Proj";
+			string allNewProjPath = System.IO.Path.GetFullPath(outPath);
+			if (!System.IO.Directory.Exists(allNewProjPath)) {
+				// Create Unity Project
+				#if UNITY_EDITOR_WIN
+				RunCmd("Unity.exe -quit -batchmode -nographics -createProject " + allNewProjPath);
+				#endif
+			}
+
+			// 读取配置文件
+			string pkgFileName = "BuildPkg.txt";
+			pkgFileName = System.IO.Path.GetFullPath (pkgFileName);
+			if (!File.Exists (pkgFileName)) {
+				Debug.LogError ("BuildPkg.txt配置文件不存在");
+				return;
+			}
+			BuildPkg pkgCfg = new BuildPkg();
+			if (!pkgCfg.LoadFromFile (pkgFileName)) {
+				Debug.LogError ("BuildPkg.txt解析错误，请检查");
+				return;
+			}
+
+            // 设置外部Split目录信息
+            SetExternalABSplitDirs(pkgCfg.SplitABDirs);
+
+            // 2.SVN更新不打包美术资源
+            if (pkgCfg.Svns != null && pkgCfg.Svns.Length > 0)
+				Cmd_Svn (outPath, new List<string> (pkgCfg.Svns));
+
+            // 3.Copy中Resources非打包资源
+			if (pkgCfg.Copys != null && pkgCfg.Copys.Length > 0)
+				Cmd_CopyList(outPath, new List<string>(pkgCfg.Copys));
+            // 4.将AB丢进新工程
+			BuildABFromPathList(outPath, pkgCfg.AssetBundles);
+            // 5.生成平台包
+		}
 
 	static public void BuildPlatform(eBuildPlatform platform, int compressType = 0, bool isMd5 = false, 
 									 string outPath = null, bool isForceAppend = false)
