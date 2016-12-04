@@ -3389,7 +3389,7 @@ public static class AssetBundleBuild
 			// 开始打包
 			mMgr.BuildDirs(buildList);
 			string abOutPath = outPath + "/Assets/StreamingAssets";
-			mMgr.BuildAssetBundles(platform, 2, false, abOutPath);
+			mMgr.BuildAssetBundles(platform, 2, true, abOutPath);
         }
 		
 		public static void BuildFromBuildPkg()
