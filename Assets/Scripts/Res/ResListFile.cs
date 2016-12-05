@@ -41,6 +41,19 @@ public class ResListFile
 		return ret;
 	}
 
+	public void RemoveKey(string key)
+	{
+		if (string.IsNullOrEmpty(key))
+			return;
+		ResInfo info;
+		if (m_FileMd5Map.TryGetValue(key, out info))
+		{
+			m_FileMd5Map.Remove(key);
+			if (!string.IsNullOrEmpty(info.fileContentMd5))
+				m_ContentMd5ToNameMd5Map.Remove(info.fileContentMd5);
+		}
+	}
+
 	public bool LoadFromFile(string fileName)
 	{
 		Clear();

@@ -12,6 +12,7 @@ namespace AutoUpdate
 
 		public override void Enter(AutoUpdateMgr target)
 		{
+			target.RemoveLocalFilesFromDiffServerFileList();
 			target.ServerFileListToClientFileList();
 			target.ChangeUpdateFileNames();
 			target.ServerResVerToClientResVer();

@@ -143,6 +143,38 @@ namespace AutoUpdate
 			AddChgState (state);
 		}
 
+		internal void RemoveLocalFilesFromDiffServerFileList()
+		{
+			if (m_ServerResListFile == null || m_LocalResListFile == null || string.IsNullOrEmpty(m_WritePath))
+				return;
+
+			List<string> removeKeys = null;
+			var iter = m_LocalResListFile.GetIter();
+			while (iter.MoveNext())
+			{
+				string newKey = m_ServerResListFile.GetFileContentMd5(iter.Current.Key);
+				if (string.IsNullOrEmpty(newKey))
+				{
+					if (removeKeys == null)
+						removeKeys = new List<string>();
+					removeKeys.Add(iter.Current.Key);
+				}
+			}
+			iter.Dispose();
+
+			if (removeKeys != null && removeKeys.Count > 0)
+			{
+				for (int i = 0; i < removeKeys.Count; ++i)
+				{
+					string key = removeKeys[i];
+					m_LocalResListFile.RemoveKey(key);
+					string fileName = string.Format("{0}/{1}", m_WritePath, key);
+					if (File.Exists(fileName))
+						File.Delete(fileName);
+				}
+			}
+		}
+
 		internal void ServerFileListToClientFileList ()
 		{
 			if (!string.IsNullOrEmpty (m_WritePath)) {
