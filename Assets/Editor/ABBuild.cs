@@ -1350,7 +1350,7 @@ class AssetBundleMgr
 
 #if USE_UNITY5_X_BUILD
 
-	private void CheckRongYuRes(AssetBunbleInfo info)
+	private void CheckRongYuRes(AssetBunbleInfo info, HashSet<string> fileList = null)
 	{
 		if (info == null)
 			return;
@@ -1391,23 +1391,68 @@ class AssetBundleMgr
 					// 打印出来
 					Debug.LogFormat("<color=yellow>[{0}]</color><color=white>依赖被额外包含</color><color=red>{1}</color>", 
 						info.BundleFileName, depFileName);
+
+					if (fileList != null)
+					{
+						if (!fileList.Contains(depFileName))
+							fileList.Add(depFileName);
+					}
 				}
 			}
 		}
 	}
 
 	// 打印未被打包但引用的资源
-	private void CheckRongYuRes()
+	private void CheckRongYuRes(string exportLogFile = "")
 	{
 		if (mAssetBundleList == null || mAssetBundleList.Count <= 0)
 			return;
+		bool isExportLogFile = !string.IsNullOrEmpty(exportLogFile);
+		HashSet<string> fileList = null;
+		if (isExportLogFile)
+			fileList = new HashSet<string>();
 		for (int i = 0; i < mAssetBundleList.Count; ++i)
 		{
 			AssetBunbleInfo info = mAssetBundleList[i];
 			if (info == null)
 				continue;
-			CheckRongYuRes(info);
+			CheckRongYuRes(info, fileList);
 			EditorUtility.UnloadUnusedAssetsImmediate();
+		}
+
+		if (fileList != null && fileList.Count > 0)
+		{
+			// 输出文件到配置
+			exportLogFile = Path.GetFullPath(exportLogFile);
+			FileStream stream = new FileStream(exportLogFile, FileMode.Create);
+			try
+			{
+				int writeBytes = 0;
+				var iter = fileList.GetEnumerator();
+				while (iter.MoveNext())
+				{
+					if (!string.IsNullOrEmpty(iter.Current))
+					{
+						string s = string.Format("{0}\r\n", iter.Current);
+						byte[] buf = System.Text.Encoding.ASCII.GetBytes(s);
+						if (buf != null && buf.Length > 0)
+						{
+							stream.Write(buf, 0, buf.Length);
+							writeBytes += buf.Length;
+							if (writeBytes > 2048)
+							{
+								stream.Flush();
+								writeBytes = 0;
+							}
+						}
+					}
+				}
+				iter.Dispose();
+			} finally
+			{
+				stream.Close();
+				stream.Dispose();
+			}
 		}
 	}
 
@@ -2522,7 +2567,7 @@ class AssetBundleMgr
 			BuildAssetBundlesInfo_5_x(platform, exportDir, compressType, isForceAppend);
 
 			// 是否存在冗余资源，如果有打印出来
-			CheckRongYuRes();
+			CheckRongYuRes("Err_RongYu.txt");
 
 		#if USE_DEP_BINARY
 			// 二进制格式
