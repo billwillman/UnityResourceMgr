@@ -823,6 +823,14 @@ public class ResourceMgr: Singleton<ResourceMgr>
         return string.Empty;
     }
 
+	public string GetAssetBundleFileName(string fileName)
+	{
+		AssetLoader loader = mAssetLoader as AssetLoader;
+		if (loader != null)
+			return loader.GetAssetBundleFileName(fileName);
+		return string.Empty;
+	}
+
 	/*
 	protected IResourceLoader GetLoader(ref string path)
 	{

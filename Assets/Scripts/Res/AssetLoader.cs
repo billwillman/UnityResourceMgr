@@ -2207,6 +2207,18 @@ public class AssetLoader: IResourceLoader
 
     }
 
+	// fileName为资源文件名
+	public string GetAssetBundleFileName(string fileName)
+	{
+		#if USE_LOWERCHAR
+		fileName = fileName.ToLower();
+		#endif
+		AssetInfo info = FindAssetInfo(fileName);
+		if (info == null)
+			return string.Empty;
+		return info.FileName;
+	}
+
 	//二进制
 	private void LoadBinary(byte[] bytes)
 	{
