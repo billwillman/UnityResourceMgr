@@ -1392,11 +1392,11 @@ class AssetBundleMgr
 					Debug.LogFormat("<color=yellow>[{0}]</color><color=white>依赖被额外包含</color><color=red>{1}</color>", 
 						info.BundleFileName, depFileName);
 
-					if (fileList != null)
-					{
-						if (!fileList.Contains(depFileName))
-							fileList.Add(depFileName);
-					}
+					if (fileList != null) {
+                            string key = string.Format("{0}包含了额外的{1}", info.BundleFileName, depFileName);
+                            if (!fileList.Contains(key))
+                                fileList.Add(key);
+                    }
 				}
 			}
 		}
