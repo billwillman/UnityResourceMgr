@@ -1393,7 +1393,7 @@ class AssetBundleMgr
 						info.BundleFileName, depFileName);
 
 					if (fileList != null) {
-                            string key = string.Format("{0}包含了额外的{1}", info.BundleFileName, depFileName);
+                            string key = string.Format("{0} has contains: {1}", info.BundleFileName, depFileName);
                             if (!fileList.Contains(key))
                                 fileList.Add(key);
                     }
