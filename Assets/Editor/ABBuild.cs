@@ -1215,6 +1215,40 @@ class AssetBundleMgr
 		return GetSplitABCnt(dir, out num);
 	}
 
+	private void RemoveUnVaildLinkFile(ABLinkFileCfg cfg)
+	{
+		if (cfg == null)
+			return;
+
+		List<string> delKeyList = null;
+		var iter = cfg.GetIter();
+		while (iter.MoveNext())
+		{
+			string fileName = iter.Current.Key;
+			fileName = Path.GetFullPath(fileName);
+			if (!File.Exists(fileName))
+			{
+				if (delKeyList == null)
+					delKeyList = new List<string>();
+				delKeyList.Add(iter.Current.Key);
+			}
+		}
+		iter.Dispose();
+
+		if (delKeyList != null && delKeyList.Count > 0)
+		{
+			for (int i = 0; i < delKeyList.Count; ++i)
+			{
+				cfg.RemoveKey(delKeyList[i]);
+			}
+
+			string abSplitCfgFileName = Path.GetFullPath("buildABSplit.cfg");
+			cfg.SaveToFile(abSplitCfgFileName);
+		}
+
+		EditorUtility.UnloadUnusedAssetsImmediate();
+	}
+
 	private void BuildSplitABDir(string splitDir, ABLinkFileCfg cfg)
 	{
 		if (cfg == null || string.IsNullOrEmpty(splitDir))
@@ -1222,6 +1256,8 @@ class AssetBundleMgr
 		string[] files = Directory.GetFiles(splitDir, "*.*", SearchOption.TopDirectoryOnly);
 		if (files == null || files.Length <= 0)
 			return;
+
+		RemoveUnVaildLinkFile(cfg);
 
 		int maxCnt;
 		if (!GetSplitABCnt(splitDir, out maxCnt) || maxCnt <= 0)

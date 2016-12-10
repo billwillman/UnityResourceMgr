@@ -62,6 +62,33 @@ public class ABLinkFileCfg
 		return true;
 	}
 
+	public void RemoveKey(string key)
+	{
+		if (string.IsNullOrEmpty(key))
+			return;
+		if (m_GroupDict == null)
+			return;
+
+		string linkFileName;
+		if (!m_GroupDict.TryGetValue(key, out linkFileName))
+			return;
+
+		m_GroupDict.Remove(key);
+
+		if (!string.IsNullOrEmpty(linkFileName))
+		{
+			if (m_DirFileCntMap.ContainsKey(linkFileName))
+			{
+				int cnt = m_DirFileCntMap[linkFileName];
+				--cnt;
+				if (cnt <= 0)
+					m_DirFileCntMap.Remove(linkFileName);
+				else
+					m_DirFileCntMap[linkFileName] = cnt;
+			}
+		}
+	}
+
 	public void Clear()
 	{
 		if (m_GroupDict != null)
