@@ -129,6 +129,7 @@ namespace AutoUpdate
 			}
 
 			FileIdx = -1;
+			HasDownError = false;
 		}
 
 		void OnHttpRead(HttpClientResponse response, long totalRead)
@@ -162,13 +163,7 @@ namespace AutoUpdate
 				{
 					lock (m_Lock)
 					{
-						if (info.client != null)
-						{
-							info.client.Dispose();
-							info.client = null;
-						}
-
-						info.fileIdx = -1;
+						info.Reset();
 					}
 
 					StartNextDown();
@@ -185,35 +180,21 @@ namespace AutoUpdate
 				{
 					info.IsError = true;
 					info.ErrorStatus = status;
-				}
+				
 
-				if (m_Data != null && m_Data.FileList != null && m_Data.FileList.Length > 0)
-				{
-					var item = m_Data.FileList[info.fileIdx];
-					UnityEngine.Debug.LogErrorFormat("[downloadFileErr]{0} download: {1:D} isOk: {2}", item.fileContentMd5,
-						item.readBytes, item.isDone.ToString());
-				}
-
-				CheckErrors();
-			}
-		}
-
-		void CheckErrors()
-		{
-			if (m_Clients != null && m_Clients.Length > 0)
-			{
-				lock (m_Lock)
-				{
-					for (int i = 0; i < m_Clients.Length; ++i)
+					if (m_Data != null && m_Data.FileList != null && m_Data.FileList.Length > 0)
 					{
-						var client = m_Clients[i];
-						if (!client.IsIdle && !m_Clients[i].IsError)
-							return;
+						var item = m_Data.FileList[info.fileIdx];
+						UnityEngine.Debug.LogErrorFormat("[downloadFileErr]{0} download: {1:D} isOk: {2}", item.fileContentMd5,
+							item.readBytes, item.isDone.ToString());
 					}
-				}
 
-				AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_FileDown, -1);
+					info.Reset();
+				}
 			}
+
+			HasDownError = true;
+			StartNextDown();
 		}
 
 		// 开始当前位置下载
@@ -233,7 +214,6 @@ namespace AutoUpdate
 					if (info.IsIdle)
 					{
 						idleThread = info;
-						idleThread.ErrorStatus = 0;
 						break;
 					}
 				}
@@ -277,7 +257,6 @@ namespace AutoUpdate
 						if (info.IsIdle)
 						{
 							idleThread = info;
-							idleThread.ErrorStatus = 0;
 							break;
 						}
 					}
@@ -292,8 +271,18 @@ namespace AutoUpdate
 			if (isOver)
 			{
 				// 告诉下载完毕
-				CheckErrors();
+				if (!HasDownError)
+				{
+					if (OnFinished != null)
+						OnFinished();
+				}
 			}
+		}
+
+		public Action OnFinished
+		{
+			get;
+			set;
 		}
 
 		private void RefreshDownBytes()
@@ -334,9 +323,29 @@ namespace AutoUpdate
 			}
 		}
 
+		protected bool HasDownError
+		{
+			get
+			{
+				lock (m_Lock)
+				{
+					return m_HasDownError;
+				}
+			}
+
+			set 
+			{
+				lock (m_Lock)
+				{
+					m_HasDownError = value;
+				}
+			}
+		}
+
 		private IHttpClientThreadFileStream m_Data = null;
 		private FileThreadInfo[] m_Clients = null;
 		private System.Object m_Lock = new object();
 		private int m_FileIdx = -1;
+		private bool m_HasDownError = false;
 	}
 }
