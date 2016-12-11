@@ -8,7 +8,7 @@ public class TestDownload : MonoBehaviour {
     public UISlider m_Progress = null;
 	public UILabel m_LbDown = null;
 	public UILabel m_LbUseDownTime = null;
-	public UISprite m_CheckMultThread = null;
+	public UIToggle m_CheckMultThread = null;
 
 	public int ThreadCount = 1;
 
@@ -38,13 +38,13 @@ public class TestDownload : MonoBehaviour {
 		bool isMultiThread = false;
 		if (m_CheckMultThread != null)
 		{
-			isMultiThread = m_CheckMultThread.enabled;
+			isMultiThread = m_CheckMultThread.startsActive;
 		}
 
 		if (isMultiThread)
-			AutoUpdateMgr.Instance.StartMultAutoUpdate("http://192.168.1.102:1983/outPath", ThreadCount);
+			AutoUpdateMgr.Instance.StartMultAutoUpdate("http://192.168.1.102:1983/outPath", ThreadCount, 5f, 1024 * 1024);
 		else
-			AutoUpdateMgr.Instance.StartAutoUpdate("http://192.168.1.102:1983/outPath");
+			AutoUpdateMgr.Instance.StartAutoUpdate("http://192.168.1.102:1983/outPath", 5f, 1024 * 1024);
     }
 
     void StateChanged(AutoUpdateState state)
