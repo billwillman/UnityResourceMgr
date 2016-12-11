@@ -11,15 +11,6 @@ using NsHttpClient;
 namespace AutoUpdate
 {
 
-	// 外部需要提供的接口
-	public interface IHttpClientThreadFileStream
-	{
-		AutoUpdateCfgItem[] FileList
-		{
-			get;
-		}
-	}
-
 	// 多线程多文件下载, 每个文件一个线程
 	public class HttpClientThreadFileStream
 	{
@@ -57,7 +48,7 @@ namespace AutoUpdate
 			}
 		}
 
-		public HttpClientThreadFileStream(IHttpClientThreadFileStream data, int maxThreadCnt = 5)
+		public HttpClientThreadFileStream(AutoUpdateCfgItem[] data, int maxThreadCnt = 5)
 		{
 			m_Data = data;
 
@@ -81,7 +72,7 @@ namespace AutoUpdate
 		{
 			Stop();
 			RefreshDownBytes();
-			if (m_Clients == null || m_Clients.Length <= 0 || m_Data == null || m_Data.FileList == null || m_Data.FileList.Length <= 0)
+			if (m_Clients == null || m_Clients.Length <= 0 || m_Data == null || m_Data.Length <= 0)
 				return false;
 
 			FileIdx = -1;
@@ -121,9 +112,9 @@ namespace AutoUpdate
 		void OnHttpRead(HttpClientResponse response, long totalRead)
 		{
 			FileThreadInfo info = response.UserData as FileThreadInfo;
-			if (info != null && info.fileIdx >= 0)
+			if (info != null && m_Data != null && info.fileIdx >= 0)
 			{
-				AutoUpdateCfgItem item = m_Data.FileList[info.fileIdx];
+				AutoUpdateCfgItem item = m_Data[info.fileIdx];
 				long delta = totalRead - response.ReadBytes;
 				if (delta > 0)
 				{
@@ -138,7 +129,7 @@ namespace AutoUpdate
 					item.isDone = true;
 				}
 
-				m_Data.FileList[info.fileIdx] = item;
+				m_Data[info.fileIdx] = item;
 
 				lock (m_Lock)
 				{
@@ -164,9 +155,9 @@ namespace AutoUpdate
 			{
 				lock (m_Lock)
 				{
-					if (m_Data != null && m_Data.FileList != null && m_Data.FileList.Length > 0)
+					if (m_Data != null && m_Data.Length > 0)
 					{
-						var item = m_Data.FileList[info.fileIdx];
+						var item = m_Data[info.fileIdx];
 						UnityEngine.Debug.LogErrorFormat("[downloadFileErr]{0} download: {1:D} isOk: {2}", item.fileContentMd5,
 							item.readBytes, item.isDone.ToString());
 					}
@@ -181,11 +172,11 @@ namespace AutoUpdate
 
 		private void CallEndEvent()
 		{
-			if (m_Data == null || m_Data.FileList == null)
+			if (m_Data == null)
 				return;
 			
 			int fileIdx = this.FileIdx;
-			if (fileIdx + 1 < m_Data.FileList.Length)
+			if (fileIdx + 1 < m_Data.Length)
 				return;
 
 			if (m_Clients != null)
@@ -215,7 +206,7 @@ namespace AutoUpdate
 			bool isOver = true;
 			lock (m_Lock)
 			{
-				if (m_Data == null || m_Data.FileList == null || m_Data.FileList.Length <= 0)
+				if (m_Data == null || m_Data.Length <= 0)
 					return;
 
 				// 获得空闲线程
@@ -234,9 +225,9 @@ namespace AutoUpdate
 					return;
 
 				++m_FileIdx;
-				while (m_FileIdx < m_Data.FileList.Length)
+				while (m_FileIdx < m_Data.Length)
 				{
-					var item = m_Data.FileList[m_FileIdx];
+					var item = m_Data[m_FileIdx];
 					if (item.isDone)
 					{
 						// 下载大小在一开始已经计算过了，所以这里不计算
@@ -300,16 +291,16 @@ namespace AutoUpdate
 
 		private void RefreshDownBytes()
 		{
-			if (m_Data == null || m_Data.FileList == null || m_Data.FileList.Length <= 0)
+			if (m_Data == null || m_Data.Length <= 0)
 			{
 				AutoUpdateMgr.Instance.CurDownM = 0;
 				return;
 			}
 
 			double downed = 0f;
-			for (int i = 0; i < m_Data.FileList.Length; ++i)
+			for (int i = 0; i < m_Data.Length; ++i)
 			{
-				AutoUpdateCfgItem info = m_Data.FileList[i];
+				AutoUpdateCfgItem info = m_Data[i];
 				if (info.readBytes > 0)
 					downed += ((double)info.readBytes)/((double)(1024 * 1024));
 			}
@@ -355,7 +346,7 @@ namespace AutoUpdate
 			}
 		}
 
-		private IHttpClientThreadFileStream m_Data = null;
+		private AutoUpdateCfgItem[] m_Data = null;
 		private FileThreadInfo[] m_Clients = null;
 		private System.Object m_Lock = new object();
 		private int m_FileIdx = -1;
