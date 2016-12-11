@@ -39,6 +39,12 @@ namespace NsHttpClient
 			set;
 		}
 
+		public System.Object UserData
+		{
+			get;
+			set;
+		}
+
 		protected virtual void DoClose()
 		{
 			if (m_OrgStream != null)
@@ -213,9 +219,23 @@ namespace NsHttpClient
 			}
 		}
 
+		public System.Object UserData
+		{
+			get;
+			set;
+		}
+
 		public static void ResetServerPointCallBack()
 		{
 			m_IsServerPointInited = false;
+		}
+
+		public IHttpClientListener Listener
+		{
+			get
+			{
+				return m_Listener;
+			}
 		}
 
 		private void OnResponse(IAsyncResult result)
