@@ -7,6 +7,8 @@ public class TestDownload : MonoBehaviour {
     public UIButton m_BtnDownload = null;
     public UISlider m_Progress = null;
 	public UILabel m_LbDown = null;
+	public UILabel m_LbUseDownTime = null;
+	public UISprite m_CheckMultThread = null;
 
 	public int ThreadCount = 1;
 
@@ -33,7 +35,16 @@ public class TestDownload : MonoBehaviour {
     void OnBtnDownClick()
     {
 		m_StartTimer = Time.realtimeSinceStartup;
-		AutoUpdateMgr.Instance.StartMultAutoUpdate("http://192.168.1.102:1983/outPath", ThreadCount);
+		bool isMultiThread = false;
+		if (m_CheckMultThread != null)
+		{
+			isMultiThread = m_CheckMultThread.enabled;
+		}
+
+		if (isMultiThread)
+			AutoUpdateMgr.Instance.StartMultAutoUpdate("http://192.168.1.102:1983/outPath", ThreadCount);
+		else
+			AutoUpdateMgr.Instance.StartAutoUpdate("http://192.168.1.102:1983/outPath");
     }
 
     void StateChanged(AutoUpdateState state)
@@ -51,6 +62,8 @@ public class TestDownload : MonoBehaviour {
 
 			float delta = Time.realtimeSinceStartup - m_StartTimer;
 			Debug.LogFormat("下载耗时：{0}", delta.ToString());
+			if (m_LbUseDownTime != null)
+				m_LbUseDownTime.text = delta.ToString("F2");
 
             ResourceMgr.Instance.AutoUpdateClear();
             ResourceMgr.Instance.LoadConfigs(OnResLoad);
