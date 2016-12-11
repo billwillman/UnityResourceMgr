@@ -41,8 +41,14 @@ namespace AutoUpdate
 			{
 				get
 				{
-					return fileIdx < 0;
+					return (fileIdx < 0) && !IsError;
 				}
+			}
+
+			public bool IsError
+			{
+				get;
+				set;
 			}
 		}
 
@@ -60,6 +66,7 @@ namespace AutoUpdate
 						FileThreadInfo info = new FileThreadInfo();
 						m_Clients[i] = info;
 						info.client = null;
+						info.IsError = false;
 						info.fileIdx = -1;
 					}
 				}
@@ -160,8 +167,40 @@ namespace AutoUpdate
 
 		void OnHttpError(HttpClientResponse response, int status)
 		{
-			
+			FileThreadInfo info = response.UserData as FileThreadInfo;
+			if (info != null && info.fileIdx >= 0)
+			{
+				lock (m_Lock)
+				{
+					info.IsError = true;
+				}
 
+				if (m_Data != null && m_Data.FileList != null && m_Data.FileList.Length > 0)
+				{
+					var item = m_Data.FileList[info.fileIdx];
+					UnityEngine.Debug.LogErrorFormat("[downloadFileErr]{0} download: {1:D} isOk: {2}", item.fileContentMd5,
+						item.readBytes, item.isDone.ToString());
+				}
+
+				CheckErrors(status);
+			}
+		}
+
+		void CheckErrors(int status)
+		{
+			if (m_Clients != null && m_Clients.Length > 0)
+			{
+				lock (m_Lock)
+				{
+					for (int i = 0; i < m_Clients.Length; ++i)
+					{
+						if (!m_Clients[i].IsError)
+							return;
+					}
+				}
+
+				AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_FileDown, status);
+			}
 		}
 
 		// 开始当前位置下载
