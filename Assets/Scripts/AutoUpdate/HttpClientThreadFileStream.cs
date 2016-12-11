@@ -41,20 +41,8 @@ namespace AutoUpdate
 			{
 				get
 				{
-					return (fileIdx < 0) && !IsError;
+					return (fileIdx < 0);
 				}
-			}
-
-			public bool IsError
-			{
-				get;
-				set;
-			}
-
-			public int ErrorStatus
-			{
-				get;
-				set;
 			}
 
 			public void Reset()
@@ -66,8 +54,6 @@ namespace AutoUpdate
 				}
 
 				fileIdx = -1;
-				IsError = false;
-				ErrorStatus = 0;
 			}
 		}
 
@@ -178,10 +164,6 @@ namespace AutoUpdate
 			{
 				lock (m_Lock)
 				{
-					info.IsError = true;
-					info.ErrorStatus = status;
-				
-
 					if (m_Data != null && m_Data.FileList != null && m_Data.FileList.Length > 0)
 					{
 						var item = m_Data.FileList[info.fileIdx];
@@ -195,6 +177,36 @@ namespace AutoUpdate
 
 			HasDownError = true;
 			StartNextDown();
+		}
+
+		private void CallEndEvent()
+		{
+			if (m_Data == null || m_Data.FileList == null)
+				return;
+			
+			int fileIdx = this.FileIdx;
+			if (fileIdx + 1 < m_Data.FileList.Length)
+				return;
+
+			if (m_Clients != null)
+			{
+				for (int i = 0; i < m_Clients.Length; ++i)
+				{
+					var client = m_Clients[i];
+					if (!client.IsIdle)
+						return;
+				}
+			}
+
+			if (HasDownError)
+			{
+				if (OnError != null)
+					OnError();
+			} else
+			{
+				if (OnFinished != null)
+					OnFinished();
+			}
 		}
 
 		// 开始当前位置下载
@@ -270,16 +282,17 @@ namespace AutoUpdate
 
 			if (isOver)
 			{
-				// 告诉下载完毕
-				if (!HasDownError)
-				{
-					if (OnFinished != null)
-						OnFinished();
-				}
+				CallEndEvent();
 			}
 		}
 
 		public Action OnFinished
+		{
+			get;
+			set;
+		}
+
+		public Action OnError
 		{
 			get;
 			set;
