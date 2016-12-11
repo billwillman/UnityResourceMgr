@@ -50,6 +50,25 @@ namespace AutoUpdate
 				get;
 				set;
 			}
+
+			public int ErrorStatus
+			{
+				get;
+				set;
+			}
+
+			public void Reset()
+			{
+				if (client != null)
+				{
+					client.Dispose();
+					client = null;
+				}
+
+				fileIdx = -1;
+				IsError = false;
+				ErrorStatus = 0;
+			}
 		}
 
 		public HttpClientThreadFileStream(IHttpClientThreadFileStream data, int maxThreadCnt = 5)
@@ -64,10 +83,8 @@ namespace AutoUpdate
 					for (int i = 0; i < m_Clients.Length; ++i)
 					{
 						FileThreadInfo info = new FileThreadInfo();
+						info.Reset();
 						m_Clients[i] = info;
-						info.client = null;
-						info.IsError = false;
-						info.fileIdx = -1;
 					}
 				}
 			}
@@ -106,13 +123,7 @@ namespace AutoUpdate
 					for (int i = 0; i < m_Clients.Length; ++i)
 					{
 						FileThreadInfo client = m_Clients[i];
-						if (client.client != null)
-						{
-							client.client.Dispose();
-							client.client = null;
-						}
-
-						client.fileIdx = -1;
+						client.Reset();
 					}
 				}
 			}
@@ -173,6 +184,7 @@ namespace AutoUpdate
 				lock (m_Lock)
 				{
 					info.IsError = true;
+					info.ErrorStatus = status;
 				}
 
 				if (m_Data != null && m_Data.FileList != null && m_Data.FileList.Length > 0)
@@ -182,11 +194,11 @@ namespace AutoUpdate
 						item.readBytes, item.isDone.ToString());
 				}
 
-				CheckErrors(status);
+				CheckErrors();
 			}
 		}
 
-		void CheckErrors(int status)
+		void CheckErrors()
 		{
 			if (m_Clients != null && m_Clients.Length > 0)
 			{
@@ -194,12 +206,13 @@ namespace AutoUpdate
 				{
 					for (int i = 0; i < m_Clients.Length; ++i)
 					{
-						if (!m_Clients[i].IsError)
+						var client = m_Clients[i];
+						if (!client.IsIdle && !m_Clients[i].IsError)
 							return;
 					}
 				}
 
-				AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_FileDown, status);
+				AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_FileDown, -1);
 			}
 		}
 
@@ -220,6 +233,7 @@ namespace AutoUpdate
 					if (info.IsIdle)
 					{
 						idleThread = info;
+						idleThread.ErrorStatus = 0;
 						break;
 					}
 				}
@@ -263,6 +277,7 @@ namespace AutoUpdate
 						if (info.IsIdle)
 						{
 							idleThread = info;
+							idleThread.ErrorStatus = 0;
 							break;
 						}
 					}
@@ -277,6 +292,7 @@ namespace AutoUpdate
 			if (isOver)
 			{
 				// 告诉下载完毕
+				CheckErrors();
 			}
 		}
 
