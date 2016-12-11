@@ -216,6 +216,21 @@ namespace AutoUpdate
 						}
 					}
 
+					// 查找下一个空闲的线程
+					idleThread = null;
+					for (int i = 0; i < m_Clients.Length; ++i)
+					{
+						var info = m_Clients[i];
+						if (info.IsIdle)
+						{
+							idleThread = info;
+							break;
+						}
+					}
+
+					if (idleThread == null)
+						break;
+
 					++m_FileIdx;
 				}
 			}
