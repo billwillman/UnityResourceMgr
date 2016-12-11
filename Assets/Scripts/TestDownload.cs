@@ -8,6 +8,8 @@ public class TestDownload : MonoBehaviour {
     public UISlider m_Progress = null;
 	public UILabel m_LbDown = null;
 
+	public int ThreadCount = 1;
+
 	private double m_LastM = 0;
 	private double m_LastTotalM = 0;
 
@@ -27,9 +29,11 @@ public class TestDownload : MonoBehaviour {
         Debug.LogFormat("OnUpdateError: errType {0:D} code {0:D}", (int)errType, code);
     }
 
+	private float m_StartTimer = 0;
     void OnBtnDownClick()
     {
-		AutoUpdateMgr.Instance.StartAutoUpdate("http://192.168.1.102:1983/outPath");
+		m_StartTimer = Time.realtimeSinceStartup;
+		AutoUpdateMgr.Instance.StartMultAutoUpdate("http://192.168.1.102:1983/outPath", ThreadCount);
     }
 
     void StateChanged(AutoUpdateState state)
@@ -44,6 +48,10 @@ public class TestDownload : MonoBehaviour {
         {
             // 下載完成
             Debug.Log("Res Update Finished!!!");
+
+			float delta = Time.realtimeSinceStartup - m_StartTimer;
+			Debug.LogFormat("下载耗时：{0}", delta.ToString());
+
             ResourceMgr.Instance.AutoUpdateClear();
             ResourceMgr.Instance.LoadConfigs(OnResLoad);
         }

@@ -94,6 +94,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 231890813}
   - 114: {fileID: 231890812}
+  - 114: {fileID: 231890814}
   m_Layer: 0
   m_Name: download
   m_TagString: Untagged
@@ -115,6 +116,7 @@ MonoBehaviour:
   m_BtnDownload: {fileID: 1885305888}
   m_Progress: {fileID: 800503986}
   m_LbDown: {fileID: 731500593}
+  ThreadCount: 1
 --- !u!4 &231890813
 Transform:
   m_ObjectHideFlags: 0
@@ -128,6 +130,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
+--- !u!114 &231890814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 231890811}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac828ae04b6a27e449db54eb3576274c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  UsedAssetCount: 0
+  NotUsedAssetCount: 0
+  CurrentMemory: 
 --- !u!1 &731500591
 GameObject:
   m_ObjectHideFlags: 0
@@ -187,13 +203,13 @@ MonoBehaviour:
   updateAnchors: 1
   mColor: {r: 0, g: 0, b: 0, a: 1}
   mPivot: 4
-  mWidth: 82
+  mWidth: 84
   mHeight: 60
   mDepth: 0
   autoResizeBoxCollider: 0
   hideIfOffScreen: 0
   keepAspectRatio: 0
-  aspectRatio: 1.3666667
+  aspectRatio: 1.4
   keepCrispWhenShrunk: 1
   mTrueTypeFont: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   mFont: {fileID: 0}

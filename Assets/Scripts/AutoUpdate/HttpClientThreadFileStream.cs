@@ -219,6 +219,7 @@ namespace AutoUpdate
 		private void StartNextDown()
 		{
 			bool isOver = true;
+			//int startCnt = 0;
 			lock (m_Lock)
 			{
 				if (m_Data == null || m_Data.Length <= 0)
@@ -250,6 +251,7 @@ namespace AutoUpdate
 						continue;
 					}
 
+					//++startCnt;
 					isOver = false;
 					string url = string.Format("{0}/{1}/{2}", AutoUpdateMgr.Instance.ResServerAddr, 
 						AutoUpdateMgr.Instance.CurrServeResrVersion,
@@ -290,6 +292,8 @@ namespace AutoUpdate
 			{
 				CallEndEvent();
 			}
+
+			//UnityEngine.Debug.LogFormat("同时下载数量：{0:D}", startCnt);
 		}
 
 		public Action OnFinished
