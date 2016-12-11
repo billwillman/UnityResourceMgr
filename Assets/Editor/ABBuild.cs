@@ -1217,7 +1217,7 @@ class AssetBundleMgr
 
 	private void RemoveUnVaildLinkFile(ABLinkFileCfg cfg)
 	{
-		if (cfg == null)
+		if (cfg == null || cfg.LinkCount <= 0)
 			return;
 
 		List<string> delKeyList = null;
