@@ -38,7 +38,7 @@ public class TestDownload : MonoBehaviour {
 		bool isMultiThread = false;
 		if (m_CheckMultThread != null)
 		{
-			isMultiThread = m_CheckMultThread.startsActive;
+			isMultiThread = m_CheckMultThread.value;
 		}
 
 		if (isMultiThread)
