@@ -348,7 +348,7 @@ namespace NsHttpClient
 		private string m_Url;
 		private float m_TimeOut;
 		private Timer m_TimeOutTimer = null;
-		private System.Object m_TimerLock = new object();
+		private static System.Object m_TimerLock = new object();
 		private AsyncCallback m_CallBack;
 		private HttpWebRequest m_Req = null;
 		private IHttpClientListener m_Listener = null;

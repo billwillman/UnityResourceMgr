@@ -1,5 +1,4 @@
-// 多线程下载
-//#define _MultThreadDownload
+
 
 using System;
 using System.Collections;
@@ -10,17 +9,27 @@ namespace AutoUpdate
 {
 	public class AutoUpdateFileDownloadState: AutoUpdateBaseState
 	{
+		protected bool IsMultThreadMode
+		{
+			get
+			{
+				return AutoUpdateMgr.Instance.ThreadCount > 1;
+			}
+		}
+
 		private void Reset()
 		{
-			#if !_MultThreadDownload
-			m_Curr = -1;
-			#else
-			if (m_ThreadClients != null)
+			if (!IsMultThreadMode)
 			{
-				m_ThreadClients.Clear();
-				m_ThreadClients = null;
+				m_Curr = -1;
+			} else
+			{
+				if (m_ThreadClients != null)
+				{
+					m_ThreadClients.Clear();
+					m_ThreadClients = null;
+				}
 			}
-			#endif
 			AutoUpdateMgr.Instance.DownProcess = 0;
 		}
 
@@ -41,18 +50,19 @@ namespace AutoUpdate
 				return;
 			}
 
-			#if !_MultThreadDownload
-			m_Curr = 0;
-			StartCurrDownload();
-			#else
-			m_ThreadClients = new HttpClientThreadFileStream(m_Items, 2);
-			m_ThreadClients.OnError = OnMultThreadDownloadError;
-			m_ThreadClients.OnFinished = OnMultThreadDownloadFinish;
-			m_ThreadClients.Start();
-			#endif
+			if (!IsMultThreadMode)
+			{
+				m_Curr = 0;
+				StartCurrDownload();
+			} else
+			{
+				m_ThreadClients = new HttpClientThreadFileStream(m_Items, AutoUpdateMgr.Instance.ThreadCount);
+				m_ThreadClients.OnError = OnMultThreadDownloadError;
+				m_ThreadClients.OnFinished = OnMultThreadDownloadFinish;
+				m_ThreadClients.Start();
+			}
 		}
-
-		#if !_MultThreadDownload
+			
 		void OnHttpRead(HttpClientResponse response, long totalRead)
 		{
 			AutoUpdateCfgItem item = m_Items[m_Curr];
@@ -165,7 +175,7 @@ namespace AutoUpdate
 
 			AutoUpdateMgr.Instance.CreateHttpFile(url, item.readBytes, OnHttpRead, OnHttpError);
 		}
-		#else
+
 		void OnMultThreadDownloadFinish()
 		{
 			ToNextState();
@@ -175,7 +185,6 @@ namespace AutoUpdate
 		{
 			AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_FileDown, -1);
 		}
-		#endif
 
 		void ToNextState()
 		{
@@ -183,11 +192,7 @@ namespace AutoUpdate
 		}
 			
 		private AutoUpdateCfgItem[] m_Items = null;
-		#if !_MultThreadDownload
 		private int m_Curr = -1;
-		#else
 		private HttpClientThreadFileStream m_ThreadClients = null;
-		#endif
-
 	}
 }

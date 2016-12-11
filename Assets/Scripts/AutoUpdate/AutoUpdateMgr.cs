@@ -253,8 +253,26 @@ namespace AutoUpdate
 			}
 		}
 
-		// 开始
-		public void StartAutoUpdate (string url, float connectTimeOut = 5.0f, int httpFileBufSize = 1024 * 64)
+		public int ThreadCount
+		{
+			get
+			{
+				lock (m_Lock)
+				{
+					return m_ThreadCount;
+				}
+			}
+
+			protected set
+			{
+				lock (m_Lock)
+				{
+					m_ThreadCount = value;
+				}
+			}
+		}
+
+		public void StartMultAutoUpdate(string url, int threadCnt = 5, float connectTimeOut = 5.0f, int httpFileBufSize = 1024 * 64)
 		{
 			Clear ();
 			m_ResServerAddr = url;
@@ -262,10 +280,18 @@ namespace AutoUpdate
 			DownProcess = 0;
 			TotalDownM = 0;
 			CurDownM = 0;
+			ThreadCount = threadCnt;
 			m_HttpConnectTimeOut = connectTimeOut;
 			m_HttpFileBufSize = httpFileBufSize;
 
 			AddChgState (AutoUpdateState.auPrepare);
+		}
+
+
+		// 开始
+		public void StartAutoUpdate (string url, float connectTimeOut = 5.0f, int httpFileBufSize = 1024 * 64)
+		{
+			StartMultAutoUpdate(url, 1, connectTimeOut, httpFileBufSize);
 		}
 
 		public float HttpConnectTimeOut {
@@ -293,7 +319,10 @@ namespace AutoUpdate
 			HttpClientStrResponse response = new HttpClientStrResponse ();
 			response.OnReadEvt = OnReadEvt;
 			response.OnErrorEvt = OnErrorEvt;
-			m_HttpClient = new HttpClient (url, response, m_HttpConnectTimeOut);
+			lock (m_Lock)
+			{
+				m_HttpClient = new HttpClient (url, response, m_HttpConnectTimeOut);
+			}
 			return m_HttpClient;
 		}
 
@@ -308,8 +337,11 @@ namespace AutoUpdate
 			HttpClientFileStream response = new HttpClientFileStream (dstFileName, process, m_HttpFileBufSize);
 			response.OnReadEvt = OnReadEvt;
 			response.OnErrorEvt = OnErrorEvt;
-			HttpClient ret = new HttpClient (url, response, process, m_HttpConnectTimeOut);
-			return ret;
+			lock (m_Lock)
+			{
+				HttpClient ret = new HttpClient (url, response, process, m_HttpConnectTimeOut);
+				return ret;
+			}
 		}
 
 		internal HttpClient CreateHttpFile (string url, long process, Action<HttpClientResponse, long> OnReadEvt,
@@ -323,7 +355,8 @@ namespace AutoUpdate
 			HttpClientFileStream response = new HttpClientFileStream (dstFileName, process, m_HttpFileBufSize);
 			response.OnReadEvt = OnReadEvt;
 			response.OnErrorEvt = OnErrorEvt;
-			lock (m_Lock) {
+			lock (m_Lock)
+			{
 				m_HttpClient = new HttpClient (url, response, process, m_HttpConnectTimeOut);
 			}
 			return m_HttpClient;
@@ -627,5 +660,6 @@ namespace AutoUpdate
 		private LinkedList<AutoUpdateMsgNode> m_StateMsgList = new LinkedList<AutoUpdateMsgNode> ();
 		private float m_HttpConnectTimeOut = 5.0f;
 		private int m_HttpFileBufSize = 1024 * 64;
+		private int m_ThreadCount = 1;
 	}
 }

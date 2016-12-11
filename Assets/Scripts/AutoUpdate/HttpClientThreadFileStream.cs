@@ -206,10 +206,12 @@ namespace AutoUpdate
 			{
 				if (OnError != null)
 					OnError();
+				Stop();
 			} else
 			{
 				if (OnFinished != null)
 					OnFinished();
+				Stop();
 			}
 		}
 
