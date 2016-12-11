@@ -47,7 +47,7 @@ namespace AutoUpdate
 			#else
 			m_ThreadClients = new HttpClientThreadFileStream(m_Items, 2);
 			m_ThreadClients.OnError = OnMultThreadDownloadError;
-			m_ThreadClients.OnFinished = OnMultThreadDownloadError;
+			m_ThreadClients.OnFinished = OnMultThreadDownloadFinish;
 			m_ThreadClients.Start();
 			#endif
 		}
