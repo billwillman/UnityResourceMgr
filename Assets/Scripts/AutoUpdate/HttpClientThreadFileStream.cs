@@ -87,7 +87,9 @@ namespace AutoUpdate
 			Stop();
 			if (m_Data != null)
 				m_Data = null;
+			
 			AutoUpdateMgr.Instance.CurDownM = 0;
+			AutoUpdateMgr.Instance.DownProcess = 0;
 		}
 
 		// 只是关闭下载线程
@@ -122,6 +124,17 @@ namespace AutoUpdate
 					curM += ((double)delta)/((double)1024 * 1024);
 					AutoUpdateMgr.Instance.CurDownM = curM;
 					item.readBytes += delta;
+
+					float process;
+					double maxM = AutoUpdateMgr.Instance.TotalDownM;
+					if (maxM > float.Epsilon)
+					{
+						process = (float)(curM/maxM);
+						if (process > 1f)
+							process = 1f;
+					} else
+						process = 0f;
+					AutoUpdateMgr.Instance.DownProcess = process;
 				}
 
 				if (totalRead >= response.MaxReadBytes)
