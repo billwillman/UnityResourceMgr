@@ -117,7 +117,7 @@ MonoBehaviour:
   m_Progress: {fileID: 800503986}
   m_LbDown: {fileID: 731500593}
   m_LbUseDownTime: {fileID: 658115134}
-  m_CheckMultThread: {fileID: 360015554}
+  m_CheckMultThread: {fileID: 1458714764}
   ThreadCount: 5
 --- !u!4 &231890813
 Transform:
@@ -146,12 +146,6 @@ MonoBehaviour:
   UsedAssetCount: 0
   NotUsedAssetCount: 0
   CurrentMemory: 
---- !u!114 &360015554 stripped
-MonoBehaviour:
-  m_PrefabParentObject: {fileID: 11400006, guid: d817ce413af090746808cf805ff3375b,
-    type: 2}
-  m_PrefabInternal: {fileID: 1273950623}
-  m_Script: {fileID: 11500000, guid: 1b3dc54f924693f41b5cbecb267e647a, type: 3}
 --- !u!114 &658115134 stripped
 MonoBehaviour:
   m_PrefabParentObject: {fileID: 11400004, guid: d817ce413af090746808cf805ff3375b,
@@ -655,6 +649,12 @@ Prefab:
 Transform:
   m_PrefabParentObject: {fileID: 400006, guid: d817ce413af090746808cf805ff3375b, type: 2}
   m_PrefabInternal: {fileID: 1273950623}
+--- !u!114 &1458714764 stripped
+MonoBehaviour:
+  m_PrefabParentObject: {fileID: 11400002, guid: d817ce413af090746808cf805ff3375b,
+    type: 2}
+  m_PrefabInternal: {fileID: 1273950623}
+  m_Script: {fileID: 11500000, guid: 446d504799d99174383957fca80713c8, type: 3}
 --- !u!1 &1506024841
 GameObject:
   m_ObjectHideFlags: 0
