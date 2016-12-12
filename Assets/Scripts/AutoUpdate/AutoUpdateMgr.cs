@@ -523,9 +523,10 @@ namespace AutoUpdate
 				OnDownloadFileEvt(idx, readBytes, isDone);
 		}*/
 
-		internal void GetResZips(string content, out string[] zips)
+		// 获得Zip的MD5
+		internal void GetResZipFileMd5(string content, out string zipMd5)
 		{
-			zips = null;
+			zipMd5 = string.Empty;
 			if (string.IsNullOrEmpty(content))
 				return;
 			string[] lines = content.Split('\n');
@@ -538,14 +539,7 @@ namespace AutoUpdate
 				if (line.StartsWith("zip=", StringComparison.CurrentCultureIgnoreCase))
 				{
 					string str = line.Substring(4);
-					zips = str.Split(';');
-					if (zips != null)
-					{
-						for (int j = 0; j < zips.Length; ++j)
-						{
-							zips[j] = zips[j].Trim();
-						}
-					}
+					zipMd5 = str.Trim();
 					break;
 				}
 			}
