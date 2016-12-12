@@ -219,7 +219,9 @@ namespace AutoUpdate
 		private void StartNextDown()
 		{
 			bool isOver = true;
-			//int startCnt = 0;
+			#if UNITY_EDITOR
+			int startCnt = 0;
+			#endif
 			lock (m_Lock)
 			{
 				if (m_Data == null || m_Data.Length <= 0)
@@ -250,12 +252,16 @@ namespace AutoUpdate
 						++m_FileIdx;
 						continue;
 					}
-
-					//++startCnt;
+					#if UNITY_EDITOR
+					++startCnt;
+					#endif
 					isOver = false;
 					string url = string.Format("{0}/{1}/{2}", AutoUpdateMgr.Instance.ResServerAddr, 
 						AutoUpdateMgr.Instance.CurrServeResrVersion,
 						item.fileContentMd5);
+					#if UNITY_EDITOR
+					UnityEngine.Debug.LogFormat("开始下载: {0}", item.fileContentMd5);
+					#endif
 					
 					HttpClient client = AutoUpdateMgr.Instance.CreateMultHttpFile(url, item.readBytes, OnHttpRead, OnHttpError);
 					if (client != null)
@@ -293,7 +299,9 @@ namespace AutoUpdate
 				CallEndEvent();
 			}
 
-			//UnityEngine.Debug.LogFormat("同时下载数量：{0:D}", startCnt);
+			#if UNITY_EDITOR
+			UnityEngine.Debug.LogFormat("同时下载数量：{0:D}", startCnt);
+			#endif
 		}
 
 		public Action OnFinished
