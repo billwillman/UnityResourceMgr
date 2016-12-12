@@ -523,6 +523,34 @@ namespace AutoUpdate
 				OnDownloadFileEvt(idx, readBytes, isDone);
 		}*/
 
+		internal void GetResZips(string content, out string[] zips)
+		{
+			zips = null;
+			if (string.IsNullOrEmpty(content))
+				return;
+			string[] lines = content.Split('\n');
+			if (lines == null || lines.Length <= 0)
+				return;
+			for (int i = 0; i < lines.Length; ++i) {
+				string line = lines [i].Trim();
+				if (string.IsNullOrEmpty (line))
+					continue;
+				if (line.StartsWith("zip=", StringComparison.CurrentCultureIgnoreCase))
+				{
+					string str = line.Substring(4);
+					zips = str.Split(';');
+					if (zips != null)
+					{
+						for (int j = 0; j < zips.Length; ++j)
+						{
+							zips[j] = zips[j].Trim();
+						}
+					}
+					break;
+				}
+			}
+		}
+
 		internal bool GetResVer (string content, out string ver, out string fileListMd5)
 		{
 			ver = string.Empty;
