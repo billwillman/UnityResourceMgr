@@ -2281,6 +2281,7 @@ class AssetBundleMgr
 
 	}
 
+	private static MD5 m_ZipMd5 = new MD5CryptoServiceProvider();
 	private void BuildVersionZips(string outPath, string version)
 	{
 		outPath = Path.GetFullPath(outPath);
@@ -2293,7 +2294,9 @@ class AssetBundleMgr
 		if (!myResFileList.LoadFromFile(fileListFileName1))
 			return;
 
-		FileStream fileStream = new FileStream(versionFileName1, FileMode.Open);
+		string zipVerMd5 = string.Empty;
+		string zipVerFileName = outPath + "/zipVer.txt";
+		FileStream fileStream = new FileStream(zipVerFileName, FileMode.Open);
 		try
 		{
 			fileStream.Seek(0, SeekOrigin.End);
@@ -2326,27 +2329,81 @@ class AssetBundleMgr
 					if (ZipTools.BuildVersionZip(outPath, version, subName, myResFileList, otherFileList))
 					{
 						string zipName = ZipTools.GetZipFileName(version, subName);
-						if (string.IsNullOrEmpty(zipStr))
-							zipStr = zipName;
-						else
-							zipStr += ";" + zipName;
+						string fileName = string.Format("{0}/{1}.zip", outPath, zipName);
+
+						// 根据ZIP内容生成MD5
+						string md5Str = string.Empty;
+						FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+						try
+						{
+							byte[] hash = m_ZipMd5.ComputeHash(fileStream);
+							for (int i = 0; i < hash.Length; i++)
+							{
+								md5Str += hash[i].ToString("X").PadLeft(2, '0');  
+							}
+
+							md5Str = md5Str.ToLower();
+						} finally
+						{
+							fileStream.Close();
+							fileStream.Dispose();
+						}
+
+						if (!string.IsNullOrEmpty(md5Str))
+						{
+							if (string.IsNullOrEmpty(zipStr))
+								zipStr = string.Format("{0}={1}", zipName, md5Str);
+							else
+								zipStr = string.Format("\r\n{0}={1}", zipName, md5Str);
+						}
 					}
 
 					if (ZipTools.BuildVersionZip(outPath, subName, version, otherFileList, myResFileList))
 					{
-						string zipName = ZipTools.GetZipFileName(version, subName);
-						if (string.IsNullOrEmpty(zipStr))
-							zipStr = zipName;
-						else
-							zipStr += ";" + zipName;
+						string zipName = ZipTools.GetZipFileName(subName, version);
+						string fileName = string.Format("{0}/{1}.zip", outPath, zipName);
+
+						// 根据ZIP内容生成MD5
+						string md5Str = string.Empty;
+						FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+						try
+						{
+							byte[] hash = m_ZipMd5.ComputeHash(fileStream);
+							for (int i = 0; i < hash.Length; i++)
+							{
+								md5Str += hash[i].ToString("X").PadLeft(2, '0');  
+							}
+
+							md5Str = md5Str.ToLower();
+						} finally
+						{
+							fileStream.Close();
+							fileStream.Dispose();
+						}
+
+						if (!string.IsNullOrEmpty(md5Str))
+						{
+							if (string.IsNullOrEmpty(zipStr))
+								zipStr = string.Format("{0}={1}", zipName, md5Str);
+							else
+								zipStr = string.Format("\r\n{0}={1}", zipName, md5Str);
+						}
 					}
 				}
 
 				if (!string.IsNullOrEmpty(zipStr))
 				{
-					zipStr = "\r\nzip=" + zipStr;
 					byte[] zipBytes = System.Text.Encoding.ASCII.GetBytes(zipStr);
 					fileStream.Write(zipBytes, 0, zipBytes.Length);
+
+					byte[] hash = m_ZipMd5.ComputeHash(zipBytes);
+					for (int i = 0; i < hash.Length; i++)
+					{
+						zipVerMd5 += hash[i].ToString("X").PadLeft(2, '0');  
+					}
+					zipVerMd5 = zipVerMd5.ToLower();
+
+					// 未完：写入version.txt
 				}
 			}
 
