@@ -223,6 +223,19 @@ public class Timer : DisposeObject
         }
     }
 
+	public float PerTime
+	{
+		get
+		{
+			return m_PerTime;
+		}
+
+		set
+		{
+			m_PerTime = value;
+		}
+	}
+
     private event Timer.OnTimerEvent m_EventHandler = null;
     private float m_DelayTime = 0;
     private bool m_IsPlayOnce = true;
