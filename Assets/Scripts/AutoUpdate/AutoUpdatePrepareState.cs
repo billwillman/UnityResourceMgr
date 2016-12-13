@@ -190,14 +190,16 @@ namespace AutoUpdate
 
 			string persistVer;
 			string persistMd5;
-			if (AutoUpdateMgr.Instance.GetResVer(str, out persistVer, out persistMd5))
+			string zipMd5;
+			if (AutoUpdateMgr.Instance.GetResVer(str, out persistVer, out persistMd5, out zipMd5))
 			{
 				string ss = System.Text.Encoding.ASCII.GetString(pkgBuf);
 				if (string.IsNullOrEmpty(ss))
 					return false;
 				string pkgVer;
 				string pkgMd5;
-				if (!AutoUpdateMgr.Instance.GetResVer(ss, out pkgVer, out pkgMd5))
+				string pkgZip;
+				if (!AutoUpdateMgr.Instance.GetResVer(ss, out pkgVer, out pkgMd5, out pkgZip))
 					return false;
 
 				int comp = string.Compare(pkgVer, persistVer, StringComparison.CurrentCultureIgnoreCase);

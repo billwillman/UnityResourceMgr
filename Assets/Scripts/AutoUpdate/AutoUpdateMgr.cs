@@ -17,6 +17,9 @@ namespace AutoUpdate
 		auPrepare,
 		// 请求检查版本
 		auCheckVersionReq,
+		// Zip版本信息
+		auGetZipVerReq,
+		// Zip下载
 		auGetResZipReq,
 		// 请求资源列表
 		auGetResListReq,
@@ -388,6 +391,12 @@ namespace AutoUpdate
 			set;
 		}
 
+		internal string ServerZipMd5
+		{
+			get;
+			set;
+		}
+
 		internal string LocalResVersion {
 			get;
 			set;
@@ -545,10 +554,11 @@ namespace AutoUpdate
 			}
 		}
 
-		internal bool GetResVer (string content, out string ver, out string fileListMd5)
+		internal bool GetResVer (string content, out string ver, out string fileListMd5, out string zipMd5)
 		{
 			ver = string.Empty;
 			fileListMd5 = string.Empty;
+			zipMd5 = string.Empty;
 			if (string.IsNullOrEmpty (content))
 				return false;
 			char[] split = new char[1];
@@ -568,6 +578,9 @@ namespace AutoUpdate
 						ver = valueStr.Trim ();
 					} else if (string.Compare (preStr, "fileList", StringComparison.CurrentCultureIgnoreCase) == 0) {
 						fileListMd5 = valueStr.Trim ();
+					} else if (string.Compare(preStr, "zip", StringComparison.CurrentCultureIgnoreCase) == 0)
+					{
+						zipMd5 = valueStr.Trim();
 					}
 				}
 			}
@@ -622,9 +635,11 @@ namespace AutoUpdate
 
 			string v;
 			string fileListMd5;
-			if (GetResVer (ver, out v, out fileListMd5)) {
+			string zipMd5;
+			if (GetResVer (ver, out v, out fileListMd5, out zipMd5)) {
 				CurrServeResrVersion = v;
 				ServerFileListContentMd5 = fileListMd5;
+				ServerZipMd5 = zipMd5;
 			}
 		}
 
