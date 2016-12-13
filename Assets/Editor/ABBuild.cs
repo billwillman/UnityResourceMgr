@@ -2296,10 +2296,9 @@ class AssetBundleMgr
 
 		string zipVerMd5 = string.Empty;
 		string zipVerFileName = outPath + "/zipVer.txt";
-		FileStream fileStream = new FileStream(zipVerFileName, FileMode.Open);
+		FileStream zipVerFileStream = new FileStream(zipVerFileName, FileMode.Create);
 		try
 		{
-			fileStream.Seek(0, SeekOrigin.End);
 			string zipStr = string.Empty;
 			string[] subDirs = Directory.GetDirectories(outPath);
 			if (subDirs != null)
@@ -2333,20 +2332,20 @@ class AssetBundleMgr
 
 						// 根据ZIP内容生成MD5
 						string md5Str = string.Empty;
-						FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+						FileStream zipFileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
 						try
 						{
-							byte[] hash = m_ZipMd5.ComputeHash(fileStream);
-							for (int i = 0; i < hash.Length; i++)
+							byte[] hash = m_ZipMd5.ComputeHash(zipFileStream);
+							for (int j = 0; i < hash.Length; j++)
 							{
-								md5Str += hash[i].ToString("X").PadLeft(2, '0');  
+								md5Str += hash[j].ToString("X").PadLeft(2, '0');  
 							}
 
 							md5Str = md5Str.ToLower();
 						} finally
 						{
-							fileStream.Close();
-							fileStream.Dispose();
+							zipFileStream.Close();
+							zipFileStream.Dispose();
 						}
 
 						if (!string.IsNullOrEmpty(md5Str))
@@ -2365,20 +2364,20 @@ class AssetBundleMgr
 
 						// 根据ZIP内容生成MD5
 						string md5Str = string.Empty;
-						FileStream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+						FileStream zipFileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
 						try
 						{
-							byte[] hash = m_ZipMd5.ComputeHash(fileStream);
-							for (int i = 0; i < hash.Length; i++)
+							byte[] hash = m_ZipMd5.ComputeHash(zipFileStream);
+							for (int j = 0; j < hash.Length; j++)
 							{
-								md5Str += hash[i].ToString("X").PadLeft(2, '0');  
+								md5Str += hash[j].ToString("X").PadLeft(2, '0');  
 							}
 
 							md5Str = md5Str.ToLower();
 						} finally
 						{
-							fileStream.Close();
-							fileStream.Dispose();
+							zipFileStream.Close();
+							zipFileStream.Dispose();
 						}
 
 						if (!string.IsNullOrEmpty(md5Str))
@@ -2394,8 +2393,7 @@ class AssetBundleMgr
 				if (!string.IsNullOrEmpty(zipStr))
 				{
 					byte[] zipBytes = System.Text.Encoding.ASCII.GetBytes(zipStr);
-					fileStream.Write(zipBytes, 0, zipBytes.Length);
-
+					zipVerFileStream.Write(zipBytes, 0, zipBytes.Length);
 					byte[] hash = m_ZipMd5.ComputeHash(zipBytes);
 					for (int i = 0; i < hash.Length; i++)
 					{
@@ -2403,14 +2401,40 @@ class AssetBundleMgr
 					}
 					zipVerMd5 = zipVerMd5.ToLower();
 
-					// 未完：写入version.txt
+					string zipVerStr = string.Format("\r\nzip={0}", zipVerMd5);
+					byte[] zipVerBytes = System.Text.Encoding.ASCII.GetBytes(zipVerStr);
+
+					// 写入version.txt
+					FileStream fileStream = new FileStream(versionFileName1, FileMode.Open, FileAccess.Write);
+					try
+					{
+						fileStream.Seek(0, SeekOrigin.End);
+						fileStream.Write(zipVerBytes, 0, zipVerBytes.Length);
+					} finally
+					{
+						fileStream.Close();
+						fileStream.Dispose();
+					}
+
 				}
 			}
 
 		} finally
 		{
-			fileStream.Close();
-			fileStream.Dispose();
+			zipVerFileStream.Close();
+			zipVerFileStream.Dispose();
+		}
+
+		if (!string.IsNullOrEmpty(zipVerMd5))
+		{
+			if (File.Exists(zipVerFileName))
+			{
+				string zipVerMd5FileName = string.Format("{0}/{1}.txt", outPath, zipVerMd5);
+				if (File.Exists(zipVerMd5FileName))
+					File.Delete(zipVerMd5FileName);
+				File.Move(zipVerFileName, zipVerMd5FileName);
+				File.Delete(zipVerFileName);
+			}
 		}
 	}
 
