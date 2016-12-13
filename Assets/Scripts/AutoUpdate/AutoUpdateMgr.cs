@@ -98,7 +98,7 @@ namespace AutoUpdate
 				new AutoUpdateStateEnd ());
 		}
 
-		private void HttpRelease ()
+		internal void HttpRelease ()
 		{
 			lock (m_Lock) {
 				if (m_HttpClient != null) {
