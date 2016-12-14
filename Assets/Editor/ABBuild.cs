@@ -1599,9 +1599,12 @@ class AssetBundleMgr
 
         EditorUtility.ClearProgressBar();
 
-        RefreshAllDependCount ();
+		if (isManualDepned)
+		{
+        	RefreshAllDependCount ();
 
-		mAssetBundleList.Sort (AssetBunbleInfo.OnSort);
+			mAssetBundleList.Sort (AssetBunbleInfo.OnSort);
+		}
 #if USE_UNITY5_X_BUILD
 		EditorUtility.ClearProgressBar();
 		AssetDatabase.Refresh();
