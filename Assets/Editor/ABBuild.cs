@@ -1253,7 +1253,7 @@ class AssetBundleMgr
 		EditorUtility.UnloadUnusedAssetsImmediate();
 	}
 
-	private void BuildSplitABDir(string splitDir, ABLinkFileCfg cfg)
+	private void BuildSplitABDir(string splitDir, ABLinkFileCfg cfg, bool isManualDepend = false)
 	{
 		if (cfg == null || string.IsNullOrEmpty(splitDir))
 			return;
@@ -1359,14 +1359,14 @@ class AssetBundleMgr
 			list.Sort();
 			string[] fileNames = list.ToArray();
 			string fullPath = Path.GetFullPath(path);
-			AssetBunbleInfo ab = new AssetBunbleInfo(fullPath, fileNames);
+			AssetBunbleInfo ab = new AssetBunbleInfo(fullPath, fileNames, isManualDepend);
 			mAssetBundleMap.Add(path, ab);
 			mAssetBundleList.Add(ab);
 		}
 		dirIter.Dispose();
 	}
 
-	private void BuildSplitABDirs(HashSet<string> splitABDirs)
+	private void BuildSplitABDirs(HashSet<string> splitABDirs, bool isManualDepend = false)
 	{
 		if (splitABDirs == null || splitABDirs.Count <= 0)
 			return;
@@ -1380,7 +1380,7 @@ class AssetBundleMgr
 		var abSplitIter = splitABDirs.GetEnumerator();
 		while (abSplitIter.MoveNext())
 		{
-			BuildSplitABDir(abSplitIter.Current, abLinkCfg);
+			BuildSplitABDir(abSplitIter.Current, abLinkCfg, isManualDepend);
 			EditorUtility.UnloadUnusedAssetsImmediate();
 		}
 		abSplitIter.Dispose();
@@ -1595,7 +1595,7 @@ class AssetBundleMgr
 		}
 
 		// 加入Split的AB LINK
-		BuildSplitABDirs(splitABDirs);
+		BuildSplitABDirs(splitABDirs, isManualDepned);
 
         EditorUtility.ClearProgressBar();
 
