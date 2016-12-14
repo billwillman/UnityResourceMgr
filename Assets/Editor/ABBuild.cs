@@ -217,7 +217,7 @@ class AssetBunbleInfo: IDependBinary
         return ret;
     }
 
-	public AssetBunbleInfo(string fullPath, string[] fileNames)
+	public AssetBunbleInfo(string fullPath, string[] fileNames, bool isManualDepend = false)
 	{
 		Path = GetLocalPath(fullPath);
 		if (fileNames == null || fileNames.Length <= 0 || string.IsNullOrEmpty (Path))
@@ -243,7 +243,9 @@ class AssetBunbleInfo: IDependBinary
 			fileList.Add(fileName.ToLower());
 		}
 
-		BuildDepends();
+		if (isManualDepend)
+			BuildDepends();
+		
 		CheckIsScene();
 
 		Set_5_x_AssetBundleNames();
@@ -251,7 +253,7 @@ class AssetBunbleInfo: IDependBinary
 		IsBuilded = false;
 	}
 
-	public AssetBunbleInfo(string fullPath)
+	public AssetBunbleInfo(string fullPath, bool isManualDepend = false)
 	{
 		Path = GetLocalPath(fullPath);
 
@@ -270,7 +272,9 @@ class AssetBunbleInfo: IDependBinary
 		}
 
 		BuildDirFiles ();
-		BuildDepends ();
+
+		if (isManualDepend)
+			BuildDepends ();
 
 		CheckIsScene ();
 
@@ -1495,7 +1499,7 @@ class AssetBundleMgr
 #endif
 
 	// 生成
-	public void BuildDirs(List<string> dirList)
+	public void BuildDirs(List<string> dirList, bool isManualDepned = false)
 	{
 		Clear ();
 		if ((dirList == null) || (dirList.Count <= 0))
@@ -1577,7 +1581,7 @@ class AssetBundleMgr
 		// 创建AssetBundleInfo
 		for (int i = 0; i < abFiles.Count; ++i)
 		{
-			AssetBunbleInfo info = new AssetBunbleInfo(abFiles[i]);
+			AssetBunbleInfo info = new AssetBunbleInfo(abFiles[i], isManualDepned);
 			if (info.FileType != AssetBundleFileType.abError)
 			{
                 if (mAssetBundleMap.ContainsKey(info.Path))
@@ -3359,7 +3363,7 @@ public static class AssetBundleBuild
             return;
         }
 		// dirList.Add("Assets/Scene");
-		mMgr.BuildDirs (dirList);
+		mMgr.BuildDirs (dirList, true);
 		mMgr.Print ();
 	}
 
