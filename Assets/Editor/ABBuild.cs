@@ -1501,6 +1501,9 @@ class AssetBundleMgr
 	// 生成
 	public void BuildDirs(List<string> dirList, bool isManualDepned = false)
 	{
+		#if !USE_UNITY5_X_BUILD
+		isManualDepned = true;
+		#endif
 		Clear ();
 		if ((dirList == null) || (dirList.Count <= 0))
 			return;
