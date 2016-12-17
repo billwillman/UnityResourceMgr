@@ -3560,7 +3560,7 @@ public static class AssetBundleBuild
 			List<string> buildList = GetResAllDirPath (resList);
 
 			// 开始打包
-			mMgr.BuildDirs(buildList, true);
+			mMgr.BuildDirs(buildList);
 			string abOutPath = outPath + "/Assets/StreamingAssets";
 			mMgr.BuildAssetBundles(platform, 2, true, abOutPath);
         }
@@ -3620,7 +3620,7 @@ public static class AssetBundleBuild
 		m_PackageVersion = string.Empty;
 		List<string> resList = GetResAllDirPath();
 		// resList.Add("Assets/Scene");
-		mMgr.BuildDirs(resList, true);
+		mMgr.BuildDirs(resList);
 		mMgr.BuildAssetBundles(platform, compressType, isMd5, outPath, isForceAppend);
 		/*
 		string outpath = GetAndCreateDefaultOutputPackagePath (platform);
