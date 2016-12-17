@@ -1805,7 +1805,6 @@ class AssetBundleMgr
 	#endif
 
 		AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(exportDir, buildOpts, target);
-		EditorUtility.UnloadUnusedAssetsImmediate();
 
 		return manifest;
 	}
@@ -1824,6 +1823,8 @@ class AssetBundleMgr
 				info.RebuildDependFiles(manifest);
 			}
 		}
+
+		EditorUtility.UnloadUnusedAssetsImmediate();
 	}
 	
 #endif
