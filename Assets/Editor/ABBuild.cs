@@ -2303,6 +2303,7 @@ class AssetBundleMgr
 		string ver;
 		string zz;
 		string myFileListMd5;
+
 		if (!AutoUpdateMgr.GetResVerByFileName(fileListFileName1, out ver, out myFileListMd5, out zz))
 			return;
 
@@ -2386,7 +2387,7 @@ class AssetBundleMgr
 							if (string.IsNullOrEmpty(zipStr))
 								zipStr = string.Format("{0}={1}.zip", zipName, md5Str);
 							else
-								zipStr = string.Format("\r\n{0}={1}.zip", zipName, md5Str);
+								zipStr += string.Format("\r\n{0}={1}.zip", zipName, md5Str);
 						}
 					}
 
@@ -2418,11 +2419,11 @@ class AssetBundleMgr
 							if (string.IsNullOrEmpty(zipStr))
 								zipStr = string.Format("{0}={1}.zip", zipName, md5Str);
 							else
-								zipStr = string.Format("\r\n{0}={1}.zip", zipName, md5Str);
+								zipStr += string.Format("\r\n{0}={1}.zip", zipName, md5Str);
 						}
 					}
 				}
-
+					
 				if (!string.IsNullOrEmpty(zipStr))
 				{
 					byte[] zipBytes = System.Text.Encoding.ASCII.GetBytes(zipStr);
