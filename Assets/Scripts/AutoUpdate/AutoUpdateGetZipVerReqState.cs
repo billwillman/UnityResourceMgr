@@ -27,7 +27,7 @@ namespace AutoUpdate
 			{
 				ToNextStatus();
 			} else
-				AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_ResZiPVerReq, status);
+				AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_ResZipVerReq, status);
 		}
 
 		void OnReadEvent(HttpClientResponse response, long totalReadBytes)
