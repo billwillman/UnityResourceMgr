@@ -1,3 +1,5 @@
+//#define USE_ZIPVER
+
 using System;
 using NsHttpClient;
 
@@ -6,9 +8,14 @@ namespace AutoUpdate
 	public class AutoUpdateCheckVersionState: AutoUpdateBaseState
 	{
 
-		void ToNextState()
+		void ToResListState()
 		{
 			AutoUpdateMgr.Instance.ChangeState(AutoUpdateState.auGetResListReq);
+		}
+
+		void ToGetZipVerReq()
+		{
+			AutoUpdateMgr.Instance.ChangeState(AutoUpdateState.auGetZipVerReq);
 		}
 
 		void OnReadEvent(HttpClientResponse response, long totalReadBytes)
@@ -30,8 +37,12 @@ namespace AutoUpdate
 
 							AutoUpdateMgr.Instance.EndAutoUpdate();
 						}
+						#if USE_ZIPVER
+						else if (!AutoUpdateMgr.Instance.IsVersionTxtNoUpdate())
+							ToGetZipVerReq();
+						#endif
 						else
-							ToNextState();
+							ToResListState();	
 					} else
 						AutoUpdateMgr.Instance.EndAutoUpdate();
 				} else

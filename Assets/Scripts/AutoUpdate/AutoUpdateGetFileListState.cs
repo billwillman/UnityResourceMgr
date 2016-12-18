@@ -63,16 +63,6 @@ namespace AutoUpdate
 			string resAddr = AutoUpdateMgr.Instance.ResServerAddr;
 			string ver = AutoUpdateMgr.Instance.CurrServeResrVersion;
 			// use fileList ContentMD5
-			/*
-			bool isHttps = resAddr.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase);
-			string url;
-			if (isHttps)
-				url = string.Format("{0}/{1}/{2}", resAddr, ver, AutoUpdateMgr._cFileListTxt);
-			else
-			{
-				long t = DateTime.UtcNow.Ticks;
-				url = string.Format("{0}/{1}/{2}?time={3}", resAddr, ver, AutoUpdateMgr._cFileListTxt, t.ToString());
-			}*/
 			string serverFileListMd5 = AutoUpdateMgr.Instance.ServerFileListContentMd5;
 			string url = string.Format("{0}/{1}/{2}.txt", resAddr, ver, serverFileListMd5);
 			AutoUpdateMgr.Instance.CreateHttpTxt(url, OnReadEvent, OnError);

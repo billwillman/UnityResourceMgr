@@ -5,11 +5,23 @@ namespace AutoUpdate
 {
 	public class AutoUpdateResZipReqState: AutoUpdateBaseState
 	{
+		// Md5 fileName
 		private string m_ZipFileName = string.Empty;
 
-		private void ToNextState()
+		private void ToUnZipRes()
 		{
-			AutoUpdateMgr.Instance.ChangeState(AutoUpdateState.auGetResListReq);
+			// 进入解压步骤
+			AutoUpdateMgr.Instance.ChangeState(AutoUpdateState.auUnZipRes);
+		}
+
+		private void ToNextStatus()
+		{
+			if (!AutoUpdateMgr.Instance.IsFileListNoUpdate())
+			{
+				// 获得FileList列表
+				AutoUpdateMgr.Instance.ChangeState(AutoUpdateState.auGetResListReq);
+			} else
+				AutoUpdateMgr.Instance.EndAutoUpdate();
 		}
 
 		private void OnHttpRead(HttpClientResponse rep, long totalRead)
@@ -31,37 +43,33 @@ namespace AutoUpdate
 
 				AutoUpdateMgr.Instance.DownProcess = currProcess;
 				if (totalRead >= rep.MaxReadBytes)
-					ToNextState();
+					ToUnZipRes();
 			} else
-				ToNextState();
+				ToNextStatus();
 		}
 
 		private void OnHttpError(HttpClientResponse rep, int status)
 		{
-			if (status == 404)
+			if (status == 404 || status < 0)
 			{
-				ToNextState();
+				ToNextStatus();
 			} else
 				AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_ResZipReq, status);
 		}
 
 		public override  void Enter(AutoUpdateMgr target)
 		{
-			string oldVer = target.LocalResVersion;
-			string newVer = target.CurrServeResrVersion;
-
 			var updateFile = target.LocalUpdateFile;
-			m_ZipFileName = ZipTools.GetZipFileName(oldVer, newVer);
+			m_ZipFileName = target.CurrUpdateZipFileMd5;
 
 			long read = 0;
 			AutoUpdateCfgItem item;
-			m_ZipFileName = string.Format("{0}.zip", m_ZipFileName);
 			bool isSaveUpdateFile = false;
 			if (updateFile.FindItem(m_ZipFileName, out item))
 			{
 				if (item.isDone)
 				{
-					ToNextState();
+					ToUnZipRes();
 					return;
 				}
 
@@ -81,15 +89,8 @@ namespace AutoUpdate
 				updateFile.SaveToLastFile();
 
 			string resAddr = target.ResServerAddr;
-			bool isHttps = resAddr.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase);
-			string url;
-			if (isHttps)
-				url = string.Format("{0}/{1}", resAddr, m_ZipFileName);
-			else
-			{
-				long tt = DateTime.UtcNow.Ticks;
-				url = string.Format("{0}/{1}?time={2}", resAddr, m_ZipFileName, tt.ToString());
-			}
+			// m_ZipFileName是内容MD5所以不用加时间戳
+			string url = string.Format("{0}/{1}", resAddr, m_ZipFileName);
 			target.CreateHttpFile(url, read, OnHttpRead, OnHttpError); 
 		}
 	}

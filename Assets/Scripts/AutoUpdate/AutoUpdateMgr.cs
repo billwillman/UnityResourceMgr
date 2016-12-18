@@ -23,6 +23,8 @@ namespace AutoUpdate
 		auGetResZipReq,
 		// 请求资源列表
 		auGetResListReq,
+		// 解压
+		auUnZipRes,
 		// 获得某个更新文件
 		auUpdateFileProcess,
 		// 完成
@@ -36,7 +38,8 @@ namespace AutoUpdate
 		auError_NoGetVersion = 1,
 		auError_NoGetFileList = 2,
 		auError_FileDown = 3,
-		auError_ResZipReq = 4
+		auError_ResZipReq = 4,
+		auError_ResZipVerReq = 5
 	}
 
 	public class AutoUpdateMgr: Singleton<AutoUpdateMgr>
@@ -54,10 +57,14 @@ namespace AutoUpdate
 			#endif
 		}
 
+		internal bool IsFileListNoUpdate()
+		{
+			return string.Compare (LocalFileListContentMd5, ServerFileListContentMd5, StringComparison.CurrentCultureIgnoreCase) == 0;
+		}
+
 		internal bool IsVersionNoUpdate ()
 		{
-			return IsVersionTxtNoUpdate () &&
-			string.Compare (LocalFileListContentMd5, ServerFileListContentMd5, StringComparison.CurrentCultureIgnoreCase) == 0;
+			return IsVersionTxtNoUpdate () && IsFileListNoUpdate();
 		}
 
 		public AutoUpdateMgr ()
@@ -96,6 +103,12 @@ namespace AutoUpdate
 
 			AutoUpdateStateMgr.Register (AutoUpdateState.auEnd,
 				new AutoUpdateStateEnd ());
+
+			AutoUpdateStateMgr.Register(AutoUpdateState.auGetResZipReq,
+				new AutoUpdateResZipReqState());
+
+			AutoUpdateStateMgr.Register(AutoUpdateState.auGetZipVerReq,
+				new AutoUpdateGetZipVerReqState());
 		}
 
 		internal void HttpRelease ()
@@ -391,7 +404,14 @@ namespace AutoUpdate
 			set;
 		}
 
-		internal string ServerZipMd5
+		// 当前要下载的Zip文件名
+		internal string CurrUpdateZipFileMd5
+		{
+			get;
+			set;
+		}
+
+		internal string ServerZipVerMd5
 		{
 			get;
 			set;
@@ -639,7 +659,7 @@ namespace AutoUpdate
 			if (GetResVer (ver, out v, out fileListMd5, out zipMd5)) {
 				CurrServeResrVersion = v;
 				ServerFileListContentMd5 = fileListMd5;
-				ServerZipMd5 = zipMd5;
+				ServerZipVerMd5 = zipMd5;
 			}
 		}
 

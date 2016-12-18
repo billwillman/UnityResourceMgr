@@ -368,6 +368,29 @@ public class ResListFile
 		return list.ToArray();
 	}
 
+	public bool FileToDiffInfo(string fileName, out ResDiffInfo[] diff)
+	{
+		diff = null;
+		if (string.IsNullOrEmpty(fileName))
+		{
+			return false;
+		}
+
+		ResInfo info;
+		if (!m_FileMd5Map.TryGetValue(fileName, out info))
+		{
+			return false;
+		}
+
+		diff = new ResDiffInfo[1];
+		diff[0] = new ResDiffInfo();
+		diff[0].fileContentMd5 = info.fileContentMd5;
+		diff[0].fileName = fileName;
+		diff[0].fileSize = info.fileSize;
+
+		return true;
+	}
+
 	public ResDiffInfo[] GetDiffInfos(ResListFile otherFile)
 	{
 		ResDiffInfo[] ret = null;

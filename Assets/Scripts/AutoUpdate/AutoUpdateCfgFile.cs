@@ -66,9 +66,12 @@ namespace AutoUpdate
 			
 		public bool RemoveDowningZipFiles(string noDeleteZipFile)
 		{
-			if (!noDeleteZipFile.EndsWith(".zip", StringComparison.CurrentCultureIgnoreCase))
-				noDeleteZipFile += ".zip";
-			
+			if (!string.IsNullOrEmpty(noDeleteZipFile))
+			{
+				if (!noDeleteZipFile.EndsWith(".zip", StringComparison.CurrentCultureIgnoreCase))
+					noDeleteZipFile += ".zip";
+			}
+
 			string writePath = AutoUpdateMgr.Instance.WritePath;
 			if (string.IsNullOrEmpty(writePath))
 				return false;

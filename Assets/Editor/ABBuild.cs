@@ -2362,9 +2362,9 @@ class AssetBundleMgr
 						if (!string.IsNullOrEmpty(md5Str))
 						{
 							if (string.IsNullOrEmpty(zipStr))
-								zipStr = string.Format("{0}={1}", zipName, md5Str);
+								zipStr = string.Format("{0}={1}.zip", zipName, md5Str);
 							else
-								zipStr = string.Format("\r\n{0}={1}", zipName, md5Str);
+								zipStr = string.Format("\r\n{0}={1}.zip", zipName, md5Str);
 						}
 					}
 
@@ -2394,9 +2394,9 @@ class AssetBundleMgr
 						if (!string.IsNullOrEmpty(md5Str))
 						{
 							if (string.IsNullOrEmpty(zipStr))
-								zipStr = string.Format("{0}={1}", zipName, md5Str);
+								zipStr = string.Format("{0}={1}.zip", zipName, md5Str);
 							else
-								zipStr = string.Format("\r\n{0}={1}", zipName, md5Str);
+								zipStr = string.Format("\r\n{0}={1}.zip", zipName, md5Str);
 						}
 					}
 				}
