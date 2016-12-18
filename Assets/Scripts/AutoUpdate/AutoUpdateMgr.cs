@@ -39,7 +39,8 @@ namespace AutoUpdate
 		auError_NoGetFileList = 2,
 		auError_FileDown = 3,
 		auError_ResZipReq = 4,
-		auError_ResZipVerReq = 5
+		auError_ResZipVerReq = 5,
+		auError_UnZipError = 6
 	}
 
 	public class AutoUpdateMgr: Singleton<AutoUpdateMgr>

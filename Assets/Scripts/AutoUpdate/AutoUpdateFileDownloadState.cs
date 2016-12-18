@@ -88,7 +88,8 @@ namespace AutoUpdate
 			float currProcess = 0;
 			if (response.MaxReadBytes > 0)
 				currProcess = (float)totalRead/(float)response.MaxReadBytes;
-			CalcDownProcess(currProcess);
+			//CalcDownProcess(currProcess);
+			AutoUpdateMgr.Instance.DownProcess = currProcess;
 
 			if (totalRead >= response.MaxReadBytes)
 				StartNextDownload();
