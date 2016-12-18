@@ -156,7 +156,7 @@ namespace AutoUpdate
 		}
 
         public static bool BuildVersionZip(string outDir, string oldVersion, string newVersion,
-                                           ResListFile oldFileList, ResListFile newFileList) {
+			ResListFile oldFileList, ResListFile newFileList, string fileListFileName) {
             if (string.IsNullOrEmpty(outDir) ||
                 string.IsNullOrEmpty(newVersion) || newFileList == null ||
                 string.IsNullOrEmpty(oldVersion) || oldFileList == null)
@@ -167,7 +167,12 @@ namespace AutoUpdate
                 return false;
 
 			// 增加fileList.txt
-			diffFileList.Add("fileList.txt");
+			if (!string.IsNullOrEmpty(fileListFileName))
+			{
+				if (!fileListFileName.EndsWith(".txt", StringComparison.CurrentCultureIgnoreCase))
+					fileListFileName += ".txt";
+				diffFileList.Add(fileListFileName);
+			}
 
 			string zipFileName = string.Format("{0}/{1}.zip", outDir, GetZipFileName(oldVersion, newVersion));
 

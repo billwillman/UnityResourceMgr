@@ -2297,10 +2297,21 @@ class AssetBundleMgr
 	{
 		outPath = Path.GetFullPath(outPath);
 		string resDir = outPath + '/' + version;
-		string fileListFileName1 = resDir + "/fileList.txt";
+		string fileListFileName1 = resDir + "/version.txt";
 		string versionFileName1 = outPath + "/version.txt";
+
+		string ver;
+		string zz;
+		string myFileListMd5;
+		if (!AutoUpdateMgr.GetResVerByFileName(fileListFileName1, out ver, out myFileListMd5, out zz))
+			return;
+
+		fileListFileName1 = string.Format("{0}/{1}.txt", resDir, myFileListMd5);
+
 		// 生成个版本ZIP包
 		// 写入ZIP版本位置(只写在更新的version里)
+		if (!File.Exists(fileListFileName1))
+			return;
 		ResListFile myResFileList = new ResListFile();
 		if (!myResFileList.LoadFromFile(fileListFileName1))
 			return;
@@ -2320,11 +2331,22 @@ class AssetBundleMgr
 					string subName = Path.GetFileName(subDir);
 					if (string.Compare(version, subName) == 0)
 						continue;
-					string ff = string.Format("{0}/fileList.txt", subDir);
+
+					string ff = string.Format("{0}/version.txt", subDir);
 					if (!File.Exists(ff))
 						continue;
+
+					string oflMd5;
+					string ozz;
+					if (!AutoUpdateMgr.GetResVerByFileName(ff, out ver, out oflMd5, out ozz))
+						continue;
+
+					string ofl = string.Format("{0}/{1}.txt", subDir, oflMd5);
+					if (!File.Exists(ofl))
+						continue;
+
 					ResListFile otherFileList = new ResListFile();
-					if (!otherFileList.LoadFromFile(ff))
+					if (!otherFileList.LoadFromFile(ofl))
 						continue;
 
 					// 要生成两个ZIP包
@@ -2336,7 +2358,7 @@ class AssetBundleMgr
 					if (File.Exists(zipFileName))
 						File.Delete(zipFileName);
 
-					if (ZipTools.BuildVersionZip(outPath, version, subName, myResFileList, otherFileList))
+					if (ZipTools.BuildVersionZip(outPath, version, subName, myResFileList, otherFileList, oflMd5))
 					{
 						string zipName = ZipTools.GetZipFileName(version, subName);
 						string fileName = string.Format("{0}/{1}.zip", outPath, zipName);
@@ -2347,7 +2369,7 @@ class AssetBundleMgr
 						try
 						{
 							byte[] hash = m_ZipMd5.ComputeHash(zipFileStream);
-							for (int j = 0; i < hash.Length; j++)
+							for (int j = 0; j < hash.Length; j++)
 							{
 								md5Str += hash[j].ToString("X").PadLeft(2, '0');  
 							}
@@ -2368,7 +2390,7 @@ class AssetBundleMgr
 						}
 					}
 
-					if (ZipTools.BuildVersionZip(outPath, subName, version, otherFileList, myResFileList))
+					if (ZipTools.BuildVersionZip(outPath, subName, version, otherFileList, myResFileList, myFileListMd5))
 					{
 						string zipName = ZipTools.GetZipFileName(subName, version);
 						string fileName = string.Format("{0}/{1}.zip", outPath, zipName);
@@ -2765,9 +2787,9 @@ class AssetBundleMgr
 			// 修改fileList的文件名为MD5
 			string fileListRootPath = string.Format("outPath/{0}", versionDir);
 			ChangeFileListFileNameToMd5(fileListRootPath);
-#if USE_ZIPVER
-            BuildVersionZips("outPath", versionDir);
-#endif
+			#if USE_ZIPVER
+			BuildVersionZips("outPath", versionDir);
+			#endif
         }
     }
 

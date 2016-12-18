@@ -578,7 +578,33 @@ namespace AutoUpdate
 			}
 		}
 
-		internal bool GetResVer (string content, out string ver, out string fileListMd5, out string zipMd5)
+		public static bool GetResVerByFileName(string fileName, out string ver, out string fileListMd5, out string zipMd5)
+		{
+			ver = string.Empty;
+			fileListMd5 = string.Empty;
+			zipMd5 = string.Empty;
+			if (string.IsNullOrEmpty(fileName) || !File.Exists(fileName))
+				return false;
+			FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+			try
+			{
+				if (stream.Length > 0)
+				{
+					byte[] buf = new byte[stream.Length];
+					stream.Read(buf, 0, buf.Length);
+					string content = System.Text.Encoding.ASCII.GetString(buf);
+					return GetResVer(content, out ver, out fileListMd5, out zipMd5);
+				}
+			} finally
+			{
+				stream.Close();
+				stream.Dispose();
+			}
+
+			return false;
+		}
+
+		public static bool GetResVer (string content, out string ver, out string fileListMd5, out string zipMd5)
 		{
 			ver = string.Empty;
 			fileListMd5 = string.Empty;
