@@ -85,16 +85,25 @@ namespace AutoUpdate
 			m_Items[m_Curr] = item;
 			AutoUpdateMgr.Instance.DownloadUpdateToUpdateTxt(item);
 
+            /*
 			float currProcess = 0;
 			if (response.MaxReadBytes > 0)
 				currProcess = (float)totalRead/(float)response.MaxReadBytes;
-			//CalcDownProcess(currProcess);
-			AutoUpdateMgr.Instance.DownProcess = currProcess;
+			CalcDownProcess(currProcess);
+			AutoUpdateMgr.Instance.DownProcess = currProcess;*/
+            double curM = AutoUpdateMgr.Instance.CurDownM;
+            double maxM = AutoUpdateMgr.Instance.TotalDownM;
+            if (maxM <= float.Epsilon)
+                AutoUpdateMgr.Instance.DownProcess = 0;
+            else {
+                AutoUpdateMgr.Instance.DownProcess = (float)(curM / maxM);
+            }
 
-			if (totalRead >= response.MaxReadBytes)
+            if (totalRead >= response.MaxReadBytes)
 				StartNextDownload();
 		}
 
+        /*
 		void CalcDownProcess(float currProcess)
 		{
 			if (m_Items == null || m_Items.Length <= 0)
@@ -107,7 +116,7 @@ namespace AutoUpdate
 		
 			float process = m_Curr + currProcess;
 			AutoUpdateMgr.Instance.DownProcess = process/maxProcess;
-		}
+		}*/
 
 		void DebugFileError()
 		{
