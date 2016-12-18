@@ -30,11 +30,20 @@ namespace AutoUpdate
 			var updateFile = AutoUpdateMgr.Instance.LocalUpdateFile;
 			if (updateFile.FindItem(m_ZipFileName, out item))
 			{
-				item.readBytes = totalRead;
+				long delta = totalRead - rep.ReadBytes;
+				if (delta > 0)
+				{
+					double curM = AutoUpdateMgr.Instance.CurDownM;
+					curM += ((double)delta)/((double)1024 * 1024);
+					AutoUpdateMgr.Instance.CurDownM = curM;
+					item.readBytes += delta;
+				}
+					
 				if (totalRead >= rep.MaxReadBytes)
 				{
 					item.isDone = true;
 				}
+					
 				AutoUpdateMgr.Instance.DownloadUpdateToUpdateTxt(item);
 
 				float currProcess = 0;
