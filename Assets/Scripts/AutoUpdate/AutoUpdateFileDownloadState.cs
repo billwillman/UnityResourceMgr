@@ -91,12 +91,12 @@ namespace AutoUpdate
 				currProcess = (float)totalRead/(float)response.MaxReadBytes;
 			CalcDownProcess(currProcess);
 			AutoUpdateMgr.Instance.DownProcess = currProcess;*/
-            double curM = AutoUpdateMgr.Instance.CurDownM;
-            double maxM = AutoUpdateMgr.Instance.TotalDownM;
-            if (maxM <= float.Epsilon)
+            double cur = AutoUpdateMgr.Instance.CurDownM;
+            double max = AutoUpdateMgr.Instance.TotalDownM;
+            if (max <= float.Epsilon)
                 AutoUpdateMgr.Instance.DownProcess = 0;
             else {
-                AutoUpdateMgr.Instance.DownProcess = (float)(curM / maxM);
+                AutoUpdateMgr.Instance.DownProcess = (float)(cur / max);
             }
 
             if (totalRead >= response.MaxReadBytes)
