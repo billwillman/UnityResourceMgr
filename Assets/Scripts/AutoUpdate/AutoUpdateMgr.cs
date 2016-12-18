@@ -110,6 +110,9 @@ namespace AutoUpdate
 
 			AutoUpdateStateMgr.Register(AutoUpdateState.auGetZipVerReq,
 				new AutoUpdateGetZipVerReqState());
+
+			AutoUpdateStateMgr.Register(AutoUpdateState.auUnZipRes,
+				new AutoUpdateUnZipState());
 		}
 
 		internal void HttpRelease ()

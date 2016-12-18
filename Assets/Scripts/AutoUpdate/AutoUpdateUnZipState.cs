@@ -29,6 +29,7 @@ namespace AutoUpdate
 			}
 
 			// 未写完
+			ZipTools.UnCompress(zipFileMd5);
 		}
 	}
 }
