@@ -28,7 +28,7 @@ namespace AutoUpdate
 				return;
 			}
 
-			// 未写完
+			// 未写完， 解压完要改名，删除冗余的
 			ZipTools.UnCompress(zipFileMd5);
 		}
 	}
