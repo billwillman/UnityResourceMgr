@@ -12,9 +12,14 @@ namespace NsHttpClient
 	public enum HttpListenerStatus
 	{
 		hsNone,
+		// 发生错误
 		hsError,
+		// 正在进行
 		hsDoing,
-		hsDone
+		// 进行完成
+		hsDone,
+		// 被主动关闭
+		hsClosed
 	}
 
 	public interface IHttpClientListener

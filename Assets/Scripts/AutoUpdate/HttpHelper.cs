@@ -43,11 +43,16 @@ namespace NsHttpClient
 
 				if (node.Value.Listener == null || node.Value.Listener.Status != HttpListenerStatus.hsDoing)
 				{
-					if (node.Value.Listener != null)
+					Action<HttpClient, HttpListenerStatus> onEnd = node.Value.UserData as Action<HttpClient, HttpListenerStatus>;
+					if (onEnd != null)
 					{
-						Action<HttpClient, HttpListenerStatus> onEnd = node.Value.UserData as Action<HttpClient, HttpListenerStatus>;
-						if (onEnd != null)
+						if (node.Value.Listener != null)
+						{
 							onEnd(node.Value, node.Value.Listener.Status);
+						} else
+						{
+							onEnd(node.Value, HttpListenerStatus.hsClosed);
+						}
 					}
 
 					m_LinkList.Remove(node);
