@@ -88,6 +88,20 @@ namespace NsHttpClient
 		}
 
 		// 保证OpenUrl在主线程调用
+		public static bool OpenUrl<T>(string url, T listener, long filePos, Action<HttpClient, HttpListenerStatus> OnEnd, float timeOut = 5.0f) where T: HttpClientResponse
+		{
+			if (string.IsNullOrEmpty(url) || listener == null || filePos < 0)
+				return false;
+
+			HttpClient ret = CreateHttpClient();
+			ret.UserData = OnEnd;
+			ret.Init(url, listener, filePos, timeOut);
+			m_LinkList.AddLast(ret.LinkNode);
+
+			return true;
+		}
+
+		// 保证OpenUrl在主线程调用
 		public static bool OpenUrl<T>(string url, T listener, Action<HttpClient, HttpListenerStatus> OnEnd, float timeOut = 5.0f) where T: HttpClientResponse
 		{
 			if (string.IsNullOrEmpty(url) || listener == null)
