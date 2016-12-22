@@ -45,9 +45,9 @@ namespace NsHttpClient
 				{
 					if (node.Value.Listener != null)
 					{
-						Action<HttpClient> onEnd = node.Value.UserData as Action<HttpClient>;
+						Action<HttpClient, HttpListenerStatus> onEnd = node.Value.UserData as Action<HttpClient, HttpListenerStatus>;
 						if (onEnd != null)
-							onEnd(node.Value);
+							onEnd(node.Value, node.Value.Listener.Status);
 					}
 
 					m_LinkList.Remove(node);
@@ -88,7 +88,7 @@ namespace NsHttpClient
 		}
 
 		// 保证OpenUrl在主线程调用
-		public static bool OpenUrl<T>(string url, T listener, Action<HttpClient> OnEnd, float timeOut = 5.0f) where T: HttpClientResponse
+		public static bool OpenUrl<T>(string url, T listener, Action<HttpClient, HttpListenerStatus> OnEnd, float timeOut = 5.0f) where T: HttpClientResponse
 		{
 			if (string.IsNullOrEmpty(url) || listener == null)
 				return false;
