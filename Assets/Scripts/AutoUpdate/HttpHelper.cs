@@ -51,6 +51,7 @@ namespace NsHttpClient
 							onEnd(node.Value, node.Value.Listener.Status);
 						} else
 						{
+							// 外部主动调用关闭
 							onEnd(node.Value, HttpListenerStatus.hsClosed);
 						}
 					}
@@ -93,7 +94,7 @@ namespace NsHttpClient
 		}
 
 		// 保证OpenUrl在主线程调用
-		public static HttpClient OpenUrl<T>(string url, T listener, long filePos, Action<HttpClient, HttpListenerStatus> OnEnd, float timeOut = 5.0f) where T: HttpClientResponse
+		public static HttpClient OpenUrl<T>(string url, T listener, long filePos, Action<HttpClient, HttpListenerStatus> OnEnd = null, float timeOut = 5.0f) where T: HttpClientResponse
 		{
 			if (string.IsNullOrEmpty(url) || listener == null || filePos < 0)
 				return null;
@@ -107,17 +108,12 @@ namespace NsHttpClient
 		}
 
 		// 保证OpenUrl在主线程调用
-		public static HttpClient OpenUrl<T>(string url, T listener, Action<HttpClient, HttpListenerStatus> OnEnd, float timeOut = 5.0f) where T: HttpClientResponse
+		public static HttpClient OpenUrl<T>(string url, T listener, Action<HttpClient, HttpListenerStatus> OnEnd = null, float timeOut = 5.0f) where T: HttpClientResponse
 		{
 			if (string.IsNullOrEmpty(url) || listener == null)
 				return null;
 
-			HttpClient ret = CreateHttpClient();
-			ret.UserData = OnEnd;
-			ret.Init(url, listener, timeOut);
-			m_LinkList.AddLast(ret.LinkNode);
-
-			return ret;
+			return OpenUrl<T>(url, listener, 0, OnEnd, timeOut);
 		}
 
 	}

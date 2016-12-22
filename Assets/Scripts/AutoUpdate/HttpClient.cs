@@ -262,22 +262,9 @@ namespace NsHttpClient
 
 		public HttpClient(string url, IHttpClientListener listener, float timeOut)
 		{
-			Init(url, listener, timeOut);
+			Init(url, listener, 0, timeOut);
 		}
-
-		public void Init(string url, IHttpClientListener listener, float timeOut)
-		{
-
-			m_Url = url;
-			m_TimeOut = timeOut;
-			m_Listener = listener;
-			m_FilePos = 0;
-
-			CheckServicePoint();
-			// Get
-			Start();
-		}
-
+			
 		public HttpClient(string url, IHttpClientListener listener, long filePos, float timeOut)
 		{
 			Init(url, listener, filePos, timeOut);
