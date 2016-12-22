@@ -96,7 +96,7 @@ namespace NsHttpClient
 			HttpClient ret = CreateHttpClient();
 			ret.UserData = OnEnd;
 			ret.Init(url, listener, timeOut);
-			m_LinkList.AddLast(ret);
+			m_LinkList.AddLast(ret.LinkNode);
 
 			return true;
 		}
