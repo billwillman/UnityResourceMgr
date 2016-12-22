@@ -13,7 +13,8 @@ namespace NsHttpClient
 		void OnClose();
 		void OnError(int status);
 		void OnResponse(HttpWebResponse rep);
-	}
+        void OnEnd();
+    }
 
 	public class HttpClientResponse: IHttpClientListener
 	{
@@ -26,6 +27,10 @@ namespace NsHttpClient
 		{
 			DoClose();
 		}
+		
+		public void Close() {
+            OnClose();
+        }
 
 		public Action<HttpClientResponse, long> OnReadEvt
 		{
@@ -39,7 +44,13 @@ namespace NsHttpClient
 			set;
 		}
 
-		public System.Object UserData
+        // 读取完成
+        public Action<HttpClientResponse> OnEndEvt {
+            get;
+            set;
+        }
+
+        public System.Object UserData
 		{
 			get;
 			set;
@@ -61,7 +72,17 @@ namespace NsHttpClient
 			}
 		}
 
-		public virtual void OnError(int status)
+        // 读取完成
+        public virtual void OnEnd() {
+            End();
+            if (OnEndEvt != null)
+                OnEndEvt(this);
+        }
+
+        protected virtual void End() {
+        }
+
+        public virtual void OnError(int status)
 		{
 			if (OnErrorEvt != null)
 			{
@@ -138,10 +159,12 @@ namespace NsHttpClient
 			{
 				req.DoFlush(read);
 				req.m_ReadBytes += read;
-				if (req.ReadBytes < req.MaxReadBytes)
-					req.m_OrgStream.BeginRead(req.m_Buf, 0, req.m_Buf.Length, m_ReadCallBack, req);
-				else
-					req.DoClose();
+                if (req.ReadBytes < req.MaxReadBytes)
+                    req.m_OrgStream.BeginRead(req.m_Buf, 0, req.m_Buf.Length, m_ReadCallBack, req);
+                else {
+                    req.OnEnd();
+                    req.DoClose();
+                }
 			} else
 			{
 				req.DoClose();
