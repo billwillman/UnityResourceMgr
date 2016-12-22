@@ -12,6 +12,14 @@ namespace NsHttpClient
 		private static LinkedList<HttpClient> m_LinkList = new LinkedList<HttpClient>();
 		private static Timer m_Timer = null;
 
+		public static int PoolCount
+		{
+			get
+			{
+				return m_Pool.Count;
+			}
+		}
+
 		private static void InitPool()
 		{
 			if (m_InitPool)
