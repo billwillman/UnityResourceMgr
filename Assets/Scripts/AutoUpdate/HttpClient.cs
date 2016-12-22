@@ -27,6 +27,10 @@ namespace NsHttpClient
 		{
 			DoClose();
 		}
+		
+		public void Close() {
+            OnClose();
+        }
 
 		public Action<HttpClientResponse, long> OnReadEvt
 		{
