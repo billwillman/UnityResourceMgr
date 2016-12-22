@@ -336,7 +336,7 @@ namespace AutoUpdate
 		                                  Action<HttpClientResponse, int> OnErrorEvt)
 		{
 			HttpRelease ();
-			HttpClientStrResponse response = new HttpClientStrResponse ();
+			HttpClientStrResponse response = new HttpClientStrResponse (4 * 1024);
 			response.OnReadEvt = OnReadEvt;
 			response.OnErrorEvt = OnErrorEvt;
 			lock (m_Lock)

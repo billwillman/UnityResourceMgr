@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
@@ -7,24 +9,48 @@ using Utils;
 
 namespace NsHttpClient
 {
+	public enum HttpListenerStatus
+	{
+		hsNone,
+		hsError,
+		hsDoing,
+		hsDone
+	}
 
 	public interface IHttpClientListener
 	{
+		void OnStart();
 		void OnClose();
 		void OnError(int status);
 		void OnResponse(HttpWebResponse rep);
         void OnEnd();
+
+		HttpListenerStatus Status
+		{
+			get;
+		}
     }
 
 	public class HttpClientResponse: IHttpClientListener
 	{
 		public HttpClientResponse(int bufSize)
 		{
+			Init(bufSize);
+		}
+
+		public void Init(int bufSize)
+		{
 			m_Buf = new byte[bufSize];
+		}
+
+		public void OnStart()
+		{
+			Status = HttpListenerStatus.hsDoing;
 		}
 
 		public void OnClose()
 		{
+			Status = HttpListenerStatus.hsNone;
 			DoClose();
 		}
 		
@@ -56,6 +82,27 @@ namespace NsHttpClient
 			set;
 		}
 
+		public HttpListenerStatus Status
+		{
+			get
+			{
+				lock (this)
+				{
+					return m_Status;
+				}
+			}
+
+			internal set
+			{
+				lock (this)
+				{
+					m_Status = value;
+				}
+			}
+		}
+
+		private HttpListenerStatus m_Status = HttpListenerStatus.hsNone;
+
 		protected virtual void DoClose()
 		{
 			if (m_OrgStream != null)
@@ -74,6 +121,7 @@ namespace NsHttpClient
 
         // 读取完成
         public virtual void OnEnd() {
+			Status = HttpListenerStatus.hsDone;
             End();
             if (OnEndEvt != null)
                 OnEndEvt(this);
@@ -84,6 +132,8 @@ namespace NsHttpClient
 
         public virtual void OnError(int status)
 		{
+			Status = HttpListenerStatus.hsError;
+
 			if (OnErrorEvt != null)
 			{
 				OnErrorEvt(this, status);
@@ -275,6 +325,16 @@ namespace NsHttpClient
 			}
 		}
 
+		internal LinkedListNode<HttpClient> LinkNode
+		{
+			get
+			{
+				if (m_LinkNode == null)
+					m_LinkNode = new LinkedListNode<HttpClient>(this);
+				return m_LinkNode;
+			}
+		}
+
 		private void OnResponse(IAsyncResult result)
 		{
 			lock (m_TimerLock)
@@ -315,7 +375,17 @@ namespace NsHttpClient
 			}
 		}
 
-		public void Close()
+		internal void Clear()
+		{
+			Close();
+			UserData = null;
+			m_Listener = null;
+			m_FilePos = 0;
+			m_Url = string.Empty;
+			m_TimeOut = 5.0f;
+		}
+
+		private void Close()
 		{
 			lock (m_TimerLock)
 			{
@@ -334,6 +404,20 @@ namespace NsHttpClient
 				m_Req.Abort();
 				m_Req = null;
 			}
+		}
+
+		internal bool IsUsedPool
+		{
+			get;
+			set;
+		}
+
+		public override void Dispose()
+		{
+			if (!IsUsedPool)
+				base.Dispose();
+			else
+				Clear();
 		}
 
 		private void OnTimeOutTime(Timer obj, float timer)
@@ -362,6 +446,9 @@ namespace NsHttpClient
 				m_TimeOutTimer = TimerMgr.Instance.CreateTimer(true, m_TimeOut, true, true);
 				m_TimeOutTimer.AddListener(OnTimeOutTime);
 			}
+
+			if (m_Listener != null)
+				m_Listener.OnStart();
 		}
 
 		protected override void OnFree(bool isManual)
@@ -383,13 +470,13 @@ namespace NsHttpClient
 		}
 
 		private string m_Url;
-		private float m_TimeOut;
+		private float m_TimeOut = 5.0f;
 		private Timer m_TimeOutTimer = null;
 		private static System.Object m_TimerLock = new object();
-		private AsyncCallback m_CallBack;
 		private HttpWebRequest m_Req = null;
 		private IHttpClientListener m_Listener = null;
 		private long m_FilePos = 0;
+		private LinkedListNode<HttpClient> m_LinkNode = null;
 
 		private static bool m_IsServerPointInited = false;
 	}
