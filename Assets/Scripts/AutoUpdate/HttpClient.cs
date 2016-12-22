@@ -125,7 +125,7 @@ namespace NsHttpClient
 		}
 
         // 读取完成
-        public virtual void OnEnd() {
+        public void OnEnd() {
 			Status = HttpListenerStatus.hsDone;
             End();
             if (OnEndEvt != null)
