@@ -179,8 +179,17 @@ namespace NsHttpClient
 	// Http模块
 	public class HttpClient: DisposeObject
 	{
+		public HttpClient()
+		{}
+
 		public HttpClient(string url, IHttpClientListener listener, float timeOut)
 		{
+			Init(url, listener, timeOut);
+		}
+
+		public void Init(string url, IHttpClientListener listener, float timeOut)
+		{
+
 			m_Url = url;
 			m_TimeOut = timeOut;
 			m_Listener = listener;
@@ -193,11 +202,16 @@ namespace NsHttpClient
 
 		public HttpClient(string url, IHttpClientListener listener, long filePos, float timeOut)
 		{
+			Init(url, listener, filePos, timeOut);
+		}
+
+		public void Init(string url, IHttpClientListener listener, long filePos, float timeOut)
+		{
 			m_Url = url;
 			m_TimeOut = timeOut;
 			m_Listener = listener;
 			m_FilePos = filePos;
-			
+
 			CheckServicePoint();
 			// Get
 			Start();
@@ -278,7 +292,7 @@ namespace NsHttpClient
 			}
 		}
 
-		private void Close()
+		public void Close()
 		{
 			lock (m_TimerLock)
 			{
