@@ -6,8 +6,7 @@ namespace NsHttpClient
 {
 	public class HttpClientStrResponse: HttpClientResponse
 	{
-        public HttpClientStrResponse() : this(1024) { }
-        public HttpClientStrResponse(int bufSize) : base(bufSize) { }
+        public HttpClientStrResponse(int bufSize = 1024) : base(bufSize) { }
         protected override void Flush(int read) {
             if (m_Stream == null)
                 m_Stream = new MemoryStream();
