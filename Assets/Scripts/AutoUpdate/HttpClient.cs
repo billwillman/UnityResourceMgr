@@ -381,7 +381,6 @@ namespace NsHttpClient
 		internal void Clear()
 		{
 			Close();
-			UserData = null;
 			m_Listener = null;
 			m_FilePos = 0;
 			m_Url = string.Empty;

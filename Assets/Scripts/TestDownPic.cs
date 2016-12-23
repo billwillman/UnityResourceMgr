@@ -44,6 +44,6 @@ public class TestDownPic : MonoBehaviour {
         ClearTex();
         string url = "https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo/bd_logo1_31bdc765.png";
         //url = string.Format("{0}?time={1}", url, DateTime.Now.Ticks.ToString());
-        HttpHelper.OpenUrl<HttpClientPicResponse>(url, new HttpClientPicResponse(270, 129), OnHttpEnd);
+        var client = HttpHelper.OpenUrl<HttpClientPicResponse>(url, new HttpClientPicResponse(270, 129), OnHttpEnd);
     }
 }

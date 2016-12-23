@@ -33,7 +33,8 @@ namespace NsHttpClient
 			if (client == null)
 				return;
 			InitPool();
-			client.Clear();
+            client.UserData = null;
+            client.Clear();
 			m_Pool.Store(client);
 		}
 
@@ -62,7 +63,7 @@ namespace NsHttpClient
 							// 外部主动调用关闭
 							onEnd(node.Value, HttpListenerStatus.hsClosed);
 						}
-					}
+                    }
 
 					m_LinkList.Remove(node);
 					// 断开HttpClient和Listener之间的链接
