@@ -208,6 +208,9 @@ namespace NsHttpClient
 		{
 			Flush(read);
 
+			if (ReadBytes + read >= MaxReadBytes)
+				OnEnd();
+
 			if (OnReadEvt != null)
 			{
 				OnReadEvt(this, ReadBytes + read);
@@ -235,7 +238,6 @@ namespace NsHttpClient
                 if (req.ReadBytes < req.MaxReadBytes)
                     req.m_OrgStream.BeginRead(req.m_Buf, 0, req.m_Buf.Length, m_ReadCallBack, req);
                 else {
-                    req.OnEnd();
                     req.DoClose();
                 }
 			} else
