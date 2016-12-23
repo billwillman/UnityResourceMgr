@@ -14,6 +14,8 @@ namespace NsHttpClient
 		hsNone,
 		// 发生错误
 		hsError,
+		// 等待链接
+		hsWating,
 		// 正在进行
 		hsDoing,
 		// 进行完成
@@ -34,6 +36,11 @@ namespace NsHttpClient
 		{
 			get;
 		}
+
+		bool IsEnd
+		{
+			get;
+		}
     }
 
 	public class HttpClientResponse: IHttpClientListener
@@ -50,7 +57,7 @@ namespace NsHttpClient
 
 		public void OnStart()
 		{
-			Status = HttpListenerStatus.hsDoing;
+			Status = HttpListenerStatus.hsWating;
 		}
 
 		public void OnClose()
@@ -85,6 +92,15 @@ namespace NsHttpClient
 		{
 			get;
 			set;
+		}
+
+		public bool IsEnd
+		{
+			get
+			{
+				return (Status != HttpListenerStatus.hsDoing) && (Status != HttpListenerStatus.hsWating) &&
+						(Status != HttpListenerStatus.hsNone);
+			}
 		}
 
 		public HttpListenerStatus Status
@@ -178,6 +194,8 @@ namespace NsHttpClient
 				DoClose();
 				return;
 			}
+
+			Status = HttpListenerStatus.hsDoing;
 		//	UnityEngine.Debug.Log("OnResponse");
 			m_OrgStream.BeginRead(m_Buf, 0, m_Buf.Length, m_ReadCallBack, this);
 			// don't m_OrgStream.Close
@@ -329,15 +347,6 @@ namespace NsHttpClient
 
 		private void OnResponse(IAsyncResult result)
 		{
-			lock (m_TimerLock)
-			{
-				if (m_TimeOutTimer != null)
-				{
-					m_TimeOutTimer.Dispose();
-					m_TimeOutTimer = null;
-				}
-			}
-
 			HttpWebRequest req = result.AsyncState as HttpWebRequest;
 			if (req == null)
 				return;
@@ -412,11 +421,27 @@ namespace NsHttpClient
 				Clear();
 		}
 
+		// 主线程
 		private void OnTimeOutTime(Timer obj, float timer)
 		{
 			// 408请求超时
 			if (m_Listener != null)
-				m_Listener.OnError(408);
+			{
+				if (m_Listener.Status == HttpListenerStatus.hsWating)
+					m_Listener.OnError(408);
+				else
+				{
+					lock (m_TimerLock)
+					{
+						if (m_TimeOutTimer != null)
+						{
+							m_TimeOutTimer.Dispose();
+							m_TimeOutTimer = null;
+						}
+					}
+					return;
+				}
+			} 
 			Dispose();
 		}
 

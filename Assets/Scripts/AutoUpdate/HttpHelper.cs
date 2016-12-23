@@ -49,7 +49,7 @@ namespace NsHttpClient
 
 				var next = node.Next;
 
-				if (node.Value.Listener == null || node.Value.Listener.Status != HttpListenerStatus.hsDoing)
+				if (node.Value.Listener == null || node.Value.Listener.IsEnd)
 				{
 					Action<HttpClient, HttpListenerStatus> onEnd = node.Value.UserData as Action<HttpClient, HttpListenerStatus>;
 					if (onEnd != null)
