@@ -40,10 +40,22 @@ public class TestDownPic : MonoBehaviour {
         }
     }
 
+    private void OnHttpProcess(HttpClient client) {
+        if (m_Label == null)
+            m_Label = GetComponentInChildren<UILabel>();
+        if (m_Label != null) {
+            var rep = client.Listener as HttpClientResponse;
+            float process = rep.DownProcess;
+            m_Label.text = process.ToString("F2");
+        }
+    }
+
+    private UILabel m_Label = null;
+
 	public void StartHttp() {
         ClearTex();
         string url = "https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo/bd_logo1_31bdc765.png";
         //url = string.Format("{0}?time={1}", url, DateTime.Now.Ticks.ToString());
-        var client = HttpHelper.OpenUrl<HttpClientPicResponse>(url, new HttpClientPicResponse(270, 129), OnHttpEnd);
+        var client = HttpHelper.OpenUrl<HttpClientPicResponse>(url, new HttpClientPicResponse(270, 129), OnHttpEnd, OnHttpProcess);
     }
 }

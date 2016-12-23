@@ -57,6 +57,7 @@ namespace NsHttpClient
 
 		public void OnStart()
 		{
+			DownProcess = 0;
 			Status = HttpListenerStatus.hsWating;
 		}
 
@@ -142,10 +143,11 @@ namespace NsHttpClient
 
         // 读取完成
         public void OnEnd() {
-			Status = HttpListenerStatus.hsDone;
+			DownProcess = 1.0f;
             End();
             if (OnEndEvt != null)
                 OnEndEvt(this);
+			Status = HttpListenerStatus.hsDone;
         }
 
         protected virtual void End() {
@@ -206,6 +208,12 @@ namespace NsHttpClient
 
 		private void DoFlush(int read)
 		{
+			// 设置下载进度
+            float down = 0;
+            if (MaxReadBytes > 0)
+                down = (float)((ReadBytes + (long)read)) / ((float)MaxReadBytes);
+            DownProcess = down;
+			
 			Flush(read);
 
 			if (ReadBytes + read >= MaxReadBytes)
@@ -262,13 +270,26 @@ namespace NsHttpClient
 				return m_MaxReadBytes;
 			}
 		}
+		
+		public float DownProcess {
+            get {
+                lock (this) {
+                    return m_DownProcess;
+                }
+            } private set {
+                lock (this) {
+                    m_DownProcess = value;
+                }
+            }
+        }
 
 
 		private static readonly int _cReadTimeOut = 10000;
 		private static AsyncCallback m_ReadCallBack = new AsyncCallback(OnRead);
 		private Stream m_OrgStream = null;
 		private HttpWebResponse m_Rep = null;
-
+		private float m_DownProcess = 0;
+		
 		protected byte[] m_Buf = null;
 		protected long m_ReadBytes = 0;
 		protected long m_MaxReadBytes = 0;

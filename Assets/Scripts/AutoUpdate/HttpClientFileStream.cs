@@ -8,10 +8,24 @@ namespace NsHttpClient
 	{
 		public HttpClientFileStream (string fileName, long process = 0, int bufSize = 1024) : base (bufSize)
 		{
-			m_WriteFileName = fileName;
+			lock (m_StreamLock)
+			{
+				m_WriteFileName = fileName;
+			}
 			m_Process = process;
 			if (m_Process < 0)
 				m_Process = 0;
+		}
+		
+		public string WriteFileName
+		{
+			get
+			{
+				lock (m_StreamLock)
+				{
+					return m_WriteFileName;
+				}
+			}
 		}
 
 		protected override void DoClose ()
