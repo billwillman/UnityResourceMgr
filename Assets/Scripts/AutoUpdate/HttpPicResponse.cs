@@ -21,22 +21,29 @@ namespace NsHttpClient
 			m_Stream.Write(m_Buf, 0, read);
 		}
 
-		// 子线程调用的
-		protected override void DoClose()
+		protected override void End()
 		{
-			base.DoClose();
 			byte[] picBuf = null;
-			if (m_Stream != null)
+			if (m_Stream != null && m_Stream.Length > 0)
 			{
 				picBuf = m_Stream.ToArray();
-				m_Stream.Close();
-				m_Stream.Dispose();
-				m_Stream = null;
 			}
 
 			lock (m_Lock)
 			{
 				m_PicBuf = picBuf;
+			}
+		}
+
+		// 子线程调用的
+		protected override void DoClose()
+		{
+			base.DoClose();
+			if (m_Stream != null)
+			{
+				m_Stream.Close();
+				m_Stream.Dispose();
+				m_Stream = null;
 			}
 		}
 
