@@ -11,10 +11,25 @@ using UnityEngine;
 
 public enum ResourceCacheType
 {
-	rctNone = 0, // xiao xin shi yong
-	rctTemp,
-	rctRefAdd
+	// 只用在读取配置（建议不要使用）
+        rctNone = 0, 
+        // 临时的,只用在同步的时候，立马实例化Prefab(建议不要使用)
+		rctTemp,
+        // 对原始资源进行引用计数 +1，切记把LOAD出来的资源当做指针，替换和OnDestroy的时候，不要忘记使用ResourceMgr.Instance.Destroy进行释放
+		rctRefAdd
 }
+
+	/*
+     * 1.此处为底层资源管理模块，另外还有一个基于BaseResLoader的资源管理中间层，可以忽略引用计数，帮你管理引用计数，但基于BaseResLoader没有真正的异步加载（只有帧异步）
+     *      能使用基于BaseResLoader的，就使用这个。
+     * 2.如果需要使用真正的异步加载，请自己写管理类，来管理ResourceMgr的回调资源，以免导致引用计数并不正确，而资源无法释放。可以参考：MapResLoader中的MASK图异步加载。
+     * 3.ResourceMgr.Instance.Destroy为释放对象的方法，可以释放被引用计数的Load资源，也可以释放实例化的GameObject,推荐统一使用这个方法对UNITY对象进行释放
+     * 4.Resources.UnloadAsset不要使用了，可以使用ResourceMgr.Instance.Destroy的第二个参数设置为true,前提是：
+     *      非常确认外面没有使用的情况下（Sprite要保证它对应的纹理都没有被其他地方使用），否则其他地方会丢失资源。
+     * 5.ResourceMgr中的Load方法和CreateGameObject方法以及一切基于BaseResLoader的加载都使用，全小写文件名带后缀名的方式，否则AB中会有问题，因为需要做KEY去查找到底是哪个AB
+     * 6.基于BaseResLoader的ref target加载方法，target变量需要是成员变量。
+     * 7.实例化出Prefab,请使用简易函数UIBase以及基于BaseResLoader的，可以使用CreateGameObject,使用ResourceMgr可以使用ResourceMgr.Instance.CreateGameObject。
+    */
 
 public abstract class IResourceLoader
 {
