@@ -84,11 +84,11 @@ namespace AutoUpdate
                 }
 
                 if (m_CurEntry == null) {
-                    ResetUnCompress();
-					if (m_FileRead >= m_AllFileRead)
+					if (m_AllFileRead > 0 && m_FileRead >= m_AllFileRead)
 						UnStatus = UnCompressStatus.unCompFinished;
 					else
 						UnStatus = UnCompressStatus.unCompError;
+                    ResetUnCompress();
                     return;
                 }
 
@@ -146,7 +146,7 @@ namespace AutoUpdate
 				}
 			}
 		}
-		private UnCompressStatus m_UnStatus = false;
+		private static UnCompressStatus m_UnStatus = UnCompressStatus.unCompNone;
 
         // 开始解压线程
         private static void StartUnCompressThread() {
