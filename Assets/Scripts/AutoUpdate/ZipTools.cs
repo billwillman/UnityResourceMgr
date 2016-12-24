@@ -29,6 +29,25 @@ namespace AutoUpdate
         private static ZipEntry m_CurEntry = null;
         private static string m_WritePath = string.Empty;
 
+		private static long FileRead
+		{
+			get
+			{
+				lock (m_ThreadLock)
+				{
+					return m_FileRead;
+				}
+			}
+
+			set
+			{
+				lock (m_ThreadLock)
+				{
+					m_FileRead = value;
+				}
+			}
+		}
+
         private static void ResetUnCompressThread() {
             if (m_UnCompressThread != null) {
                 m_UnCompressThread.Abort();
@@ -36,7 +55,7 @@ namespace AutoUpdate
                 m_UnCompressThread = null;
             }
 
-            m_FileRead = 0;
+			FileRead = 0;
             m_AllFileRead = 0;
             m_CurEntry = null;
         }
@@ -84,7 +103,7 @@ namespace AutoUpdate
                 }
 
                 if (m_CurEntry == null) {
-					if (m_AllFileRead > 0 && m_FileRead >= m_AllFileRead)
+					if (m_AllFileRead > 0 && FileRead >= m_AllFileRead)
 						UnStatus = UnCompressStatus.unCompFinished;
 					else
 						UnStatus = UnCompressStatus.unCompError;
@@ -96,7 +115,7 @@ namespace AutoUpdate
                 if (readSize > 0) {
                     m_localFileStream.Write(m_Buf, 0, readSize);
                     m_localFileStream.Flush();
-                    m_FileRead += readSize;
+					FileRead += readSize;
                 } else {
                     ResetLocalFile();
                     m_CurEntry = null;
@@ -112,10 +131,7 @@ namespace AutoUpdate
                 if (m_AllFileRead <= 0)
                     return 0;
 
-                float process;
-                lock (m_ThreadLock) {
-                    process = m_FileRead;
-                }
+				float process = (float)FileRead;
                 return process / (float)m_AllFileRead;
             }
         }
