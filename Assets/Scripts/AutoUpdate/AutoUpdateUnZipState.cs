@@ -30,7 +30,43 @@ namespace AutoUpdate
 
 			// 未写完， 解压完要改名，删除冗余的
 			ZipTools.UnCompress(zipFileMd5);
+			if (m_UnZipTimer == null)
+			{
+				m_UnZipTimer = TimerMgr.Instance.CreateTimer(false, 0, true, true);
+				m_UnZipTimer.AddListener(OnUnZipTimer);
+			} else
+				m_UnZipTimer.Start();
 		}
+
+		public override void Exit(AutoUpdateMgr target)
+		{
+			if (m_UnZipTimer != null)
+			{
+				m_UnZipTimer.Dispose();
+				m_UnZipTimer = null;
+			}
+		}
+
+		void OnUnZipTimer(Timer obj, float timer)
+		{
+			float process = ZipTools.UnCompressProcess;
+			AutoUpdateMgr.Instance.DownProcess = process;
+			var status = ZipTools.UnStatus;
+			if (status == ZipTools.UnCompressStatus.unCompFinished)
+			{
+				ToNextState();
+			} else if (status == ZipTools.UnCompressStatus.unCompError)
+			{
+				if (m_UnZipTimer != null)
+				{
+					m_UnZipTimer.Dispose();
+					m_UnZipTimer = null;
+				}
+				AutoUpdateMgr.Instance.OnError(AutoUpdateErrorType.auError_UnZipError, 0);
+			}
+		}
+
+		private Timer m_UnZipTimer = null;
 	}
 }
 

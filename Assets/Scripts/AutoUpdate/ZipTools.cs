@@ -85,6 +85,10 @@ namespace AutoUpdate
 
                 if (m_CurEntry == null) {
                     ResetUnCompress();
+					if (m_FileRead >= m_AllFileRead)
+						UnStatus = UnCompressStatus.unCompFinished;
+					else
+						UnStatus = UnCompressStatus.unCompError;
                     return;
                 }
 
@@ -116,6 +120,34 @@ namespace AutoUpdate
             }
         }
 
+		public enum UnCompressStatus
+		{
+			unCompNone,
+			unComping,
+			unCompError,
+			unCompFinished
+		}
+
+		public static UnCompressStatus UnStatus
+		{
+			get
+			{
+				lock (m_ThreadLock)
+				{
+					return m_UnStatus;
+				}
+			}
+
+			private set
+			{
+				lock (m_ThreadLock)
+				{
+					m_UnStatus = value;
+				}
+			}
+		}
+		private UnCompressStatus m_UnStatus = false;
+
         // 开始解压线程
         private static void StartUnCompressThread() {
             ResetUnCompressThread();
@@ -126,6 +158,7 @@ namespace AutoUpdate
             m_AllFileRead = m_ZipInputStream.Length;
 
             m_WritePath = FilePathMgr.Instance.WritePath;
+			UnStatus = UnCompressStatus.unComping;
             m_UnCompressThread = new System.Threading.Thread(ThreadUnCompressProc);
             m_UnCompressThread.Start();
         }
