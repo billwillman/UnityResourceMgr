@@ -140,9 +140,12 @@ namespace AutoUpdate
 			TasksRelease ();
 		}
 
-		public void Clear ()
+		private void Clear ()
 		{
-			m_StateMsgList.Clear ();
+			lock (m_Lock)
+			{
+				m_StateMsgList.Clear ();
+			}
 			Release ();
 		}
 
@@ -159,7 +162,7 @@ namespace AutoUpdate
 
 		public void ChangeState (AutoUpdateState state)
 		{
-			Release ();
+			//Release ();
 			AddChgState (state);
 		}
 
@@ -328,7 +331,7 @@ namespace AutoUpdate
 
 		internal void EndAutoUpdate ()
 		{
-			Release ();
+			//Release ();
 			AddChgState (AutoUpdateState.auEnd);
 		}
 
@@ -500,6 +503,7 @@ namespace AutoUpdate
 				}
 
 				if (node.Value.autoUpdateState >= 0) {
+					Release();
 					AutoUpdateState state = (AutoUpdateState)node.Value.autoUpdateState;
 					if (m_StateMgr.ChangeState (state))
 						CallStateChanged (state);
