@@ -3602,9 +3602,11 @@ public static class AssetBundleBuild
 			string allNewProjPath = System.IO.Path.GetFullPath(outPath);
 			if (!System.IO.Directory.Exists(allNewProjPath)) {
 				// Create Unity Project
-				#if UNITY_EDITOR_WIN
+			#if UNITY_EDITOR_WIN
 				RunCmd("Unity.exe -quit -batchmode -nographics -createProject " + allNewProjPath);
-				#endif
+			#elif UNITY_EDITOR_OSX
+				RunCmd("/Application/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -createProject " + allNewProjPath);
+			#endif
 			}
 
 			// 读取配置文件
@@ -4094,9 +4096,8 @@ public static class AssetBundleBuild
 #if UNITY_EDITOR_WIN
 		command = " /c " + command;
 		processCommand("cmd.exe", command);
-#elif UNITY_EDITOR_MAC
-            command = " -al " + command;
-            processCommand("ls", command);
+#elif UNITY_EDITOR_OSX
+		processCommand(command, string.Empty);
 #endif
 	}
 
