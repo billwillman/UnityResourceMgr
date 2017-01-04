@@ -3861,14 +3861,19 @@ public static class AssetBundleBuild
         	}
 		}
 
-        string subDir = System.IO.Path.GetFileName(dir);
-        string newDir = outPath + '/' + subDir;
-        if (!System.IO.Directory.Exists(newDir))
-        {
-            System.IO.DirectoryInfo dstDirInfo = System.IO.Directory.CreateDirectory(newDir);
-            if (dstDirInfo == null)
-                return;
-        }
+		string newDir;
+		if (!outPath.EndsWith(dir, StringComparison.CurrentCultureIgnoreCase))
+		{
+       		string subDir = System.IO.Path.GetFileName(dir);
+        	newDir = outPath + '/' + subDir;
+        	if (!System.IO.Directory.Exists(newDir))
+        	{
+            	System.IO.DirectoryInfo dstDirInfo = System.IO.Directory.CreateDirectory(newDir);
+            	if (dstDirInfo == null)
+                	return;
+       	 	}
+		} else
+			newDir = outPath;
 
         string[] fileNames = System.IO.Directory.GetFiles(dir, "*.*", SearchOption.TopDirectoryOnly);
         if (fileNames != null)
@@ -4208,12 +4213,39 @@ public static class AssetBundleBuild
 			}
 	}
 
+	static private void _CreateDirs(string dirs)
+	{
+		if (string.IsNullOrEmpty(dirs))
+			return;
+		string[] dd = dirs.Split('/');
+		if (dd == null || dd.Length <= 0)
+		{
+			if (!Directory.Exists(dirs))
+				Directory.CreateDirectory(dirs);
+			return;
+		}
+
+		string root = string.Empty;
+		for (int i = 0; i < dd.Length; ++i)
+		{
+			string d = dd[i];
+			if (string.IsNullOrEmpty(d))
+				continue;
+			if (string.IsNullOrEmpty(root))
+				root = d;
+			else
+				root = '/' + d;
+			if (!Directory.Exists(root))
+				Directory.CreateDirectory(root);
+		}
+	}
+
 	static private void Cmd_CopyList(string outPath, List<string> copyList)
 		{
 			if (string.IsNullOrEmpty(outPath) || copyList == null || copyList.Count <= 0)
 				return;
 
-			string dstAssets = outPath + '/' + "Assets";
+			string dstAssets = outPath + "/Assets";
 			if (!System.IO.Directory.Exists(dstAssets)) {
 				if (System.IO.Directory.CreateDirectory(dstAssets) == null)
 					return;
@@ -4239,10 +4271,19 @@ public static class AssetBundleBuild
 				}
 
 				dir = dir.Replace('\\', '/');
+
+			int idx = dir.IndexOf("Assets/");
+			if (idx >= 0)
+			{
+				dstAssets = outPath + "/Assets/" + dir.Substring(idx + 1);
+				_CreateDirs(dstAssets);
+			} else
+				dstAssets = outPath + "/Assets";
+
 				_CopyAllDirs(dir, dstAssets, null);
 			}
 
-			dstAssets = outPath + '/' + "ProjectSettings";
+			dstAssets = outPath +  "/ProjectSettings";
 			_CopyAllFiles("ProjectSettings", dstAssets, null);
 		}
 
