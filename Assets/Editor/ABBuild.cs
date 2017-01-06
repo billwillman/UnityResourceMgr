@@ -1792,7 +1792,7 @@ class AssetBundleMgr
 
 	private AssetBundleManifest CallBuild_5_x_API(string exportDir, int compressType, BuildTarget target, bool isReBuild = true)
 	{
-		BuildAssetBundleOptions buildOpts = BuildAssetBundleOptions.DisableWriteTypeTree |
+		BuildAssetBundleOptions buildOpts = /*BuildAssetBundleOptions.DisableWriteTypeTree |*/
 			BuildAssetBundleOptions.DeterministicAssetBundle;
 		
 		if (isReBuild)
