@@ -210,7 +210,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 	public static readonly int cCacheTickCount = 5;
 	// 内存警告上限
 	public static readonly bool cIsUseCacheMemoryClear = true;
-	public static readonly uint cCacheMemoryLimit = 1024 * 1024 * 100;
+	public static readonly uint cCacheMemoryLimit = 1024 * 1024 * 200;
 	public static readonly int cAssetBundleMaxCount = 200;
 	public static readonly bool cIsCheckAssetBundleCount = false;
 
@@ -709,26 +709,47 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		}
 	}
 
-	private void OnTimerEvent(Timer obj, float deltTime)
+    private float m_MemClearTime = 0;
+    private static float m_MemClearMaxTime = 10.0f;
+    private bool CanClearMem() {
+        return m_MemClearTime <= float.Epsilon;
+    }
+
+    private void ResetMemMaxClearTime() {
+        m_MemClearTime = m_MemClearMaxTime;
+    }
+
+    private void UpdateMemClearTime(float deltTime) {
+        if (m_MemClearTime - deltTime < 0)
+            m_MemClearTime = 0;
+        else
+            m_MemClearTime -= deltTime;
+    }
+
+    private void OnTimerEvent(Timer obj, float deltTime)
 	{
 		float t = GetCurrentTime ();
 		UnLoadTempAssetInfo();
 		UpdateNotUsedList (t);
 		UpdateUsedList (t);
 
-		// 判断当前内存使用情况，如果超过内存限制，直接清除掉 mNotUsedCacheList
-		if (cIsUseCacheMemoryClear) {
-			#if (!UNITY_EDITOR) && (!ENABLE_PROFILER)
-			uint checkMemorySize = GetCheckMemorySize ();
-            if (checkMemorySize >= cCacheMemoryLimit)
-             {
-                ClearAllNotUsedList(true);
-                // 再做一次Unload清理
-                ResourceMgr.Instance.UnloadUnUsed();
-              }
-			#endif
-		}
-	}
+        // 判断当前内存使用情况，如果超过内存限制，直接清除掉 mNotUsedCacheList
+        if (cIsUseCacheMemoryClear) {
+            UpdateMemClearTime(deltTime);
+            if (CanClearMem()) {
+#if (!UNITY_EDITOR) && (!ENABLE_PROFILER)
+                    uint checkMemorySize = GetCheckMemorySize ();
+                    if (checkMemorySize >= cCacheMemoryLimit)
+                    {
+                        ResetMemMaxClearTime();
+                        ClearAllNotUsedList(true);
+                        // 再做一次Unload清理
+                        ResourceMgr.Instance.UnloadUnUsed();
+                    }
+#endif
+            }
+        }
+    }
 
 	public float GetCurrentTime()
 	{
