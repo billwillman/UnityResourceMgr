@@ -243,9 +243,9 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		}*/
 
 		if (Application.isEditor)
-			return Profiler.GetTotalAllocatedMemory () / 2;
+			return Profiler.GetTotalReservedMemory () / 2;
 		else
-			return Profiler.GetTotalAllocatedMemory();
+			return Profiler.GetTotalReservedMemory();
 			//return Profiler.usedHeapSize;
 	}
 
