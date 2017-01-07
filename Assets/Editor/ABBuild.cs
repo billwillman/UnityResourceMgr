@@ -1799,7 +1799,7 @@ class AssetBundleMgr
 			target != BuildTarget.StandaloneLinuxUniversal && target != BuildTarget.StandaloneOSXIntel &&
 			target != BuildTarget.StandaloneOSXIntel64 && target != BuildTarget.StandaloneOSXUniversal &&
 			target != BuildTarget.StandaloneWindows && target != BuildTarget.StandaloneWindows64)
-			buildOpts != BuildAssetBundleOptions.DisableWriteTypeTree;
+			buildOpts |= BuildAssetBundleOptions.DisableWriteTypeTree;
 		
 		if (isReBuild)
 			buildOpts |= BuildAssetBundleOptions.ForceRebuildAssetBundle;
