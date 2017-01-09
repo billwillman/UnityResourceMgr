@@ -738,6 +738,43 @@ public class TaskList
 		}
 	}
 
+	public void ProcessDoneContinue(Func<ITask, bool> onCheckTaskVaild = null)
+	{
+		LinkedListNode<ITask> node = mTaskList.First;
+		while (node != null && node.Value != null)
+		{
+			if (onCheckTaskVaild != null)
+			{
+				if (!onCheckTaskVaild(node.Value))
+				{
+					RemoveTask(node);
+					node = mTaskList.First;
+					continue;
+				}
+			}
+
+			if (node.Value.IsDone)
+			{
+				TaskEnd(node.Value);
+				RemoveTask(node);
+				node = mTaskList.First;
+				continue;
+			}
+
+			TaskProcess(node.Value);
+
+			if (node.Value.IsDone)
+			{
+				TaskEnd(node.Value);
+				RemoveTask(node);
+				node = mTaskList.First;
+				continue;
+			}
+
+			break;
+		}
+	}
+
 	public void Process(Func<ITask, bool> onCheckTaskVaild = null)
 	{
 		LinkedListNode<ITask> node = mTaskList.First;

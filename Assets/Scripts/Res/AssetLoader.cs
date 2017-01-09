@@ -288,7 +288,8 @@ public class AssetInfo
 	{
 		if (m_TaskList != null)
 		{
-			m_TaskList.Process(DoCheckTaskVaild);
+			//m_TaskList.Process(DoCheckTaskVaild);
+			m_TaskList.ProcessDoneContinue(DoCheckTaskVaild);
 			if (m_TaskList != null && m_TaskList.IsEmpty)
 			{
 				if (m_EndEvt != null)
