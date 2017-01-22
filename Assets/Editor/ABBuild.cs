@@ -3661,6 +3661,8 @@ public static class AssetBundleBuild
 				Cmd_CopyList(outPath, new List<string>(pkgCfg.Copys));
             // 4.将AB丢进新工程
 			BuildABFromPathList(outPath, pkgCfg.AssetBundles);
+            string md5Find = "Assets/md5Find.txt";
+            File.Copy(md5Find, outPath + '/' + md5Find, true);
             // 5.生成平台包
 		}
 
