@@ -1256,7 +1256,46 @@ public class AssetLoader: IResourceLoader
 		return asset;
 	}
 
-	public override bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess, int priority) {
+    public void ABUnLoadFalse(UnityEngine.Object target) {
+        if (target == null)
+            return;
+        AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(target);
+        if (cache == null) {
+            GameObject gameObj = target as GameObject;
+            if (gameObj != null) {
+                cache = AssetCacheManager.Instance.FindInstGameObjectCache(gameObj);
+                if (cache == null)
+                    return;
+            }
+        }
+        bool ret = AssetCacheManager.Instance.CacheDecRefCount(cache);
+        if (ret) {
+            ABUnloadFalse(cache);
+        }
+    }
+
+    private void ABUnloadFalse(AssetCache cache) {
+        if (cache != null && cache.IsNotUsed()) {
+            AssetInfo target = null;
+            AssetBundleCache abCache = cache as AssetBundleCache;
+            if (abCache != null)
+                target = abCache.Target;
+            AssetCacheManager.Instance._Unload(cache, false);
+            if (target != null) {
+                for (int i = 0; i < target.DependFileCount; ++i) {
+                    string depFileName = target.GetDependFileName(i);
+                    if (string.IsNullOrEmpty(depFileName))
+                        continue;
+                    AssetInfo depInfo = FindAssetInfo(depFileName);
+                    if (depInfo != null && depInfo.Cache != null) {
+                        ABUnloadFalse(depInfo.Cache);
+                    }
+                }
+            }
+        }
+    }
+
+    public override bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess, int priority) {
 		fileName = TransFileName (fileName, ".tex");
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();

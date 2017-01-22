@@ -290,6 +290,16 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		AssetCacheManager.Instance._OnDestroyGameObject(instId);
 	}
 
+    // AssetBundle.Unload(false)
+    public void ABUnloadFalse(UnityEngine.Object target) {
+        if (mAssetLoader == null || target == null)
+            return;
+        AssetLoader loader = mAssetLoader as AssetLoader;
+        if (loader == null)
+            return;
+        loader.ABUnLoadFalse(target);
+    }
+
     // isUnloadAsset is used by not GameObject
     public void DestroyObject(UnityEngine.Object obj, bool isUnloadAsset = false)
 	{

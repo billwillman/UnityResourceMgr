@@ -367,7 +367,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		mObjCacheMap.Add (orgObj.GetInstanceID (), cache);
 	}
 
-    internal void _Unload(AssetCache cache)
+    internal void _Unload(AssetCache cache, bool isUnloadTrue = true)
     {
         if (cache == null)
             return;
@@ -386,7 +386,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
         	}
 		}
 
-		RemoveCache(cache);
+		RemoveCache(cache, isUnloadTrue);
     }
 
     internal void _RemoveOrgObj(UnityEngine.Object orgObj, bool isUnloadAsset)
@@ -485,7 +485,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 	}
 
 	// bu bao han list del
-	private void RemoveCache(AssetCache cache)
+	private void RemoveCache(AssetCache cache, bool isUnloadTrue = true)
 	{
 		if (cache == null)
 			return;
@@ -502,9 +502,12 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		}
 		iter.Dispose ();
 		mCacheSet.Remove (cache);
-		cache.UnLoad ();
+        if (isUnloadTrue)
+            cache.UnLoad();
+        else
+            cache.UnUsed();
 
-		// 通知Cache被删除
+        // 通知Cache被删除
         EventDispatch.Instance.TriggerEvent<AssetCache>(_EVENT_CACHEDESTROY_END, cache);
 	}
 
