@@ -24,7 +24,12 @@ public class ResourceMgrMonitorEditor: Editor
 				bool isBundleRes = name.StartsWith("Bundle");
 				if (isBundleRes)
 				{
-					EditorGUILayout.LabelField(name);
+                    string realFileName;
+                    if (m_Md5FindMap.TryGetValue(name, out realFileName)) {
+                        name = realFileName;
+                    }
+
+                    EditorGUILayout.LabelField(name);
 					EditorGUILayout.IntField(node.Current.Value);
 					hasBundleRes = true;
 				}
@@ -317,7 +322,9 @@ public class ResourceMgrMonitorEditor: Editor
 
 		if (Application.isPlaying) {
 
-			DrawSearchTarget();
+            LoadMd5FindFile();
+
+            DrawSearchTarget();
 
 			DrawObjectPoolInfos();
 
@@ -330,7 +337,9 @@ public class ResourceMgrMonitorEditor: Editor
 			DrawCacheMap(mNotUsedAssetRefMap, "未使用列表");
 
 			DrawBtnClearNoUsed();
-		}
+		} else {
+            m_LoadMd5FindFile = false;
+        }
 	}
 
 	void DrawBtnClearNoUsed()
@@ -402,7 +411,43 @@ public class ResourceMgrMonitorEditor: Editor
 		}
 	}
 
-	private Dictionary<string, int> mUsedAssetRefMap = new Dictionary<string, int>();
+    private static void LoadMd5FindFile() {
+        if (m_LoadMd5FindFile)
+            return;
+        m_LoadMd5FindFile = true;
+        string fileName = "Assets/md5Find.txt";
+        if (System.IO.File.Exists(fileName)) {
+            System.IO.FileStream stream = new System.IO.FileStream(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read);
+            if (stream.Length > 0) {
+                byte[] buf = new byte[stream.Length];
+                stream.Read(buf, 0, buf.Length);
+                string s = System.Text.Encoding.ASCII.GetString(buf);
+                List<string> lines = new List<string>(s.Split('\r'));
+                for (int i = 0; i < lines.Count; ++i) {
+                    string line = lines[i].Trim();
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+                    int idx = line.IndexOf('=');
+                    if (idx > 0) {
+                        string left = line.Substring(0, idx).Trim();
+                        if (string.IsNullOrEmpty(left))
+                            continue;
+                        string right = line.Substring(idx + 1).Trim();
+                        if (string.IsNullOrEmpty(right))
+                            continue;
+                        m_Md5FindMap.Add(left, right);
+                    }
+                }
+            }
+            stream.Dispose();
+            stream.Close();
+        }
+    }
+
+    private static bool m_LoadMd5FindFile = false;
+    private static Dictionary<string, string> m_Md5FindMap = new Dictionary<string, string>();
+
+    private Dictionary<string, int> mUsedAssetRefMap = new Dictionary<string, int>();
 	private Dictionary<string, int> mNotUsedAssetRefMap = new Dictionary<string, int>();
 	static private GameObject mShowTarget = null;
 	private float m_LastUpdateTime = 0;

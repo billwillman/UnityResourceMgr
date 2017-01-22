@@ -2659,8 +2659,11 @@ class AssetBundleMgr
 //	private static readonly bool _cIsOnlyFileNameMd5 = true;
 	private void ChangeBundleFileNameToMd5(string outPath)
 	{
-		// Temp script
-		for (int i = 0; i < mAssetBundleList.Count; ++i)
+        // MD5对应文件
+        Dictionary<string, string> md5FindFileName = new Dictionary<string, string>();
+
+        // Temp script
+        for (int i = 0; i < mAssetBundleList.Count; ++i)
 		{
 			AssetBunbleInfo info = mAssetBundleList[i];
 			if ((info != null) && info.IsBuilded && (info.SubFileCount > 0) && (info.FileType != AssetBundleFileType.abError))
@@ -2677,8 +2680,8 @@ class AssetBundleMgr
 
 					FileInfo fileInfo = new FileInfo(oldFileName);
 					fileInfo.MoveTo(newFileName);
-				
-					/*
+                    md5FindFileName.Add(newFileName, oldFileName);
+                    /*
 					if (!File.Exists(newFileName))
 					{
 						FileInfo fileInfo = new FileInfo(oldFileName);
@@ -2690,10 +2693,24 @@ class AssetBundleMgr
 						Debug.LogWarningFormat("Bundle To Md5: [srcFile: {0}] => [dstFile: {1}] is exists", 
 						                       info.BundleFileName, md5FileName);
 					}*/
-				}
+                }
 			}
 		}
-	}
+
+        // Save Md5
+        var iter = md5FindFileName.GetEnumerator();
+        FileStream md5FindStream = new FileStream("Assets/md5Find.txt", FileMode.Create);
+        while (iter.MoveNext()) {
+            string s = string.Format("{0}={1}\r\n", iter.Current.Key, iter.Current.Value);
+            byte[] buf = System.Text.Encoding.ASCII.GetBytes(s);
+            if (buf != null && buf.Length > 0)
+                md5FindStream.Write(buf, 0, buf.Length);
+        }
+        iter.Dispose();
+        md5FindStream.Close();
+        md5FindStream.Dispose();
+
+    }
 
     // 5.x打包方法
     private void BuildAssetBundles_5_x(eBuildPlatform platform, int compressType, string outPath, bool isMd5, bool isForceAppend)
