@@ -21,14 +21,9 @@ public class ResourceMgrMonitorEditor: Editor
 			while (node.MoveNext()) {
 				string name = node.Current.Key;
 				
-				bool isBundleRes = name.StartsWith("Bundle");
+				bool isBundleRes = name.StartsWith("Bundle:");
 				if (isBundleRes)
 				{
-                    string realFileName;
-                    if (m_Md5FindMap.TryGetValue(name, out realFileName)) {
-                        name = realFileName;
-                    }
-
                     EditorGUILayout.LabelField(name);
 					EditorGUILayout.IntField(node.Current.Value);
 					hasBundleRes = true;
@@ -322,8 +317,6 @@ public class ResourceMgrMonitorEditor: Editor
 
 		if (Application.isPlaying) {
 
-            LoadMd5FindFile();
-
             DrawSearchTarget();
 
 			DrawObjectPoolInfos();
@@ -358,6 +351,14 @@ public class ResourceMgrMonitorEditor: Editor
 	string GetBundleKey(string fileName)
 	{
 		fileName = System.IO.Path.GetFileNameWithoutExtension(fileName);
+
+        LoadMd5FindFile();
+        if (m_Md5FindMap.Count > 0) {
+            string realFileName;
+            if (m_Md5FindMap.TryGetValue(fileName, out realFileName))
+                fileName = realFileName;
+        }
+
 		return string.Format("Bundle:{0}", fileName);
 	}
 

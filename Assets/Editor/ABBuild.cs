@@ -2680,7 +2680,7 @@ class AssetBundleMgr
 
 					FileInfo fileInfo = new FileInfo(oldFileName);
 					fileInfo.MoveTo(newFileName);
-                    md5FindFileName.Add(newFileName, oldFileName);
+                    md5FindFileName.Add(Path.GetFileName(newFileName), Path.GetFileName(oldFileName));
                     /*
 					if (!File.Exists(newFileName))
 					{
@@ -2703,8 +2703,10 @@ class AssetBundleMgr
         while (iter.MoveNext()) {
             string s = string.Format("{0}={1}\r\n", iter.Current.Key, iter.Current.Value);
             byte[] buf = System.Text.Encoding.ASCII.GetBytes(s);
-            if (buf != null && buf.Length > 0)
+            if (buf != null && buf.Length > 0) {
                 md5FindStream.Write(buf, 0, buf.Length);
+                md5FindStream.Flush();
+            }
         }
         iter.Dispose();
         md5FindStream.Close();
