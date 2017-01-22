@@ -306,7 +306,12 @@ public class ResourceMgrMonitorEditor: Editor
 		EditorGUILayout.Space();
 	}
 
-	public override void OnInspectorGUI ()
+    void DrawBundleCnt() {
+        EditorGUILayout.Space();
+        EditorGUILayout.IntField("资源Assets总数量", AssetCacheManager.Instance.AllBunldeCnt);
+    }
+
+    public override void OnInspectorGUI ()
 	{
 		DrawDefaultInspector ();
 
@@ -316,8 +321,10 @@ public class ResourceMgrMonitorEditor: Editor
 
 			DrawObjectPoolInfos();
 
-			// 正在使用列表
-			DrawCacheMap(mUsedAssetRefMap, "正在使用列表");
+            DrawBundleCnt();
+
+            // 正在使用列表
+            DrawCacheMap(mUsedAssetRefMap, "正在使用列表");
 
 			// 非使用列表
 			DrawCacheMap(mNotUsedAssetRefMap, "未使用列表");

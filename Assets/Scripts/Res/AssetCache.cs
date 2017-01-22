@@ -842,7 +842,14 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		mCacheSet.Clear();
 	}
 
-	private void UnLoadTempAssetInfo()
+    // 总的Bundle数量
+    public int AllBunldeCnt {
+        get {
+            return mUsedCacheList.Count + mNotUsedCacheList.Count;
+        }
+    }
+
+    private void UnLoadTempAssetInfo()
 	{
 		var node = mTempAssetList.First;
         while (node != null)
