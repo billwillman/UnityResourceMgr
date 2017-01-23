@@ -1256,7 +1256,7 @@ public class AssetLoader: IResourceLoader
 		return asset;
 	}
 
-    public void ABUnLoadFalse(UnityEngine.Object target) {
+	public void ABUnLoadFalse(UnityEngine.Object target, bool unMySelf = true) {
         if (target == null)
             return;
         AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(target);
@@ -1268,11 +1268,44 @@ public class AssetLoader: IResourceLoader
                     return;
             }
         }
-        bool ret = AssetCacheManager.Instance.CacheDecRefCount(cache);
-        if (ret) {
-            ABUnloadFalse(cache);
-        }
+
+		if (unMySelf)
+		{
+        	bool ret = AssetCacheManager.Instance.CacheDecRefCount(cache);
+        	if (ret) {
+            	ABUnloadFalse(cache);
+        	}
+		} else
+		{
+			ABUnloadFalseDepend(cache);
+		}
     }
+
+	private void ABUnloadFalseDepend(AssetCache cache)
+	{
+		if (cache != null)
+		{
+			AssetInfo target = null;
+			AssetBundleCache abCache = cache as AssetBundleCache;
+			if (abCache != null)
+				target = abCache.Target;
+			if (target != null)
+			{
+				for (int i = 0; i < target.DependFileCount; ++i) {
+					string depFileName = target.GetDependFileName(i);
+					if (string.IsNullOrEmpty(depFileName))
+						continue;
+					int refCnt = target.GetDependFileRef(i);
+					AssetInfo depInfo = FindAssetInfo(depFileName);
+					if (depInfo != null && depInfo.Cache != null) {
+						bool ret = AssetCacheManager.Instance.CacheDecRefCount(depInfo.Cache, refCnt);
+						if (ret)
+							ABUnloadFalse(depInfo.Cache);
+					}
+				}
+			}
+		}
+	}
 
     private void ABUnloadFalse(AssetCache cache) {
         if (cache != null && cache.IsNotUsed()) {

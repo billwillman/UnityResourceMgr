@@ -291,13 +291,13 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	}
 
     // AssetBundle.Unload(false)
-    public void ABUnloadFalse(UnityEngine.Object target) {
+	public void ABUnloadFalse(UnityEngine.Object target, bool unMySelf = true) {
         if (mAssetLoader == null || target == null)
             return;
         AssetLoader loader = mAssetLoader as AssetLoader;
         if (loader == null)
             return;
-        loader.ABUnLoadFalse(target);
+		loader.ABUnLoadFalse(target, unMySelf);
     }
 
     // isUnloadAsset is used by not GameObject
