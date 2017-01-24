@@ -291,13 +291,88 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	}
 
     // AssetBundle.Unload(false)
-	public void ABUnloadFalse(UnityEngine.Object target, bool unMySelf = true) {
-        if (mAssetLoader == null || target == null)
+    // 使用这个函数，如果是非实例化的资源，不需要调用DestroyObject释放它
+    // 例如：LoadPrefab，refAdd,然后调用ABUnloadFalse，并且unMySelf参数是True的时候，不需要再调用ResourceMgr.Instance.Destroy释放它
+    // 总结来说：没有ABUnloadFalse的refAdd资源，都要用ResourceMgr.Instance.Destroy对引用计数-1
+    public void ABUnloadFalse(UnityEngine.Object target, bool unMySelf = true) {
+
+        if (target == null)
             return;
-        AssetLoader loader = mAssetLoader as AssetLoader;
-        if (loader == null)
-            return;
-		loader.ABUnLoadFalse(target, unMySelf);
+
+        AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(target);
+
+        if (cache == null) {
+            GameObject gameObj = target as GameObject;
+            if (gameObj != null) {
+                cache = AssetCacheManager.Instance.FindInstGameObjectCache(gameObj);
+                if (cache == null)
+                    return;
+            }
+        }
+
+        if (unMySelf) {
+            bool ret = AssetCacheManager.Instance.CacheDecRefCount(cache);
+            if (ret) {
+                ABUnloadFalse(cache);
+            }
+        }
+        else {
+            ABUnloadFalseDepend(cache);
+        }
+    }
+
+    private void ABUnloadFalseDepend(AssetCache cache) {
+        // ----------------------------针对AB处理----------------------
+        if (cache != null) {
+            AssetInfo target = null;
+            AssetBundleCache abCache = cache as AssetBundleCache;
+            if (abCache != null)
+                target = abCache.Target;
+            if (target != null) {
+                AssetLoader loader = mAssetLoader as AssetLoader;
+                if (loader != null) {
+                    for (int i = 0; i < target.DependFileCount; ++i) {
+                        string depFileName = target.GetDependFileName(i);
+                        if (string.IsNullOrEmpty(depFileName))
+                            continue;
+                        int refCnt = target.GetDependFileRef(i);
+                        AssetInfo depInfo = loader.FindAssetInfo(depFileName);
+                        if (depInfo != null && depInfo.Cache != null) {
+                            bool ret = AssetCacheManager.Instance.CacheDecRefCount(depInfo.Cache, refCnt);
+                            if (ret)
+                                ABUnloadFalse(depInfo.Cache);
+                        }
+                    }
+                }
+            }
+        }
+        //-------------------------------------------------------------
+    }
+
+    private void ABUnloadFalse(AssetCache cache) {
+        if (cache != null && cache.IsNotUsed()) {
+            AssetInfo target = null;
+            AssetBundleCache abCache = cache as AssetBundleCache;
+            if (abCache != null)
+                target = abCache.Target;
+            AssetCacheManager.Instance._Unload(cache, false);
+            // ----------------------------针对AB处理----------------------
+            if (target != null) {
+                AssetLoader loader = mAssetLoader as AssetLoader;
+                if (loader != null) {
+                    for (int i = 0; i < target.DependFileCount; ++i) {
+                        string depFileName = target.GetDependFileName(i);
+                        if (string.IsNullOrEmpty(depFileName))
+                            continue;
+                        AssetInfo depInfo = loader.FindAssetInfo(depFileName);
+                        if (depInfo != null && depInfo.Cache != null) {
+                            ABUnloadFalse(depInfo.Cache);
+                        }
+                    }
+                }
+            }
+            //-------------------------------------------------------------
+        }
     }
 
     // isUnloadAsset is used by not GameObject
