@@ -746,8 +746,8 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
                     {
                         ResetMemMaxClearTime();
                         ClearAllNotUsedList(true);
-                        // 再做一次Unload清理
-                        ResourceMgr.Instance.UnloadUnUsed();
+                        // 再做一次Unload清理, 减少UnloadUnUsed坑，UnloadUnUsed+异步加载，可能会CRASH
+                    //    ResourceMgr.Instance.UnloadUnUsed();
                     }
 #endif
             }
