@@ -73,10 +73,13 @@ public class AssetBundleCache: AssetCache
 	public AssetBundleCache(AssetInfo target)
 	{
 		mTarget = target;
+		IsloadDecDepend = true;
 	}
 
 	public AssetBundleCache()
-	{}
+	{
+		IsloadDecDepend = true;
+	}
 
 	public override bool IsNotUsed() {
 		return (RefCount <= 0) && ((mTarget == null) || (!mTarget.IsUsing));
@@ -95,7 +98,7 @@ public class AssetBundleCache: AssetCache
 	protected override void OnUnLoad()
 	{
 		if (mTarget != null) {
-			mTarget.UnLoad ();
+			mTarget.UnLoad (IsloadDecDepend);
 			mTarget = null;
 		}
 
@@ -109,7 +112,7 @@ public class AssetBundleCache: AssetCache
 	{
 		if (mTarget != null)
 		{
-			mTarget.UnUsed();
+			mTarget.UnUsed(IsloadDecDepend);
 			mTarget = null;
 		}
 
@@ -126,6 +129,12 @@ public class AssetBundleCache: AssetCache
             mTarget.OnUnloadAsset(asset);
         }
     }
+
+	internal bool IsloadDecDepend
+	{
+		get;
+		set;
+	}
 
     public AssetInfo Target {
 		get
@@ -144,6 +153,7 @@ public class AssetBundleCache: AssetCache
 		InitPool();
 		AssetBundleCache ret = m_Pool.GetObject();
 		ret.mTarget = target;
+		ret.IsloadDecDepend = true;
 		return ret;
 	}
 
@@ -159,6 +169,7 @@ public class AssetBundleCache: AssetCache
 	private void Reset()
 	{
 		mTarget = null;
+		IsloadDecDepend = true;
 	}
 
 	private static void InitPool() {
@@ -891,7 +902,7 @@ public class AssetInfo
 		RemoveDepend(this);
 	}
 
-	public void UnLoad()
+	public void UnLoad(bool isDecDepend = true)
 	{
 #if UNITY_EDITOR
 		if (IsVaild() && IsUsing)
@@ -909,11 +920,12 @@ public class AssetInfo
 
 			ClearTaskData();
 
-			DecDependInfo();
+			if (isDecDepend)
+				DecDependInfo();
 		}
 	}
 
-	public void UnUsed()
+	public void UnUsed(bool isDecDepend = true)
 	{
 		if (IsVaild() /*&& !IsUsing*/) {
 
@@ -925,7 +937,8 @@ public class AssetInfo
 			mCache = null;
 			ClearTaskData();
 			// 处理依赖关系
-			DecDependInfo();
+			if (isDecDepend)
+				DecDependInfo();
 		}
 	}
 

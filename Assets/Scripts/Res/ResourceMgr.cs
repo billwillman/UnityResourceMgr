@@ -327,7 +327,11 @@ public class ResourceMgr: Singleton<ResourceMgr>
             AssetInfo target = null;
             AssetBundleCache abCache = cache as AssetBundleCache;
             if (abCache != null)
-                target = abCache.Target;
+			{
+				if (!abCache.IsloadDecDepend)
+					return;
+				target = abCache.Target;
+			}
             if (target != null) {
                 AssetLoader loader = mAssetLoader as AssetLoader;
                 if (loader != null) {
@@ -343,7 +347,11 @@ public class ResourceMgr: Singleton<ResourceMgr>
                                 ABUnloadFalse(depInfo.Cache);
                         }
                     }
+
+					if (abCache != null)
+						abCache.IsloadDecDepend = false;
                 }
+
             }
         }
         //-------------------------------------------------------------
@@ -357,6 +365,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
                 target = abCache.Target;
             AssetCacheManager.Instance._Unload(cache, false);
             // ----------------------------’Î∂‘AB¥¶¿Ì----------------------
+			if (abCache != null && !abCache.IsloadDecDepend)
+				return;
             if (target != null) {
                 AssetLoader loader = mAssetLoader as AssetLoader;
                 if (loader != null) {
@@ -369,6 +379,10 @@ public class ResourceMgr: Singleton<ResourceMgr>
                             ABUnloadFalse(depInfo.Cache);
                         }
                     }
+
+					if (abCache != null)
+						abCache.IsloadDecDepend = false;
+
                 }
             }
             //-------------------------------------------------------------
