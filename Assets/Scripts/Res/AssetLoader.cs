@@ -1802,7 +1802,7 @@ public class AssetLoader: IResourceLoader
 
 			ret = asset.LoadAsync (taskList, priority);
 
-			Debug.LogFormat ("==>ab Load: {0}", asset.FileName);
+			//Debug.LogFormat ("==>ab Load: {0}", asset.FileName);
 		}
 		return ret;
 	}
@@ -1940,7 +1940,7 @@ public class AssetLoader: IResourceLoader
             addCount += 1;
             AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 			ret = asset.Load ();
-			Debug.LogFormat ("-->ab load: {0}", asset.FileName);
+		//	Debug.LogFormat ("-->ab load: {0}", asset.FileName);
         }
 		return ret;
 	}
