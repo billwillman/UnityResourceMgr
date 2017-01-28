@@ -1924,15 +1924,16 @@ public class AssetLoader: IResourceLoader
 			}
 		}
 
-		addCount += 1;
-		AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
-
 		asset.IsLocalUsing = false;
 		bool ret;
 		if (isUnloadDep)
 			ret = true;
 		else
+        {
+            addCount += 1;
+            AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 			ret = asset.Load ();
+        }
 		return ret;
 	}
 

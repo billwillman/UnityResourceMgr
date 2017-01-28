@@ -1,11 +1,11 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/NGUI/Scripts/UI/UICamera.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Res/AssetLoader.cs">
     <Files>
-      <File FileName="Assets/Scripts/Res/ResourceMgr.cs" Line="296" Column="76" />
-      <File FileName="Assets/Scripts/Res/IResourceLoader.cs" Line="42" Column="39" />
-      <File FileName="Assets/Scripts/Res/AssetLoader.cs" Line="1790" Column="4" />
-      <File FileName="Assets/NGUI/Scripts/UI/UICamera.cs" Line="10" Column="7" />
+      <File FileName="Assets/Scripts/Test.cs" Line="85" Column="50" />
+      <File FileName="Assets/Scripts/Res/ResourceMgr.cs" Line="439" Column="37" />
+      <File FileName="Assets/Scripts/Res/IResourceLoader.cs" Line="42" Column="2" />
+      <File FileName="Assets/Scripts/Res/AssetLoader.cs" Line="1396" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
