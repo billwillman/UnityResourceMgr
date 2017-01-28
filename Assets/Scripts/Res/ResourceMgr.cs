@@ -301,6 +301,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
         AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(target);
 
+		bool isOrgRes = cache != null;
         if (cache == null) {
             GameObject gameObj = target as GameObject;
             if (gameObj != null) {
@@ -311,10 +312,13 @@ public class ResourceMgr: Singleton<ResourceMgr>
         }
 
         if (unMySelf) {
-            bool ret = AssetCacheManager.Instance.CacheDecRefCount(cache);
-            if (ret) {
-                ABUnloadFalse(cache);
-            }
+			bool ret = (!isOrgRes) || AssetCacheManager.Instance.CacheDecRefCount(cache);
+			if (ret) {
+				if (cache.IsNotUsed())
+					ABUnloadFalse (cache);
+				else
+					ABUnloadFalseDepend (cache);
+			}
         }
         else {
             ABUnloadFalseDepend(cache);
@@ -348,8 +352,10 @@ public class ResourceMgr: Singleton<ResourceMgr>
                         }
                     }
 
-					if (abCache != null)
+					if (abCache != null) {
+						target._BundleUnLoadFalse ();
 						abCache.IsloadDecDepend = false;
+					}
                 }
 
             }

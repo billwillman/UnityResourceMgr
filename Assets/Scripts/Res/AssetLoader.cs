@@ -910,6 +910,16 @@ public class AssetInfo
 		RemoveDepend(this);
 	}
 
+	public void _BundleUnLoadFalse()
+	{
+		if (IsVaild ()) {
+			m_AsyncLoadDict.Clear ();
+			mBundle.Unload(false);
+			mBundle = null;
+			ClearTaskData();
+		}
+	}
+
 	public void UnLoad(bool isDecDepend = true)
 	{
 #if UNITY_EDITOR
@@ -920,13 +930,8 @@ public class AssetInfo
 
 			// LogMgr.Instance.Log(string.Format("Bundle unload=>{0}", Path.GetFileNameWithoutExtension(mFileName)));
 			m_OrgResMap.Clear();
-			m_AsyncLoadDict.Clear();
-
-			mBundle.Unload(true);
-			mBundle = null;
+			_BundleUnLoadFalse ();
 			mCache = null;
-
-			ClearTaskData();
 
 			if (isDecDepend)
 				DecDependInfo();
@@ -1397,7 +1402,7 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return null;
 
-		bool isNew = asset.Cache == null;
+		bool isNew = (asset.Cache == null) || IsAssetInfoUnloadDep(asset, fileName);
 		int addCount = 0;
 		if (!LoadAssetInfo (asset, ref addCount, fileName))
 			return null;
@@ -1478,7 +1483,7 @@ public class AssetLoader: IResourceLoader
 			if (req.isDone)
 			{
 				asset.IsUsing = false;
-				bool isNew = asset.Cache == null;
+				bool isNew = (asset.Cache == null) || IsAssetInfoUnloadDep(asset, fileName);
 				AddRefAssetCache(asset, isNew, cacheType);
 				asset.AddOrgResMap(fileName, req.asset);
 				OnLoadObjectAsync(fileName, asset, isNew, req.asset, cacheType);
@@ -1796,6 +1801,8 @@ public class AssetLoader: IResourceLoader
 			AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 
 			ret = asset.LoadAsync (taskList, priority);
+
+			Debug.LogFormat ("==>ab Load: {0}", asset.FileName);
 		}
 		return ret;
 	}
@@ -1933,6 +1940,7 @@ public class AssetLoader: IResourceLoader
             addCount += 1;
             AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 			ret = asset.Load ();
+			Debug.LogFormat ("-->ab load: {0}", asset.FileName);
         }
 		return ret;
 	}
@@ -1944,6 +1952,9 @@ public class AssetLoader: IResourceLoader
 		AddOrUpdateDependAssetCache (asset);
 		if (asset.Cache == null)
 			asset.Cache = AssetBundleCache.Create(asset);
+		AssetBundleCache abCache = asset.Cache as AssetBundleCache;
+		if (abCache != null)
+			abCache.IsloadDecDepend = true;
 		AssetCacheManager.Instance._AddOrUpdateUsedList (asset.Cache);
 	}
 
@@ -1976,7 +1987,11 @@ public class AssetLoader: IResourceLoader
 			}
 		}
 
+
 		asset.IsLocalUsing = false;
+		AssetBundleCache abCache = asset.Cache as AssetBundleCache;
+		if (abCache != null)
+			abCache.IsloadDecDepend = true;
 	}
 
 	private string GetCheckFileName(string fileName, bool isWWW, bool isUseABCreateFromFile)
