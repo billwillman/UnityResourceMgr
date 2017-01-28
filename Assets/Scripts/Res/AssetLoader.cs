@@ -331,6 +331,14 @@ public class AssetInfo
 		}
 	}
 
+	public UnityEngine.Object GetOrgAsset(string fileName)
+	{
+		UnityEngine.Object ret = null;
+		if (!GetOrgResMap(fileName, out ret))
+			return null;
+		return ret;
+	}
+
     internal void OnUnloadAsset(UnityEngine.Object asset)
     {
         if (m_OrgResMap != null)
@@ -1083,7 +1091,7 @@ public class AssetLoader: IResourceLoader
 			return false;
 
 		int addCount = 0;
-		if (!LoadAssetInfo (asset, ref addCount))
+		if (!LoadAssetInfo (asset, ref addCount, sceneName))
 			return false;
 		
 		AddOrUpdateAssetCache (asset);
@@ -1112,7 +1120,7 @@ public class AssetLoader: IResourceLoader
             asset.CompressType == AssetCompressType.astNone
 		   )
 		{
-			return LoadAsyncAssetInfo(asset, null, ref addCount, priority,
+			return LoadAsyncAssetInfo(asset, null, ref addCount, priority, sceneName,
 					delegate (bool isOk) {
 						if (isOk)
 						{
@@ -1131,7 +1139,7 @@ public class AssetLoader: IResourceLoader
             asset.CompressType == AssetCompressType.astUnityZip
             )
 		{
-				return LoadWWWAsseetInfo(asset, null, ref addCount,
+				return LoadWWWAsseetInfo(asset, null, ref addCount, sceneName,
 			                  delegate (bool isOk) {
 								if (isOk)
 								{
@@ -1139,11 +1147,11 @@ public class AssetLoader: IResourceLoader
 									if (onEnd != null)
 										onEnd();
 								}
-							 }
+					}
 			);
 		} else
 		{
-			if (!LoadAssetInfo (asset, ref addCount))
+			if (!LoadAssetInfo (asset, ref addCount, sceneName))
 				return false;
 			AddOrUpdateAssetCache (asset);
 			if (onEnd != null)
@@ -1209,7 +1217,7 @@ public class AssetLoader: IResourceLoader
 			asset.CompressType == AssetCompressType.astUnityZip ||
 			asset.CompressType == AssetCompressType.astNone
 		   ) {
-			return LoadAsyncAssetInfo(asset, null, ref addCount, priority,
+			return LoadAsyncAssetInfo(asset, null, ref addCount, priority, string.Empty,
 				delegate(bool isOk) {
 					if (isOk) {
 						DoPreloadAllType(asset, type);
@@ -1224,7 +1232,7 @@ public class AssetLoader: IResourceLoader
 #endif
 		if (asset.CompressType == AssetCompressType.astUnityZip)
 		{
-			return LoadWWWAsseetInfo(asset, null, ref addCount, 
+				return LoadWWWAsseetInfo(asset, null, ref addCount, string.Empty, 
 			                  delegate (bool isOk){
 				if (isOk)
 				{
@@ -1238,7 +1246,7 @@ public class AssetLoader: IResourceLoader
 		} else
 		{
 
-			if (!LoadAssetInfo (asset, ref addCount))
+			if (!LoadAssetInfo (asset, ref addCount, string.Empty))
 				return false;
 		
 			DoPreloadAllType(asset, type);
@@ -1391,7 +1399,7 @@ public class AssetLoader: IResourceLoader
 
 		bool isNew = asset.Cache == null;
 		int addCount = 0;
-		if (!LoadAssetInfo (asset, ref addCount))
+		if (!LoadAssetInfo (asset, ref addCount, fileName))
 			return null;
 
 		if (isNew) {
@@ -1509,14 +1517,14 @@ public class AssetLoader: IResourceLoader
             asset.CompressType == AssetCompressType.astNone
 			) {
 #if USE_ABFILE_ASYNC
-			return LoadAsyncAssetInfo(asset, null, ref addCount, priority,
+			return LoadAsyncAssetInfo(asset, null, ref addCount, priority, fileName,
 				delegate(bool isOk) {
 					if (isOk) {
 						DoLoadObjectAsync<T>(asset, fileName, cacheType, priority, onProcess);
 					}
 				});
 #else
-		if (!LoadAssetInfo (asset, ref addCount))
+		if (!LoadAssetInfo (asset, ref addCount, fileName))
 			return false;
 		return DoLoadObjectAsync<T>(asset, fileName, cacheType, priority, onProcess);
 #endif
@@ -1530,16 +1538,16 @@ public class AssetLoader: IResourceLoader
             asset.CompressType == AssetCompressType.astUnityZip      
             )
 		{
-				return LoadWWWAsseetInfo(asset, null, ref addCount,
+				return LoadWWWAsseetInfo(asset, null, ref addCount, fileName,
 			                  delegate (bool isOk){
 								  if (isOk)
 							      {
 										DoLoadObjectAsync<T>(asset, fileName, cacheType, priority, onProcess);
 								  }
-			                 });
+					});
 		} else
 		{
-			if (!LoadAssetInfo (asset, ref addCount))
+			if (!LoadAssetInfo (asset, ref addCount, fileName))
 				return false;
 			return DoLoadObjectAsync<T>(asset, fileName, cacheType, priority, onProcess);
 		}
@@ -1730,12 +1738,13 @@ public class AssetLoader: IResourceLoader
 
 #if UNITY_5_3 || UNITY_5_4
 
-	internal bool LoadAsyncAssetInfo(AssetInfo asset, TaskList taskList, ref int addCount, int priority, Action<bool> onEnd = null)
+	internal bool LoadAsyncAssetInfo(AssetInfo asset, TaskList taskList, ref int addCount, int priority, 
+									 string resFileName, Action<bool> onEnd = null)
 	{
 		if (asset == null)
 			return false;
 
-		bool isUnloadDep = IsAssetInfoUnloadDep (asset);
+		bool isUnloadDep = IsAssetInfoUnloadDep (asset, resFileName);
 		if (asset.IsVaild () && !isUnloadDep)
 		{
 			if (onEnd != null)
@@ -1771,7 +1780,7 @@ public class AssetLoader: IResourceLoader
 				{
 					continue;
 				}
-				if (!LoadAsyncAssetInfo(depend, taskList, ref addCount, priority))
+				if (!LoadAsyncAssetInfo(depend, taskList, ref addCount, priority, string.Empty))
 				{
 					asset.IsUsing = false;
 					return false;
@@ -1793,12 +1802,13 @@ public class AssetLoader: IResourceLoader
 
 #endif
 
-	internal bool LoadWWWAsseetInfo(AssetInfo asset, TaskList taskList, ref int addCount, Action<bool> onEnd = null)
+	internal bool LoadWWWAsseetInfo(AssetInfo asset, TaskList taskList, ref int addCount, string resFileName, Action<bool> onEnd = null)
 	{
 		if (asset == null)
 			return false;
 
-		if (asset.IsVaild ())
+		bool isUnloadDep = IsAssetInfoUnloadDep (asset, resFileName);
+		if (asset.IsVaild () && !isUnloadDep)
 		{
 			if (onEnd != null)
 				onEnd(true);
@@ -1842,7 +1852,7 @@ public class AssetLoader: IResourceLoader
 					return false;
 #endif
 				}
-				if (!LoadWWWAsseetInfo(depend, taskList, ref addCount))
+				if (!LoadWWWAsseetInfo(depend, taskList, ref addCount, string.Empty))
 				{
 					asset.IsUsing = false;
 					return false;
@@ -1850,31 +1860,40 @@ public class AssetLoader: IResourceLoader
 			}
 		}
 
-		addCount += 1;
-		AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
+		bool ret;
+		if (isUnloadDep)
+			ret = true;
+		else {
+			addCount += 1;
+			AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 
-	//	asset.IsUsing = false;
-		bool ret = asset.LoadWWW(taskList);
+			//	asset.IsUsing = false;
+			ret = asset.LoadWWW (taskList);
+		}
 		return ret;
 	}
 
-	private static bool IsAssetInfoUnloadDep(AssetInfo asset)
+	private static bool IsAssetInfoUnloadDep(AssetInfo asset, string resFileName)
 	{
 		bool ret = false;
 		if (asset == null || !asset.IsVaild() || asset.IsLocalUsing)
 			return ret;
 		AssetBundleCache cache = asset.Cache as AssetBundleCache;
-		if (cache != null)
+		if (cache != null) {
 			ret = !cache.IsloadDecDepend;
+			// 只有当不存在这个资源的时候才需要把依赖再读一次
+			if (ret && !string.IsNullOrEmpty(resFileName))
+				ret = asset.GetOrgAsset (resFileName) == null;
+		}
 		return ret;
 	}
 
-    internal bool LoadAssetInfo(AssetInfo asset, ref int addCount/*, bool isRoot = true*/)
+	internal bool LoadAssetInfo(AssetInfo asset, ref int addCount, string resFileName)
 	{
 		if (asset == null)
 			return false;
 
-		bool isUnloadDep = IsAssetInfoUnloadDep(asset);
+		bool isUnloadDep = IsAssetInfoUnloadDep(asset, resFileName);
 		if ((asset.IsVaild () || asset.IsLocalUsing) && !isUnloadDep)
 			return true;
 
@@ -1897,7 +1916,7 @@ public class AssetLoader: IResourceLoader
 					return false;
 #endif
                 }
-                if (!LoadAssetInfo(depend, ref addCount/*, false*/))
+				if (!LoadAssetInfo(depend, ref addCount, string.Empty))
 				{
 					asset.IsLocalUsing = false;
 					return false;
