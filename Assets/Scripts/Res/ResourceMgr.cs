@@ -258,7 +258,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		GameObject ret = GameObject.Instantiate (orgObject) as GameObject;
 		if (ret != null) {
 			AssetCacheManager.Instance._OnCreateGameObject (ret, orgObject);
-			// åŠ å…¥ä¸?ä¸ªè„šæœ?			// ret.AddComponent<ResInstDestroy>();
+			// åŠ å…¥ä¸?ä¸?„šæœ?			// ret.AddComponent<ResInstDestroy>();
 		}
 
 		return ret;

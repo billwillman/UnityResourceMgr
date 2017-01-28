@@ -1735,13 +1735,14 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return false;
 
-		if (asset.IsVaild ())
+		bool isUnloadDep = IsAssetInfoUnloadDep (asset);
+		if (asset.IsVaild () && !isUnloadDep)
 		{
 			if (onEnd != null)
 				onEnd(true);
 			return true;
 		}
-
+			
 		if (asset.IsUsing)
 		{
 			if (taskList == null) {
@@ -1778,10 +1779,15 @@ public class AssetLoader: IResourceLoader
 			}
 		}
 
-		addCount += 1;
-		AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
+		bool ret;
+		if (isUnloadDep)
+			ret = true;
+		else {
+			addCount += 1;
+			AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 
-		bool ret = asset.LoadAsync(taskList, priority);
+			ret = asset.LoadAsync (taskList, priority);
+		}
 		return ret;
 	}
 
@@ -1852,12 +1858,24 @@ public class AssetLoader: IResourceLoader
 		return ret;
 	}
 
+	private static bool IsAssetInfoUnloadDep(AssetInfo asset)
+	{
+		bool ret = false;
+		if (asset == null || !asset.IsVaild() || asset.IsLocalUsing)
+			return ret;
+		AssetBundleCache cache = asset.Cache as AssetBundleCache;
+		if (cache != null)
+			ret = !cache.IsloadDecDepend;
+		return ret;
+	}
+
     internal bool LoadAssetInfo(AssetInfo asset, ref int addCount/*, bool isRoot = true*/)
 	{
 		if (asset == null)
 			return false;
 
-		if (asset.IsVaild () || asset.IsLocalUsing)
+		bool isUnloadDep = IsAssetInfoUnloadDep(asset);
+		if ((asset.IsVaild () || asset.IsLocalUsing) && !isUnloadDep)
 			return true;
 
       //  if (!isRoot && asset.IsUsing)
@@ -1891,7 +1909,11 @@ public class AssetLoader: IResourceLoader
 		AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 
 		asset.IsLocalUsing = false;
-		bool ret = asset.Load ();
+		bool ret;
+		if (isUnloadDep)
+			ret = true;
+		else
+			ret = asset.Load ();
 		return ret;
 	}
 
