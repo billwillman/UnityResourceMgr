@@ -913,10 +913,8 @@ public class AssetInfo
 	public void _BundleUnLoadFalse()
 	{
 		if (IsVaild ()) {
-			m_AsyncLoadDict.Clear ();
 			mBundle.Unload(false);
 			mBundle = null;
-			ClearTaskData();
 		}
 	}
 
@@ -930,7 +928,10 @@ public class AssetInfo
 
 			// LogMgr.Instance.Log(string.Format("Bundle unload=>{0}", Path.GetFileNameWithoutExtension(mFileName)));
 			m_OrgResMap.Clear();
-			_BundleUnLoadFalse ();
+			m_AsyncLoadDict.Clear ();
+			mBundle.Unload(true);
+			mBundle = null;
+			ClearTaskData();
 			mCache = null;
 
 			if (isDecDepend)
@@ -943,10 +944,8 @@ public class AssetInfo
 		if (IsVaild() /*&& !IsUsing*/) {
 
 			m_OrgResMap.Clear();
+			_BundleUnLoadFalse ();
 			m_AsyncLoadDict.Clear();
-
-			mBundle.Unload(false);
-			mBundle = null;
 			mCache = null;
 			ClearTaskData();
 			// 处理依赖关系

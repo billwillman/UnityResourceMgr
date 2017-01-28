@@ -83,12 +83,13 @@ public class Test : CachedMonoBehaviour {
 				   delegate (float process, bool isDone, GameObject obj){
 						if (isDone && obj != null)
 						{
-						//ResourceMgr.Instance.ABUnloadFalse(obj);
-						var b = ResourceMgr.Instance.CreateGameObject("resources/@prefabs/cube.prefab");
-						ResourceMgr.Instance.ABUnloadFalse(b);
+							ResourceMgr.Instance.ABUnloadFalse(obj);
 						}
 					}
 				);
+
+			var b = ResourceMgr.Instance.CreateGameObject("resources/@prefabs/cube.prefab");
+			ResourceMgr.Instance.ABUnloadFalse(b);
 
 			}
 
