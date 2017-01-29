@@ -600,7 +600,7 @@ public class AssetInfo
 	// 所有文件不要重名（不包含后缀的）
 	public UnityEngine.Object LoadObject(string fileName, Type objType)
 	{
-		if (string.IsNullOrEmpty (fileName) || (!IsVaild()))
+		if (string.IsNullOrEmpty (fileName))
 			return null;
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
@@ -619,6 +619,9 @@ public class AssetInfo
 		UnityEngine.Object search = null;
 		if (GetOrgResMap(fileName, out search))
 			return search;
+
+		if (!IsVaild ())
+			return null;
 
 		string realFileName = Path.GetFileNameWithoutExtension (fileName);
 
@@ -821,7 +824,7 @@ public class AssetInfo
 
 	public bool HasChildFiles()
 	{
-		return IsVaild() && (mChildFileNameHashs != null) && (mChildFileNameHashs.Count > 0);
+		return (mChildFileNameHashs != null) && (mChildFileNameHashs.Count > 0);
 	}
 
 	public int DependFileCount
@@ -1748,8 +1751,7 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return false;
 
-		bool isUnloadDep = IsAssetInfoUnloadDep (asset, resFileName);
-		if (asset.IsVaild () && !isUnloadDep)
+		if (asset.IsVaild () || asset.GetOrgAsset(resFileName) != null)
 		{
 			if (onEnd != null)
 				onEnd(true);
@@ -1791,18 +1793,13 @@ public class AssetLoader: IResourceLoader
 				}
 			}
 		}
+			
+		addCount += 1;
+		AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 
-		bool ret;
-		if (isUnloadDep)
-			ret = true;
-		else {
-			addCount += 1;
-			AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
+		bool ret = asset.LoadAsync (taskList, priority);
 
-			ret = asset.LoadAsync (taskList, priority);
-
-			//Debug.LogFormat ("==>ab Load: {0}", asset.FileName);
-		}
+		//Debug.LogFormat ("==>ab Load: {0}", asset.FileName);
 		return ret;
 	}
 
@@ -1813,8 +1810,7 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return false;
 
-		bool isUnloadDep = IsAssetInfoUnloadDep (asset, resFileName);
-		if (asset.IsVaild () && !isUnloadDep)
+		if (asset.IsVaild () || asset.GetOrgAsset(resFileName) != null)
 		{
 			if (onEnd != null)
 				onEnd(true);
@@ -1866,23 +1862,18 @@ public class AssetLoader: IResourceLoader
 			}
 		}
 
-		bool ret;
-		if (isUnloadDep)
-			ret = true;
-		else {
-			addCount += 1;
-			AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
+		addCount += 1;
+		AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 
-			//	asset.IsUsing = false;
-			ret = asset.LoadWWW (taskList);
-		}
+		//	asset.IsUsing = false;
+		bool ret = asset.LoadWWW (taskList);
 		return ret;
 	}
 
 	private static bool IsAssetInfoUnloadDep(AssetInfo asset, string resFileName)
 	{
 		bool ret = false;
-		if (asset == null || !asset.IsVaild() || asset.IsLocalUsing)
+		if (asset == null)
 			return ret;
 		AssetBundleCache cache = asset.Cache as AssetBundleCache;
 		if (cache != null) {
@@ -1899,8 +1890,7 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return false;
 
-		bool isUnloadDep = IsAssetInfoUnloadDep(asset, resFileName);
-		if ((asset.IsVaild () || asset.IsLocalUsing) && !isUnloadDep)
+		if ((asset.IsVaild () || asset.IsLocalUsing) || asset.GetOrgAsset(resFileName) != null)
 			return true;
 
       //  if (!isRoot && asset.IsUsing)
@@ -1931,16 +1921,10 @@ public class AssetLoader: IResourceLoader
 		}
 
 		asset.IsLocalUsing = false;
-		bool ret;
-		if (isUnloadDep)
-			ret = true;
-		else
-        {
-            addCount += 1;
-            AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
-			ret = asset.Load ();
+        addCount += 1;
+        AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
+		bool ret = asset.Load ();
 		//	Debug.LogFormat ("-->ab load: {0}", asset.FileName);
-        }
 		return ret;
 	}
 
