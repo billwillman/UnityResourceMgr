@@ -927,7 +927,7 @@ public class AssetInfo
 		if (IsUsing)
 			Debug.LogErrorFormat("{0} is using but unload!", mFileName);
 #endif
-		if (/*IsVaild() &&*/ !IsUsing) {
+	//	if (/*IsVaild() &&*/ !IsUsing) {
 			bool isVaild = IsVaild ();
 			m_OrgResMap.Clear();
 			// LogMgr.Instance.Log(string.Format("Bundle unload=>{0}", Path.GetFileNameWithoutExtension(mFileName)));
@@ -943,7 +943,7 @@ public class AssetInfo
 				if (isDecDepend)
 					DecDependInfo ();
 			}
-		}
+	//	}
 	}
 
 	public void UnUsed(bool isDecDepend = true)
