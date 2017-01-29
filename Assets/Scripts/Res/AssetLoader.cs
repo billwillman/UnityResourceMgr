@@ -924,36 +924,43 @@ public class AssetInfo
 	public void UnLoad(bool isDecDepend = true)
 	{
 #if UNITY_EDITOR
-		if (IsVaild() && IsUsing)
+		if (IsUsing)
 			Debug.LogErrorFormat("{0} is using but unload!", mFileName);
 #endif
-		m_OrgResMap.Clear();
-		if (IsVaild() && !IsUsing) {
-
+		if (/*IsVaild() &&*/ !IsUsing) {
+			bool isVaild = IsVaild ();
+			m_OrgResMap.Clear();
 			// LogMgr.Instance.Log(string.Format("Bundle unload=>{0}", Path.GetFileNameWithoutExtension(mFileName)));
 			m_AsyncLoadDict.Clear ();
-			mBundle.Unload(true);
-			mBundle = null;
+			if (isVaild) {
+				mBundle.Unload (true);
+				mBundle = null;
+			}
 			ClearTaskData();
 			mCache = null;
 
-			if (isDecDepend)
-				DecDependInfo();
+			if (isVaild) {
+				if (isDecDepend)
+					DecDependInfo ();
+			}
 		}
 	}
 
 	public void UnUsed(bool isDecDepend = true)
 	{
 		m_OrgResMap.Clear();
-		if (IsVaild() /*&& !IsUsing*/) {
+		bool isVaid = IsVaild();
+	//	if (IsVaild() /*&& !IsUsing*/) {
+			mCache = null;
 			_BundleUnLoadFalse ();
 			m_AsyncLoadDict.Clear();
-			mCache = null;
 			ClearTaskData();
-			// 处理依赖关系
+		// 处理依赖关系
+		if (isVaid) {
 			if (isDecDepend)
-				DecDependInfo();
+				DecDependInfo ();
 		}
+	//	}
 	}
 
 	private static AssetLoader Loader {

@@ -91,7 +91,7 @@ public class Test : CachedMonoBehaviour {
 
 			b = ResourceMgr.Instance.CreateGameObject("resources/cube.prefab");
 			ResourceMgr.Instance.ABUnloadFalse(b);
-
+			//ResourceMgr.Instance.AutoUpdateClear();
 			}
 
 		if (m_ObjList.Count > 0)
