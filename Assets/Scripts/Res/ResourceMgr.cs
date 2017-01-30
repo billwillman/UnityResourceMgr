@@ -335,6 +335,11 @@ public class ResourceMgr: Singleton<ResourceMgr>
 				if (!abCache.IsloadDecDepend)
 					return;
 				target = abCache.Target;
+				if (target != null)
+				{
+					if (target.IsUsing)
+						return;
+				}
 			}
             if (target != null) {
                 AssetLoader loader = mAssetLoader as AssetLoader;
