@@ -77,21 +77,16 @@ public class Test : CachedMonoBehaviour {
 
 			if (GUI.Button(new Rect(260, 160, 150, 50), "(异步)创建Prefab物体"))
 			{
-			var b = ResourceMgr.Instance.CreateGameObject("resources/cube.prefab");
-			ResourceMgr.Instance.ABUnloadFalse (b);
-			//return;
-				ResourceMgr.Instance.CreateGameObjectAsync("resources/@prefabs/flag.prefab",
+			ResourceMgr.Instance.CreateGameObjectAsync("resources/@prefab/flag.prefab",
 				   delegate (float process, bool isDone, GameObject obj){
 						if (isDone && obj != null)
 						{
 							ResourceMgr.Instance.ABUnloadFalse(obj);
 						}
-					}
+				}
 				);
 
-			b = ResourceMgr.Instance.CreateGameObject("resources/cube.prefab");
-			ResourceMgr.Instance.ABUnloadFalse(b);
-			//ResourceMgr.Instance.AutoUpdateClear();
+
 			}
 
 		if (m_ObjList.Count > 0)
