@@ -223,8 +223,26 @@ public class AssetInfo
 
 	// 正在加载中
 	internal bool IsUsing {
-		get;
-		set;
+		get {
+			return m_UsingCnt > 0;
+		}
+	}
+
+	internal void AddUsingCnt()
+	{
+		++m_UsingCnt;
+	}
+
+	internal void ClearUsingCnt()
+	{
+		m_UsingCnt = 0;
+	}
+
+	internal void DecUsingCnt()
+	{
+		--m_UsingCnt;
+		if (m_UsingCnt < 0)
+			m_UsingCnt = 0;
 	}
 
     internal bool IsLocalUsing {
@@ -257,6 +275,7 @@ public class AssetInfo
 	private TaskList m_TaskList = null;
 	private Timer m_Timer = null;
 	private Action<bool> m_EndEvt = null;
+	private int m_UsingCnt = 0;
 	internal void ClearTaskData()
 	{
 		m_EndEvt = null;
@@ -331,6 +350,68 @@ public class AssetInfo
 		}
 	}
 
+	public string GetOrgAssetFileName(UnityEngine.Object orgAsset)
+	{
+		if (orgAsset == null)
+			return string.Empty;
+		string ret = string.Empty;
+		var iter = m_OrgResMap.GetEnumerator();
+		while (iter.MoveNext ()) {
+			if (iter.Current.Value == orgAsset) {
+				ret = iter.Current.Key;
+				break;
+			}
+		}
+		iter.Dispose ();
+		return ret;
+	}
+
+	public string GetOrgAssetFileName(int orgId)
+	{
+		string ret = string.Empty;
+		var iter = m_OrgResMap.GetEnumerator();
+		while (iter.MoveNext ()) {
+			if (iter.Current.Value.GetInstanceID() == orgId) {
+				ret = iter.Current.Key;
+				break;
+			}
+		}
+		iter.Dispose ();
+		return ret;
+	}
+
+	public bool ContainsOrgAsset(int orgId)
+	{
+		if (m_OrgResMap == null)
+			return false;
+		bool ret = false;
+		var iter = m_OrgResMap.GetEnumerator();
+		while (iter.MoveNext ()) {
+			if (iter.Current.Value.GetInstanceID() == orgId) {
+				ret = true;
+				break;
+			}
+		}
+		iter.Dispose ();
+		return ret;
+	}
+
+	public bool ContainsOrgAsset(UnityEngine.Object orgAsset)
+	{
+		if (m_OrgResMap == null || orgAsset == null)
+			return false;
+		bool ret = false;
+		var iter = m_OrgResMap.GetEnumerator();
+		while (iter.MoveNext ()) {
+			if (iter.Current.Value == orgAsset) {
+				ret = true;
+				break;
+			}
+		}
+		iter.Dispose ();
+		return ret;
+	}
+
 	public UnityEngine.Object GetOrgAsset(string fileName)
 	{
 		UnityEngine.Object ret = null;
@@ -401,7 +482,8 @@ public class AssetInfo
 			}
 		}
 
-		info.IsUsing = false;
+		//info.IsUsing = false;
+		info.DecUsingCnt();
 	}
 #endif
 
@@ -423,7 +505,8 @@ public class AssetInfo
 			}
 		}
 
-		info.IsUsing = false;
+		//info.IsUsing = false;
+		info.DecUsingCnt();
 	}
 
 	internal void AddNoOwnerToTaskList(TaskList taskList, ITask task) {
@@ -811,12 +894,6 @@ public class AssetInfo
 		return AddAsyncOperation(fileName, objType, request, onProcess);
 	}
 
-	/*
-	public bool IsNew()
-	{
-		return !IsVaild() && !IsUsing;
-	}*/
-
 	public bool IsVaild()
 	{
 		return (mBundle != null);
@@ -932,6 +1009,7 @@ public class AssetInfo
 			m_OrgResMap.Clear();
 			// LogMgr.Instance.Log(string.Format("Bundle unload=>{0}", Path.GetFileNameWithoutExtension(mFileName)));
 			m_AsyncLoadDict.Clear ();
+			ClearUsingCnt ();
 			if (isVaild) {
 				mBundle.Unload (true);
 				mBundle = null;
@@ -954,6 +1032,7 @@ public class AssetInfo
 			mCache = null;
 			_BundleUnLoadFalse ();
 			m_AsyncLoadDict.Clear();
+			ClearUsingCnt ();
 			ClearTaskData();
 		// 处理依赖关系
 		if (isVaid) {
@@ -1484,13 +1563,15 @@ public class AssetLoader: IResourceLoader
 		}
 
 		// todo: 後面換成計數，而不是bool
-		asset.IsUsing = true;
+		//asset.IsUsing = true;
+		asset.AddUsingCnt();
 		bool ret = asset.LoadObjectAsync (fileName, typeof(T), priority, 
 		                              delegate (AssetBundleRequest req) {
 			
 			if (req.isDone)
 			{
-				asset.IsUsing = false;
+				//asset.IsUsing = false;
+				asset.DecUsingCnt();
 				bool isNew = (asset.Cache == null) || IsAssetInfoUnloadDep(asset, fileName);
 				AddRefAssetCache(asset, isNew, cacheType);
 				asset.AddOrgResMap(fileName, req.asset);
@@ -1505,7 +1586,8 @@ public class AssetLoader: IResourceLoader
 		);
 
 		if (!ret)
-			asset.IsUsing = false;
+			asset.DecUsingCnt ();
+			//asset.IsUsing = false;
 
 		return ret;
 	}
@@ -1781,7 +1863,8 @@ public class AssetLoader: IResourceLoader
 		if (taskList == null)
 			taskList = asset.CreateTaskList(onEnd);
 
-		asset.IsUsing = true;
+		//asset.IsUsing = true;
+		asset.AddUsingCnt();
 		for (int i = 0; i < asset.DependFileCount; ++i)
 		{
 			string fileName = asset.GetDependFileName(i);
@@ -1794,7 +1877,8 @@ public class AssetLoader: IResourceLoader
 				}
 				if (!LoadAsyncAssetInfo(depend, taskList, ref addCount, priority, string.Empty))
 				{
-					asset.IsUsing = false;
+					//asset.IsUsing = false;
+					asset.DecUsingCnt();
 					return false;
 				}
 			}
@@ -1844,7 +1928,8 @@ public class AssetLoader: IResourceLoader
 		if (taskList == null)
 			taskList = asset.CreateTaskList(onEnd);
 
-		asset.IsUsing = true;
+		//asset.IsUsing = true;
+		asset.AddUsingCnt();
 		for (int i = 0; i < asset.DependFileCount; ++i)
 		{
 			string fileName = asset.GetDependFileName(i);
@@ -1856,13 +1941,15 @@ public class AssetLoader: IResourceLoader
 #if USE_UNITY5_X_BUILD
 					continue;
 #else
-					asset.IsUsing = false;
+					//asset.IsUsing = false;
+					asset.DecUsingCnt ();
 					return false;
 #endif
 				}
 				if (!LoadWWWAsseetInfo(depend, taskList, ref addCount, string.Empty))
 				{
-					asset.IsUsing = false;
+					//asset.IsUsing = false;
+					asset.DecUsingCnt();
 					return false;
 				}
 			}
@@ -1871,7 +1958,6 @@ public class AssetLoader: IResourceLoader
 		addCount += 1;
 		AssetCacheManager.Instance._CheckAssetBundleCount (addCount);
 
-		//	asset.IsUsing = false;
 		bool ret = asset.LoadWWW (taskList);
 		return ret;
 	}
@@ -1898,9 +1984,6 @@ public class AssetLoader: IResourceLoader
 
 		if ((asset.IsVaild () || asset.IsLocalUsing) || asset.GetOrgAsset(resFileName) != null)
 			return true;
-
-      //  if (!isRoot && asset.IsUsing)
-      //      return true;
 
 		asset.IsLocalUsing = true;
 		// 首先先加载依赖AssetInfo

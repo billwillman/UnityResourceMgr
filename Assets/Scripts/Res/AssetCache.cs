@@ -303,6 +303,13 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		return true;
 	}
 
+	public bool GetInstGameObjectOrgId(int instId, out int orgId)
+	{
+		if (!mInstObjToObjMap.TryGetValue (instId, out orgId))
+			return false;
+		return true;
+	}
+
 	public AssetCache FindInstGameObjectCache(GameObject target)
 	{
 		AssetCache ret = null;
