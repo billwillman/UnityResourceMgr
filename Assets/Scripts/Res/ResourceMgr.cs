@@ -290,6 +290,30 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		AssetCacheManager.Instance._OnDestroyGameObject(instId);
 	}
 
+	// AudioClip Unload False的坑
+	public void CoroutneAudioClipABUnloadFalse(AudioClip clip, MonoBehaviour parent)
+	{
+		if (clip == null || parent == null)
+			return;
+		parent.StartCoroutine (CoroutneAudioClipABUnloadFalse (clip));
+	}
+
+	private System.Collections.IEnumerator CoroutneAudioClipABUnloadFalse(AudioClip clip)
+	{
+		while (true) {
+			if (clip == null) {
+				yield break;
+			}
+
+			if (clip.loadState == AudioDataLoadState.Loading || clip.loadState == AudioDataLoadState.Unloaded)
+				yield return null;
+			else {
+				ABUnloadFalse (clip, true);
+				break;
+			}
+		}
+	}
+
     // NGUI在同步加载的时候使用UISprite, AB Unload False会出现问题(主要是因为UIATLAS序列化问题, UIATLAS里会导致有部分丢失)
 	public void CoroutineEndFrameABUnloadFalse(UnityEngine.Object obj, MonoBehaviour parent, bool unMySelf = false) {
         if (obj == null || parent == null)
