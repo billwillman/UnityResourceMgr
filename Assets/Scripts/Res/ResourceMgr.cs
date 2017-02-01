@@ -297,10 +297,14 @@ public class ResourceMgr: Singleton<ResourceMgr>
         parent.StartCoroutine(CoroutineEndFrameABUnloadFalse(obj, unMySelf));
     }
 
+	private WaitForEndOfFrame m_EndFrame = null;
+
     private System.Collections.IEnumerator CoroutineEndFrameABUnloadFalse(GameObject obj, bool unMySelf) {
         if (obj == null)
             yield break;
-        yield return new WaitForEndOfFrame();
+		if (m_EndFrame == null)
+			m_EndFrame = new WaitForEndOfFrame ();
+		yield return m_EndFrame;
         ABUnloadFalse(obj, unMySelf);
     }
 
