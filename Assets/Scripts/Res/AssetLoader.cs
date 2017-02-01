@@ -2036,7 +2036,7 @@ public class AssetLoader: IResourceLoader
 		if (asset == null)
 			return;
 
-		if (!asset.IsUsing && (!asset.IsVaild ()) || asset.IsLocalUsing)
+		if (/*!asset.IsUsing &&*/ (!asset.IsVaild ()) || asset.IsLocalUsing)
 			return;
 
 		asset.IsLocalUsing = true;
