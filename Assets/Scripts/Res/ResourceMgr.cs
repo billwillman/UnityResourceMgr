@@ -290,6 +290,20 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		AssetCacheManager.Instance._OnDestroyGameObject(instId);
 	}
 
+    // NGUI在同步加载的时候使用UISprite, AB Unload False会出现问题(主要是因为UIATLAS序列化问题, UIATLAS里会导致有部分丢失)
+    public void CoroutineEndFrameABUnloadFalse(GameObject obj, MonoBehaviour parent, bool unMySelf = false) {
+        if (obj == null || parent == null)
+            return;
+        parent.StartCoroutine(CoroutineEndFrameABUnloadFalse(obj, unMySelf));
+    }
+
+    private System.Collections.IEnumerator CoroutineEndFrameABUnloadFalse(GameObject obj, bool unMySelf) {
+        if (obj == null)
+            yield break;
+        yield return new WaitForEndOfFrame();
+        ABUnloadFalse(obj, unMySelf);
+    }
+
     // AssetBundle.Unload(false)
     // 使用这个函数，如果是非实例化的资源，不需要调用DestroyObject释放它
     // 例如：LoadPrefab，refAdd,然后调用ABUnloadFalse，并且unMySelf参数是True的时候，不需要再调用ResourceMgr.Instance.Destroy释放它
