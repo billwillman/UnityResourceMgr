@@ -346,27 +346,26 @@ public class ResourceMgr: Singleton<ResourceMgr>
                 if (loader != null) {
 
                     // 先释放自己
-                    if (abCache != null) {
-                        target._BundleUnLoadFalse();
-                        abCache.IsloadDecDepend = false;
-                    }
-
+                    target._BundleUnLoadFalse();
+                    
                     // 再释放依赖
-                    for (int i = 0; i < target.DependFileCount; ++i) {
-                        string depFileName = target.GetDependFileName(i);
-                        if (string.IsNullOrEmpty(depFileName))
-                            continue;
-                        int refCnt = target.GetDependFileRef(i);
-                        AssetInfo depInfo = loader.FindAssetInfo(depFileName);
-                        if (depInfo != null && depInfo.Cache != null) {
-                            AssetBundleCache depABCache = depInfo.Cache as AssetBundleCache;
-                            if (depABCache != null && depABCache.Target != null && depABCache.IsloadDecDepend) {
+                    if (abCache.IsloadDecDepend) {
+                        abCache.IsloadDecDepend = false;
+                        for (int i = 0; i < target.DependFileCount; ++i) {
+                            string depFileName = target.GetDependFileName(i);
+                            if (string.IsNullOrEmpty(depFileName))
+                                continue;
+                            int refCnt = target.GetDependFileRef(i);
+                            AssetInfo depInfo = loader.FindAssetInfo(depFileName);
+                            if (depInfo != null && depInfo.Cache != null) {
                                 bool ret = AssetCacheManager.Instance.CacheDecRefCount(depInfo.Cache, refCnt);
                                 if (ret)
                                     ABUnloadFalse(depInfo.Cache);
                             }
                         }
                     }
+
+                    
                 }
 
             }
@@ -389,17 +388,17 @@ public class ResourceMgr: Singleton<ResourceMgr>
                 if (loader != null) {
 
                     // 先对自己处理
-                    if (abCache != null)
+                    if (abCache.IsloadDecDepend) {
                         abCache.IsloadDecDepend = false;
-
-                    // 再对依赖处理
-                    for (int i = 0; i < target.DependFileCount; ++i) {
-                        string depFileName = target.GetDependFileName(i);
-                        if (string.IsNullOrEmpty(depFileName))
-                            continue;
-                        AssetInfo depInfo = loader.FindAssetInfo(depFileName);
-                        if (depInfo != null && depInfo.Cache != null) {
-                            ABUnloadFalse(depInfo.Cache);
+                        // 再对依赖处理
+                        for (int i = 0; i < target.DependFileCount; ++i) {
+                            string depFileName = target.GetDependFileName(i);
+                            if (string.IsNullOrEmpty(depFileName))
+                                continue;
+                            AssetInfo depInfo = loader.FindAssetInfo(depFileName);
+                            if (depInfo != null && depInfo.Cache != null) {
+                                ABUnloadFalse(depInfo.Cache);
+                            }
                         }
                     }
                 }
