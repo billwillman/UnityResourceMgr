@@ -291,7 +291,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	}
 
     // NGUI在同步加载的时候使用UISprite, AB Unload False会出现问题(主要是因为UIATLAS序列化问题, UIATLAS里会导致有部分丢失)
-    public void CoroutineEndFrameABUnloadFalse(GameObject obj, MonoBehaviour parent, bool unMySelf = false) {
+	public void CoroutineEndFrameABUnloadFalse(UnityEngine.Object obj, MonoBehaviour parent, bool unMySelf = false) {
         if (obj == null || parent == null)
             return;
         parent.StartCoroutine(CoroutineEndFrameABUnloadFalse(obj, unMySelf));
@@ -299,7 +299,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 	private WaitForEndOfFrame m_EndFrame = null;
 
-    private System.Collections.IEnumerator CoroutineEndFrameABUnloadFalse(GameObject obj, bool unMySelf) {
+	private System.Collections.IEnumerator CoroutineEndFrameABUnloadFalse(UnityEngine.Object obj, bool unMySelf) {
         if (obj == null)
             yield break;
 		if (m_EndFrame == null)

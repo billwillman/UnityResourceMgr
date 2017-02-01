@@ -1,18 +1,17 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Test.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Res/AssetLoader.cs">
     <Files>
-      <File FileName="Assets\Scripts\Test.cs" Line="96" Column="8" />
-      <File FileName="Assets\Scripts\Res\ResourceMgr.cs" Line="372" Column="46" />
-      <File FileName="Assets\Scripts\Res\IResourceLoader.cs" Line="43" Column="38" />
-      <File FileName="Assets\Scripts\Res\AssetLoader.cs" Line="956" Column="27" />
-      <File FileName="Assets\Scripts\Res\AssetCache.cs" Line="876" Column="50" />
+      <File FileName="Assets/Scripts/Res/ResourceMgr.cs" Line="490" Column="42" />
+      <File FileName="Assets/Scripts/Test.cs" Line="81" Column="40" />
+      <File FileName="Assets/Scripts/Res/AssetLoader.cs" Line="2034" Column="2" />
+      <File FileName="Assets/Scripts/Res/AssetCache.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Res/AsyncOptionMgr.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Res/TaskList.cs" Line="152" Column="32" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/sheqiong/UnityResourceMgr/Assets/Scripts/Res/AssetLoader.cs" line="1904" column="1" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
