@@ -332,6 +332,15 @@ public class ResourceMgr: Singleton<ResourceMgr>
         ABUnloadFalse(obj, unMySelf);
     }
 
+	public void ABUnloadFalse(UnityEngine.Object[] targets, bool unMySelf = true)
+	{
+		if (targets == null || targets.Length <= 0)
+			return;
+		for (int i = 0; i < targets.Length; ++i) {
+			ABUnloadFalse (targets [i], unMySelf);
+		}
+	}
+
     // AssetBundle.Unload(false)
     // 使用这个函数，如果是非实例化的资源，不需要调用DestroyObject释放它
     // 例如：LoadPrefab，refAdd,然后调用ABUnloadFalse，并且unMySelf参数是True的时候，不需要再调用ResourceMgr.Instance.Destroy释放它
