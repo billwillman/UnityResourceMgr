@@ -684,8 +684,15 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if (orgObj == null)
 			return false;
 		AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache (orgObj);
-		if (cache == null)
+		if (cache == null) {
+			if (isUnloadAsset) {
+				if (!(orgObj is GameObject)) {
+					Resources.UnloadAsset(orgObj);
+					return true;
+				}
+			}
 			return false;
+		}
 
         bool ret = AssetCacheManager.Instance.CacheDecRefCount(cache);
         if (ret && isUnloadAsset)
