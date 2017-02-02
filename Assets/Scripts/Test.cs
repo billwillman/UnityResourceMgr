@@ -33,6 +33,9 @@ public class Test : CachedMonoBehaviour {
 				  delegate (float process, bool isDone, Object[] objs) {
 					if (isDone)
 					{
+								ResourceMgr.Instance.ABUnloadFalse(objs, true);
+								ResourceMgr.Instance.DestroyObjects(objs, true);
+								return;
 						m_IsSpritesLoading = false;
 						if (m_SpriteList != null)
 						{

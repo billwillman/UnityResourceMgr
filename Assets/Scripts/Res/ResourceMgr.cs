@@ -687,6 +687,10 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if (cache == null) {
 			if (isUnloadAsset) {
 				if (!(orgObj is GameObject)) {
+					Sprite sp = orgObj as UnityEngine.Sprite;
+					if (sp != null && sp.texture != null) {
+						Resources.UnloadAsset (sp.texture);
+					}
 					Resources.UnloadAsset(orgObj);
 					return true;
 				}
