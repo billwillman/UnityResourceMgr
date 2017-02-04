@@ -356,10 +356,11 @@ public class ResourceMgr: Singleton<ResourceMgr>
         if (cache == null) {
             GameObject gameObj = target as GameObject;
             if (gameObj != null) {
-                cache = AssetCacheManager.Instance.FindInstGameObjectCache(gameObj);
+                cache = AssetCacheManager.Instance.FindInstGameObjectCache (gameObj);
                 if (cache == null)
                     return;
-            }
+            } else
+                return;
         }
 
         if (unMySelf) {
