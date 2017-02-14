@@ -170,8 +170,8 @@ namespace NsHttpClient
 		{
 			if (rep == null)
 			{
-				DoClose();
-				return;
+                OnError(-1);
+                return;
 			}
 
 			/*
@@ -183,7 +183,7 @@ namespace NsHttpClient
 			m_OrgStream = rep.GetResponseStream();
 			if (m_OrgStream == null)
 			{
-				DoClose();
+                OnError(-1);
 				return;
 			}
 
@@ -193,6 +193,7 @@ namespace NsHttpClient
 			m_MaxReadBytes = rep.ContentLength;
 			if (m_MaxReadBytes <= 0)
 			{
+                OnEnd();
 				DoClose();
 				return;
 			}
