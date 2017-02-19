@@ -1379,12 +1379,12 @@ public class AssetLoader: IResourceLoader
 				if (isDone) {
 					if (obj != null) {
 
+						if (onProcess != null)
+							onProcess(process * 0.9f, false, null);
+
 						bool b = _LoadSpritesAsync(fileName, obj, ResourceCacheType.rctRefAdd, priority, onProcess);
 						if (!b)
 							return;
-
-						if (onProcess != null)
-							onProcess(process * 0.9f, false, null);
 					}
 					else {
 						if (onProcess != null)
