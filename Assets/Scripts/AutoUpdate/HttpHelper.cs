@@ -143,6 +143,19 @@ namespace NsHttpClient
 			return ret;
 		}
 
+		public static void OnAppExit()
+		{
+			var node = m_LinkList.First;
+			while (node != null)
+			{
+				var next = node.Next;
+				HttpClient client = node.Value;
+				InPool(client);
+				node = next;
+			}
+			m_LinkList.Clear();
+		}
+
 		// 保证OpenUrl在主线程调用
 		public static HttpClient OpenUrl<T>(string url, T listener, Action<HttpClient, HttpListenerStatus> OnEnd = null, Action<HttpClient> OnProcess = null, float timeOut = 5.0f) where T: HttpClientResponse
 		{

@@ -127,17 +127,22 @@ namespace NsHttpClient
 
 		protected virtual void DoClose()
 		{
-			if (m_OrgStream != null)
+			try
 			{
-				m_OrgStream.Close();
-				m_OrgStream.Dispose();
-				m_OrgStream = null;
-			}
+				if (m_OrgStream != null)
+				{
+					m_OrgStream.Close();
+					m_OrgStream.Dispose();
+					m_OrgStream = null;
+				}
 
-			if (m_Rep != null)
+				if (m_Rep != null)
+				{
+					m_Rep.Close();
+					m_Rep = null;
+				}
+			} catch
 			{
-				m_Rep.Close();
-				m_Rep = null;
 			}
 		}
 

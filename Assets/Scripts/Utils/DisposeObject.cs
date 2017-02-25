@@ -32,8 +32,8 @@ namespace Utils
             {
                 return;
             }
+			m_IsDispose = true;
             OnFree(Diposing);
-            m_IsDispose = true;
         }
 
         protected virtual void OnFree(bool isManual)
