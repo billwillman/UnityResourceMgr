@@ -403,7 +403,9 @@ namespace NsHttpClient
 
 			} catch (Exception except)
 			{
+				#if DEBUG
 				UnityEngine.Debug.LogErrorFormat("OnResponse Exception: {0}", except.ToString());
+				#endif
 				if (m_Listener != null)
 					m_Listener.OnError(-1); 
 			}
