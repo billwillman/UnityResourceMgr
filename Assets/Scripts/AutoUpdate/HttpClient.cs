@@ -383,7 +383,11 @@ namespace NsHttpClient
 			{
 				HttpWebResponse rep = req.EndGetResponse(result) as HttpWebResponse;
 				if (rep == null)
+				{
+					if (m_Listener != null)
+						m_Listener.OnError(-1);
 					return;
+				}
 				if (rep.StatusCode != HttpStatusCode.OK && rep.StatusCode != HttpStatusCode.PartialContent)
 				{
 					rep.Close();
