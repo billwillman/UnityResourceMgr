@@ -332,6 +332,24 @@ public class ResourceMgr: Singleton<ResourceMgr>
         ABUnloadFalse(obj, unMySelf);
     }
 
+	public void ABUnloadTrue(UnityEngine.Object target)
+	{
+		if (target == null)
+			return;
+		AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(target);
+		if (cache == null) {
+			GameObject gameObj = target as GameObject;
+			if (gameObj != null) {
+				cache = AssetCacheManager.Instance.FindInstGameObjectCache (gameObj);
+				if (cache == null)
+					return;
+			} else
+				return;
+		}
+
+		AssetCacheManager.Instance._Unload(cache, true);
+	}
+
 	public void ABUnloadFalse(UnityEngine.Object[] targets, bool unMySelf = true)
 	{
 		if (targets == null || targets.Length <= 0)
