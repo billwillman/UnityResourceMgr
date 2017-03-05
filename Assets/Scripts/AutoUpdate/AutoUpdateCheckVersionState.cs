@@ -67,7 +67,9 @@ namespace AutoUpdate
 				long t = DateTime.UtcNow.Ticks;
 				url = string.Format("{0}/{1}?time={2}", resAddr, AutoUpdateMgr._cVersionTxt, t.ToString());
 			}
-			target.CreateHttpTxt(url, OnReadEvent, OnError);
+
+
+		    target.CreateHttpTxt(url, OnReadEvent, OnError);
 		}
 
 	}

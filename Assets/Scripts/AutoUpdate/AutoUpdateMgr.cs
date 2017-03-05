@@ -335,6 +335,19 @@ namespace AutoUpdate
 			AddChgState (AutoUpdateState.auEnd);
 		}
 
+		// 新的HTTP框架文本请求
+		internal void CreateHttpTxt(string url, Action<HttpClient, HttpListenerStatus> onEnd, Action<HttpClient> onProcess = null)
+		{
+			if (string.IsNullOrEmpty(url))
+				return;
+			
+			HttpClientStrResponse response = new HttpClientStrResponse (4 * 1024);
+			lock (m_Lock)
+			{
+				HttpHelper.OpenUrl<HttpClientStrResponse>(url, response, onEnd, onProcess, m_HttpConnectTimeOut);   
+			}
+		}
+
 		internal HttpClient CreateHttpTxt (string url, Action<HttpClientResponse, long> OnReadEvt, 
 		                                  Action<HttpClientResponse, int> OnErrorEvt)
 		{
@@ -364,6 +377,20 @@ namespace AutoUpdate
 			{
 				HttpClient ret = new HttpClient (url, response, process, m_HttpConnectTimeOut);
 				return ret;
+			}
+		}
+
+		// 新的下载文件接口
+		internal void CreateHttpFile(string url, long process, Action<HttpClient, HttpListenerStatus> onEnd, Action<HttpClient> onProcess)
+		{
+			if (string.IsNullOrEmpty(m_WritePath) || string.IsNullOrEmpty(url))
+				return;
+			string fileName = Path.GetFileName (url);
+			string dstFileName = string.Format ("{0}/{1}", m_WritePath, fileName);
+			HttpClientFileStream response = new HttpClientFileStream (dstFileName, process, m_HttpFileBufSize);
+			lock (m_Lock)
+			{
+				HttpHelper.OpenUrl<HttpClientFileStream>(url, response, onEnd, onProcess, m_HttpConnectTimeOut);
 			}
 		}
 
