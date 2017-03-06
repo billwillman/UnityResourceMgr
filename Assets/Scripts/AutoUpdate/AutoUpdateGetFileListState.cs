@@ -87,8 +87,8 @@ namespace AutoUpdate
 			// use fileList ContentMD5
 			string serverFileListMd5 = AutoUpdateMgr.Instance.ServerFileListContentMd5;
 			string url = string.Format("{0}/{1}/{2}.txt", resAddr, ver, serverFileListMd5);
-			//AutoUpdateMgr.Instance.CreateHttpTxt(url, OnReadEvent, OnError);
-			AutoUpdateMgr.Instance.CreateHttpTxt(url, OnEnd); 
+			AutoUpdateMgr.Instance.CreateHttpTxt(url, OnReadEvent, OnError);
+			//AutoUpdateMgr.Instance.CreateHttpTxt(url, OnEnd); 
 		}
 		
 		public override  void Enter(AutoUpdateMgr target)

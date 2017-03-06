@@ -90,8 +90,8 @@ namespace AutoUpdate
 				url = string.Format("{0}/{1}?time={2}", resAddr, AutoUpdateMgr._cVersionTxt, t.ToString());
 			}
 
-			target.CreateHttpTxt(url, OnEnd);
-		   // target.CreateHttpTxt(url, OnReadEvent, OnError);
+			//target.CreateHttpTxt(url, OnEnd);
+		    target.CreateHttpTxt(url, OnReadEvent, OnError);
 
 		}
 
