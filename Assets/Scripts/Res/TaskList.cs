@@ -101,7 +101,7 @@ public abstract class ITask
 	private TaskList mOwner = null;
 }
 
-#if UNITY_5_3 || UNITY_5_4
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
 
 // LoadFromFileAsync
 public class BundleCreateAsyncTask: ITask

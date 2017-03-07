@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_5_3 || UNITY_5_4
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
 using UnityEngine.SceneManagement;
 #endif
 
@@ -48,8 +48,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			Application.LoadLevelAdditive (sceneName);
 #endif
 		else
-#if UNITY_5_3 || UNITY_5_4
-			SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+            SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
 #else
 			Application.LoadLevel (sceneName);
 #endif
@@ -61,14 +61,14 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	{
 		AsyncOperation opt;
 		if (isAdd) {
-#if UNITY_5_3 || UNITY_5_4
-			opt = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+            opt = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
 #else
 			opt = Application.LoadLevelAdditiveAsync (sceneName);
 #endif
 		} else {
-#if UNITY_5_3 || UNITY_5_4
-			opt = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+            opt = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
 #else
 			opt = Application.LoadLevelAsync(sceneName);
 #endif
@@ -138,8 +138,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 #if UNITY_5_2
 		Application.UnloadLevel(sceneName);
-#elif UNITY_5_3 || UNITY_5_4
-		SceneManager.UnloadScene(sceneName);
+#elif UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+        SceneManager.UnloadScene(sceneName);
 #endif
 		// 清除
 		AssetCacheManager.Instance.ClearUnUsed ();
