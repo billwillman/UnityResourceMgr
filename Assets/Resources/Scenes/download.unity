@@ -118,7 +118,7 @@ MonoBehaviour:
   m_LbDown: {fileID: 731500593}
   m_LbUseDownTime: {fileID: 658115134}
   m_CheckMultThread: {fileID: 1458714764}
-  ThreadCount: 5
+  ThreadCount: 1
 --- !u!4 &231890813
 Transform:
   m_ObjectHideFlags: 0
@@ -211,13 +211,13 @@ MonoBehaviour:
   updateAnchors: 1
   mColor: {r: 0, g: 0, b: 0, a: 1}
   mPivot: 4
-  mWidth: 84
+  mWidth: 82
   mHeight: 60
   mDepth: 0
   autoResizeBoxCollider: 0
   hideIfOffScreen: 0
   keepAspectRatio: 0
-  aspectRatio: 1.4
+  aspectRatio: 1.3666667
   keepCrispWhenShrunk: 1
   mTrueTypeFont: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   mFont: {fileID: 0}
@@ -649,6 +649,48 @@ Prefab:
 Transform:
   m_PrefabParentObject: {fileID: 400006, guid: d817ce413af090746808cf805ff3375b, type: 2}
   m_PrefabInternal: {fileID: 1273950623}
+--- !u!1001 &1331322757
+Prefab:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 414950, guid: c0f0dee41660d5540ac3e5fdd6ada498, type: 2}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 414950, guid: c0f0dee41660d5540ac3e5fdd6ada498, type: 2}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 414950, guid: c0f0dee41660d5540ac3e5fdd6ada498, type: 2}
+      propertyPath: m_LocalPosition.z
+      value: -5.679614
+      objectReference: {fileID: 0}
+    - target: {fileID: 414950, guid: c0f0dee41660d5540ac3e5fdd6ada498, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 414950, guid: c0f0dee41660d5540ac3e5fdd6ada498, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 414950, guid: c0f0dee41660d5540ac3e5fdd6ada498, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 414950, guid: c0f0dee41660d5540ac3e5fdd6ada498, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 414950, guid: c0f0dee41660d5540ac3e5fdd6ada498, type: 2}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 100100000, guid: c0f0dee41660d5540ac3e5fdd6ada498, type: 2}
+  m_IsPrefabParent: 0
 --- !u!114 &1458714764 stripped
 MonoBehaviour:
   m_PrefabParentObject: {fileID: 11400002, guid: d817ce413af090746808cf805ff3375b,

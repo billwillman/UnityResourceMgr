@@ -340,11 +340,12 @@ namespace AutoUpdate
 		{
 			if (string.IsNullOrEmpty(url))
 				return;
-			
+
+			HttpRelease ();
 			HttpClientStrResponse response = new HttpClientStrResponse (4 * 1024);
 			lock (m_Lock)
 			{
-				HttpHelper.OpenUrl<HttpClientStrResponse>(url, response, onEnd, onProcess, m_HttpConnectTimeOut);   
+				m_HttpClient = HttpHelper.OpenUrl<HttpClientStrResponse>(url, response, onEnd, onProcess, m_HttpConnectTimeOut);   
 			}
 		}
 
@@ -387,10 +388,11 @@ namespace AutoUpdate
 				return;
 			string fileName = Path.GetFileName (url);
 			string dstFileName = string.Format ("{0}/{1}", m_WritePath, fileName);
+			HttpRelease ();
 			HttpClientFileStream response = new HttpClientFileStream (dstFileName, process, m_HttpFileBufSize);
 			lock (m_Lock)
 			{
-				HttpHelper.OpenUrl<HttpClientFileStream>(url, response, onEnd, onProcess, m_HttpConnectTimeOut);
+				m_HttpClient = HttpHelper.OpenUrl<HttpClientFileStream>(url, response, onEnd, onProcess, m_HttpConnectTimeOut);
 			}
 		}
 

@@ -226,8 +226,8 @@ namespace AutoUpdate
 			curM += m;
 			AutoUpdateMgr.Instance.CurDownM = curM;
 
-			AutoUpdateMgr.Instance.CreateHttpFile(url, item.readBytes, OnHttpRead, OnHttpError);
-            //AutoUpdateMgr.Instance.CreateHttpFile(url, item.readBytes, OnHttpEnd, OnHttpProcess);
+			//AutoUpdateMgr.Instance.CreateHttpFile(url, item.readBytes, OnHttpRead, OnHttpError);
+            AutoUpdateMgr.Instance.CreateHttpFile(url, item.readBytes, OnHttpEnd, OnHttpProcess);
 
         }
 
