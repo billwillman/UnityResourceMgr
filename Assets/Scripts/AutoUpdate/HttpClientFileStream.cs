@@ -11,11 +11,19 @@ namespace NsHttpClient
 			lock (m_StreamLock)
 			{
 				m_WriteFileName = fileName;
-			}
-			m_Process = process;
-			if (m_Process < 0)
-				m_Process = 0;
+                m_Process = process;
+                if (m_Process < 0)
+                    m_Process = 0;
+            }
 		}
+
+        public long StartPos {
+            get {
+                lock (m_StreamLock) {
+                    return m_Process;
+                }
+            }
+        }
 		
 		public string WriteFileName
 		{
