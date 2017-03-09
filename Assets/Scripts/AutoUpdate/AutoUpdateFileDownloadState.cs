@@ -62,6 +62,17 @@ namespace AutoUpdate
 				m_ThreadClients.Start();
 			}
 		}
+
+		void DoUpdateDownProcess()
+		{
+			double cur = AutoUpdateMgr.Instance.CurDownM;
+			double max = AutoUpdateMgr.Instance.TotalDownM;
+			if (max <= float.Epsilon)
+				AutoUpdateMgr.Instance.DownProcess = 0;
+			else {
+				AutoUpdateMgr.Instance.DownProcess = (float)(cur / max);
+			}
+		}
 			
 		void OnHttpRead(HttpClientResponse response, long totalRead)
 		{
@@ -91,13 +102,8 @@ namespace AutoUpdate
 				currProcess = (float)totalRead/(float)response.MaxReadBytes;
 			CalcDownProcess(currProcess);
 			AutoUpdateMgr.Instance.DownProcess = currProcess;*/
-            double cur = AutoUpdateMgr.Instance.CurDownM;
-            double max = AutoUpdateMgr.Instance.TotalDownM;
-            if (max <= float.Epsilon)
-                AutoUpdateMgr.Instance.DownProcess = 0;
-            else {
-                AutoUpdateMgr.Instance.DownProcess = (float)(cur / max);
-            }
+           
+			DoUpdateDownProcess();
 
             if (totalRead >= response.MaxReadBytes)
 				StartNextDownload();
@@ -128,13 +134,7 @@ namespace AutoUpdate
             m_Items[m_Curr] = item;
             AutoUpdateMgr.Instance.DownloadUpdateToUpdateTxt(item);
 
-            double cur = AutoUpdateMgr.Instance.CurDownM;
-            double max = AutoUpdateMgr.Instance.TotalDownM;
-            if (max <= float.Epsilon)
-                AutoUpdateMgr.Instance.DownProcess = 0;
-            else {
-                AutoUpdateMgr.Instance.DownProcess = (float)(cur / max);
-            }
+			DoUpdateDownProcess();
 
         }
 
