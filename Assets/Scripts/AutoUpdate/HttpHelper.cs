@@ -156,8 +156,19 @@ namespace NsHttpClient
 			m_LinkList.Clear();
 		}
 
-		// 保证OpenUrl在主线程调用
-		public static HttpClient OpenUrl<T>(string url, T listener, Action<HttpClient, HttpListenerStatus> OnEnd = null, Action<HttpClient> OnProcess = null, float timeOut = 5.0f) where T: HttpClientResponse
+        public static string AddTimeStamp(string url) {
+            bool isHttps = url.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase);
+            if (!isHttps) {
+                if (url.IndexOf('?') > 0)
+                    url += string.Format("&t={0}", DateTime.UtcNow.Ticks.ToString());
+                else
+                    url += string.Format("?t={0}", DateTime.UtcNow.Ticks.ToString());
+            }
+            return url;
+        }
+
+        // 保证OpenUrl在主线程调用
+        public static HttpClient OpenUrl<T>(string url, T listener, Action<HttpClient, HttpListenerStatus> OnEnd = null, Action<HttpClient> OnProcess = null, float timeOut = 5.0f) where T: HttpClientResponse
 		{
 			if (string.IsNullOrEmpty(url) || listener == null)
 				return null;
