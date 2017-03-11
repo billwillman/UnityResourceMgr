@@ -41,9 +41,9 @@ public class TestDownload : MonoBehaviour {
 			isMultiThread = m_CheckMultThread.value;
 		}
 
-		//if (isMultiThread)
-		//	AutoUpdateMgr.Instance.StartMultAutoUpdate("http://192.168.1.105:1983/outPath", ThreadCount, 5f, 1024 * 1024);
-		//else
+		if (isMultiThread)
+			AutoUpdateMgr.Instance.StartMultAutoUpdate("http://192.168.1.105:1983/outPath", ThreadCount, 5f, 1024 * 1024);
+		else
 			AutoUpdateMgr.Instance.StartAutoUpdate("http://192.168.1.105:1983/outPath", 5f, 1024 * 1024);
     }
 
@@ -118,7 +118,7 @@ public class TestDownload : MonoBehaviour {
 		}
     }
 
-	void OnAppliactionQuit()
+	void OnApplicationQuit()
 	{
 		NsHttpClient.HttpHelper.OnAppExit();
 	}
