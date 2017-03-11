@@ -363,24 +363,6 @@ namespace AutoUpdate
 			return m_HttpClient;
 		}
 
-		internal HttpClient CreateMultHttpFile(string url, long process, Action<HttpClientResponse, long> OnReadEvt,
-			Action<HttpClientResponse, int> OnErrorEvt)
-		{
-			if (string.IsNullOrEmpty (m_WritePath))
-				return null;
-
-			string fileName = Path.GetFileName (url);
-			string dstFileName = string.Format ("{0}/{1}", m_WritePath, fileName);
-			HttpClientFileStream response = new HttpClientFileStream (dstFileName, process, m_HttpFileBufSize);
-			response.OnReadEvt = OnReadEvt;
-			response.OnErrorEvt = OnErrorEvt;
-			lock (m_Lock)
-			{
-				HttpClient ret = new HttpClient (url, response, process, m_HttpConnectTimeOut);
-				return ret;
-			}
-		}
-
 		// 新的下载文件接口
 		internal void CreateHttpFile(string url, long process, Action<HttpClient, HttpListenerStatus> onEnd, Action<HttpClient> onProcess)
 		{

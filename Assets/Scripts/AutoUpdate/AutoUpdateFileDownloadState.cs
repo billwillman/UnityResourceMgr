@@ -7,60 +7,288 @@ using NsHttpClient;
 
 namespace AutoUpdate
 {
-	public class AutoUpdateFileDownloadState: AutoUpdateBaseState
+	class DonwloadItem
 	{
-		protected bool IsMultThreadMode
+		public AutoUpdateCfgItem item
+		{
+			get;
+			set;
+		}
+
+		public HttpClient http
+		{
+			get;
+			set;
+		}
+
+		// 是否可以被使用
+		public bool IsCanUse
 		{
 			get
 			{
-				return AutoUpdateMgr.Instance.ThreadCount > 1;
+				return (http == null);
 			}
 		}
 
+		public void SetNull()
+		{
+			http = null;
+			item = new AutoUpdateCfgItem();
+		}
+
+		public void Reset()
+		{
+			if (http != null)
+			{
+				http.Dispose();
+				http = null;
+			}
+			item = new AutoUpdateCfgItem();
+		}
+	}
+
+
+	public class AutoUpdateFileDownloadState: AutoUpdateBaseState
+	{
 		private void Reset()
 		{
-			if (!IsMultThreadMode)
-			{
-				m_Curr = -1;
-			} else
-			{
-				if (m_ThreadClients != null)
-				{
-					m_ThreadClients.Clear();
-					m_ThreadClients = null;
-				}
-			}
+			ClearList();
 			AutoUpdateMgr.Instance.DownProcess = 0;
+			m_IsError = false;
 		}
 
-		public override void Enter(AutoUpdateMgr target)
+		// 讲下载文件到等待吗目录
+		void DoInit(AutoUpdateMgr target)
 		{
-			Reset();
 			var f = target.LocalUpdateFile;
 			if (f.Count <= 0)
 			{
 				ToNextState();
 				return;
 			}
-
-			m_Items = f.ToArray();
-			if (m_Items == null || m_Items.Length <= 0)
+			var items = f.ToArray();
+			if (items == null || items.Length <= 0)
 			{
 				ToNextState();
 				return;
 			}
 
-			if (!IsMultThreadMode)
+			if (m_WaitList == null)
+				m_WaitList = new LinkedList<AutoUpdateCfgItem>();
+			for (int i = 0; i < items.Length; ++i)
 			{
-				m_Curr = 0;
-				StartCurrDownload();
-			} else
-			{
-				m_ThreadClients = new HttpClientThreadFileStream(m_Items, AutoUpdateMgr.Instance.ThreadCount);
-				m_ThreadClients.OnError = OnMultThreadDownloadError;
-				m_ThreadClients.OnFinished = OnMultThreadDownloadFinish;
-				m_ThreadClients.Start();
+				// 判断数量
+				var item = items[i];
+				if (item.isDone)
+				{
+					// 写回到下载
+					double m1 = ((double)item.readBytes)/((double)(1024 * 1024));
+					double curM1 = AutoUpdateMgr.Instance.CurDownM;
+					curM1 += m1;
+					AutoUpdateMgr.Instance.CurDownM = curM1;
+					continue;
+				}
+
+				m_WaitList.AddLast(item);
 			}
+
+			DoUpdateDownProcess();
+
+			if (m_WaitList.Count <= 0)
+			{
+				ToNextState();
+				return;
+			}
+
+			int threadCount = AutoUpdateMgr.Instance.ThreadCount;
+			if (threadCount <= 0)
+				threadCount = 1;
+
+			if (m_WaitList.Count < threadCount)
+				threadCount = m_WaitList.Count;
+
+			if (m_DownList == null)
+				m_DownList = new LinkedList<DonwloadItem>();
+
+			// 创建线程对象
+			for (int i = 0; i < threadCount; ++i)
+			{
+				m_DownList.AddLast(new DonwloadItem());
+			}
+		}
+
+		bool GetNextDownload(out AutoUpdateCfgItem item)
+		{
+			if (m_WaitList == null || m_WaitList.Count <= 0)
+			{
+				item = new AutoUpdateCfgItem();
+				return false;
+			}
+			var first = m_WaitList.First;
+			if (first == null)
+			{
+				item = new AutoUpdateCfgItem();
+				return false;
+			}
+			item = first.Value;
+			m_WaitList.RemoveFirst();
+			return true;
+		}
+
+		public override  void Process(AutoUpdateMgr target)
+		{
+			DoUpdate();
+		}
+
+		void DoUpdate()
+		{
+			if (m_IsError)
+				return;
+
+			if (m_DownList == null || m_WaitList == null || m_WaitList.Count <= 0 || m_DownList.Count <= 0)
+			{
+				return;
+			}
+
+			var node = m_DownList.First;
+			while (node != null)
+			{
+				var next = node.Next;
+				if (node.Value.IsCanUse)
+				{
+					AutoUpdateCfgItem item;
+					if (GetNextDownload(out item))
+					{
+						node.Value.item = item;
+						// Get Http
+						string url = string.Format("{0}/{1}/{2}", AutoUpdateMgr.Instance.ResServerAddr, 
+							AutoUpdateMgr.Instance.CurrServeResrVersion,
+							item.fileContentMd5);
+
+						// 原来下载过直接跳过
+						double m = ((double)item.readBytes)/((double)(1024 * 1024));
+						double curM = AutoUpdateMgr.Instance.CurDownM;
+						curM += m;
+						AutoUpdateMgr.Instance.CurDownM = curM;
+
+						DoUpdateDownProcess();
+
+						//AutoUpdateMgr.Instance.CreateHttpFile(url, item.readBytes, OnHttpRead, OnHttpError);
+						int bufSize = AutoUpdateMgr.Instance.HttpFileBufSize;
+						string fileName = string.Format("{0}/{1}", AutoUpdateMgr.Instance.WritePath, item.fileContentMd5);
+						var listener = new HttpClientFileStream(fileName, item.readBytes, bufSize);
+						listener.UserData = node.Value;
+						var http = HttpHelper.OpenUrl<HttpClientFileStream>(url, listener, OnItemHttpEnd, OnItemHttpProcess);
+						node.Value.http = http;
+					} else
+					{
+						m_DownList.Remove(node);
+					}
+				}
+
+				node = next;
+			}
+		}
+
+		bool IsAllHttpDone()
+		{
+			if (m_WaitList.Count > 0)
+				return false;
+
+			bool ret = true;
+			if (m_DownList != null)
+			{
+				var node = m_DownList.First;
+				while (node != null)
+				{
+					var next = node.Next;
+
+					if (node.Value != null && !node.Value.IsCanUse)
+					{
+						ret = false;
+						break;
+					}
+
+					node = next;
+				}
+			}
+
+			return ret;
+		}
+
+		void OnItemHttpEnd(HttpClient client, HttpListenerStatus status)
+		{
+			DonwloadItem downItem = null;
+
+			var listener = client.Listener as HttpClientFileStream;
+
+			if (listener != null && listener.UserData != null)
+			{
+				downItem = listener.UserData as DonwloadItem;
+				listener.UserData = null;
+			}
+
+			switch(status)
+			{
+			case HttpListenerStatus.hsDone:
+				{
+					if (downItem != null)
+						downItem.SetNull();
+					if (IsAllHttpDone())
+						ToNextState();
+					break;
+				}
+			case HttpListenerStatus.hsError:
+				{
+					if (downItem != null)
+					{
+						downItem.SetNull();
+						ClearList();
+
+						UnityEngine.Debug.LogErrorFormat("[downloadFileErr]{0} download: {1:D} isOk: {2}", downItem.item.fileContentMd5,
+							downItem.item.readBytes, downItem.item.isDone.ToString());
+						AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_FileDown, -1);
+
+						m_IsError = true;
+					}
+					break;
+				}
+			}
+		}
+
+		void OnItemHttpProcess(HttpClient client)
+		{
+			var listener = client.Listener as HttpClientFileStream;
+			if (listener == null)
+				return;
+			DonwloadItem downItem = listener.UserData as DonwloadItem;
+			if (downItem == null)
+				return;
+			
+			var item = downItem.item;
+			long oldReadBytes = item.readBytes;
+			item.readBytes = listener.StartPos + listener.ReadBytes;
+			long delta = item.readBytes - oldReadBytes;
+			if (delta > 0) {
+				double curM = AutoUpdateMgr.Instance.CurDownM;
+				curM += ((double)delta) / ((double)1024 * 1024);
+				AutoUpdateMgr.Instance.CurDownM = curM;
+			}
+			if (listener.ReadBytes >= listener.MaxReadBytes) {
+				item.isDone = true;
+			}
+
+			downItem.item = item;
+
+			AutoUpdateMgr.Instance.DownloadUpdateToUpdateTxt(item);
+
+			DoUpdateDownProcess();
+		}
+
+		public override void Enter(AutoUpdateMgr target)
+		{
+			Reset();
+			DoInit(target);
 		}
 
 		void DoUpdateDownProcess()
@@ -74,180 +302,38 @@ namespace AutoUpdate
 			}
 		}
 			
-		void OnHttpRead(HttpClientResponse response, long totalRead)
-		{
-			AutoUpdateCfgItem item = m_Items[m_Curr];
-
-			long delta = totalRead - response.ReadBytes;
-			if (delta > 0)
-			{
-				double curM = AutoUpdateMgr.Instance.CurDownM;
-				curM += ((double)delta)/((double)1024 * 1024);
-				AutoUpdateMgr.Instance.CurDownM = curM;
-				item.readBytes += delta;
-			}
-
-			//item.readBytes = totalRead;
-			if (totalRead >= response.MaxReadBytes)
-			{
-				item.isDone = true;
-			}
-
-			m_Items[m_Curr] = item;
-			AutoUpdateMgr.Instance.DownloadUpdateToUpdateTxt(item);
-
-            /*
-			float currProcess = 0;
-			if (response.MaxReadBytes > 0)
-				currProcess = (float)totalRead/(float)response.MaxReadBytes;
-			CalcDownProcess(currProcess);
-			AutoUpdateMgr.Instance.DownProcess = currProcess;*/
-           
-			DoUpdateDownProcess();
-
-            if (totalRead >= response.MaxReadBytes)
-				StartNextDownload();
-		}
-
-        void OnHttpError(HttpClientResponse response, int status) {
-            DebugFileError();
-            AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_FileDown, status);
-
-            // StartNextDownload();
-        }
-
-        // 新的下载接口(都是主线程)
-        void OnHttpProcess(HttpClient client) {
-            HttpClientFileStream fileStream = client.Listener as HttpClientFileStream;
-            AutoUpdateCfgItem item = m_Items[m_Curr];
-            long oldReadBytes = item.readBytes;
-            item.readBytes = fileStream.StartPos + fileStream.ReadBytes;
-            long delta = item.readBytes - oldReadBytes;
-            if (delta > 0) {
-                double curM = AutoUpdateMgr.Instance.CurDownM;
-                curM += ((double)delta) / ((double)1024 * 1024);
-                AutoUpdateMgr.Instance.CurDownM = curM;
-            }
-            if (fileStream.ReadBytes >= fileStream.MaxReadBytes) {
-                item.isDone = true;
-            }
-            m_Items[m_Curr] = item;
-            AutoUpdateMgr.Instance.DownloadUpdateToUpdateTxt(item);
-
-			DoUpdateDownProcess();
-
-        }
-
-        // 新的回调下载接口(都是主线程)
-        void OnHttpEnd(HttpClient client, HttpListenerStatus status) {
-            switch (status) {
-                case HttpListenerStatus.hsDone: {
-                        StartNextDownload();
-                        break;
-                    }
-
-                case HttpListenerStatus.hsError: {
-                        DebugFileError();
-                        AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_FileDown, -1);
-                        break;
-                    }
-            }
-        }
-
-        /*
-		void CalcDownProcess(float currProcess)
-		{
-			if (m_Items == null || m_Items.Length <= 0)
-			{
-				AutoUpdateMgr.Instance.DownProcess = 0;
-				return;
-			}
-
-			float maxProcess = m_Items.Length;
-		
-			float process = m_Curr + currProcess;
-			AutoUpdateMgr.Instance.DownProcess = process/maxProcess;
-		}*/
-
-        void DebugFileError()
-		{
-			AutoUpdateCfgItem item = m_Items[m_Curr];
-			UnityEngine.Debug.LogErrorFormat("[downloadFileErr]{0} download: {1:D} isOk: {2}", item.fileContentMd5,
-			                                 item.readBytes, item.isDone.ToString());
-		}
-
-        void StartNextDownload()
-		{
-			if (m_Curr + 1 >= m_Items.Length)
-			{
-				ToNextState();
-				return;
-			}
-			++m_Curr;
-			StartCurrDownload();
-		}
-		
-		void StartCurrDownload()
-		{
-			if (m_Curr < 0 || m_Items == null)
-				return;
-
-			AutoUpdateCfgItem item;
-			while (true)
-			{
-				if (m_Curr >= m_Items.Length)
-				{
-					ToNextState();
-					return;
-				}
-
-				item = m_Items[m_Curr];
-				if (item.isDone)
-				{
-					// 写回到下载
-					double m1 = ((double)item.readBytes)/((double)(1024 * 1024));
-					double curM1 = AutoUpdateMgr.Instance.CurDownM;
-					curM1 += m1;
-					AutoUpdateMgr.Instance.CurDownM = curM1;
-
-					++m_Curr;
-				}
-				else
-					break;
-			}
-			// Get Http
-			string url = string.Format("{0}/{1}/{2}", AutoUpdateMgr.Instance.ResServerAddr, 
-			                           AutoUpdateMgr.Instance.CurrServeResrVersion,
-			                           item.fileContentMd5);
-
-			// 原来下载过直接跳过
-			double m = ((double)item.readBytes)/((double)(1024 * 1024));
-			double curM = AutoUpdateMgr.Instance.CurDownM;
-			curM += m;
-			AutoUpdateMgr.Instance.CurDownM = curM;
-
-			//AutoUpdateMgr.Instance.CreateHttpFile(url, item.readBytes, OnHttpRead, OnHttpError);
-            AutoUpdateMgr.Instance.CreateHttpFile(url, item.readBytes, OnHttpEnd, OnHttpProcess);
-
-        }
-
-		void OnMultThreadDownloadFinish()
-		{
-			ToNextState();
-		}
-
-		void OnMultThreadDownloadError()
-		{
-			AutoUpdateMgr.Instance.Error(AutoUpdateErrorType.auError_FileDown, -1);
-		}
-
 		void ToNextState()
 		{
 			AutoUpdateMgr.Instance.ChangeState(AutoUpdateState.auFinished);
 		}
-			
-		private AutoUpdateCfgItem[] m_Items = null;
-		private int m_Curr = -1;
-		private HttpClientThreadFileStream m_ThreadClients = null;
+
+		public override void Exit(AutoUpdateMgr target)
+		{
+			Reset();
+		}
+
+		void ClearList()
+		{
+			if (m_WaitList != null)
+				m_WaitList.Clear();
+			if (m_DownList != null)
+			{
+				var node = m_DownList.First;
+				while (node != null)
+				{
+					var next = node.Next;
+					if (node.Value != null)
+						node.Value.Reset();
+					node = next;
+				}
+				m_DownList.Clear();
+			}
+		}
+
+		// 等待下载
+		private LinkedList<AutoUpdateCfgItem> m_WaitList = null;
+		// 正在下载
+		private LinkedList<DonwloadItem> m_DownList = null;
+		private bool m_IsError = false;
 	}
 }
