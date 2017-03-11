@@ -287,6 +287,7 @@ namespace AutoUpdate
 
 		public override void Enter(AutoUpdateMgr target)
 		{
+			target.HttpRelease();
 			Reset();
 			DoInit(target);
 		}
