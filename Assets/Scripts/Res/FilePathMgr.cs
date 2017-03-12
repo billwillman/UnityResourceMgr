@@ -1,3 +1,7 @@
+#if UNITY_ANDROID
+	#define _USE_JAVA_WRITEPATH
+#endif
+
 using System;
 using UnityEngine;
 using System.IO;
@@ -6,10 +10,26 @@ namespace Utils
 {
 	public class FilePathMgr: Singleton<FilePathMgr>
 	{
+		#if _USE_JAVA_WRITEPATH
+		private string m_WritePath = string.Empty;
+		#endif
+
 		public string WritePath
 		{
 			get
 			{
+				#if _USE_JAVA_WRITEPATH
+				if (string.IsNullOrEmpty(m_WritePath))
+				{
+					// call java function
+					
+					if (string.IsNullOrEmpty(m_WritePath))
+						m_WritePath = Application.persistentDataPath;
+				}
+				
+				return m_WritePath;
+				#else
+
 				string ret = Application.persistentDataPath;
 				if (string.IsNullOrEmpty(ret))
 				{
@@ -17,6 +37,7 @@ namespace Utils
 				}
 
 				return ret;
+				#endif
 			}
 		}
 
