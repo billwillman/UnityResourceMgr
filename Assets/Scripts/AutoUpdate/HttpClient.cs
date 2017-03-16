@@ -497,6 +497,7 @@ namespace NsHttpClient
 		{
 			m_Req = WebRequest.Create(m_Url) as HttpWebRequest;
 			m_Req.Timeout = (int)(m_TimeOut * 1000);
+			m_Req.Proxy = null;
 			if (m_FilePos > 0)
 			{
 				m_Req.AddRange((int)m_FilePos);

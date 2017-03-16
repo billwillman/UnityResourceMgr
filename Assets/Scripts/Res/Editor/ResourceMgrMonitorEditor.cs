@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using NsHttpClient;
 
 [ExecuteInEditMode]
 [CustomEditor(typeof(ResourceMgrMonitor))]
@@ -269,6 +270,20 @@ public class ResourceMgrMonitorEditor: Editor
 				isChg = true;
 			}
 
+			cnt = HttpHelper.RunCount;
+			if (cnt != m_LastRunHttpCnt)
+			{
+				m_LastRunHttpCnt = cnt;
+				isChg = true;
+			}
+
+			cnt = HttpHelper.PoolCount;
+			if (cnt != m_LastHttpPoolCnt)
+			{
+				m_LastHttpPoolCnt = cnt;
+				isChg = true;
+			}
+
 				if (isChg)
 					this.Repaint ();
 			}
@@ -301,6 +316,12 @@ public class ResourceMgrMonitorEditor: Editor
 		EditorGUILayout.Space();
 		EditorGUILayout.LabelField("WWWFileLoadTask Pool");
 		EditorGUILayout.IntField(m_LastWWWCreateCnt);
+
+		EditorGUILayout.Space();
+		EditorGUILayout.LabelField("当前HTTP连接数量");
+		EditorGUILayout.IntField(m_LastRunHttpCnt);
+		EditorGUILayout.LabelField("Http Pool数量");
+		EditorGUILayout.IntField(m_LastHttpPoolCnt);
 
 		EditorGUILayout.Space();
 		EditorGUILayout.Space();
@@ -459,4 +480,6 @@ public class ResourceMgrMonitorEditor: Editor
 	private int m_LastBundleCacheCnt = 0;
 	private int m_LastBundleCreateCnt = 0;
 	private int m_LastWWWCreateCnt = 0;
+	private int m_LastRunHttpCnt = 0;
+	private int m_LastHttpPoolCnt = 0;
 }

@@ -20,6 +20,14 @@ namespace NsHttpClient
 			}
 		}
 
+		public static int RunCount
+		{
+			get
+			{
+				return m_LinkList.Count;
+			}
+		}
+
 		private static void InitPool()
 		{
 			if (m_InitPool)
