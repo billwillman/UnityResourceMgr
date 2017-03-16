@@ -35,6 +35,7 @@ namespace NsHttpClient
 		HttpListenerStatus Status
 		{
 			get;
+			set;
 		}
 
 		bool IsEnd
@@ -114,7 +115,7 @@ namespace NsHttpClient
 				}
 			}
 
-			internal set
+			set
 			{
 				lock (this)
 				{
@@ -186,7 +187,7 @@ namespace NsHttpClient
 				m_Rep = rep;
 			try
 			{
-				Status = HttpListenerStatus.hsDoing;
+			//	Status = HttpListenerStatus.hsDoing;
 				m_OrgStream = rep.GetResponseStream();
 				if (m_OrgStream == null)
 				{
@@ -387,6 +388,8 @@ namespace NsHttpClient
 				return;
 			try
 			{
+				if (m_Listener != null)
+					m_Listener.Status = HttpListenerStatus.hsDoing;
 				HttpWebResponse rep = req.EndGetResponse(result) as HttpWebResponse;
 				if (rep == null)
 				{
