@@ -29,13 +29,12 @@ namespace NsHttpClient
 		void OnStart();
 		void OnClose();
 		void OnError(int status);
-		void OnResponse(HttpWebResponse rep, HttpClient client);
+		void OnResponse(HttpWebResponse rep);
         void OnEnd();
 
 		HttpListenerStatus Status
 		{
 			get;
-			set;
 		}
 
 		bool IsEnd
@@ -115,7 +114,7 @@ namespace NsHttpClient
 				}
 			}
 
-			set
+			protected set
 			{
 				lock (this)
 				{
@@ -130,7 +129,8 @@ namespace NsHttpClient
 		{
 			try
 			{
-				if (m_OrgStream != null)
+            //    UnityEngine.Debug.LogFormat("<color=Yellow>DoClose:</color><color=green> {0:D}</color>", (this as HttpClientResponse).GetHashCode());
+                if (m_OrgStream != null)
 				{
 					m_OrgStream.Close();
 					m_OrgStream.Dispose();
@@ -139,7 +139,7 @@ namespace NsHttpClient
 
 				if (m_Rep != null)
 				{
-					m_Rep.Close();
+                    m_Rep.Close();
 					m_Rep = null;
 				}
 			} catch
@@ -172,11 +172,11 @@ namespace NsHttpClient
 		}
 
 
-		public void OnResponse(HttpWebResponse rep, HttpClient client)
+		public void OnResponse(HttpWebResponse rep)
 		{
 			if (rep == null)
 			{
-				client.Error(-1);
+                OnError(-1);
                 return;
 			}
 
@@ -187,11 +187,11 @@ namespace NsHttpClient
 				m_Rep = rep;
 			try
 			{
-			//	Status = HttpListenerStatus.hsDoing;
+                Status = HttpListenerStatus.hsDoing;
 				m_OrgStream = rep.GetResponseStream();
 				if (m_OrgStream == null)
 				{
-					client.Error(-1);
+                    OnError(-1);
 					return;
 				}
 
@@ -212,8 +212,8 @@ namespace NsHttpClient
 				// don't m_OrgStream.Close
 			} catch
 			{
-				client.Error(-1);
-			}
+                OnError(-1);
+            }
 		}
 
 		protected virtual void Flush(int read)
@@ -381,14 +381,6 @@ namespace NsHttpClient
 			}
 		}
 
-		internal void Error(int status)
-		{
-			if (m_Listener != null)
-				m_Listener.OnError(status);
-			StopTimeOutTime();
-			Abort();
-		}
-
 		private void OnResponse(IAsyncResult result)
 		{
 			HttpWebRequest req = result.AsyncState as HttpWebRequest;
@@ -396,32 +388,34 @@ namespace NsHttpClient
 				return;
 			try
 			{
-				if (m_Listener != null)
-					m_Listener.Status = HttpListenerStatus.hsDoing;
 				HttpWebResponse rep = req.EndGetResponse(result) as HttpWebResponse;
 				if (rep == null)
 				{
-					Error(-1);
+					if (m_Listener != null)
+						m_Listener.OnError(-1);
 					return;
 				}
 				if (rep.StatusCode != HttpStatusCode.OK && rep.StatusCode != HttpStatusCode.PartialContent)
 				{
 					rep.Close();
-					Error((int)rep.StatusCode);
+					if (m_Listener != null)
+						m_Listener.OnError((int)rep.StatusCode);
 					return;
 				}
-
+				
 				if (m_Listener != null)
-					m_Listener.OnResponse(rep, this);
+					m_Listener.OnResponse(rep);
 				else
 					rep.Close();
 
-			} catch (Exception except)
-			{
+			}
+            catch /*(Exception except)*/
+            {
 				#if DEBUG
 			//	UnityEngine.Debug.LogErrorFormat("OnResponse Exception: {0}", except.ToString());
 				#endif
-				Error(-1);
+				if (m_Listener != null)
+					m_Listener.OnError(-1); 
 			}
 		}
 
@@ -457,7 +451,8 @@ namespace NsHttpClient
 		{
 			if (m_Req != null)
 			{
-				m_Req.Abort();
+              //  UnityEngine.Debug.LogFormat("<color=red>DoAbort:</color><color=green> {0:D}</color>", (m_Listener as HttpClientResponse).GetHashCode());
+                m_Req.Abort();
 				m_Req = null;
 			}
 		}
@@ -484,7 +479,8 @@ namespace NsHttpClient
 			{
 				if (m_Listener.Status == HttpListenerStatus.hsWating)
 				{
-					Error(408);
+                    if (m_Listener != null)
+                        m_Listener.OnError(408);
 				}
 				else
 				{
