@@ -240,32 +240,31 @@ namespace NsHttpClient
 
 		private static void OnRead(IAsyncResult result)
 		{
-		//	UnityEngine.Debug.Log("OnRead Start");
+			if (result == null) {
+                return;
+            }
 
-			if (result == null)
-			{
-				return;
-			}
+            HttpClientResponse req = result.AsyncState as HttpClientResponse;
+            if (req == null)
+                return;
 
-			HttpClientResponse req = result.AsyncState as HttpClientResponse;
-			if (req == null)
-				return;
-
-			int read = req.m_OrgStream.EndRead(result);
-			if (read > 0)
-			{
-				req.DoFlush(read);
-				req.m_ReadBytes += read;
-                if (req.ReadBytes < req.MaxReadBytes)
-                    req.m_OrgStream.BeginRead(req.m_Buf, 0, req.m_Buf.Length, m_ReadCallBack, req);
+            try {
+                int read = req.m_OrgStream.EndRead(result);
+                if (read > 0) {
+                    req.DoFlush(read);
+                    req.m_ReadBytes += read;
+                    if (req.ReadBytes < req.MaxReadBytes)
+                        req.m_OrgStream.BeginRead(req.m_Buf, 0, req.m_Buf.Length, m_ReadCallBack, req);
+                    else {
+                        req.DoClose();
+                    }
+                }
                 else {
                     req.DoClose();
                 }
-			} else
-			{
-				req.DoClose();
-			//	UnityEngine.Debug.Log("OnRead Close");
-			}
+            } catch {
+                req.OnError(-1);
+            }
 		}
 
 		public long ReadBytes
