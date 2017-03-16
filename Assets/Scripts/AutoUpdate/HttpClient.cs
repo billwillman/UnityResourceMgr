@@ -184,29 +184,35 @@ namespace NsHttpClient
 				m_Rep = rep;
 			else*/
 				m_Rep = rep;
-			
-			m_OrgStream = rep.GetResponseStream();
-			if (m_OrgStream == null)
+			try
 			{
-                OnError(-1);
-				return;
-			}
+				Status = HttpListenerStatus.hsDoing;
+				m_OrgStream = rep.GetResponseStream();
+				if (m_OrgStream == null)
+				{
+                	OnError(-1);
+					return;
+				}
 
-			if (m_OrgStream.CanTimeout)
-				m_OrgStream.ReadTimeout = _cReadTimeOut;
+				if (m_OrgStream.CanTimeout)
+					m_OrgStream.ReadTimeout = _cReadTimeOut;
 
-			m_MaxReadBytes = rep.ContentLength;
-			if (m_MaxReadBytes <= 0)
+				m_MaxReadBytes = rep.ContentLength;
+				if (m_MaxReadBytes <= 0)
+				{
+               	 	OnEnd();
+					DoClose();
+					return;
+				}
+
+
+				//	UnityEngine.Debug.Log("OnResponse");
+				m_OrgStream.BeginRead(m_Buf, 0, m_Buf.Length, m_ReadCallBack, this);
+				// don't m_OrgStream.Close
+			} catch
 			{
-                OnEnd();
-				DoClose();
-				return;
+				OnError(-1);
 			}
-
-			Status = HttpListenerStatus.hsDoing;
-		//	UnityEngine.Debug.Log("OnResponse");
-			m_OrgStream.BeginRead(m_Buf, 0, m_Buf.Length, m_ReadCallBack, this);
-			// don't m_OrgStream.Close
 		}
 
 		protected virtual void Flush(int read)
