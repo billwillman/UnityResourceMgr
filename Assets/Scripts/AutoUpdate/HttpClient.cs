@@ -29,7 +29,7 @@ namespace NsHttpClient
 		void OnStart();
 		void OnClose();
 		void OnError(int status);
-		void OnResponse(HttpWebResponse rep);
+		void OnResponse(HttpWebResponse rep, HttpClient client);
         void OnEnd();
 
 		HttpListenerStatus Status
@@ -172,11 +172,11 @@ namespace NsHttpClient
 		}
 
 
-		public void OnResponse(HttpWebResponse rep)
+		public void OnResponse(HttpWebResponse rep, HttpClient client)
 		{
 			if (rep == null)
 			{
-                OnError(-1);
+				client.Error(-1);
                 return;
 			}
 
@@ -191,7 +191,7 @@ namespace NsHttpClient
 				m_OrgStream = rep.GetResponseStream();
 				if (m_OrgStream == null)
 				{
-                	OnError(-1);
+					client.Error(-1);
 					return;
 				}
 
@@ -212,7 +212,7 @@ namespace NsHttpClient
 				// don't m_OrgStream.Close
 			} catch
 			{
-				OnError(-1);
+				client.Error(-1);
 			}
 		}
 
@@ -381,6 +381,14 @@ namespace NsHttpClient
 			}
 		}
 
+		internal void Error(int status)
+		{
+			if (m_Listener != null)
+				m_Listener.OnError(status);
+			StopTimeOutTime();
+			Abort();
+		}
+
 		private void OnResponse(IAsyncResult result)
 		{
 			HttpWebRequest req = result.AsyncState as HttpWebRequest;
@@ -393,30 +401,27 @@ namespace NsHttpClient
 				HttpWebResponse rep = req.EndGetResponse(result) as HttpWebResponse;
 				if (rep == null)
 				{
-					if (m_Listener != null)
-						m_Listener.OnError(-1);
+					Error(-1);
 					return;
 				}
 				if (rep.StatusCode != HttpStatusCode.OK && rep.StatusCode != HttpStatusCode.PartialContent)
 				{
 					rep.Close();
-					if (m_Listener != null)
-						m_Listener.OnError((int)rep.StatusCode);
+					Error((int)rep.StatusCode);
 					return;
 				}
-				
+
 				if (m_Listener != null)
-					m_Listener.OnResponse(rep);
+					m_Listener.OnResponse(rep, this);
 				else
 					rep.Close();
 
 			} catch (Exception except)
 			{
 				#if DEBUG
-				UnityEngine.Debug.LogErrorFormat("OnResponse Exception: {0}", except.ToString());
+			//	UnityEngine.Debug.LogErrorFormat("OnResponse Exception: {0}", except.ToString());
 				#endif
-				if (m_Listener != null)
-					m_Listener.OnError(-1); 
+				Error(-1);
 			}
 		}
 
@@ -429,20 +434,27 @@ namespace NsHttpClient
 			m_TimeOut = 5.0f;
 		}
 
+		private void StopTimeOutTime()
+		{
+			if (m_TimeOutTimer != null)
+			{
+				m_TimeOutTimer.Dispose();
+				m_TimeOutTimer = null;
+			}
+		}
+
 		private void Close()
 		{
-		//	lock (m_TimerLock)
-			{
-				if (m_TimeOutTimer != null)
-				{
-					m_TimeOutTimer.Dispose();
-					m_TimeOutTimer = null;
-				}
-			}
+			StopTimeOutTime();
 
 			if (m_Listener != null)
 				m_Listener.OnClose();
 
+			Abort();
+		}
+
+		private void Abort()
+		{
 			if (m_Req != null)
 			{
 				m_Req.Abort();
@@ -471,16 +483,14 @@ namespace NsHttpClient
 			if (m_Listener != null)
 			{
 				if (m_Listener.Status == HttpListenerStatus.hsWating)
-					m_Listener.OnError(408);
+				{
+					Error(408);
+				}
 				else
 				{
 				//	lock (m_TimerLock)
 					{
-						if (m_TimeOutTimer != null)
-						{
-							m_TimeOutTimer.Dispose();
-							m_TimeOutTimer = null;
-						}
+						StopTimeOutTime();
 					}
 					return;
 				}
@@ -499,16 +509,17 @@ namespace NsHttpClient
 			AsyncCallback callBack = new AsyncCallback(OnResponse);
 			m_Req.BeginGetResponse(callBack, m_Req);
 
-		//	lock (m_TimerLock)
-			{
-				if (m_TimeOutTimer != null)
-					m_TimeOutTimer.Dispose();
-				m_TimeOutTimer = TimerMgr.Instance.CreateTimer(true, m_TimeOut, true, true);
-				m_TimeOutTimer.AddListener(OnTimeOutTime);
-			}
-
 			if (m_Listener != null)
 				m_Listener.OnStart();
+			StartTimeoutTime();
+		}
+
+		private void StartTimeoutTime()
+		{
+			if (m_TimeOutTimer != null)
+				m_TimeOutTimer.Dispose();
+			m_TimeOutTimer = TimerMgr.Instance.CreateTimer(true, m_TimeOut, true, true);
+			m_TimeOutTimer.AddListener(OnTimeOutTime);
 		}
 
 		protected override void OnFree(bool isManual)
