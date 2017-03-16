@@ -422,7 +422,7 @@ namespace NsHttpClient
 
 		private void Close()
 		{
-			lock (m_TimerLock)
+		//	lock (m_TimerLock)
 			{
 				if (m_TimeOutTimer != null)
 				{
@@ -465,7 +465,7 @@ namespace NsHttpClient
 					m_Listener.OnError(408);
 				else
 				{
-					lock (m_TimerLock)
+				//	lock (m_TimerLock)
 					{
 						if (m_TimeOutTimer != null)
 						{
@@ -490,7 +490,7 @@ namespace NsHttpClient
 			AsyncCallback callBack = new AsyncCallback(OnResponse);
 			m_Req.BeginGetResponse(callBack, m_Req);
 
-			lock (m_TimerLock)
+		//	lock (m_TimerLock)
 			{
 				if (m_TimeOutTimer != null)
 					m_TimeOutTimer.Dispose();
@@ -523,7 +523,7 @@ namespace NsHttpClient
 		private string m_Url;
 		private float m_TimeOut = 5.0f;
 		private Timer m_TimeOutTimer = null;
-		private static System.Object m_TimerLock = new object();
+	//	private static System.Object m_TimerLock = new object();
 		private HttpWebRequest m_Req = null;
 		private IHttpClientListener m_Listener = null;
 		private long m_FilePos = 0;
