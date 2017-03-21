@@ -490,7 +490,8 @@ namespace NsHttpClient
 					return;
 				}
 			} 
-			Dispose();
+			// HttpHelp is Clear
+			// Dispose();
 		}
 
 		private void Start()
