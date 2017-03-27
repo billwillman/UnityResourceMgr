@@ -211,6 +211,7 @@ public class Timer : DisposeObject
             if (m_IsPlayOnce)
             {
                 Stop();
+                Dispose();
             }
             else
             {
