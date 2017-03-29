@@ -164,7 +164,7 @@ public class Timer : DisposeObject
         OnStart();
     }
 
-    public void Stop()
+    private void Stop()
     {
         if (m_IsPlaying)
         {
