@@ -32,7 +32,7 @@ namespace AutoUpdate
 			ZipTools.UnCompress(zipFileMd5);
 			if (m_UnZipTimer == null)
 			{
-				m_UnZipTimer = TimerMgr.Instance.CreateTimer(false, 0, true, true);
+				m_UnZipTimer = TimerMgr.Instance.CreateTimer(0, true, true);
 				m_UnZipTimer.AddListener(OnUnZipTimer);
 			} else
 				m_UnZipTimer.Start();
@@ -66,7 +66,7 @@ namespace AutoUpdate
 			}
 		}
 
-		private Timer m_UnZipTimer = null;
+		private ITimer m_UnZipTimer = null;
 	}
 }
 

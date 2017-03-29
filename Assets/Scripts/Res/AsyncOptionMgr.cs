@@ -97,7 +97,7 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 	{
 		if (opt == null)
 			return null;
-		Timer time;
+		ITimer time;
 		if (mDic.TryGetValue (opt, out time))
 		{
 			return GetAsyncOptionTimerOprItem<T, U>(time);
@@ -107,7 +107,7 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 
 	public AsyncOperationItem<T, U> AddAsyncOperation<T, U>(T opt, Action<T> onProcess) where T: AsyncOperation
 	{
-		Timer time;
+		ITimer time;
 		if (mDic.TryGetValue (opt, out time)) {
 			if (time == null)
 				return null;
@@ -120,7 +120,7 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 			return old;
 		}
 
-		time = TimerMgr.Instance.CreateTimer (false, 0, true);
+		time = TimerMgr.Instance.CreateTimer (0, true);
 		time.AddListener (OnTimerEvent);
 		//AsyncOperationItem<T, U> item = new AsyncOperationItem<T, U> ();
 		AsyncOperationItem<T, U> item =  AsyncOperationItem<T, U>.Create();
@@ -135,7 +135,7 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 
 	public void Clear()
 	{
-		Dictionary<AsyncOperation, Timer>.Enumerator iter = mDic.GetEnumerator ();
+		Dictionary<AsyncOperation, ITimer>.Enumerator iter = mDic.GetEnumerator ();
 		while (iter.MoveNext()) {
 			if (iter.Current.Value != null)
 			{
@@ -167,7 +167,7 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 	public void RemoveAsyncOperation(AsyncOperation opt) {
 		if (opt == null)
 			return;
-		Timer time;
+		ITimer time;
 		if (mDic.TryGetValue(opt, out time) && (time != null)) {
 			mDic.Remove(opt);
 			time.Dispose();
@@ -185,7 +185,7 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 		return opt;
 	}
 
-	public AsyncOperationItem<T, U> GetAsyncOptionTimerOprItem<T, U>(Timer obj) where T: AsyncOperation
+	public AsyncOperationItem<T, U> GetAsyncOptionTimerOprItem<T, U>(ITimer obj) where T: AsyncOperation
 	{
 		if (obj == null)
 			return null;
@@ -220,5 +220,5 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 	}
 	#endregion protected function
 
-	protected Dictionary<AsyncOperation, Timer> mDic = new Dictionary<AsyncOperation, Timer>();
+	protected Dictionary<AsyncOperation, ITimer> mDic = new Dictionary<AsyncOperation, ITimer>();
 }
