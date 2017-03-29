@@ -211,6 +211,7 @@ public class Timer : DisposeObject
             if (m_IsPlayOnce)
             {
                 Stop();
+                Dispose();
             }
             else
             {
@@ -273,11 +274,11 @@ public class TimerMgr : Singleton<TimerMgr>
         }
         if (node.Value.IngoreScaleTime)
         {
-            m_UnScaledPlayerList.AddLast(node);
+            m_UnScaledPlayerList.AddFirst(node);
         }
         else
         {
-            m_PlayerList.AddLast(node);
+            m_PlayerList.AddFirst(node);
         }
     }
 
