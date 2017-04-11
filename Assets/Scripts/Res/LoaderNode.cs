@@ -293,7 +293,7 @@ public class LoaderNodeMgr
 	public LoaderNodeMgr(float loadDelayTime = 1.0f)
 	{
 		m_LoadDelayTime = loadDelayTime;
-		m_Timer = TimerMgr.Instance.CreateTimer(false, 0, true, true);
+		m_Timer = TimerMgr.Instance.CreateTimer(0, true, true);
 		m_Timer.AddListener(OnLoaderTime);
 	}
 
@@ -368,7 +368,7 @@ public class LoaderNodeMgr
 
 	private LinkedList<LoaderNode> m_LoadList = new LinkedList<LoaderNode>();
 	private HashSet<AsyncLoadKey> m_LoadingHash = new HashSet<AsyncLoadKey>();
-	private Timer m_Timer = null;
+	private ITimer m_Timer = null;
 	private float m_LoadDelayTime = 1.0f;
 	private float m_LastDelayTime = 0;
 }

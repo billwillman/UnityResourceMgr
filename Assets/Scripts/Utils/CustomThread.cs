@@ -48,7 +48,7 @@ namespace Utils
         public void Start()
         {
             if (m_Time == null) {
-                m_Time = TimerMgr.Instance.CreateTimer (false, 0, true, true);
+                m_Time = TimerMgr.Instance.CreateTimer (0, true, true);
                 m_Time.AddListener (OnCheckEndStatus);
             }
 
@@ -130,7 +130,7 @@ namespace Utils
         // 锁
         private System.Object m_Mutex = new object();
         // 检测线程状态
-        private Timer m_Time = null;
+		private ITimer m_Time = null;
 
         private bool m_IsCallEnd = false;
 

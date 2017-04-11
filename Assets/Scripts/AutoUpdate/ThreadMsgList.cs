@@ -92,7 +92,7 @@ namespace NsHttpClient
 	{
 		public ThreadMsgList()
 		{
-			m_Timer = TimerMgr.Instance.CreateTimer(false, 0, true, true);
+			m_Timer = TimerMgr.Instance.CreateTimer(0, true, true);
 			m_Timer.AddListener(OnTimerEvent);
 		}
 
@@ -156,6 +156,6 @@ namespace NsHttpClient
 
 		private LinkedList<IThreadMsg> m_MsgList = new LinkedList<IThreadMsg>();
 		private System.Object m_Lock = new object();
-		private Timer m_Timer = null;
+		private ITimer m_Timer = null;
 	}
 }

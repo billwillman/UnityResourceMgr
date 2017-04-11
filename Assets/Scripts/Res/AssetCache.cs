@@ -217,7 +217,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 	public AssetCacheManager()
 	{
 		// Cache判断Timer, 每一帧都会去判断
-		mRunTime = TimerMgr.Instance.CreateTimer (false, 0, true);
+		mRunTime = TimerMgr.Instance.CreateTimer (0, true);
 		mRunTime.AddListener (OnTimerEvent);
 	}
 
@@ -890,7 +890,7 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 	private Dictionary<int, AssetCache> mObjCacheMap = new Dictionary<int, AssetCache>();
 	// Instance Obj to PrefabObj
 	private Dictionary<int, int> mInstObjToObjMap = new Dictionary<int, int> ();
-	private Timer mRunTime = null;
+	private ITimer mRunTime = null;
 	// ResourceCacheType == none
 	private LinkedList<AssetCache> mTempAssetList = new LinkedList<AssetCache>();
     private HashSet<AssetCache> mTempDict = new HashSet<AssetCache>();

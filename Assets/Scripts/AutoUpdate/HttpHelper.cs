@@ -10,7 +10,7 @@ namespace NsHttpClient
 		private static ObjectPool<HttpClient> m_Pool = new ObjectPool<HttpClient>();
 		private static bool m_InitPool = false;
 		private static LinkedList<HttpClient> m_LinkList = new LinkedList<HttpClient>();
-		private static Timer m_Timer = null;
+		private static ITimer m_Timer = null;
 
 		public static int PoolCount
 		{
@@ -101,7 +101,7 @@ namespace NsHttpClient
 		{
 			if (m_Timer == null)
 			{
-				m_Timer = TimerMgr.Instance.CreateTimer(false, 0, true, true);
+				m_Timer = TimerMgr.Instance.CreateTimer(0, true, true);
 				m_Timer.AddListener(OnTimerEvent);
 			}
 		}

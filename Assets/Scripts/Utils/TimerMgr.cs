@@ -7,7 +7,52 @@ using System.Collections;
 using System.Collections.Generic;
 using Utils;
 
-public class Timer : DisposeObject
+public interface ITimerOnce
+{
+	bool IngoreScaleTime
+	{
+		get;
+	}
+
+	bool IsPlaying
+	{
+		get;
+	}
+
+	bool IsPlayOnce
+	{
+		get;
+	}
+
+	System.Object UserData
+	{
+		get; set;
+	}
+
+	float PerTime
+	{
+		get;
+	}
+
+	void AddListener(Timer.OnTimerEvent listener);
+
+	void ClearAllListener();
+
+	bool ContainsEvent(Timer.OnTimerEvent evt);
+
+	void RemoveListener(Timer.OnTimerEvent listener);
+
+	void Dispose();
+
+	void Start();
+}
+
+public interface ITimer: ITimerOnce
+{
+	void Stop();
+}
+
+public class Timer : DisposeObject, ITimer
 {
     public delegate void OnTimerEvent(Timer obj, float timer);
 
@@ -164,7 +209,7 @@ public class Timer : DisposeObject
         OnStart();
     }
 
-    private void Stop()
+	public void Stop()
     {
         if (m_IsPlaying)
         {
@@ -305,7 +350,17 @@ public class TimerMgr : Singleton<TimerMgr>
         }
     }
 
-    public Timer CreateTimer(bool isOnce, float delayTime, bool isRuning, bool ingoreScaleTime = false)
+	public ITimerOnce CreateOnceTimer(float delayTime, bool isRuning, bool ingoreScaleTime = false)
+	{
+		return CreateTimer(true, delayTime, isRuning, ingoreScaleTime);
+	}
+
+	public ITimer CreateTimer(float delayTime, bool isRuning, bool ingoreScaleTime = false)
+	{
+		return CreateTimer(false, delayTime, isRuning, ingoreScaleTime);
+	}
+
+    private Timer CreateTimer(bool isOnce, float delayTime, bool isRuning, bool ingoreScaleTime = false)
     {
        // Timer timer = new Timer(isOnce, delayTime, ingoreScaleTime);
 

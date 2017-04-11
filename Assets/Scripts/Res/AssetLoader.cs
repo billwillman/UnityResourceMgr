@@ -273,7 +273,7 @@ public class AssetInfo
     private BundleCreateAsyncTask m_AsyncTask = null;
 #endif
 	private TaskList m_TaskList = null;
-	private Timer m_Timer = null;
+	private ITimer m_Timer = null;
 	private Action<bool> m_EndEvt = null;
 	private int m_UsingCnt = 0;
 	internal void ClearTaskData()
@@ -463,7 +463,7 @@ public class AssetInfo
 			m_TaskList.UserData = this;
 			if (m_Timer == null)
 			{
-				m_Timer = TimerMgr.Instance.CreateTimer(false, 0, true);
+				m_Timer = TimerMgr.Instance.CreateTimer(0, true);
 				m_Timer.AddListener(OnTimerEvt);
 			}
 		}
