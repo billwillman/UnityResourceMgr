@@ -353,7 +353,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		if (start < 0 || end < 0 || end > start || onGetItem == null || onLoad == null)
 			yield break;
 
-		for (int i = start; i < end; ++i)
+		for (int i = start; i <= end; ++i)
 		{
 			T target;
 			string fileName;
@@ -374,7 +374,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		if (start < 0 || end < 0 || end < start || onGetItem == null || onLoad == null)
 			yield break;
 
-		for (int i = start; i < end; ++i)
+		for (int i = start; i <= end; ++i)
 		{
 			T target;
 			string fileName;
