@@ -353,19 +353,22 @@ public class BaseResLoader: CachedMonoBehaviour
 		if (start < 0 || end < 0 || end > start || onGetItem == null || onLoad == null)
 			yield break;
 
+		Delegate key = onGetItem as Delegate;
 		for (int i = start; i <= end; ++i)
 		{
 			T target;
 			string fileName;
 			if (!onGetItem(i, out target, out fileName))
+			{
+				StopLoadCoroutine(key);
 				yield break;
+			}
 			if (target != null && !string.IsNullOrEmpty(fileName))
 				onLoad(target, fileName);
 
 			yield return target;
 		}
-
-		Delegate key = onGetItem as Delegate;
+			
 		StopLoadCoroutine(key);
 	}
 
@@ -373,21 +376,24 @@ public class BaseResLoader: CachedMonoBehaviour
 	{
 		if (start < 0 || end < 0 || end < start || onGetItem == null || onLoad == null)
 			yield break;
-
+		
+		Delegate key = onGetItem as Delegate;
 		for (int i = start; i <= end; ++i)
 		{
 			T target;
 			string fileName;
 			string param;
 			if (!onGetItem(i, out target, out fileName, out param))
+			{
+				StopLoadCoroutine(key);
 				yield break;
+			}
 			if (target != null && !string.IsNullOrEmpty(fileName))
 				onLoad(target, fileName, param);
 
 			yield return target;
 		}
-
-		Delegate key = onGetItem as Delegate;
+			
 		StopLoadCoroutine(key);
 	}
 
