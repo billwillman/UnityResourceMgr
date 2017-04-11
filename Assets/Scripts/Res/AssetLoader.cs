@@ -322,9 +322,14 @@ public class AssetInfo
 			m_TaskList.ProcessDoneContinue(DoCheckTaskVaild);
 			if (m_TaskList != null && m_TaskList.IsEmpty)
 			{
-				if (m_EndEvt != null)
-					m_EndEvt(true);
-				ClearTaskData();
+				try
+				{
+					if (m_EndEvt != null)
+						m_EndEvt(true);
+				} finally
+				{
+					ClearTaskData();
+				}
 			}
 		}
 	}
@@ -339,9 +344,14 @@ public class AssetInfo
             bool isFail = task.IsFail && !assetInfo.IsVaild();
             if (isFail)
 			{
-				if (m_EndEvt != null)
-					m_EndEvt(false);
-				ClearTaskData();
+				try
+				{
+					if (m_EndEvt != null)
+						m_EndEvt(false);
+				} finally
+				{
+					ClearTaskData();
+				}
 			} else
 			{
 				if (m_TaskList != null)
