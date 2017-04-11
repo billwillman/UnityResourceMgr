@@ -288,7 +288,8 @@ public class BaseResLoader: CachedMonoBehaviour
 	{
 
 		// 关闭所有携程
-		StopAllCoroutines();
+		//StopAllCoroutines();
+		StopAllLoadCoroutines();
 
 		if (m_ResMap == null)
 			return;
@@ -363,11 +364,14 @@ public class BaseResLoader: CachedMonoBehaviour
 
 			yield return target;
 		}
+
+		Delegate key = onGetItem as Delegate;
+		StopLoadCoroutine(key);
 	}
 
 	protected IEnumerator LoadAsync<T>(int start, int end, OnGetItem1<T> onGetItem, Func<T, string, string, bool> onLoad) where T: UnityEngine.Object
 	{
-		if (start < 0 || end < 0 || end > start || onGetItem == null || onLoad == null)
+		if (start < 0 || end < 0 || end < start || onGetItem == null || onLoad == null)
 			yield break;
 
 		for (int i = start; i < end; ++i)
@@ -382,6 +386,9 @@ public class BaseResLoader: CachedMonoBehaviour
 
 			yield return target;
 		}
+
+		Delegate key = onGetItem as Delegate;
+		StopLoadCoroutine(key);
 	}
 
 	public bool LoadMaterial(MeshRenderer renderer, string fileName)
@@ -746,34 +753,110 @@ public class BaseResLoader: CachedMonoBehaviour
 	}
 
 	/*------------------------------------------ 异步方法 ---------------------------------------------*/
+	private Dictionary<Delegate, Coroutine> m_EvtCoroutineMap = null;
+
+	protected void StopAllLoadCoroutines()
+	{
+		if (m_EvtCoroutineMap != null)
+		{
+			var iter = m_EvtCoroutineMap.GetEnumerator();
+			while (iter.MoveNext())
+			{
+				var c = iter.Current.Value;
+				if (c != null)
+					StopCoroutine(c);
+			}
+			iter.Dispose();
+			m_EvtCoroutineMap.Clear();
+		}
+	}
+
+	protected void StopLoadCoroutine(Delegate key)
+	{
+		if (key == null || m_EvtCoroutineMap == null)
+			return;
+		Coroutine value;
+		if (m_EvtCoroutineMap.TryGetValue(key, out value))
+		{
+			m_EvtCoroutineMap.Remove(key);
+			if (value != null)
+				StopCoroutine(value);
+		}
+	}
+
+	protected Coroutine StartLoadCoroutine(Delegate key, IEnumerator iter)
+	{
+		if (key == null || iter == null)
+			return null;
+
+		StopLoadCoroutine(key);
+
+		Coroutine ret = StartCoroutine(iter);
+		if (ret != null)
+		{
+			if (m_EvtCoroutineMap == null)
+			{
+				m_EvtCoroutineMap = new Dictionary<Delegate, Coroutine>();
+			} 
+
+			m_EvtCoroutineMap.Add(key, ret);
+
+		}
+
+		return ret;
+	}
+
+	protected Coroutine StartLoadCoroutine<T>(OnGetItem<T> evtKey, IEnumerator iter) where T: UnityEngine.Object
+	{
+		if (evtKey == null || iter == null)
+			return null;
+
+		Delegate key = evtKey as Delegate;
+		if (key == null)
+			return null;
+
+		return StartLoadCoroutine(key, iter);
+	}
+
+	protected Coroutine StartLoadCoroutine<T>(OnGetItem1<T> evtKey, IEnumerator iter) where T: UnityEngine.Object
+	{
+		if (evtKey == null || iter == null)
+			return null;
+
+		Delegate key = evtKey as Delegate;
+		if (key == null)
+			return null;
+
+		return StartLoadCoroutine(key, iter);
+	}
 
 	public void LoadMaterialAsync(int start, int end, OnGetItem<MeshRenderer> onGetItem)
 	{
-		StartCoroutine(LoadAsync<MeshRenderer>(start, end, onGetItem, LoadMaterial));
+		StartLoadCoroutine(onGetItem, LoadAsync<MeshRenderer>(start, end, onGetItem, LoadMaterial));
 	}
 
 	public void LoadMaterialAsync(int start, int end, OnGetItem<SpriteRenderer> onGetItem)
 	{
-		StartCoroutine(LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadMaterial));
+		StartLoadCoroutine(onGetItem, LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadMaterial));
 	}
 
 	public void LoadMainTextureAsync(int start, int end, OnGetItem<MeshRenderer> onGetItem)
 	{
-		StartCoroutine(LoadAsync<MeshRenderer>(start, end, onGetItem, LoadMainTexture));
+		StartLoadCoroutine(onGetItem, LoadAsync<MeshRenderer>(start, end, onGetItem, LoadMainTexture));
 	}
 
 	public void LoadFontAsync(int start, int end, OnGetItem<TextMesh> onGetItem)
 	{
-		StartCoroutine(LoadAsync<TextMesh>(start, end, onGetItem, LoadFont));
+		StartLoadCoroutine(onGetItem, LoadAsync<TextMesh>(start, end, onGetItem, LoadFont));
 	}
 
 	public void LoadAniControllerAsync(int start, int end, OnGetItem<Animator> onGetItem)
 	{
-		StartCoroutine(LoadAsync<Animator>(start, end, onGetItem, LoadAniController));
+		StartLoadCoroutine(onGetItem, LoadAsync<Animator>(start, end, onGetItem, LoadAniController));
 	}
 
 	public void LoadSpriteAsync(int start, int end, OnGetItem1<SpriteRenderer> onGetItem)
 	{
-		StartCoroutine(LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadSprite));
+		StartLoadCoroutine(onGetItem, LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadSprite));
 	}
 }
