@@ -612,6 +612,31 @@ public class BaseResLoader: CachedMonoBehaviour
 			SetResource(target.GetInstanceID(), target, typeof(Texture));
 		return target != null;
 	}
+	
+	public bool LoadTexture(MeshRenderer renderer, string fileName, string matName) {
+            if (renderer == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(matName))
+                return false;
+
+            Material mat = renderer.material;
+            if (mat == null)
+                return false;
+
+            Texture tex = ResourceMgr.Instance.LoadTexture(fileName, ResourceCacheType.rctRefAdd);
+            SetResource(renderer, tex, typeof(Texture), matName);
+            mat.SetTexture(matName, tex);
+
+            return tex != null;
+        }
+
+     public void ClearTexture(MeshRenderer renderer, string matName) {
+        if (renderer == null)
+            return;
+
+        ClearResource<Texture>(renderer, matName);
+        Material mat = renderer.material;
+        if (mat != null)
+          mat.SetTexture(matName, null);
+    }
 
 	public void ClearShader(ref Shader target)
 	{
