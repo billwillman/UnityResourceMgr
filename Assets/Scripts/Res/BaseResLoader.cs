@@ -350,7 +350,7 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	protected IEnumerator LoadAsync<T>(int start, int end, OnGetItem<T> onGetItem, Func<T, string, bool> onLoad) where T: UnityEngine.Object
 	{
-		if (start < 0 || end < 0 || end > start || onGetItem == null || onLoad == null)
+		if (start < 0 || end < 0 || end < start || onGetItem == null || onLoad == null)
 			yield break;
 
 		Delegate key = onGetItem as Delegate;
