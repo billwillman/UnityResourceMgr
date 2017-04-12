@@ -348,10 +348,15 @@ public class BaseResLoader: CachedMonoBehaviour
 	public delegate bool OnGetItem<T>(int index, out T a, out string fileName);
 	public delegate bool OnGetItem1<T>(int index, out T a, out string fileName, out string param);
 
-	protected IEnumerator LoadAsync<T>(int start, int end, OnGetItem<T> onGetItem, Func<T, string, bool> onLoad) where T: UnityEngine.Object
+	protected IEnumerator LoadAsync<T>(int start, int end, OnGetItem<T> onGetItem, Func<T, string, bool> onLoad, float delayTime = 0) where T: UnityEngine.Object
 	{
 		if (start < 0 || end < 0 || end < start || onGetItem == null || onLoad == null)
 			yield break;
+
+		bool isDelayMode = delayTime > float.Epsilon;
+		WaitForSeconds seconds = null;
+		if (isDelayMode)
+			seconds = new WaitForSeconds(delayTime);
 
 		Delegate key = onGetItem as Delegate;
 		for (int i = start; i <= end; ++i)
@@ -366,17 +371,25 @@ public class BaseResLoader: CachedMonoBehaviour
 			if (target != null && !string.IsNullOrEmpty(fileName))
 				onLoad(target, fileName);
 
-			yield return target;
+			if (seconds != null)
+				yield return seconds;
+			else
+				yield return target;
 		}
 			
 		StopLoadCoroutine(key);
 	}
 
-	protected IEnumerator LoadAsync<T>(int start, int end, OnGetItem1<T> onGetItem, Func<T, string, string, bool> onLoad) where T: UnityEngine.Object
+	protected IEnumerator LoadAsync<T>(int start, int end, OnGetItem1<T> onGetItem, Func<T, string, string, bool> onLoad, float delayTime = 0) where T: UnityEngine.Object
 	{
 		if (start < 0 || end < 0 || end < start || onGetItem == null || onLoad == null)
 			yield break;
-		
+
+		bool isDelayMode = delayTime > float.Epsilon;
+		WaitForSeconds seconds = null;
+		if (isDelayMode)
+			seconds = new WaitForSeconds(delayTime);
+
 		Delegate key = onGetItem as Delegate;
 		for (int i = start; i <= end; ++i)
 		{
@@ -391,7 +404,10 @@ public class BaseResLoader: CachedMonoBehaviour
 			if (target != null && !string.IsNullOrEmpty(fileName))
 				onLoad(target, fileName, param);
 
-			yield return target;
+			if (seconds != null)
+				yield return seconds;
+			else
+				yield return target;
 		}
 			
 		StopLoadCoroutine(key);
@@ -836,33 +852,33 @@ public class BaseResLoader: CachedMonoBehaviour
 		return StartLoadCoroutine(key, iter);
 	}
 
-	public void LoadMaterialAsync(int start, int end, OnGetItem<MeshRenderer> onGetItem)
+	public void LoadMaterialAsync(int start, int end, OnGetItem<MeshRenderer> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<MeshRenderer>(start, end, onGetItem, LoadMaterial));
+		StartLoadCoroutine(onGetItem, LoadAsync<MeshRenderer>(start, end, onGetItem, LoadMaterial, delayTime));
 	}
 
-	public void LoadMaterialAsync(int start, int end, OnGetItem<SpriteRenderer> onGetItem)
+	public void LoadMaterialAsync(int start, int end, OnGetItem<SpriteRenderer> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadMaterial));
+		StartLoadCoroutine(onGetItem, LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadMaterial, delayTime));
 	}
 
-	public void LoadMainTextureAsync(int start, int end, OnGetItem<MeshRenderer> onGetItem)
+	public void LoadMainTextureAsync(int start, int end, OnGetItem<MeshRenderer> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<MeshRenderer>(start, end, onGetItem, LoadMainTexture));
+		StartLoadCoroutine(onGetItem, LoadAsync<MeshRenderer>(start, end, onGetItem, LoadMainTexture, delayTime));
 	}
 
-	public void LoadFontAsync(int start, int end, OnGetItem<TextMesh> onGetItem)
+	public void LoadFontAsync(int start, int end, OnGetItem<TextMesh> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<TextMesh>(start, end, onGetItem, LoadFont));
+		StartLoadCoroutine(onGetItem, LoadAsync<TextMesh>(start, end, onGetItem, LoadFont, delayTime));
 	}
 
-	public void LoadAniControllerAsync(int start, int end, OnGetItem<Animator> onGetItem)
+	public void LoadAniControllerAsync(int start, int end, OnGetItem<Animator> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<Animator>(start, end, onGetItem, LoadAniController));
+		StartLoadCoroutine(onGetItem, LoadAsync<Animator>(start, end, onGetItem, LoadAniController, delayTime));
 	}
 
-	public void LoadSpriteAsync(int start, int end, OnGetItem1<SpriteRenderer> onGetItem)
+	public void LoadSpriteAsync(int start, int end, OnGetItem1<SpriteRenderer> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadSprite));
+		StartLoadCoroutine(onGetItem, LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadSprite, delayTime));
 	}
 }

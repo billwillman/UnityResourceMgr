@@ -358,69 +358,69 @@ public class NGUIResLoader: BaseResLoader  {
 
 	/*------------------------------------------ 异步方法 ---------------------------------------------*/
 
-	public void LoadMainTextureAsync(int start, int end, OnGetItem<UITexture> onGetItem)
+	public void LoadMainTextureAsync(int start, int end, OnGetItem<UITexture> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UITexture>(start, end, onGetItem, LoadMainTexture));
+		StartLoadCoroutine(onGetItem, LoadAsync<UITexture>(start, end, onGetItem, LoadMainTexture, delayTime));
 	}
 
-	public void LoadShaderAsync(int start, int end, OnGetItem<UITexture> onGetItem)
+	public void LoadShaderAsync(int start, int end, OnGetItem<UITexture> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UITexture>(start, end, onGetItem, LoadShader));
+		StartLoadCoroutine(onGetItem, LoadAsync<UITexture>(start, end, onGetItem, LoadShader, delayTime));
 	}
 
-	public void LoadMaterialAsync(int start, int end, OnGetItem<UITexture> onGetItem)
+	public void LoadMaterialAsync(int start, int end, OnGetItem<UITexture> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UITexture>(start, end, onGetItem, LoadMaterial));
+		StartLoadCoroutine(onGetItem, LoadAsync<UITexture>(start, end, onGetItem, LoadMaterial, delayTime));
 	}
 
-	public void LoadMaterialAsync(int start, int end, OnGetItem<UISprite> onGetItem)
+	public void LoadMaterialAsync(int start, int end, OnGetItem<UISprite> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UISprite>(start, end, onGetItem, LoadMaterial));
+		StartLoadCoroutine(onGetItem, LoadAsync<UISprite>(start, end, onGetItem, LoadMaterial, delayTime));
 	}
 
-	public void LoadMainTextureAsync(int start, int end, OnGetItem<UISprite> onGetItem)
+	public void LoadMainTextureAsync(int start, int end, OnGetItem<UISprite> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UISprite>(start, end, onGetItem, LoadMainTexture));
+		StartLoadCoroutine(onGetItem, LoadAsync<UISprite>(start, end, onGetItem, LoadMainTexture, delayTime));
 	}
 
-	public void LoadMainTextureAsync(int start, int end, OnGetItem<UI2DSprite> onGetItem)
+	public void LoadMainTextureAsync(int start, int end, OnGetItem<UI2DSprite> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UI2DSprite>(start, end, onGetItem, LoadMainTexture));
+		StartLoadCoroutine(onGetItem, LoadAsync<UI2DSprite>(start, end, onGetItem, LoadMainTexture, delayTime));
 	}
 
-	public void LoadShaderAsync(int start, int end, OnGetItem<UI2DSprite> onGetItem)
+	public void LoadShaderAsync(int start, int end, OnGetItem<UI2DSprite> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UI2DSprite>(start, end, onGetItem, LoadShader));
+		StartLoadCoroutine(onGetItem, LoadAsync<UI2DSprite>(start, end, onGetItem, LoadShader, delayTime));
 	}
 
-	public void LoadMaterialAsync(int start, int end, OnGetItem<UI2DSprite> onGetItem)
+	public void LoadMaterialAsync(int start, int end, OnGetItem<UI2DSprite> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UI2DSprite>(start, end, onGetItem, LoadMaterial));
+		StartLoadCoroutine(onGetItem, LoadAsync<UI2DSprite>(start, end, onGetItem, LoadMaterial, delayTime));
 	}
 
-	public void LoadAltasAsync(int start, int end, OnGetItem<UISprite> onGetItem)
+	public void LoadAltasAsync(int start, int end, OnGetItem<UISprite> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UISprite>(start, end, onGetItem, LoadAltas));
+		StartLoadCoroutine(onGetItem, LoadAsync<UISprite>(start, end, onGetItem, LoadAltas, delayTime));
 	}
 
-	public void LoadTextureAsync(int start, int end, OnGetItem1<UITexture> onGetItem)
+	public void LoadTextureAsync(int start, int end, OnGetItem1<UITexture> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UITexture>(start, end, onGetItem, LoadTexture));
+		StartLoadCoroutine(onGetItem, LoadAsync<UITexture>(start, end, onGetItem, LoadTexture, delayTime));
 	}
 
-	public void LoadTextureAsync(int start, int end, OnGetItem1<UISprite> onGetItem)
+	public void LoadTextureAsync(int start, int end, OnGetItem1<UISprite> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UISprite>(start, end, onGetItem, LoadTexture));
+		StartLoadCoroutine(onGetItem, LoadAsync<UISprite>(start, end, onGetItem, LoadTexture, delayTime));
 	}
 
-	public void LoadTextureAsync(int start, int end, OnGetItem1<UI2DSprite> onGetItem)
+	public void LoadTextureAsync(int start, int end, OnGetItem1<UI2DSprite> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UI2DSprite>(start, end, onGetItem, LoadTexture));
+		StartLoadCoroutine(onGetItem, LoadAsync<UI2DSprite>(start, end, onGetItem, LoadTexture, delayTime));
 	}
 
-	public void LoadSpriteAsync(int start, int end, OnGetItem1<UI2DSprite> onGetItem)
+	public void LoadSpriteAsync(int start, int end, OnGetItem1<UI2DSprite> onGetItem, float delayTime = 0)
 	{
-		StartLoadCoroutine(onGetItem, LoadAsync<UI2DSprite>(start, end, onGetItem, LoadSprite));
+		StartLoadCoroutine(onGetItem, LoadAsync<UI2DSprite>(start, end, onGetItem, LoadSprite, delayTime));
 	}
 }
 
