@@ -348,11 +348,13 @@ public class BaseResLoader: CachedMonoBehaviour
 	public delegate bool OnGetItem<T>(int index, out T a, out string fileName);
 	public delegate bool OnGetItem1<T>(int index, out T a, out string fileName, out string param);
 
+	private static readonly WaitForEndOfFrame m_EndOfFrame = new WaitForEndOfFrame();
+
 	protected IEnumerator LoadAsync<T>(int start, int end, OnGetItem<T> onGetItem, Func<T, string, bool> onLoad, float delayTime = 0) where T: UnityEngine.Object
 	{
 		if (start < 0 || end < 0 || end < start || onGetItem == null || onLoad == null)
 			yield break;
-
+		
 		bool isDelayMode = delayTime > float.Epsilon;
 		WaitForSeconds seconds = null;
 		if (isDelayMode)
@@ -374,7 +376,7 @@ public class BaseResLoader: CachedMonoBehaviour
 			if (seconds != null)
 				yield return seconds;
 			else
-				yield return target;
+				yield return m_EndOfFrame;
 		}
 			
 		StopLoadCoroutine(key);
@@ -407,7 +409,7 @@ public class BaseResLoader: CachedMonoBehaviour
 			if (seconds != null)
 				yield return seconds;
 			else
-				yield return target;
+				yield return m_EndOfFrame;
 		}
 			
 		StopLoadCoroutine(key);
