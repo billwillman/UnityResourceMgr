@@ -391,7 +391,7 @@ namespace AutoUpdate
 			response.OnErrorEvt = OnErrorEvt;
 			lock (m_Lock)
 			{
-				m_HttpClient = new HttpClient (url, response, process, m_HttpConnectTimeOut);
+				m_HttpClient = new HttpClient (url, response, process, m_HttpConnectTimeOut, 5.0f);
 			}
 			return m_HttpClient;
 		}
