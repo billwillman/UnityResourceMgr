@@ -313,24 +313,26 @@ namespace NsHttpClient
 		public HttpClient()
 		{}
 
-		public HttpClient(string url, IHttpClientListener listener, float timeOut)
+		public HttpClient(string url, IHttpClientListener listener, float connectTimeOut, float readTimeOut = 5.0f)
 		{
-			Init(url, listener, 0, timeOut);
+			Init(url, listener, 0, connectTimeOut, readTimeOut);
 		}
 			
-		public HttpClient(string url, IHttpClientListener listener, long filePos, float timeOut)
+		public HttpClient(string url, IHttpClientListener listener, long filePos, float connectTimeOut, float readTimeOut = 5.0f)
 		{
-			Init(url, listener, filePos, timeOut);
+			Init(url, listener, filePos, connectTimeOut, readTimeOut);
 		}
 
-		public void Init(string url, IHttpClientListener listener, long filePos, float timeOut)
+		public void Init(string url, IHttpClientListener listener, long filePos, float connectTimeOut, float readTimeOut = 5.0f)
 		{
 			m_Url = url;
-			m_TimeOut = timeOut;
-			m_Listener = listener;
+			m_TimeOut = connectTimeOut;
+            m_ReadTimeOut = readTimeOut;
+            m_Listener = listener;
 			m_FilePos = filePos;
+            ResetReadTimeOut();
 
-			CheckServicePoint();
+            CheckServicePoint();
 			// Get
 			Start();
 		}
@@ -350,6 +352,12 @@ namespace NsHttpClient
 				return m_TimeOut;
 			}
 		}
+
+        public float ReadTimeout {
+            get {
+                return m_ReadTimeOut;
+            }
+        }
 
 		public System.Object UserData
 		{
@@ -407,7 +415,9 @@ namespace NsHttpClient
 				else
 					rep.Close();
 
-			}
+                ResetReadTimeOut();
+
+            }
             catch /*(Exception except)*/
             {
 				#if DEBUG
@@ -425,9 +435,29 @@ namespace NsHttpClient
 			m_FilePos = 0;
 			m_Url = string.Empty;
 			m_TimeOut = 5.0f;
-		}
+            m_ReadTimeOut = 5.0f;
+            ResetReadTimeOut();
+        }
 
-		private void StopTimeOutTime()
+        private void ResetReadTimeOut() {
+            lock (this) {
+                m_CurReadTime = m_ReadTimeOut;
+            }
+        }
+
+        private bool DecReadTimeOut(float delta) {
+            if (delta > 0) {
+                lock (this) {
+                    m_CurReadTime -= delta;
+                    return m_CurReadTime <= float.Epsilon;
+                }
+            }
+
+            return false;
+        }
+
+
+        private void StopTimeOutTime()
 		{
 			if (m_TimeOutTimer != null)
 			{
@@ -436,11 +466,19 @@ namespace NsHttpClient
 			}
 		}
 
-		private void Close()
+        private void StopReadTimeOutTime() {
+            if (m_ReadOutTimer != null) {
+                m_ReadOutTimer.Dispose();
+                m_ReadOutTimer = null;
+            }
+        }
+
+        private void Close()
 		{
 			StopTimeOutTime();
+            StopReadTimeOutTime();
 
-			if (m_Listener != null)
+            if (m_Listener != null)
 				m_Listener.OnClose();
 
 			Abort();
@@ -486,7 +524,9 @@ namespace NsHttpClient
 				//	lock (m_TimerLock)
 					{
 						StopTimeOutTime();
-					}
+                        // 开始读取时间判断
+                        StartReadTimeoutTime();
+                    }
 					return;
 				}
 			} 
@@ -494,7 +534,17 @@ namespace NsHttpClient
 			// Dispose();
 		}
 
-		private void Start()
+        // 主线程
+        private void OnReadTimeoutTime(Timer obj, float timer) {
+            if (DecReadTimeOut(timer)) {
+                StopReadTimeOutTime();
+                if (m_Listener != null) {
+                    m_Listener.OnError(-1);
+                }
+            }
+        }
+
+        private void Start()
 		{
 			m_Req = WebRequest.Create(m_Url) as HttpWebRequest;
 			m_Req.Timeout = (int)(m_TimeOut * 1000);
@@ -511,7 +561,15 @@ namespace NsHttpClient
 			StartTimeoutTime();
 		}
 
-		private void StartTimeoutTime()
+        private void StartReadTimeoutTime() {
+            if (m_ReadOutTimer != null)
+                m_ReadOutTimer.Dispose();
+            ResetReadTimeOut();
+            m_ReadOutTimer = TimerMgr.Instance.CreateTimer(0, true, true);
+            m_ReadOutTimer.AddListener(OnReadTimeoutTime);
+        }
+
+        private void StartTimeoutTime()
 		{
 			if (m_TimeOutTimer != null)
 				m_TimeOutTimer.Dispose();
@@ -539,9 +597,12 @@ namespace NsHttpClient
 
 		private string m_Url;
 		private float m_TimeOut = 5.0f;
-		private ITimerOnce m_TimeOutTimer = null;
-	//	private static System.Object m_TimerLock = new object();
-		private HttpWebRequest m_Req = null;
+        private float m_ReadTimeOut = 5.0f;
+        private float m_CurReadTime = 5.0f;
+        private ITimerOnce m_TimeOutTimer = null;
+        private ITimer m_ReadOutTimer = null;
+        //	private static System.Object m_TimerLock = new object();
+        private HttpWebRequest m_Req = null;
 		private IHttpClientListener m_Listener = null;
 		private long m_FilePos = 0;
 		private LinkedListNode<HttpClient> m_LinkNode = null;
