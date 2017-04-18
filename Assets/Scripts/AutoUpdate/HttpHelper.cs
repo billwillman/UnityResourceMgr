@@ -178,12 +178,12 @@ namespace NsHttpClient
 
         // 保证OpenUrl在主线程调用
         public static HttpClient OpenUrl<T>(string url, T listener, Action<HttpClient, HttpListenerStatus> OnEnd = null, 
-            Action<HttpClient> OnProcess = null, float timeOut = 5.0f, float readTimeOut = 5.0f) where T: HttpClientResponse
+			Action<HttpClient> OnProcess = null, float connectTimeOut = 5.0f, float readTimeOut = 5.0f) where T: HttpClientResponse
 		{
 			if (string.IsNullOrEmpty(url) || listener == null)
 				return null;
 
-			return OpenUrl<T>(url, listener, 0, OnEnd, OnProcess, timeOut, readTimeOut);
+			return OpenUrl<T>(url, listener, 0, OnEnd, OnProcess, connectTimeOut, readTimeOut);
 		}
 
 	}
