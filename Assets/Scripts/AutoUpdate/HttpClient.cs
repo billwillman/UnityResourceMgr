@@ -29,7 +29,7 @@ namespace NsHttpClient
 		void OnStart();
 		void OnClose();
 		void OnError(int status);
-		void OnResponse(HttpWebResponse rep);
+		void OnResponse(HttpWebResponse rep, HttpClient client);
         void OnEnd();
 
 		HttpListenerStatus Status
@@ -142,6 +142,8 @@ namespace NsHttpClient
                     m_Rep.Close();
 					m_Rep = null;
 				}
+
+				m_Client = null;
 			} catch
 			{
 			}
@@ -172,7 +174,7 @@ namespace NsHttpClient
 		}
 
 
-		public void OnResponse(HttpWebResponse rep)
+		public void OnResponse(HttpWebResponse rep, HttpClient client)
 		{
 			if (rep == null)
 			{
@@ -185,6 +187,7 @@ namespace NsHttpClient
 				m_Rep = rep;
 			else*/
 				m_Rep = rep;
+			m_Client = client;
 			try
 			{
                 Status = HttpListenerStatus.hsDoing;
@@ -249,6 +252,8 @@ namespace NsHttpClient
                 return;
 
             try {
+				if (m_Client != null)
+					m_Client.ResetReadTimeOut();
                 int read = req.m_OrgStream.EndRead(result);
                 if (read > 0) {
                     req.DoFlush(read);
@@ -300,6 +305,7 @@ namespace NsHttpClient
 		private static AsyncCallback m_ReadCallBack = new AsyncCallback(OnRead);
 		private Stream m_OrgStream = null;
 		private HttpWebResponse m_Rep = null;
+		private HttpClient m_Client = null;
 		private float m_DownProcess = 0;
 		
 		protected byte[] m_Buf = null;
@@ -395,6 +401,7 @@ namespace NsHttpClient
 				return;
 			try
 			{
+				ResetReadTimeOut();
 				HttpWebResponse rep = req.EndGetResponse(result) as HttpWebResponse;
 				if (rep == null)
 				{
@@ -414,8 +421,6 @@ namespace NsHttpClient
 					m_Listener.OnResponse(rep);
 				else
 					rep.Close();
-
-                ResetReadTimeOut();
 
             }
             catch /*(Exception except)*/
@@ -439,7 +444,7 @@ namespace NsHttpClient
             ResetReadTimeOut();
         }
 
-        private void ResetReadTimeOut() {
+		internal void ResetReadTimeOut() {
             lock (this) {
                 m_CurReadTime = m_ReadTimeOut;
             }
