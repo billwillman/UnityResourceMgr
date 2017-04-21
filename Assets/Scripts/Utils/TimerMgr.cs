@@ -31,7 +31,7 @@ public interface ITimerOnce
 
 	float PerTime
 	{
-		get;
+		get; set;
 	}
 
 	void AddListener(Timer.OnTimerEvent listener);
@@ -114,6 +114,7 @@ public class Timer : DisposeObject, ITimer
 		m_IsPlayOnce = isOnce;
 		m_PerTime = delayTime;
 		m_IngoreScaleTime = ingoreScaleTime;
+		m_IsDispose = false;
 		m_IsRuned = false;
 	}
 
@@ -121,7 +122,7 @@ public class Timer : DisposeObject, ITimer
 	{
 		ClearAllListener();
 		m_UserData = null;
-		m_IsDispose = false;
+	//	m_IsDispose = false;
 		m_IsRuned = false;
 		Stop();
 	}
@@ -340,14 +341,10 @@ public class TimerMgr : Singleton<TimerMgr>
         {
             return;
         }
-        if (node.Value.IngoreScaleTime)
-        {
-            m_UnScaledPlayerList.Remove(node);
-        }
-        else
-        {
-            m_PlayerList.Remove(node);
-        }
+
+		var list = node.List;
+		if (list != null)
+			list.Remove(node);
     }
 
 	public ITimerOnce CreateOnceTimer(float delayTime, bool isRuning, bool ingoreScaleTime = false)
