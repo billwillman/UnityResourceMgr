@@ -252,8 +252,8 @@ namespace NsHttpClient
                 return;
 
             try {
-				if (m_Client != null)
-					m_Client.ResetReadTimeOut();
+				if (req.m_Client != null)
+					req.m_Client.ResetReadTimeOut();
                 int read = req.m_OrgStream.EndRead(result);
                 if (read > 0) {
                     req.DoFlush(read);
@@ -418,7 +418,7 @@ namespace NsHttpClient
 				}
 				
 				if (m_Listener != null)
-					m_Listener.OnResponse(rep);
+					m_Listener.OnResponse(rep, this);
 				else
 					rep.Close();
 
