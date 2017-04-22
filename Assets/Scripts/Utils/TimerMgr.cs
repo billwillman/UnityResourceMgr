@@ -346,11 +346,12 @@ public class TimerMgr : Singleton<TimerMgr>
 		if (list != null)
 			list.Remove(node);
     }
-
+/*
 	public ITimerOnce CreateOnceTimer(float delayTime, bool isRuning, bool ingoreScaleTime = false)
 	{
 		return CreateTimer(true, delayTime, isRuning, ingoreScaleTime);
 	}
+*/
 
 	public ITimer CreateTimer(float delayTime, bool isRuning, bool ingoreScaleTime = false)
 	{

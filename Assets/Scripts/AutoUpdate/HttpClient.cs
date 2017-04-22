@@ -578,7 +578,7 @@ namespace NsHttpClient
 		{
 			if (m_TimeOutTimer != null)
 				m_TimeOutTimer.Dispose();
-			m_TimeOutTimer = TimerMgr.Instance.CreateOnceTimer(m_TimeOut, true, true);
+			m_TimeOutTimer = TimerMgr.Instance.CreateTimer(m_TimeOut, true, true);
 			m_TimeOutTimer.AddListener(OnTimeOutTime);
 		}
 
@@ -604,7 +604,7 @@ namespace NsHttpClient
 		private float m_TimeOut = 5.0f;
         private float m_ReadTimeOut = 5.0f;
         private float m_CurReadTime = 5.0f;
-        private ITimerOnce m_TimeOutTimer = null;
+		private ITimer m_TimeOutTimer = null;
         private ITimer m_ReadOutTimer = null;
         //	private static System.Object m_TimerLock = new object();
         private HttpWebRequest m_Req = null;
