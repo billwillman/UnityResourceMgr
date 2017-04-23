@@ -2321,7 +2321,7 @@ public class AssetLoader: IResourceLoader
 			}
 		}
 
-		GC.Collect ();
+	//	GC.Collect ();
 	}*/
 
 	public AssetLoader()
@@ -2440,7 +2440,7 @@ public class AssetLoader: IResourceLoader
 		stream.Close ();
 		stream.Dispose ();
 
-		GC.Collect ();
+	//	GC.Collect ();
 	}
 
 	private void LoadXml(byte[] bytes)
@@ -2600,7 +2600,7 @@ public class AssetLoader: IResourceLoader
 			}
 		}
 		
-		GC.Collect ();
+	//	GC.Collect ();
 	}
 
 	private void OnLoaderTimer(Timer time, float deltTime)
