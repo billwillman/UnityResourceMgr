@@ -49,7 +49,7 @@ public interface ITimerOnce
 
 public interface ITimer: ITimerOnce
 {
-	void Stop();
+	//void Stop();
 }
 
 public class Timer : DisposeObject, ITimer
@@ -221,7 +221,7 @@ public class Timer : DisposeObject, ITimer
         OnStart();
     }
 
-	public void Stop()
+	private void Stop()
     {
         if (m_IsPlaying)
         {
@@ -417,7 +417,7 @@ public class TimerMgr : Singleton<TimerMgr>
                 }
 				playerNode = node;*/
 
-				var node = playerNode.Next;
+				LinkedListNode<Timer> next = playerNode.Next;
 				var time = playerNode.Value;
 				if (time != null)
 				{
@@ -431,7 +431,7 @@ public class TimerMgr : Singleton<TimerMgr>
 						TimerMgr.Instance._TimerToPool(time);
 					}
 				}
-				playerNode = node;
+				playerNode = next;
             }
         }
     }
