@@ -174,11 +174,22 @@ public class Timer : DisposeObject, ITimer
 			base.Dispose();
 	}
 
+	public bool IsDispose
+	{
+		get {
+			return m_IsDispose;
+		}
+	}
+
     protected override void OnFree(bool isManual)
     {
 		if (isManual && IsUsePool)
 		{
-			TimerMgr.Instance._TimerToPool(this);
+			//TimerMgr.Instance._TimerToPool(this);
+			if (m_IsPlaying)
+				m_IsRuned = false;
+			else
+				TimerMgr.Instance._TimerToPool(this);
 			return;
 		}
 
@@ -398,11 +409,28 @@ public class TimerMgr : Singleton<TimerMgr>
             LinkedListNode<Timer> playerNode = list.First;
             while (playerNode != null)
             {
+				/*
 				var node = playerNode.Next;
                 if (playerNode.Value != null)
                 {
                     playerNode.Value.Tick(delta);
                 }
+				playerNode = node;*/
+
+				var node = playerNode.Next;
+				var time = playerNode.Value;
+				if (time != null)
+				{
+					if (!time.IsDispose)
+					{
+						time.Tick(delta);
+						if (time.IsDispose)
+							TimerMgr.Instance._TimerToPool(time);
+					} else
+					{
+						TimerMgr.Instance._TimerToPool(time);
+					}
+				}
 				playerNode = node;
             }
         }
