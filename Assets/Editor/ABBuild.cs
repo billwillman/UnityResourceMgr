@@ -2154,7 +2154,7 @@ class AssetBundleMgr
 
 		 ProjFileName = ProjFileName.Replace('/' , '\\');
 		 buildExe = buildExe.Replace('/', '\\');
-		string cmd = string.Format("{0} {1} {2} /p:Configuration=Release", preCmd, buildExe, ProjFileName);
+		string cmd = string.Format("{0} {1} {2} /p:Configuration=Debug", preCmd, buildExe, ProjFileName);
 		AssetBundleBuild.RunCmd(cmd);
 		return true;
 #else
@@ -2201,7 +2201,7 @@ class AssetBundleMgr
 			string s = csharpFiles[i];
 
 			string dllFileName = System.IO.Path.GetFileNameWithoutExtension(s) + ".dll";
-			string f = string.Format("{0}/Temp/bin/Release/{1}", rootPath, dllFileName);
+			string f = string.Format("{0}/Temp/bin/Debug/{1}", rootPath, dllFileName);
 
 			if (File.Exists(f))
 			{
