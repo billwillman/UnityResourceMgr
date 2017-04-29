@@ -22,9 +22,6 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE    := gdmo
 
-
-
-
 LOCAL_SHARED_LIBRARIES := mono
 	
 LOCAL_LDLIBS := \
@@ -33,6 +30,7 @@ LOCAL_LDLIBS := \
 	
 LOCAL_SRC_FILES := PosixMemory.cpp \
 		hde64.c \
+		StrConvert.cpp \
 		Hooker.cpp \
 		Debug.cpp \
 		myhook.cpp \

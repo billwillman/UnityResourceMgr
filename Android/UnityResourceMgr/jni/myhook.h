@@ -5,7 +5,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-JNIEXPORT void JNICALL Java_com_UnityResources_Test_SendWritePath(JNIEnv*, jstring);
+JNIEXPORT void JNICALL Java_com_UnityResources_Test_UnityResourceMain_SendWritePath(JNIEnv*, jobject, jstring, jstring);
 #endif
 
 void StartCheckCrc();
