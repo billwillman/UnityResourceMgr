@@ -254,7 +254,9 @@ public class LoaderNode
 				if (func != null)
 					func(1.0f, true, ret);
 			}
-		} else if (resType == typeof(ShaderVariantCollection))
+		}
+		#if UNITY_5 
+		else if (resType == typeof(ShaderVariantCollection))
 		{
 			Action<float, bool, ShaderVariantCollection> func = null;
 			if (CallBack != null)
@@ -274,6 +276,7 @@ public class LoaderNode
 			}
 
 		}
+		#endif
 
 	}
 
