@@ -1,5 +1,6 @@
 
 
+
 # UnityResourceMgr
 项目说明：主要实现基于UNITY资源管理以及更新打包的统一流程机制。有针对资源做Cache并带有一定的资源清理机制。
 
@@ -28,6 +29,8 @@
    5.依赖文件配置读取，最新采用二进制读取.
    
    6.ResourceMgr的Destroy接口已经支持对原始资源进行Resources.UnloadAsset（第二个参数设置为true）,但注意，使用要非常小心，只有非常确认外面没有使用的情况下（Sprite要保证它对应的纹理都没有被其他地方使用），否则其他地方会丢失资源。并且不能针对GameObject进行Resources.UnloadAsset,因为Resources.UnloadAsset只能删除非可见资源。
+   
+   7.已经支持DLL热更新，生成DLL热更新步骤：1）右键先编译 CSHARP工程。2）打包APK
    
 具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
 
