@@ -2154,7 +2154,16 @@ class AssetBundleMgr
 
 		 ProjFileName = ProjFileName.Replace('/' , '\\');
 		 buildExe = buildExe.Replace('/', '\\');
-		string cmd = string.Format("{0} {1} {2} /p:Configuration=Release", preCmd, buildExe, ProjFileName);
+		// DefineConstants=""
+		string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
+		string cmdDefines = string.Empty;
+		if (defines != null && defines.Length > 0)
+		{
+			defines = defines.Replace(';', ',');
+			// 处理一下没有用的编译指令
+			cmdDefines = string.Format(" /p:DefineConstants=\"{0}\"", defines);
+		}
+		string cmd = string.Format("{0} {1} {2} /p:Configuration=Release{3}", preCmd, buildExe, ProjFileName, cmdDefines);
 		AssetBundleBuild.RunCmd(cmd);
 		return true;
 #else
