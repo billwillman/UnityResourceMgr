@@ -132,7 +132,7 @@ bool processDllData(char*& data, unsigned int& data_len, const char* name, const
 
 				//	return true;
 
-				//	free(data);
+					free(data);
 					data = newData;
 					data_len = newDataSize;
 
