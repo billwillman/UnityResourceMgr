@@ -41,7 +41,6 @@ TextureImporter:
   lightmap: 0
   rGBM: 0
   compressionQuality: 50
-  allowsAlphaSplitting: 0
   spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
@@ -53,8 +52,10 @@ TextureImporter:
   textureType: 8
   buildTargetSettings: []
   spriteSheet:
+    serializedVersion: 2
     sprites:
-    - name: fall1
+    - serializedVersion: 2
+      name: fall1
       rect:
         serializedVersion: 2
         x: 2
@@ -64,12 +65,9 @@ TextureImporter:
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      outline:
-      - - {x: -67.5, y: 55}
-        - {x: -67.5, y: -55}
-        - {x: 67.5, y: -55}
-        - {x: 67.5, y: 55}
-    - name: fall2
+      outline: []
+    - serializedVersion: 2
+      name: fall2
       rect:
         serializedVersion: 2
         x: 2
@@ -79,12 +77,9 @@ TextureImporter:
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      outline:
-      - - {x: -67.5, y: 55}
-        - {x: -67.5, y: -55}
-        - {x: 67.5, y: -55}
-        - {x: 67.5, y: 55}
-    - name: fall3
+      outline: []
+    - serializedVersion: 2
+      name: fall3
       rect:
         serializedVersion: 2
         x: 2
@@ -94,12 +89,9 @@ TextureImporter:
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      outline:
-      - - {x: -67.5, y: 55}
-        - {x: -67.5, y: -55}
-        - {x: 67.5, y: -55}
-        - {x: 67.5, y: 55}
-    - name: fall4
+      outline: []
+    - serializedVersion: 2
+      name: fall4
       rect:
         serializedVersion: 2
         x: 2
@@ -109,11 +101,7 @@ TextureImporter:
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
-      outline:
-      - - {x: -67.5, y: 55}
-        - {x: -67.5, y: -55}
-        - {x: 67.5, y: -55}
-        - {x: 67.5, y: 55}
+      outline: []
     outline: []
   spritePackingTag: 
   userData: 
