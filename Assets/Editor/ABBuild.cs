@@ -156,7 +156,7 @@ class AssetBunbleInfo: IDependBinary
         if (string.IsNullOrEmpty(filePath))
             return string.Empty;
 
-		if (!File.Exists(filePath))
+        if (!isOnlyUseFileName && !File.Exists(filePath))
 			return string.Empty;
 
 		string ret;
@@ -3846,6 +3846,12 @@ public static class AssetBundleBuild
 	static public void OnBuildPlatformOSXLz4Md5() {
 		BuildPlatform(eBuildPlatform.eBuildMac, 2, true);
 	}
+
+    [MenuItem("Assets/平台打包/增量OSX MD5(Lz4)")]
+    static public void OnAppendBuildPlatformOSXLz4Md5()
+    {
+        BuildPlatform (eBuildPlatform.eBuildMac, 2, true, null, true);
+    }
 
 	[MenuItem("Assets/平台打包/Android(Lz4)")]
 	static public void OnBuildPlatformAndroidLz4() {
