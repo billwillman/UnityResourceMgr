@@ -92,6 +92,12 @@ class AssetBunbleInfo: IDependBinary
 				return string.Empty;
 			fileName = outPath + '/' + fileName;
 			string ret = Md5(fileName, isOnlyFileName);
+            if (string.IsNullOrEmpty(ret) && !isOnlyFileName) {
+                // 原始文件名文件找不到再找一次MD5文件名，修正增量AB时候的问题
+                string fileNameMd5 = Md5 (fileName, true);
+                fileName = outPath + '/' + fileNameMd5;
+                ret = Md5 (fileName, false);
+            }
 			return ret;
 		}
     }
@@ -2526,6 +2532,8 @@ class AssetBundleMgr
 				string fileCompareStr = string.Format("{0}={1}", md5FileName, newMd5FileName);
 
 				bundleFileName = streamAssetsPath + '/' + bundleFileName;
+                if (!File.Exists(bundleFileName))
+                    bundleFileName = streamAssetsPath + '/' + md5FileName;
 				newMd5FileName = resDir + '/' + newMd5FileName;
 				if (File.Exists(bundleFileName))
 				{
