@@ -4118,7 +4118,7 @@ public static class AssetBundleBuild
 
             // 处理Manifest
             string rootManifest = targetStreamingAssetsPath;
-            string copyManifest = "Assets/StreamingAssets";
+        //   string copyManifest = "Assets/StreamingAssets";
             switch(platform)
             {
             case eBuildPlatform.eBuildAndroid:
