@@ -2826,8 +2826,8 @@ class AssetBundleMgr
 
 		#endif
 
-			//if (!isForceAppend)
-			//	RemoveBundleManifestFiles_5_x(exportDir);
+			if (!isForceAppend)
+				RemoveBundleManifestFiles_5_x(exportDir);
 
 			if (isMd5)
 			{
