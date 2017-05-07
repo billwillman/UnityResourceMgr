@@ -2804,8 +2804,8 @@ class AssetBundleMgr
 
 		#endif
 
-			if (!isForceAppend)
-				RemoveBundleManifestFiles_5_x(exportDir);
+			//if (!isForceAppend)
+			//	RemoveBundleManifestFiles_5_x(exportDir);
 
 			if (isMd5)
 			{
@@ -3887,6 +3887,12 @@ public static class AssetBundleBuild
 	static public void OnBuildPlatformIOSLz4Md5() {
 		BuildPlatform(eBuildPlatform.eBuildIOS, 2, true);
 	}
+
+    [MenuItem("Assets/平台打包/增量IOS MD5(Lz4)")]
+    static public void OnAppendBuildPlatformIOSLz4Md5()
+    {
+        BuildPlatform (eBuildPlatform.eBuildIOS, 2, true);
+    }
 
 #endif
 
