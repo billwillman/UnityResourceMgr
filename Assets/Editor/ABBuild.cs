@@ -2095,7 +2095,29 @@ class AssetBundleMgr
 		stream.Dispose ();
 	}
 
-	private void RemoveBundleManifestFiles_5_x(string outPath)
+    public void CopyBundleManifestFiles_5_x(string rootPath, string outPath)
+    {
+#if USE_UNITY5_X_BUILD
+        if (string.IsNullOrEmpty(rootPath) || string.IsNullOrEmpty(outPath))
+            return;
+
+        if (!Directory.Exists(outPath))
+            return;
+
+        string[] files = Directory.GetFiles(rootPath, "*.manifest", SearchOption.TopDirectoryOnly);
+        if (files == null || files.Length <= 0)
+            return;
+
+        for (int i = 0; i < files.Length; ++i)
+        {
+            string fileName = Path.GetFileName(files[i]);
+            fileName = string.Format("{0}/{1}", outPath, fileName);
+            File.Copy(files[i], fileName, true);
+        }
+#endif
+    }
+
+    public void RemoveBundleManifestFiles_5_x(string outPath)
 	{
 #if USE_UNITY5_X_BUILD
 		string[] files = Directory.GetFiles(outPath, "*.manifest", SearchOption.TopDirectoryOnly);
@@ -4048,7 +4070,7 @@ public static class AssetBundleBuild
 		}
 	}
 
-	 static private void Cmd_Build(int compressType, bool isMd5, eBuildPlatform platform, bool isDebug = false)
+    static private void Cmd_Build(int compressType, bool isMd5, eBuildPlatform platform, bool isDebug = false, bool isAppendBuild = false)
 	{
 		string outPath = "outPath/Proj";
 		
@@ -4088,8 +4110,34 @@ public static class AssetBundleBuild
 			System.IO.Directory.CreateDirectory(targetStreamingAssetsPath);
 		}
 		
+        // 增量
 		// build AssetsBundle to Target
-		BuildPlatform(platform, compressType, isMd5, targetStreamingAssetsPath, false); 
+
+        BuildPlatform(platform, compressType, isMd5, targetStreamingAssetsPath, isAppendBuild); 
+       // if (isAppendBuild) {
+
+            // 处理Manifest
+            string rootManifest = targetStreamingAssetsPath;
+            string copyManifest = "Assets/StreamingAssets";
+            switch(platform)
+            {
+            case eBuildPlatform.eBuildAndroid:
+                rootManifest += "/Android";
+                break;
+            case eBuildPlatform.eBuildIOS:
+                rootManifest += "/IOS";
+                break;
+            case eBuildPlatform.eBuildMac:
+                rootManifest += "/Mac";
+                break;
+            case eBuildPlatform.eBuildWindow:
+                rootManifest += "/Windows";
+                break;
+            }
+
+        //    mMgr.CopyBundleManifestFiles_5_x (rootManifest, copyManifest);
+              mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
+      //  }
 
 		string logFileName = string.Empty;
 		string funcName = string.Empty;
@@ -4137,6 +4185,12 @@ public static class AssetBundleBuild
 	static public void Cmd_BuildAPK_Lz4() {
 		Cmd_Build(2, true, eBuildPlatform.eBuildAndroid);
 	}
+
+    [MenuItem("Assets/发布/APK_整包增量(Lz4)")]
+    static public void Cmd_AppendBuildAPK_Lz4()
+    {
+        Cmd_Build(2, true, eBuildPlatform.eBuildAndroid, false, true);
+    }
 
 	[MenuItem("Assets/发布/APK_Debug(Lz4)")]
 	static public void Cmd_BuildAPK_Debug_Lz4()
