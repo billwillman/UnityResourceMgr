@@ -3913,7 +3913,7 @@ public static class AssetBundleBuild
     [MenuItem("Assets/平台打包/增量IOS MD5(Lz4)")]
     static public void OnAppendBuildPlatformIOSLz4Md5()
     {
-        BuildPlatform (eBuildPlatform.eBuildIOS, 2, true);
+        BuildPlatform (eBuildPlatform.eBuildIOS, 2, true, null, true);
     }
 
 #endif
