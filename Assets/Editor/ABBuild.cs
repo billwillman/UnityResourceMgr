@@ -4114,30 +4114,42 @@ public static class AssetBundleBuild
 		// build AssetsBundle to Target
 
         BuildPlatform(platform, compressType, isMd5, targetStreamingAssetsPath, isAppendBuild); 
-       // if (isAppendBuild) {
-
             // 处理Manifest
-            string rootManifest = targetStreamingAssetsPath;
-        //   string copyManifest = "Assets/StreamingAssets";
-            switch(platform)
-            {
-            case eBuildPlatform.eBuildAndroid:
-                rootManifest += "/Android";
-                break;
-            case eBuildPlatform.eBuildIOS:
-                rootManifest += "/IOS";
-                break;
-            case eBuildPlatform.eBuildMac:
-                rootManifest += "/Mac";
-                break;
-            case eBuildPlatform.eBuildWindow:
-                rootManifest += "/Windows";
-                break;
-            }
+        string rootManifest = targetStreamingAssetsPath;
+        string copyManifest = "Assets/StreamingAssets";
+        switch (platform) {
+        case eBuildPlatform.eBuildAndroid:
+            rootManifest += "/Android";
+            copyManifest += "/Android";
+            break;
+        case eBuildPlatform.eBuildIOS:
+            rootManifest += "/IOS";
+            copyManifest += "/IOS";
+            break;
+        case eBuildPlatform.eBuildMac:
+            rootManifest += "/Mac";
+            copyManifest += "/Mac";
+            break;
+        case eBuildPlatform.eBuildWindow:
+            rootManifest += "/Windows";
+            copyManifest += "/Windows";
+            break;
+        }
 
-        //    mMgr.CopyBundleManifestFiles_5_x (rootManifest, copyManifest);
-              mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
-      //  }
+        if (isAppendBuild) {
+            if (!Directory.Exists (copyManifest))
+                Directory.CreateDirectory (copyManifest);
+            string[] files = Directory.GetFiles (rootManifest, "*.*", SearchOption.TopDirectoryOnly);
+            if (files != null) {
+                for (int i = 0; i < files.Length; ++i) {
+                    string fileName = Path.GetFileName (files [i]);
+                    string newFilePath = string.Format ("{0}/{1}", copyManifest, fileName);
+                    File.Copy (files [i], newFilePath, true);
+                }
+            }
+        }
+           
+        mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
 
 		string logFileName = string.Empty;
 		string funcName = string.Empty;
