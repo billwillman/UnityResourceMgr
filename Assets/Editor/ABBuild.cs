@@ -2829,8 +2829,6 @@ class AssetBundleMgr
         string fileName = Path.GetFullPath(string.Format("{0}/{1}/version.txt", rootDir, lastVersion));
         if (!File.Exists(fileName))
             return;
-        string dstFileName = string.Format("{0}/version.txt", rootDir);
-        File.Copy(fileName, dstFileName, true);
 
         string ver, zipMd5, fileListMd5;
         if (!AutoUpdateMgr.GetResVerByFileName(fileName, out ver, out fileListMd5, out zipMd5))
@@ -2838,9 +2836,6 @@ class AssetBundleMgr
         fileName = Path.GetFullPath(string.Format("{0}/{1}/{2}.txt", rootDir, lastVersion, fileListMd5));
         if (!File.Exists(fileName))
             return;
-
-        dstFileName = string.Format("{0}/fileList.txt", dstRoot);
-        File.Copy(fileName, dstFileName, true);
 
         ResListFile resFile = new ResListFile();
         if (!resFile.LoadFromFile(fileName))
@@ -2850,7 +2845,7 @@ class AssetBundleMgr
         while (fileContentIter.MoveNext()) {
             fileName = Path.GetFullPath(string.Format("{0}/{1}/{2}", rootDir, lastVersion, fileContentIter.Current.Key));
             if (File.Exists(fileName)) {
-                dstFileName = string.Format("{0}/{1}", dstRoot, fileContentIter.Current.Value);
+                string dstFileName = string.Format("{0}/{1}", dstRoot, fileContentIter.Current.Value);
                 File.Copy(fileName, dstFileName, true);
             }
         }
