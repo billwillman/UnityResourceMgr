@@ -2517,6 +2517,35 @@ class AssetBundleMgr
 		}
 	}
 
+    private void CreateManifestResUpdateFiles(string streamAssetsPath, string outPath, string version) {
+        string resDir = outPath + '/' + '.' + "manifest_" + version;
+        resDir = System.IO.Path.GetFullPath(resDir);
+        if (System.IO.Directory.Exists(resDir)) {
+            string[] fileNames = System.IO.Directory.GetFiles(resDir, "*.*", SearchOption.TopDirectoryOnly);
+            if (fileNames != null) {
+                for (int i = 0; i < fileNames.Length; ++i) {
+                    System.IO.File.Delete(fileNames[i]);
+                }
+            }
+        }
+
+        if (!System.IO.Directory.Exists(resDir))
+            System.IO.Directory.CreateDirectory(resDir);
+
+        for (int i = 0; i < mAssetBundleList.Count; ++i) {
+            AssetBunbleInfo info = mAssetBundleList[i];
+            if ((info != null) && info.IsBuilded && (info.SubFileCount > 0) && (info.FileType != AssetBundleFileType.abError)) {
+                string manifestFileName = info.BundleFileName;
+                manifestFileName = streamAssetsPath + '/' + manifestFileName + ".manifest";
+                if (File.Exists(manifestFileName)) {
+                    string targetManifestFileName = Path.GetFileName(manifestFileName);
+                    targetManifestFileName = string.Format("{0}/{1}", resDir, targetManifestFileName);
+                    File.Copy(manifestFileName, targetManifestFileName, true);
+                }
+            }
+        }
+    }
+
 	private void CreateBundleResUpdateFiles(string streamAssetsPath, string outPath, string version, bool isRemoveVersionDir)
 	{
 		string resDir = outPath + '/' + version;
@@ -2753,6 +2782,88 @@ class AssetBundleMgr
 
     }
 
+    // 根据buildVersion.txt准备增量打包信息(增量用)
+    private void CopyVersionForceAppendFiles(eBuildPlatform platform, string outPath) {
+#if USE_UNITY5_X_BUILD
+        if (string.IsNullOrEmpty(outPath))
+            return;
+
+        string dstRoot = "Assets/StreamingAssets";
+        switch (platform) {
+            case eBuildPlatform.eBuildWindow:
+                dstRoot += "/Windows";
+                break;
+            case eBuildPlatform.eBuildMac:
+                dstRoot += "/Mac";
+                break;
+            case eBuildPlatform.eBuildAndroid:
+                dstRoot += "/Android";
+                break;
+            case eBuildPlatform.eBuildIOS:
+                dstRoot += "/IOS";
+                break;
+            default:
+                return;
+        }
+
+        if (!Directory.Exists(dstRoot))
+            Directory.CreateDirectory(dstRoot);
+        else {
+            // 1.删除本项目中平台的AB和manifest文件
+            string[] files = Directory.GetFiles(dstRoot, "*.*", SearchOption.TopDirectoryOnly);
+            if (files != null && files.Length > 0) {
+                for (int i = 0; i < files.Length; ++i) {
+                    string localFileName = Path.GetFullPath(files[i]);
+                    File.Delete(localFileName);
+                }
+            }
+        }
+
+        string curretnVersion, lastVersion;
+        AssetBundleBuild.GetPackageVersion(platform, out curretnVersion, out lastVersion);
+
+
+
+        // 2.读取需要差异化的版本
+        string rootDir = outPath;
+        string fileName = Path.GetFullPath(string.Format("{0}/{1}/version.txt", rootDir, lastVersion));
+        if (!File.Exists(fileName))
+            return;
+        string dstFileName = string.Format("{0}/version.txt", rootDir);
+        File.Copy(fileName, dstFileName, true);
+
+        string ver, zipMd5, fileListMd5;
+        if (!AutoUpdateMgr.GetResVerByFileName(fileName, out ver, out fileListMd5, out zipMd5))
+            return;
+        fileName = Path.GetFullPath(string.Format("{0}/{1}/{2}.txt", rootDir, lastVersion, fileListMd5));
+        if (!File.Exists(fileName))
+            return;
+
+        dstFileName = string.Format("{0}/fileList.txt", dstRoot);
+        File.Copy(fileName, dstFileName, true);
+
+        ResListFile resFile = new ResListFile();
+        if (!resFile.LoadFromFile(fileName))
+            return;
+        // 3.转换拷贝名字
+        var fileContentIter = resFile.GetFileContentMd5Iter();
+        while (fileContentIter.MoveNext()) {
+            fileName = Path.GetFullPath(string.Format("{0}/{1}/{2}", rootDir, lastVersion, fileContentIter.Current.Key));
+            if (File.Exists(fileName)) {
+                dstFileName = string.Format("{0}/{1}", dstRoot, fileContentIter.Current.Value);
+                File.Copy(fileName, dstFileName, true);
+            }
+        }
+        fileContentIter.Dispose();
+
+        // Copy Mainfest
+        rootDir = string.Format("{0}/.manifest_{1}", rootDir, lastVersion);
+        if (Directory.Exists(rootDir)) {
+            CopyBundleManifestFiles_5_x(rootDir, dstRoot);
+        }
+#endif
+    }
+
     // 5.x打包方法
     private void BuildAssetBundles_5_x(eBuildPlatform platform, int compressType, string outPath, bool isMd5, bool isForceAppend)
     {
@@ -2773,15 +2884,19 @@ class AssetBundleMgr
 					xmlImport.SaveAndReimport();
 				}
 			}
-		#endif
-			/*
+#endif
+            /*
             for (int i = 0; i < mAssetBundleList.Count; ++i)
             {
                 AssetBunbleInfo info = mAssetBundleList[i];
                 if ((info != null) && (!info.IsBuilded) && (info.SubFileCount > 0) && (info.FileType != AssetBundleFileType.abError))
                     BuildAssetBundleInfo_5_x(info, platform, exportDir, compressType);
             }*/
-			BuildAssetBundlesInfo_5_x(platform, exportDir, compressType, isForceAppend);
+
+            if (isForceAppend)
+                CopyVersionForceAppendFiles(platform, "outPath");
+
+            BuildAssetBundlesInfo_5_x(platform, exportDir, compressType, isForceAppend);
 
 			// 是否存在冗余资源，如果有打印出来
 			CheckRongYuRes("Err_RongYu.txt");
@@ -2826,20 +2941,56 @@ class AssetBundleMgr
 
 		#endif
 
-			if (!isForceAppend)
-				RemoveBundleManifestFiles_5_x(exportDir);
-
 			if (isMd5)
 			{
 				ProcessVersionRes(exportDir, platform);
 				ChangeBundleFileNameToMd5(exportDir);
 			}
 
-			AssetDatabase.Refresh();
+            // 删除manifest
+            RemoveBundleManifestFiles_5_x(exportDir);
+
+            AssetDatabase.Refresh();
 
             ResetAssetBundleInfo();
         }
 #endif
+    }
+
+    // 删除不包含fileList的资源
+    private void RemoveFileListContentMd5NoContainsRes(string rootDir, string version) {
+        if (string.IsNullOrEmpty(rootDir) || string.IsNullOrEmpty(version))
+            return;
+        
+        string fileName = Path.GetFullPath(string.Format("{0}/{1}/version.txt", rootDir, version));
+        if (!File.Exists(fileName))
+            return;
+        string ver, fileListMd5, zipMd5;
+        if (!AutoUpdateMgr.GetResVerByFileName(fileName, out ver, out fileListMd5, out zipMd5))
+            return;
+
+        
+        string fileListMd5FileName = Path.GetFullPath(string.Format("{0}/{1}/{2}.txt", rootDir, version, fileListMd5));
+        if (!File.Exists(fileListMd5FileName))
+            return;
+        ResListFile resFile = new ResListFile();
+        if (!resFile.LoadFromFile(fileListMd5FileName))
+            return;
+
+        fileListMd5FileName = Path.GetFileName(fileListMd5FileName);
+        string dir = Path.GetFullPath(string.Format("{0}/{1}", rootDir, version));
+        string[] files = Directory.GetFiles(dir, "*.*", SearchOption.TopDirectoryOnly);
+        if (files != null && files.Length > 0) {
+            for (int i = 0; i < files.Length; ++i) {
+                string localFileName = Path.GetFileName(files[i]);
+                if (string.Compare(localFileName, fileListMd5FileName) != 0 && 
+                    string.IsNullOrEmpty(resFile.FindFileNameMd5(localFileName)) &&
+                    string.Compare(localFileName, "version.txt", true) != 0) {
+                    // 删除文件
+                    File.Delete(files[i]);
+                }
+            }
+        }        
     }
 
 	private void ProcessVersionRes(string streamAssetsPath, eBuildPlatform platform)
@@ -2847,16 +2998,24 @@ class AssetBundleMgr
 	//	if (platform == eBuildPlatform.eBuildAndroid || platform == eBuildPlatform.eBuildIOS ||
 	//	    platform == eBuildPlatform.eBuildWindow)
 		{
-			string versionDir = AssetBundleBuild.GetCurrentPackageVersion(platform);
+            string versionDir;
+            string lastVersion;
+            AssetBundleBuild.GetPackageVersion(platform, out versionDir, out lastVersion);
+            // Create Bunlde到outPut目录
 			CreateBundleResUpdateFiles(streamAssetsPath, "outPath", versionDir, true);
-			BuildCSharpProjectUpdateFile(streamAssetsPath, "outPath", versionDir);
+            // Copy Manifest到outPut目录
+            CreateManifestResUpdateFiles(streamAssetsPath, "outPath", versionDir);
+            // Copy CSharp的Dll
+            BuildCSharpProjectUpdateFile(streamAssetsPath, "outPath", versionDir);
 
 			// 修改fileList的文件名为MD5
 			string fileListRootPath = string.Format("outPath/{0}", versionDir);
 			ChangeFileListFileNameToMd5(fileListRootPath);
-			#if USE_ZIPVER
+            // 删除不存在的内容MD5文件名文件
+            RemoveFileListContentMd5NoContainsRes("outPath", versionDir);
+            #if USE_ZIPVER
 			BuildVersionZips("outPath", versionDir);
-			#endif
+#endif
         }
     }
 
@@ -3500,42 +3659,51 @@ public static class AssetBundleBuild
 	}
 
 	private static string m_PackageVersion = string.Empty;
+    private static string m_LastPackageVersion = string.Empty;
 	// 当前版本号
-	public static string GetCurrentPackageVersion(eBuildPlatform platform)
+	public static void GetPackageVersion(eBuildPlatform platform, out string currentVersion, out string lastVersion)
 	{
 		if (string.IsNullOrEmpty(m_PackageVersion))
 		{
 			string versionFile = "buildVersion.cfg";
-			if (!System.IO.File.Exists(versionFile))
-				m_PackageVersion = "1.000";
-			else
-			{
-				FileStream stream = new FileStream(versionFile, FileMode.Open, FileAccess.Read);
-				try
-				{
-					if (stream.Length <= 0)
-						m_PackageVersion = "1.000";
-					else
-					{
-						byte[] src = new byte[stream.Length];
-						stream.Read(src, 0, src.Length);
-						string ver = System.Text.Encoding.ASCII.GetString(src);
-						ver = ver.Trim();
-						if (string.IsNullOrEmpty(ver))
-							m_PackageVersion = "1.000";
-						else
-							m_PackageVersion = ver;
-					}
-				}
-				finally
-				{
-					stream.Close();
-					stream.Dispose();
-				}
-			}
+            if (!System.IO.File.Exists(versionFile)) {
+                m_PackageVersion = "1.000";
+                m_LastPackageVersion = "1.000";
+            } else {
+                FileStream stream = new FileStream(versionFile, FileMode.Open, FileAccess.Read);
+                try {
+                    if (stream.Length <= 0) {
+                        m_PackageVersion = "1.000";
+                        m_LastPackageVersion = "1.000";
+                    } else {
+                        byte[] src = new byte[stream.Length];
+                        stream.Read(src, 0, src.Length);
+                        string ver = System.Text.Encoding.ASCII.GetString(src);
+                        ver = ver.Trim();
+                        if (string.IsNullOrEmpty(ver)) {
+                            m_PackageVersion = "1.000";
+                            m_LastPackageVersion = "1.000";
+                        } else {
+                            // 分号拆分
+                            string[] splits = ver.Split(';');
+                            if (splits == null || splits.Length <= 1) {
+                                m_PackageVersion = ver;
+                                m_LastPackageVersion = ver;
+                            } else {
+                                m_PackageVersion = splits[0];
+                                m_LastPackageVersion = splits[1];
+                            }
+                        }
+                    }
+                } finally {
+                    stream.Close();
+                    stream.Dispose();
+                }
+            }
 		}
-		return m_PackageVersion;
-	}
+        currentVersion = m_PackageVersion;
+        lastVersion = m_LastPackageVersion;
+    }
 
 	public static string GetPackageExt(eBuildPlatform platform)
 	{
@@ -3711,7 +3879,8 @@ public static class AssetBundleBuild
 		// GetResAllDirPath ();
 		// 编译平台`
 		m_PackageVersion = string.Empty;
-		List<string> resList = GetResAllDirPath();
+        m_LastPackageVersion = string.Empty;
+        List<string> resList = GetResAllDirPath();
 		// resList.Add("Assets/Scene");
 		mMgr.BuildDirs(resList);
 		mMgr.BuildAssetBundles(platform, compressType, isMd5, outPath, isForceAppend);
@@ -4070,7 +4239,7 @@ public static class AssetBundleBuild
 		}
 	}
 
-    static private void Cmd_Build(int compressType, bool isMd5, eBuildPlatform platform, bool isDebug = false, bool isAppendBuild = false)
+    static private void Cmd_Build(int compressType, bool isMd5, eBuildPlatform platform, bool isDebug = false)
 	{
 		string outPath = "outPath/Proj";
 		
@@ -4113,7 +4282,7 @@ public static class AssetBundleBuild
         // 增量
 		// build AssetsBundle to Target
 
-        BuildPlatform(platform, compressType, isMd5, targetStreamingAssetsPath, isAppendBuild); 
+        BuildPlatform(platform, compressType, isMd5, targetStreamingAssetsPath); 
             // 处理Manifest
         string rootManifest = targetStreamingAssetsPath;
         string copyManifest = "Assets/StreamingAssets";
@@ -4136,6 +4305,7 @@ public static class AssetBundleBuild
             break;
         }
 
+         /*
         if (isAppendBuild) {
             if (!Directory.Exists (copyManifest))
                 Directory.CreateDirectory (copyManifest);
@@ -4147,7 +4317,7 @@ public static class AssetBundleBuild
                     File.Copy (files [i], newFilePath, true);
                 }
             }
-        }
+        }*/
            
         mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
 
@@ -4201,7 +4371,7 @@ public static class AssetBundleBuild
     [MenuItem("Assets/发布/APK_整包增量(Lz4)")]
     static public void Cmd_AppendBuildAPK_Lz4()
     {
-        Cmd_Build(2, true, eBuildPlatform.eBuildAndroid, false, true);
+        Cmd_Build(2, true, eBuildPlatform.eBuildAndroid, false);
     }
 
 	[MenuItem("Assets/发布/APK_Debug(Lz4)")]
@@ -4548,9 +4718,9 @@ public static class AssetBundleBuild
 			float process = ((float)i)/((float)assetBundleNames.Length);
 			EditorUtility.DisplayProgressBar("清理Tag中...", assetBundleNames[i], process);
 			AssetDatabase.RemoveAssetBundleName(assetBundleNames[i], true);
-			EditorUtility.UnloadUnusedAssetsImmediate();
 		}
-		EditorUtility.ClearProgressBar();
+        EditorUtility.UnloadUnusedAssetsImmediate();
+        EditorUtility.ClearProgressBar();
 	}
 
 	#endif
