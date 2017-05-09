@@ -391,7 +391,15 @@ public class ResListFile
 		return true;
 	}
 
-	public ResDiffInfo[] GetDiffInfos(ResListFile otherFile)
+    public Dictionary<string, string>.Enumerator GetFileContentMd5Iter() {
+        return m_ContentMd5ToNameMd5Map.GetEnumerator();
+    }
+
+    public Dictionary<string, ResInfo>.Enumerator GetFileNameMd5Iter() {
+        return m_FileMd5Map.GetEnumerator();
+    }
+
+    public ResDiffInfo[] GetDiffInfos(ResListFile otherFile)
 	{
 		ResDiffInfo[] ret = null;
 
