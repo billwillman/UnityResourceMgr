@@ -2856,6 +2856,8 @@ class AssetBundleMgr
         if (Directory.Exists(rootDir)) {
             CopyBundleManifestFiles_5_x(rootDir, dstRoot);
         }
+		
+		AssetDatabase.Refresh();
 #endif
     }
 
