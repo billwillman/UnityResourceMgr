@@ -1706,7 +1706,38 @@ class AssetBundleMgr
 		return true;
 	}
 
-	private string CreateAssetBundleDir(eBuildPlatform platform, string exportDir)
+    public void LocalAssetBundlesCopyToOtherProj(string outPrjRootPath, eBuildPlatform platform) {
+        if (string.IsNullOrEmpty(outPrjRootPath))
+            return;
+
+        // 删除原来的数据
+        string outPath = string.Format("{0}/Assets/StreamingAssets", outPrjRootPath);
+        if (System.IO.Directory.Exists(outPath)) {
+            string[] subDirs = System.IO.Directory.GetDirectories(outPath);
+            if (subDirs != null) {
+                for (int i = 0; i < subDirs.Length; ++i) {
+                    System.IO.Directory.Delete(subDirs[i], true);
+                }
+            }
+        } else {
+            System.IO.Directory.CreateDirectory(outPath);
+        }
+
+        outPath = CreateAssetBundleDir(platform, outPath);
+
+        string localABPath = CreateAssetBundleDir(platform, string.Empty);
+        string[] files = Directory.GetFiles(localABPath, "*.*", SearchOption.TopDirectoryOnly);
+        if (files != null && files.Length > 0) {
+            for (int i = 0; i < files.Length; ++i) {
+                string file = files[i];
+                string fileName = Path.GetFileName(file);
+                string dstFile = string.Format("{0}/{1}", outPath, fileName);
+                File.Copy(file, dstFile, true);
+            }
+        }
+    }
+
+    private string CreateAssetBundleDir(eBuildPlatform platform, string exportDir)
 	{
 
 		string outPath;
@@ -3881,12 +3912,15 @@ public static class AssetBundleBuild
 		// resList.Add("Assets/Scene");
 		mMgr.BuildDirs(resList);
 		mMgr.BuildAssetBundles(platform, compressType, isMd5, outPath, isForceAppend);
-		/*
+        // 增量更新同步一次新工程
+        if (isForceAppend)
+            mMgr.LocalAssetBundlesCopyToOtherProj("outPath/Proj", platform);
+        /*
 		string outpath = GetAndCreateDefaultOutputPackagePath (platform);
 		string outFileName = outpath + "/" + GetCurrentPackageVersion (platform);
 		if (!mMgr.BuildPackage (platform, outFileName, IsBuildNewPackageMode(platform, outpath)))
 			LogMgr.Instance.LogError ("BuildPlatform: BuildPackage error!");*/
-	}
+    }
 
 	internal static AssetBunbleInfo FindAssetBundle(string fileName)
 	{
@@ -4212,29 +4246,27 @@ public static class AssetBundleBuild
 	}
 #endif
 
-	[MenuItem("Assets/编译CSharp")]
-	static public void Cmd_BuildCSharpProj()
-	{
-		/*
+    [MenuItem("Assets/编译CSharp")]
+    static public void Cmd_BuildCSharpProj() {
+        /*
 		string unityEditorPath = mMgr.GetUnityEditorPath();
 		if (string.IsNullOrEmpty(unityEditorPath))
 			return;
 
 		string buildExe = unityEditorPath + "/Data/MonoBleedingEdge/lib/mono/unity/xbuild.exe";
 		*/
-		string buildExe = "xbuild.bat";
+        string buildExe = "xbuild.bat";
 
-		string rootPath = System.IO.Directory.GetCurrentDirectory();
-		rootPath = rootPath.Replace('\\', '/');
-		string[] csPrjs = new string[1];
-		csPrjs[0] = "Assembly-CSharp.csproj";
+        string rootPath = System.IO.Directory.GetCurrentDirectory();
+        rootPath = rootPath.Replace('\\', '/');
+        string[] csPrjs = new string[1];
+        csPrjs[0] = "Assembly-CSharp.csproj";
 
-		for (int i = 0; i < csPrjs.Length; ++i)
-		{
-			string projFileName = rootPath + '/' + csPrjs[i];
-			mMgr.BuildCSharpProject(projFileName, buildExe);		
-		}
-	}
+        for (int i = 0; i < csPrjs.Length; ++i) {
+            string projFileName = rootPath + '/' + csPrjs[i];
+            mMgr.BuildCSharpProject(projFileName, buildExe);
+        }
+    }
 
     static private void Cmd_Build(int compressType, bool isMd5, eBuildPlatform platform, bool isDebug = false)
 	{
