@@ -541,7 +541,8 @@ namespace NsHttpClient
 
         // 主线程
         private void OnReadTimeoutTime(Timer obj, float timer) {
-            if (DecReadTimeOut(timer)) {
+            // 减去固定时间
+            if (DecReadTimeOut(0.033f)) {
                 StopReadTimeOutTime();
                 if (m_Listener != null) {
                     m_Listener.OnError(-1);
