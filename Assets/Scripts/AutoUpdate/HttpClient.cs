@@ -491,11 +491,16 @@ namespace NsHttpClient
 
 		private void Abort()
 		{
-			if (m_Req != null)
+			try
 			{
-              //  UnityEngine.Debug.LogFormat("<color=red>DoAbort:</color><color=green> {0:D}</color>", (m_Listener as HttpClientResponse).GetHashCode());
-                m_Req.Abort();
-				m_Req = null;
+				if (m_Req != null)
+				{
+				//  UnityEngine.Debug.LogFormat("<color=red>DoAbort:</color><color=green> {0:D}</color>", (m_Listener as HttpClientResponse).GetHashCode());
+					m_Req.Abort();
+					m_Req = null;
+				}
+			} catch
+			{
 			}
 		}
 
