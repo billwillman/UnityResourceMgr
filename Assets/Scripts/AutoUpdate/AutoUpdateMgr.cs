@@ -210,7 +210,7 @@ namespace AutoUpdate
 
 		internal void ServerResVerToClientResVer ()
 		{
-			if (IsVersionTxtNoUpdate ())
+			if (IsVersionNoUpdate ())
 				return;
 
 			if (string.IsNullOrEmpty (m_WritePath))
