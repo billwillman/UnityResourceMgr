@@ -1707,35 +1707,35 @@ class AssetBundleMgr
 	}
 
     public void LocalAssetBundlesCopyToOtherProj(string outPrjRootPath, eBuildPlatform platform) {
-        if (string.IsNullOrEmpty(outPrjRootPath))
-            return;
+            if (string.IsNullOrEmpty(outPrjRootPath))
+                return;
 
-        // 删除原来的数据
-        string outPath = string.Format("{0}/Assets/StreamingAssets", outPrjRootPath);
-        if (System.IO.Directory.Exists(outPath)) {
-            string[] subDirs = System.IO.Directory.GetDirectories(outPath);
-            if (subDirs != null) {
-                for (int i = 0; i < subDirs.Length; ++i) {
-                    System.IO.Directory.Delete(subDirs[i], true);
+            // 删除原来的数据
+            string outPath = string.Format("{0}/Assets/StreamingAssets", outPrjRootPath);
+            outPath = CreateAssetBundleDir(platform, outPath);
+            if (System.IO.Directory.Exists(outPath)) {
+                string[] localFiles = Directory.GetFiles(outPath, "*.*", SearchOption.TopDirectoryOnly);
+                if (localFiles != null) {
+                    for (int i = 0; i < localFiles.Length; ++i) {
+                        string localFile = localFiles[i];
+                        File.Delete(localFile);
+                    }
                 }
             }
-        } else {
-            System.IO.Directory.CreateDirectory(outPath);
-        }
 
-        outPath = CreateAssetBundleDir(platform, outPath);
+            
 
-        string localABPath = CreateAssetBundleDir(platform, string.Empty);
-        string[] files = Directory.GetFiles(localABPath, "*.*", SearchOption.TopDirectoryOnly);
-        if (files != null && files.Length > 0) {
-            for (int i = 0; i < files.Length; ++i) {
-                string file = files[i];
-                string fileName = Path.GetFileName(file);
-                string dstFile = string.Format("{0}/{1}", outPath, fileName);
-                File.Copy(file, dstFile, true);
+            string localABPath = CreateAssetBundleDir(platform, string.Empty);
+            string[] files = Directory.GetFiles(localABPath, "*.*", SearchOption.TopDirectoryOnly);
+            if (files != null && files.Length > 0) {
+                for (int i = 0; i < files.Length; ++i) {
+                    string file = files[i];
+                    string fileName = Path.GetFileName(file);
+                    string dstFile = string.Format("{0}/{1}", outPath, fileName);
+                    File.Copy(file, dstFile, true);
+                }
             }
         }
-    }
 
     private string CreateAssetBundleDir(eBuildPlatform platform, string exportDir)
 	{
