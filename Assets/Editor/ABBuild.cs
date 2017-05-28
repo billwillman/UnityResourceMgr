@@ -4562,6 +4562,29 @@ public static class AssetBundleBuild
 				Directory.CreateDirectory(root);
 		}
 	}
+	
+	static private void DeleteDirectorAndFiles(string dir) {
+            if (string.IsNullOrEmpty(dir))
+                return;
+            if (Directory.Exists(dir)) {
+                var subDirs = System.IO.Directory.GetDirectories(dir);
+                if (subDirs != null) {
+                    for (int i = 0; i < subDirs.Length; ++i) {
+                        string subDir = subDirs[i];
+                        DeleteDirectorAndFiles(subDir);
+                    }
+                }
+
+                var subFiles = System.IO.Directory.GetFiles(dir);
+                if (subFiles != null) {
+                    for (int j = 0; j < subFiles.Length; ++j) {
+                        System.IO.File.Delete(subFiles[j]);
+                    }
+                }
+
+                System.IO.Directory.Delete(dir);
+            }
+        }
 
 	static private void Cmd_CopyList(string outPath, List<string> copyList)
 		{
@@ -4581,7 +4604,7 @@ public static class AssetBundleBuild
 					var subDirs = System.IO.Directory.GetDirectories (dstDir);
 					if (subDirs != null) {
 						for (int j = 0; j < subDirs.Length; ++j) {
-							System.IO.Directory.Delete (subDirs [j], true);
+							DeleteDirectorAndFiles(subDirs[j]);
 						}
 					}
 
