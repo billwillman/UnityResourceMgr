@@ -202,12 +202,15 @@ namespace NsHttpClient
 					m_OrgStream.ReadTimeout = _cReadTimeOut;
 
 				m_MaxReadBytes = rep.ContentLength;
-				if (m_MaxReadBytes <= 0)
-				{
-               	 	OnEnd();
-					DoClose();
-					return;
-				}
+				if (m_MaxReadBytes == -1) {
+                    // 有些页面会返回-1，ContentLength会忽略 
+                    // 但客户端需要最大长度否则有问题
+                } else
+                if (m_MaxReadBytes <= 0) {
+                    OnEnd();
+                    DoClose();
+                    return;
+                }
 
 
 				//	UnityEngine.Debug.Log("OnResponse");
@@ -226,19 +229,24 @@ namespace NsHttpClient
 		{
 			// 设置下载进度
             float down = 0;
-            if (MaxReadBytes > 0)
+            bool isDone = (IsIngoreMaxReadBytes && read == 0) ||
+                          (!IsIngoreMaxReadBytes && ReadBytes + read >= MaxReadBytes);
+            if (isDone)
+                down = 1f;
+            else if (MaxReadBytes > 0)
                 down = (float)((ReadBytes + (long)read)) / ((float)MaxReadBytes);
             DownProcess = down;
-			
-			Flush(read);
 
-			if (ReadBytes + read >= MaxReadBytes)
-				OnEnd();
+            // read > 0通知才有意义
+            if (read > 0)
+                Flush(read);
 
-			if (OnReadEvt != null)
-			{
-				OnReadEvt(this, ReadBytes + read);
-			}
+            if (isDone)
+                OnEnd();
+
+            if (OnReadEvt != null) {
+                OnReadEvt(this, ReadBytes + read);
+            }
 		}
 
 		private static void OnRead(IAsyncResult result)
@@ -252,19 +260,23 @@ namespace NsHttpClient
                 return;
 
             try {
-				if (req.m_Client != null)
-					req.m_Client.ResetReadTimeOut();
+                if (req.m_Client != null)
+                    req.m_Client.ResetReadTimeOut();
                 int read = req.m_OrgStream.EndRead(result);
                 if (read > 0) {
                     req.DoFlush(read);
                     req.m_ReadBytes += read;
-                    if (req.ReadBytes < req.MaxReadBytes)
+                    // MaxReadBytes为-1，说明忽略了ContentLength
+                    if (req.IsIngoreMaxReadBytes || req.ReadBytes < req.MaxReadBytes)
                         req.m_OrgStream.BeginRead(req.m_Buf, 0, req.m_Buf.Length, m_ReadCallBack, req);
                     else {
                         req.DoClose();
                     }
-                }
-                else {
+                } else if (req.IsIngoreMaxReadBytes && read == 0) {
+                    // 说明HTTP忽略了ContentLength
+                    req.DoFlush(read);
+                    req.DoClose();
+                } else {
                     req.DoClose();
                 }
             } catch {
@@ -279,6 +291,13 @@ namespace NsHttpClient
 				return m_ReadBytes;
 			}
 		}
+		
+		// 是否是忽略ContentLength
+        public bool IsIngoreMaxReadBytes {
+            get {
+                return m_MaxReadBytes == -1;
+            }
+        }
 
 		public long MaxReadBytes
 		{
