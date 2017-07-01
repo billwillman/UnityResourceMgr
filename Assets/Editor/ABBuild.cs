@@ -2576,6 +2576,13 @@ class AssetBundleMgr
             }
         }
     }
+	
+	// 设置UNITY里面的版本号
+    static public void SetUnityPackageVersion(string apkVersion) {
+        PlayerSettings.bundleVersion = apkVersion;
+        // 立即保存设置
+        EditorApplication.SaveAssets();
+    }
 
 	private void CreateBundleResUpdateFiles(string streamAssetsPath, string outPath, string version, bool isRemoveVersionDir)
 	{
