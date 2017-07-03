@@ -11,7 +11,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/AutoBuild$configfile.coverage" NAME="configfile Coverage Results" MODIFIED="1498976270678" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/AutoBuild$autobuild.coverage" NAME="autobuild Coverage Results" MODIFIED="1499057022229" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/AutoBuild$autobuild.coverage" NAME="autobuild Coverage Results" MODIFIED="1499081481512" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
@@ -19,8 +19,8 @@
       <file leaf-file-name="autobuild.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/autobuild.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="228">
-              <caret line="212" column="21" lean-forward="false" selection-start-line="212" selection-start-column="21" selection-end-line="212" selection-end-column="21" />
+            <state relative-caret-position="420">
+              <caret line="178" column="46" lean-forward="false" selection-start-line="178" selection-start-column="46" selection-end-line="178" selection-end-column="46" />
               <folding>
                 <element signature="e#50#74#0" expanded="true" />
               </folding>
@@ -28,11 +28,21 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="ntpath.py" pinned="false" current-in-tab="false">
+        <entry file="file:///System/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/ntpath.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3735">
+              <caret line="251" column="4" lean-forward="false" selection-start-line="251" selection-start-column="4" selection-end-line="251" selection-end-column="4" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="tail.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/tail.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="54" column="19" lean-forward="true" selection-start-line="54" selection-start-column="19" selection-end-line="54" selection-end-column="19" />
+            <state relative-caret-position="675">
+              <caret line="45" column="35" lean-forward="true" selection-start-line="45" selection-start-column="35" selection-end-line="45" selection-end-column="35" />
               <folding>
                 <element signature="e#729#738#0" expanded="true" />
               </folding>
@@ -444,18 +454,26 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/tail.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="54" column="19" lean-forward="true" selection-start-line="54" selection-start-column="19" selection-end-line="54" selection-end-column="19" />
+        <state relative-caret-position="675">
+          <caret line="45" column="35" lean-forward="true" selection-start-line="45" selection-start-column="35" selection-end-line="45" selection-end-column="35" />
           <folding>
             <element signature="e#729#738#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file:///System/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/ntpath.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3735">
+          <caret line="251" column="4" lean-forward="false" selection-start-line="251" selection-start-column="4" selection-end-line="251" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/autobuild.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="228">
-          <caret line="212" column="21" lean-forward="false" selection-start-line="212" selection-start-column="21" selection-end-line="212" selection-end-column="21" />
+        <state relative-caret-position="420">
+          <caret line="178" column="46" lean-forward="false" selection-start-line="178" selection-start-column="46" selection-end-line="178" selection-end-column="46" />
           <folding>
             <element signature="e#50#74#0" expanded="true" />
           </folding>

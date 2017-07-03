@@ -1,4 +1,4 @@
-#! usr/bin/python #coding=utf-8
+#!/usr/bin/python #coding=utf-8
 
 '''
 自动化打包脚本
@@ -85,6 +85,10 @@ def LoadVersionInfo():
     if file == None:
         return
     version = file.readline()
+
+    if version.strip() == "":
+        version = "1.0.0.0"
+
     BaseResVersion = version
     AppendResVersion = version
 
@@ -220,6 +224,8 @@ def Main():
             UnityAndroidProjToApk()
         elif BuildPlatform == 2:
             UnityIOSProjToIPA()
+
+    print "\n所有执行完毕...\n"
     return
 
 ##################################### 调用入口 ###################################
