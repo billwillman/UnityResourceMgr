@@ -281,6 +281,9 @@ def UnityIOSProjToIPA():
     process = subprocess.Popen(cmd, shell=True)
     montior.follow(process, 2)
 
+    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在编译XCode工程...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成IPA...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+
     return True
 
 def UnityToExe():
