@@ -151,6 +151,10 @@ def GetUnityProjPath():
     result = GetUnityOrgProjPath() + "/outPath/Proj"
     return result
 
+def GetUnityOrgOutPath():
+    outPath = GetUnityOrgProjPath() + "/outPath"
+    return outPath
+
 def IsWindowsPlatform():
     return "Windows" in platform.system()
 
@@ -164,7 +168,13 @@ def UnityBuildABProj():
 
     global BuildPlatform
 
-    logFile = "%s/autobuild.txt" % GetUnityProjPath();
+    outPath = GetUnityOrgOutPath()
+
+    if (not os.path.exists(outPath)) or (not os.path.isdir(outPath)):
+        os.mkdir(outPath)
+
+
+    logFile = "%s/autobuild.txt" % outPath;
     f = open(logFile, "w")
     f.close()
 
@@ -214,7 +224,7 @@ def UnityBuildABProj():
     if BuildPlatform == 1:
         func = "AssetBundleBuild.Cmd_Build_Android_ABLz4_Append"
     elif BuildPlatform == 2:
-        func = "AssetBundleBuild.OnAppendBuildPlatformIOSLz4Md5"
+        func = "AssetBundleBuild.Cmd_Build_IOS_ABLz4_Append"
     elif BuildPlatform == 0:
         func = "AssetBundleBuild.Cmd_BuildWin32_Lz4"
     else:
@@ -230,11 +240,12 @@ def UnityBuildABProj():
     return True
 
 def UnityAndroidProjToApk():
-    projPath = GetUnityProjPath()
 
-    logFile = "%s/autobuild.txt" % GetUnityProjPath();
+    logFile = "%s/autobuild.txt" % GetUnityOrgOutPath();
     f = open(logFile, "w")
     f.close()
+
+    projPath = GetUnityProjPath()
 
     #生成APK
     cmd = ""
@@ -258,11 +269,12 @@ def UnityAndroidProjToApk():
     return True
 
 def UnityIOSProjToIPA():
-    projPath = GetUnityProjPath()
 
-    logFile = "%s/autobuild.txt" % GetUnityProjPath();
+    logFile = "%s/autobuild.txt" % GetUnityOrgOutPath()
     f = open(logFile, "w")
     f.close()
+
+    projPath = GetUnityProjPath()
 
     #生成XCode工程
     cmd = ""

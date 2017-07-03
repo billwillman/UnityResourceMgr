@@ -19,8 +19,8 @@
       <file leaf-file-name="autobuild.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/autobuild.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="537">
-              <caret line="284" column="79" lean-forward="false" selection-start-line="284" selection-start-column="11" selection-end-line="284" selection-end-column="79" />
+            <state relative-caret-position="279">
+              <caret line="176" column="27" lean-forward="false" selection-start-line="176" selection-start-column="18" selection-end-line="176" selection-end-column="27" />
               <folding>
                 <element signature="e#50#74#0" expanded="true" />
               </folding>
@@ -76,6 +76,9 @@
       <find>SaveVersionInfo</find>
       <find>UserInputVersion</find>
       <find>CheckVersionFormat</find>
+      <find>GetUnityProjPath</find>
+      <find>logFile =</find>
+      <find>autobuild</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -486,6 +489,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3735">
           <caret line="251" column="4" lean-forward="false" selection-start-line="251" selection-start-column="4" selection-end-line="251" selection-end-column="4" />
+          <folding />
         </state>
       </provider>
     </entry>
@@ -546,13 +550,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="3735">
           <caret line="251" column="4" lean-forward="false" selection-start-line="251" selection-start-column="4" selection-end-line="251" selection-end-column="4" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/autobuild.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="537">
-          <caret line="284" column="79" lean-forward="false" selection-start-line="284" selection-start-column="11" selection-end-line="284" selection-end-column="79" />
+        <state relative-caret-position="279">
+          <caret line="176" column="27" lean-forward="false" selection-start-line="176" selection-start-column="18" selection-end-line="176" selection-end-column="27" />
           <folding>
             <element signature="e#50#74#0" expanded="true" />
           </folding>

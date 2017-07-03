@@ -4321,17 +4321,13 @@ public static class AssetBundleBuild
 		}
     }
 
-    static public void Cmd_Build_Android_ABLz4_Append()
-    {
-		string outPath = "outPath/Proj";
+	static private void Cmd_Build_AB(eBuildPlatform platform, int compressType, string outPath, bool isAppend)
+	{
 		string targetStreamingAssetsPath = outPath + '/' + "Assets/StreamingAssets";
-
 		string searchProjPath = System.IO.Path.GetFullPath(outPath);
 		if (!System.IO.Directory.Exists(searchProjPath))
 			return;
-
-		var platform = eBuildPlatform.eBuildAndroid;
-		BuildPlatform(platform, 2, true, targetStreamingAssetsPath, true); 
+		BuildPlatform (platform, compressType, true, targetStreamingAssetsPath, isAppend);
 		// 处理Manifest
 		string rootManifest = targetStreamingAssetsPath;
 		string copyManifest = "Assets/StreamingAssets";
@@ -4369,7 +4365,19 @@ public static class AssetBundleBuild
         }*/
 
 		mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
+	}
+
+    static public void Cmd_Build_Android_ABLz4_Append()
+    {
+		string outPath = "outPath/Proj";
+		Cmd_Build_AB (eBuildPlatform.eBuildAndroid, 2, outPath, true);
     }
+
+	static public void Cmd_Build_IOS_ABLz4_Append()
+	{
+		string outPath = "outPath/Proj";
+		Cmd_Build_AB (eBuildPlatform.eBuildIOS, 2, outPath, true);
+	}
 
     static private void Cmd_Build(int compressType, bool isMd5, eBuildPlatform platform, bool isDebug = false)
 	{
