@@ -46,37 +46,65 @@ def UserInputVersion():
 
 
     while True:
-        s = raw_input("请输入打包平台(0-Windows 1-Android 2-IOS)：")
-        if (s.isdigit()):
-            BuildPlatform = int(s)
-            if BuildPlatform in [0, 1, 2]:
-                if (IsWindowsPlatform() and (BuildPlatform == 2)):
-                    print "Windows平台无法打包IOS"
-                else:
-                    break
 
-    '''
-    while True:
-        ApkVersion = raw_input("请输入APK版本号(格式：2.x.x.x)：")
-        if CheckVersionFormat(ApkVersion, "2"):
+        while True:
+            s = raw_input("请输入打包平台(0-Windows 1-Android 2-IOS)：")
+            if (s.isdigit()):
+                BuildPlatform = int(s)
+                if BuildPlatform in [0, 1, 2]:
+                    if (IsWindowsPlatform() and (BuildPlatform == 2)):
+                        print "Windows平台无法打包IOS"
+                    else:
+                        break
+                else:
+                    print "\n无此平台打包\n"
+
+        '''
+        while True:
+            ApkVersion = raw_input("请输入APK版本号(格式：2.x.x.x)：")
+            if CheckVersionFormat(ApkVersion, "2"):
+                break
+            else:
+                print "\n版本号格式错误\n"
+        '''
+        while True:
+            BaseResVersion = raw_input("请输入基础资源版本号(格式：1.x.x.x)：")
+            if CheckVersionFormat(BaseResVersion, "1"):
+                break
+            else:
+                print "\n版本号格式错误\n"
+        '''
+        while True:
+            AppendResVersion = raw_input("请输入增量资源版本号(格式：1.x.x.x)：")
+            if CheckVersionFormat(AppendResVersion, "1"):
+                break
+            else:
+                print "\n版本号格式错误\n"
+        '''
+        isYes = False
+        checkStr = "\n目标平台: %s   基础资源版本: %s    是否确认开始打包？(y/n)\n"
+        if BuildPlatform == 0:
+            checkStr = checkStr % ("Windows", BaseResVersion)
+        elif BuildPlatform == 1:
+            checkStr = checkStr % ("Android", BaseResVersion)
+        elif BuildPlatform == 2:
+            checkStr = checkStr % ("IOS", BaseResVersion)
+
+        while True:
+            s = raw_input(checkStr)
+            if s == 'y' or s == 'Y':
+                isYes = True
+                break
+            elif s == 'n' or s == 'N':
+                isYes = False
+                break
+            else:
+                break
+        if isYes:
             break
         else:
-            print "\n版本号格式错误\n"
-    '''
-    while True:
-        BaseResVersion = raw_input("请输入基础资源版本号(格式：1.x.x.x)：")
-        if CheckVersionFormat(BaseResVersion, "1"):
-            break
-        else:
-            print "\n版本号格式错误\n"
-    '''
-    while True:
-        AppendResVersion = raw_input("请输入增量资源版本号(格式：1.x.x.x)：")
-        if CheckVersionFormat(AppendResVersion, "1"):
-            break
-        else:
-            print "\n版本号格式错误\n"
-    '''
+            print ""
+
     return
 
 def SaveVersionInfo():
