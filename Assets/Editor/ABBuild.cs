@@ -3163,7 +3163,7 @@ class AssetBundleMgr
 
 	private bool m_TempIsNew;
 	private bool m_TempCanProfilter;
-	private bool m_TempIsDebug;Cmd_Build_IOS_ABLz4_Append
+	private bool m_TempIsDebug;
 	private bool m_TempIsDevep;
 	private string m_TempOutput;
 	private BuildTarget m_TempTarget;
