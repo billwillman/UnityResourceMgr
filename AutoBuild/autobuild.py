@@ -8,6 +8,7 @@ import os, sys, platform
 import  configfile
 import  tail
 import  subprocess
+import re
 
 #######全局变量
 
@@ -25,7 +26,16 @@ global BuildPlatform
 BuildPlatform = -1
 ##############
 
-def CheckVersionFormat(version):
+def CheckVersionFormat(version, startVer):
+    if version == None:
+        return False
+    version = version.strip()
+    if version == "":
+        return False
+    #起始位置匹配
+    fmt = "%s.\d+.\d+.\d+" % startVer
+    if re.match(fmt, version) == None:
+        return False
     return True
 
 def UserInputVersion():
@@ -48,18 +58,24 @@ def UserInputVersion():
     '''
     while True:
         ApkVersion = raw_input("请输入APK版本号(格式：2.x.x.x)：")
-        if CheckVersionFormat(ApkVersion):
+        if CheckVersionFormat(ApkVersion, "2"):
             break
+        else:
+            print "\n版本号格式错误\n"
     '''
     while True:
         BaseResVersion = raw_input("请输入基础资源版本号(格式：1.x.x.x)：")
-        if CheckVersionFormat(BaseResVersion):
+        if CheckVersionFormat(BaseResVersion, "1"):
             break
+        else:
+            print "\n版本号格式错误\n"
     '''
     while True:
         AppendResVersion = raw_input("请输入增量资源版本号(格式：1.x.x.x)：")
-        if CheckVersionFormat(AppendResVersion):
+        if CheckVersionFormat(AppendResVersion, "1"):
             break
+        else:
+            print "\n版本号格式错误\n"
     '''
     return
 
@@ -183,7 +199,30 @@ def UnityBuildABProj():
 
 def UnityAndroidProjToApk():
     projPath = GetUnityProjPath()
-    # OnAppendBuildPlatformAndroidLz4Md5
+
+    logFile = "%s/autobuild.txt" % GetUnityProjPath();
+    f = open(logFile, "w")
+    f.close()
+
+    #生成APK
+    cmd = ""
+    if IsMacPlatform():
+        cmd = "/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -projectPath %s -executeMethod %s -logFile " + logFile
+    elif IsWindowsPlatform():
+        cmd = "Unity.exe -quit -batchmode -nographics -projectPath %s -executeMethod %s -logFile " + logFile
+    else:
+        print "不支持此平台打包"
+        return False
+
+    montior = tail.Tail(logFile)
+    montior.register_callback(MonitorLine)
+
+    cmd = cmd % (GetUnityOrgProjPath(), "AssetBundleBuild.Cmd_Apk")
+    print "正在生成APK..."
+
+    process = subprocess.Popen(cmd, shell=True)
+    montior.follow(process, 2)
+
     return True
 
 def UnityIOSProjToIPA():
