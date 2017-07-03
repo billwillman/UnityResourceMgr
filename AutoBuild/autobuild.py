@@ -64,6 +64,13 @@ def UserInputVersion():
     return
 
 def SaveVersionInfo():
+    global  BaseResVersion
+
+    fileName = "%s/buildVersion.cfg" % GetUnityOrgProjPath()
+    file = open(fileName, "w")
+    if file == None:
+        return
+    file.write(BaseResVersion)
     return
 
 def LoadVersionInfo():
