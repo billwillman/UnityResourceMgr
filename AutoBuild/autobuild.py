@@ -34,9 +34,10 @@ def CheckVersionFormat(version, startVer):
         return False
     #起始位置匹配
     fmt = "%s.\d+.\d+.\d+" % startVer
-    if re.match(fmt, version) == None:
-        return False
-    return True
+    ver = re.match(fmt, version)
+    if ver == None:
+        return False, None
+    return True, ver.group()
 
 def UserInputVersion():
 
@@ -62,21 +63,24 @@ def UserInputVersion():
         '''
         while True:
             ApkVersion = raw_input("请输入APK版本号(格式：2.x.x.x)：")
-            if CheckVersionFormat(ApkVersion, "2"):
+            isFmtOk, ApkVersion = CheckVersionFormat(ApkVersion, "2")
+            if isFmtOk:
                 break
             else:
                 print "\n版本号格式错误\n"
         '''
         while True:
             BaseResVersion = raw_input("请输入基础资源版本号(格式：1.x.x.x)：")
-            if CheckVersionFormat(BaseResVersion, "1"):
+            isFmtOk, BaseResVersion = CheckVersionFormat(BaseResVersion, "1")
+            if isFmtOk:
                 break
             else:
                 print "\n版本号格式错误\n"
         '''
         while True:
             AppendResVersion = raw_input("请输入增量资源版本号(格式：1.x.x.x)：")
-            if CheckVersionFormat(AppendResVersion, "1"):
+            isFmtOk, AppendResVersion = CheckVersionFormat(AppendResVersion, "1")
+            if isFmtOk:
                 break
             else:
                 print "\n版本号格式错误\n"
