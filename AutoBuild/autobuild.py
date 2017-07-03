@@ -7,6 +7,7 @@
 import os, sys, platform
 import  configfile
 import  tail
+import  subprocess
 
 #######全局变量
 
@@ -143,8 +144,9 @@ def UnityBuildABProj():
 
     copyCmd = cmd % (GetUnityOrgProjPath(), "AssetBundleBuild.Cmd_Build_Copy")
     print "正在拷贝文件..."
-    os.system(copyCmd)
-    #montior.follow(5)
+
+    process = subprocess.Popen(copyCmd, shell=True)
+    montior.follow(process, 2)
 
     func = ""
     if BuildPlatform == 1:
@@ -159,7 +161,9 @@ def UnityBuildABProj():
     cmd = cmd % (GetUnityOrgProjPath(), func)
    # print cmd
     print "开始生成AssetBundle..."
-    os.system(cmd)
+
+    process = subprocess.Popen(cmd, shell=True)
+    montior.follow(process, 2)
 
     return True
 
