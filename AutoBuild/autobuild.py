@@ -269,7 +269,7 @@ def UnityAndroidProjToApk():
     return True
 
 def UnityIOSProjToIPA():
-
+    
     logFile = "%s/autobuild.txt" % GetUnityOrgOutPath()
     f = open(logFile, "w")
     f.close()

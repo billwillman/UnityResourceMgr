@@ -19,8 +19,8 @@
       <file leaf-file-name="autobuild.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/autobuild.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="279">
-              <caret line="176" column="27" lean-forward="false" selection-start-line="176" selection-start-column="18" selection-end-line="176" selection-end-column="27" />
+            <state relative-caret-position="364">
+              <caret line="271" column="4" lean-forward="false" selection-start-line="271" selection-start-column="4" selection-end-line="271" selection-end-column="4" />
               <folding>
                 <element signature="e#50#74#0" expanded="true" />
               </folding>
@@ -79,6 +79,7 @@
       <find>GetUnityProjPath</find>
       <find>logFile =</find>
       <find>autobuild</find>
+      <find>UnityIOSProjToIPA</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -556,8 +557,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/autobuild.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="279">
-          <caret line="176" column="27" lean-forward="false" selection-start-line="176" selection-start-column="18" selection-end-line="176" selection-end-column="27" />
+        <state relative-caret-position="364">
+          <caret line="271" column="4" lean-forward="false" selection-start-line="271" selection-start-column="4" selection-end-line="271" selection-end-column="4" />
           <folding>
             <element signature="e#50#74#0" expanded="true" />
           </folding>
