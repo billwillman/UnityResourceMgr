@@ -6,6 +6,7 @@
 
 import os, sys, platform
 import  configfile
+import  tail
 
 #######全局变量
 
@@ -96,6 +97,9 @@ def IsWindowsPlatform():
 def IsMacPlatform():
     return "Darwin" in platform.system()
 
+def MonitorLine(txt):
+    print txt
+
 def UnityBuildABProj():
 
     global BuildPlatform
@@ -117,6 +121,11 @@ def UnityBuildABProj():
             return False
 
     logFile = "%s/autobuild.txt" % GetUnityProjPath();
+
+    if (not os.access(logFile, os.F_OK)):
+        f = open(logFile, "w")
+        f.close()
+
     cmd = ""
     if IsMacPlatform():
         cmd = "/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -projectPath %s -executeMethod %s -logFile " + logFile
@@ -129,9 +138,13 @@ def UnityBuildABProj():
     if not BuildPlatform in [0, 1, 2]:
         return False
 
+    montior = tail.Tail(logFile)
+    montior.register_callback(MonitorLine)
+
     copyCmd = cmd % (GetUnityOrgProjPath(), "AssetBundleBuild.Cmd_Build_Copy")
     print "正在拷贝文件..."
     os.system(copyCmd)
+    #montior.follow(5)
 
     func = ""
     if BuildPlatform == 1:
@@ -196,5 +209,6 @@ def Main():
     return
 
 ##################################### 调用入口 ###################################
-Main()
+if __name__ == '__main__':
+    Main()
 #################################################################################
