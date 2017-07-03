@@ -19,21 +19,11 @@
       <file leaf-file-name="autobuild.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/autobuild.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1989">
-              <caret line="70" column="20" lean-forward="false" selection-start-line="70" selection-start-column="20" selection-end-line="70" selection-end-column="20" />
+            <state relative-caret-position="-564">
+              <caret line="176" column="0" lean-forward="true" selection-start-line="176" selection-start-column="0" selection-end-line="176" selection-end-column="0" />
               <folding>
                 <element signature="e#50#74#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ntpath.py" pinned="false" current-in-tab="false">
-        <entry file="file:///System/Library/Frameworks/Python.framework/Versions/2.5/lib/python2.5/ntpath.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3735">
-              <caret line="251" column="4" lean-forward="false" selection-start-line="251" selection-start-column="4" selection-end-line="251" selection-end-column="4" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -543,8 +533,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/autobuild.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1989">
-          <caret line="70" column="20" lean-forward="false" selection-start-line="70" selection-start-column="20" selection-end-line="70" selection-end-column="20" />
+        <state relative-caret-position="-564">
+          <caret line="176" column="0" lean-forward="true" selection-start-line="176" selection-start-column="0" selection-end-line="176" selection-end-column="0" />
           <folding>
             <element signature="e#50#74#0" expanded="true" />
           </folding>

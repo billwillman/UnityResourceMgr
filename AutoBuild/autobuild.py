@@ -146,12 +146,12 @@ def UnityBuildABProj():
             if not os.path.exists(cmd):
                 print "\n未安装Unity, 请下载Unity!!!"
                 return False
-            print "正在创建工程..."
+            print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在创建工程...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
             cmd = "%s -quit -batchmode -nographics -createProject %s -logFile %s" % (cmd, projPath, logFile)
             process = subprocess.Popen(cmd, shell=True)
             montior.follow(process, 2)
         elif IsWindowsPlatform():
-            print "正在创建工程..."
+            print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在创建工程...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
             cmd = "Unity.exe -quit -batchmode -nographics -createProject %s -logFile %s" % (projPath, logFile)
             process = subprocess.Popen(cmd, shell=True)
             montior.follow(process, 2)
@@ -173,7 +173,7 @@ def UnityBuildABProj():
         return False
 
     copyCmd = cmd % (GetUnityOrgProjPath(), "AssetBundleBuild.Cmd_Build_Copy")
-    print "正在拷贝文件..."
+    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在拷贝文件...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 
     process = subprocess.Popen(copyCmd, shell=True)
     montior.follow(process, 2)
@@ -190,7 +190,7 @@ def UnityBuildABProj():
 
     cmd = cmd % (GetUnityOrgProjPath(), func)
    # print cmd
-    print "开始生成AssetBundle..."
+    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>开始生成AssetBundle...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 
     process = subprocess.Popen(cmd, shell=True)
     montior.follow(process, 2)
@@ -218,7 +218,7 @@ def UnityAndroidProjToApk():
     montior.register_callback(MonitorLine)
 
     cmd = cmd % (GetUnityOrgProjPath(), "AssetBundleBuild.Cmd_Apk")
-    print "正在生成APK..."
+    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成APK...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 
     process = subprocess.Popen(cmd, shell=True)
     montior.follow(process, 2)
@@ -264,7 +264,7 @@ def Main():
         elif BuildPlatform == 2:
             UnityIOSProjToIPA()
 
-    print "\n所有执行完毕...\n"
+    print "\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>所有执行完毕...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n"
     return
 
 ##################################### 调用入口 ###################################
