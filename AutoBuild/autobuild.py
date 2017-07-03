@@ -144,7 +144,7 @@ def UnityBuildABProj():
         return False
 
     cmd = cmd % (GetUnityOrgProjPath(), func)
-    print cmd
+   # print cmd
     print "开始生成AssetBundle..."
     os.system(cmd)
 
