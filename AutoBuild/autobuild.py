@@ -116,11 +116,12 @@ def UnityBuildABProj():
             print "不支持此平台打包"
             return False
 
+    logFile = "%s/autobuild.txt" % GetUnityProjPath();
     cmd = ""
     if IsMacPlatform():
-        cmd = "/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -projectPath %s -executeMethod %s"
+        cmd = "/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -projectPath %s -executeMethod %s -logFile " + logFile
     elif IsWindowsPlatform():
-        cmd = "Unity.exe -quit -batchmode -nographics -projectPath %s -executeMethod %s"
+        cmd = "Unity.exe -quit -batchmode -nographics -projectPath %s -executeMethod %s -logFile " + logFile
     else:
         print "不支持此平台打包"
         return False
@@ -128,11 +129,13 @@ def UnityBuildABProj():
     if not BuildPlatform in [0, 1, 2]:
         return False
 
-
+    copyCmd = cmd % (GetUnityOrgProjPath(), "AssetBundleBuild.Cmd_Build_Copy")
+    print "正在拷贝文件..."
+    os.system(copyCmd)
 
     func = ""
     if BuildPlatform == 1:
-        func = "AssetBundleBuild.Cmd_AppendBuildAPK_Lz4"
+        func = "AssetBundleBuild.Cmd_Build_Android_ABLz4_Append"
     elif BuildPlatform == 2:
         func = "AssetBundleBuild.OnAppendBuildPlatformIOSLz4Md5"
     elif BuildPlatform == 0:

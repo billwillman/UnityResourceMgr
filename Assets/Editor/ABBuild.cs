@@ -4275,6 +4275,92 @@ public static class AssetBundleBuild
         }
     }
 
+    static public void Cmd_Build_Copy()
+    {
+    	string outPath = "outPath/Proj";
+		
+		string searchProjPath = System.IO.Path.GetFullPath(outPath);
+		if (!System.IO.Directory.Exists(searchProjPath))
+			return;
+
+		// 如果后面COPY慢，可以从SVN Download(不会每次都有更新)
+		List<string> resPaths = new List<string>();
+		resPaths.Add("Assets/Resources");
+		resPaths.Add("Assets/StreamingAssets/Android");
+		resPaths.Add("Assets/StreamingAssets/IOS");
+		resPaths.Add("Assets/StreamingAssets/Windows");
+		//	resPaths.Add("Library/metadata");
+		//resPaths.Add("Assets/Plugs");
+		Cmd_CopyOther(outPath, resPaths);
+
+		// Delete outPath StreaingAssets subDirs
+		string targetStreamingAssetsPath = outPath + '/' + "Assets/StreamingAssets";
+		if (System.IO.Directory.Exists(targetStreamingAssetsPath))
+		{
+			string[] subDirs = System.IO.Directory.GetDirectories(targetStreamingAssetsPath);
+			if (subDirs != null)
+			{
+				for (int i = 0; i < subDirs.Length; ++i)
+				{
+					System.IO.Directory.Delete(subDirs[i], true);
+				}
+			}
+		} else
+		{
+			System.IO.Directory.CreateDirectory(targetStreamingAssetsPath);
+		}
+    }
+
+    static public void Cmd_Build_Android_ABLz4_Append()
+    {
+		string outPath = "outPath/Proj";
+		string targetStreamingAssetsPath = outPath + '/' + "Assets/StreamingAssets";
+
+		string searchProjPath = System.IO.Path.GetFullPath(outPath);
+		if (!System.IO.Directory.Exists(searchProjPath))
+			return;
+
+		var platform = eBuildPlatform.eBuildAndroid;
+		BuildPlatform(platform, 2, true, targetStreamingAssetsPath, true); 
+		// 处理Manifest
+		string rootManifest = targetStreamingAssetsPath;
+		string copyManifest = "Assets/StreamingAssets";
+		switch (platform) {
+		case eBuildPlatform.eBuildAndroid:
+			rootManifest += "/Android";
+			copyManifest += "/Android";
+			break;
+		case eBuildPlatform.eBuildIOS:
+			rootManifest += "/IOS";
+			copyManifest += "/IOS";
+			break;
+		case eBuildPlatform.eBuildMac:
+			rootManifest += "/Mac";
+			copyManifest += "/Mac";
+			break;
+		case eBuildPlatform.eBuildWindow:
+			rootManifest += "/Windows";
+			copyManifest += "/Windows";
+			break;
+		}
+
+		/*
+        if (isAppendBuild) {
+            if (!Directory.Exists (copyManifest))
+                Directory.CreateDirectory (copyManifest);
+            string[] files = Directory.GetFiles (rootManifest, "*.*", SearchOption.TopDirectoryOnly);
+            if (files != null) {
+                for (int i = 0; i < files.Length; ++i) {
+                    string fileName = Path.GetFileName (files [i]);
+                    string newFilePath = string.Format ("{0}/{1}", copyManifest, fileName);
+                    File.Copy (files [i], newFilePath, true);
+                }
+            }
+        }*/
+
+		mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
+    }
+
     static private void Cmd_Build(int compressType, bool isMd5, eBuildPlatform platform, bool isDebug = false)
 	{
 		string outPath = "outPath/Proj";
