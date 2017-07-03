@@ -105,6 +105,13 @@ def UnityBuildABProj():
 
     global BuildPlatform
 
+    logFile = "%s/autobuild.txt" % GetUnityProjPath();
+    f = open(logFile, "w")
+    f.close()
+
+    montior = tail.Tail(logFile)
+    montior.register_callback(MonitorLine)
+
     projPath = GetUnityProjPath()
     if (not os.path.exists(projPath)) or (not os.path.isdir(projPath)):
         if IsMacPlatform():
@@ -113,19 +120,18 @@ def UnityBuildABProj():
                 print "\n未安装Unity, 请下载Unity!!!"
                 return False
             print "正在创建工程..."
-            os.system("%s -quit -batchmode -nographics -createProject %s" % (cmd, projPath))
+            cmd = "%s -quit -batchmode -nographics -createProject %s -logFile %s" % (cmd, projPath, logFile)
+            process = subprocess.Popen(cmd, shell=True)
+            montior.follow(process, 2)
         elif IsWindowsPlatform():
             print "正在创建工程..."
-            os.system("Unity.exe -quit -batchmode -nographics -createProject %s" % projPath)
+            cmd = "Unity.exe -quit -batchmode -nographics -createProject %s -logFile %s" % (projPath, logFile)
+            process = subprocess.Popen(cmd, shell=True)
+            montior.follow(process, 2)
         else:
             print "不支持此平台打包"
             return False
 
-    logFile = "%s/autobuild.txt" % GetUnityProjPath();
-
-    if (not os.access(logFile, os.F_OK)):
-        f = open(logFile, "w")
-        f.close()
 
     cmd = ""
     if IsMacPlatform():
@@ -138,9 +144,6 @@ def UnityBuildABProj():
 
     if not BuildPlatform in [0, 1, 2]:
         return False
-
-    montior = tail.Tail(logFile)
-    montior.register_callback(MonitorLine)
 
     copyCmd = cmd % (GetUnityOrgProjPath(), "AssetBundleBuild.Cmd_Build_Copy")
     print "正在拷贝文件..."
