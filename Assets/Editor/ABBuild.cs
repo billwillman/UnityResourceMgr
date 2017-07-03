@@ -4198,7 +4198,7 @@ public static class AssetBundleBuild
 		// Import Package
 	//	Cmd_OtherImportAssetRootFiles("..");
 	//	Cmd_RemoveAssetRootFiles("..");
-		string apkName = "../" + DateTime.Now.ToString("yyyy_MM_dd[HH_mm_ss]") + ".apk";
+		string apkName = DateTime.Now.ToString("yyyy_MM_dd[HH_mm_ss]") + ".apk";
 		apkName = System.IO.Path.GetFullPath(apkName);
 		Debug.Log("Build APK: " + apkName);
 		mMgr.BuildPackage(eBuildPlatform.eBuildAndroid, apkName, true); 
@@ -4206,7 +4206,7 @@ public static class AssetBundleBuild
 
 	static public void Cmd_IOS()
 	{
-		string xcodeProj = "../IOSBuild";
+		string xcodeProj = "IOS_Build";
 		xcodeProj = System.IO.Path.GetFullPath(xcodeProj);
 		if (Directory.Exists (xcodeProj))
 			DeleteDirectorAndFiles (xcodeProj);
