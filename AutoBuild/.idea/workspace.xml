@@ -19,8 +19,8 @@
       <file leaf-file-name="autobuild.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/autobuild.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="670">
-              <caret line="294" column="25" lean-forward="false" selection-start-line="294" selection-start-column="25" selection-end-line="294" selection-end-column="25" />
+            <state relative-caret-position="635">
+              <caret line="273" column="65" lean-forward="false" selection-start-line="273" selection-start-column="58" selection-end-line="273" selection-end-column="65" />
               <folding>
                 <element signature="e#50#74#0" expanded="true" />
               </folding>
@@ -551,8 +551,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/autobuild.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="670">
-          <caret line="294" column="25" lean-forward="false" selection-start-line="294" selection-start-column="25" selection-end-line="294" selection-end-column="25" />
+        <state relative-caret-position="635">
+          <caret line="273" column="65" lean-forward="false" selection-start-line="273" selection-start-column="58" selection-end-line="273" selection-end-column="65" />
           <folding>
             <element signature="e#50#74#0" expanded="true" />
           </folding>

@@ -4204,6 +4204,16 @@ public static class AssetBundleBuild
 		mMgr.BuildPackage(eBuildPlatform.eBuildAndroid, apkName, true); 
 	}
 
+	static public void Cmd_IOS()
+	{
+		string xcodeProj = "../IOSBuild";
+		xcodeProj = System.IO.Path.GetFullPath(xcodeProj);
+		if (Directory.Exists (xcodeProj))
+			DeleteDirectorAndFiles (xcodeProj);
+		Debug.Log ("Build XCode: " + xcodeProj);
+		mMgr.BuildPackage(eBuildPlatform.eBuildIOS, xcodeProj, true); 
+	}
+
 	static public void Cmd_Win()
 	{
 		string winApp = "../client.exe";

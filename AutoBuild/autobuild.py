@@ -254,7 +254,30 @@ def UnityAndroidProjToApk():
     return True
 
 def UnityIOSProjToIPA():
-    return
+    projPath = GetUnityProjPath()
+
+    logFile = "%s/autobuild.txt" % GetUnityProjPath();
+    f = open(logFile, "w")
+    f.close()
+
+    #生成XCode工程
+    cmd = ""
+    if IsMacPlatform():
+        cmd = "/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -projectPath %s -executeMethod %s -logFile " + logFile
+    else:
+        print "不支持此平台打包"
+        return False
+
+    montior = tail.Tail(logFile)
+    montior.register_callback(MonitorLine)
+
+    cmd = cmd % (GetUnityOrgProjPath(), "AssetBundleBuild.Cmd_IOS")
+    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成XCode工程...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+
+    process = subprocess.Popen(cmd, shell=True)
+    montior.follow(process, 2)
+
+    return True
 
 def UnityToExe():
     projPath = GetUnityOrgProjPath()
