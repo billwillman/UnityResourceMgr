@@ -10,20 +10,28 @@ import  configfile
 #######全局变量
 
 #输入的APK版本号
+global ApkVersion
 ApkVersion = "2.0.0.0"
 #基础资源版本号
+global BaseResVersion
 BaseResVersion = "1.0.0.0"
 #增量资源版本号
+global AppendResVersion
 AppendResVersion = "1.0.0.0"
 #输入平台：0-Windows 1-Android 2-IOS
+global BuildPlatform
 BuildPlatform = -1
-
 ##############
 
 def CheckVersionFormat(version):
     return True
 
 def UserInputVersion():
+
+    global BuildPlatform
+    global BaseResVersion
+    global AppendResVersion
+
 
     while True:
         s = raw_input("请输入打包平台(0-Windows 1-Android 2-IOS)：")
@@ -57,6 +65,10 @@ def SaveVersionInfo():
     return
 
 def LoadVersionInfo():
+
+    global BaseResVersion
+    global AppendResVersion
+
     fileName = "%s/buildVersion.cfg" % GetUnityOrgProjPath()
     if (not os.path.exists(fileName)) or (not os.path.isfile(fileName)):
         return
@@ -85,23 +97,60 @@ def IsMacPlatform():
     return "Darwin" in platform.system()
 
 def UnityBuildABProj():
+
+    global BuildPlatform
+
     projPath = GetUnityProjPath()
     if (not os.path.exists(projPath)) or (not os.path.isdir(projPath)):
         if IsMacPlatform():
-            cmd = "/Application/Unity/Unity.app/Contents/MacOS/Unity"
+            cmd = "/Applications/Unity/Unity.app/Contents/MacOS/Unity"
             if not os.path.exists(cmd):
                 print "\n未安装Unity, 请下载Unity!!!"
                 return False
+            print "正在创建工程..."
             os.system("%s -quit -batchmode -nographics -createProject %s" % (cmd, projPath))
         elif IsWindowsPlatform():
+            print "正在创建工程..."
             os.system("Unity.exe -quit -batchmode -nographics -createProject %s" % projPath)
         else:
             print "不支持此平台打包"
             return False
+
+    cmd = ""
+    if IsMacPlatform():
+        cmd = "/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -projectPath %s -executeMethod %s"
+    elif IsWindowsPlatform():
+        cmd = "Unity.exe -quit -batchmode -nographics -projectPath %s -executeMethod %s"
+    else:
+        print "不支持此平台打包"
+        return False
+
+    if not BuildPlatform in [0, 1, 2]:
+        return False
+
+
+
+    func = ""
+    if BuildPlatform == 1:
+        func = "AssetBundleBuild.Cmd_AppendBuildAPK_Lz4"
+    elif BuildPlatform == 2:
+        func = "AssetBundleBuild.OnAppendBuildPlatformIOSLz4Md5"
+    elif BuildPlatform == 0:
+        func = "AssetBundleBuild.Cmd_BuildWin32_Lz4"
+    else:
+        return False
+
+    cmd = cmd % (GetUnityOrgProjPath(), func)
+    print cmd
+    print "开始生成AssetBundle..."
+    os.system(cmd)
+
     return True
 
 def UnityAndroidProjToApk():
-    return
+    projPath = GetUnityProjPath()
+    # OnAppendBuildPlatformAndroidLz4Md5
+    return True
 
 def UnityIOSProjToIPA():
     return
@@ -112,7 +161,7 @@ def UnityToExe():
         print "项目为空"
         return False
     if IsMacPlatform():
-        cmd = "/Application/Unity/Unity.app/Contents/MacOS/Unity"
+        cmd = "/Applications/Unity/Unity.app/Contents/MacOS/Unity"
         if not os.path.exists(cmd):
             print "\n未安装Unity, 请下载Unity!!!"
             return False
@@ -123,6 +172,8 @@ def UnityToExe():
 
 # 主函数
 def Main():
+
+    global BuildPlatform
 
     if (IsWindowsPlatform()):
         print "打包前请确认设置好Unity.exe环境变量"

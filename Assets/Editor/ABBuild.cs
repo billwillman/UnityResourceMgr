@@ -4287,17 +4287,17 @@ public static class AssetBundleBuild
 			RunCmd("Unity.exe -quit -batchmode -nographics -createProject " + searchProjPath);
 #endif
 		}
-
+			
 		// 如果后面COPY慢，可以从SVN Download(不会每次都有更新)
 		List<string> resPaths = new List<string>();
 		resPaths.Add("Assets/Resources");
 		resPaths.Add("Assets/StreamingAssets/Android");
-        resPaths.Add("Assets/StreamingAssets/IOS");
-        resPaths.Add("Assets/StreamingAssets/Windows");
-	//	resPaths.Add("Library/metadata");
+		resPaths.Add("Assets/StreamingAssets/IOS");
+		resPaths.Add("Assets/StreamingAssets/Windows");
+		//	resPaths.Add("Library/metadata");
 		//resPaths.Add("Assets/Plugs");
 		Cmd_CopyOther(outPath, resPaths);
-		
+
 		// Delete outPath StreaingAssets subDirs
 		string targetStreamingAssetsPath = outPath + '/' + "Assets/StreamingAssets";
 		if (System.IO.Directory.Exists(targetStreamingAssetsPath))
@@ -4314,34 +4314,34 @@ public static class AssetBundleBuild
 		{
 			System.IO.Directory.CreateDirectory(targetStreamingAssetsPath);
 		}
-		
-        // 增量
+
+		// 增量
 		// build AssetsBundle to Target
 
-        BuildPlatform(platform, compressType, isMd5, targetStreamingAssetsPath); 
-            // 处理Manifest
-        string rootManifest = targetStreamingAssetsPath;
-        string copyManifest = "Assets/StreamingAssets";
-        switch (platform) {
-        case eBuildPlatform.eBuildAndroid:
-            rootManifest += "/Android";
-            copyManifest += "/Android";
-            break;
-        case eBuildPlatform.eBuildIOS:
-            rootManifest += "/IOS";
-            copyManifest += "/IOS";
-            break;
-        case eBuildPlatform.eBuildMac:
-            rootManifest += "/Mac";
-            copyManifest += "/Mac";
-            break;
-        case eBuildPlatform.eBuildWindow:
-            rootManifest += "/Windows";
-            copyManifest += "/Windows";
-            break;
-        }
+		BuildPlatform(platform, compressType, isMd5, targetStreamingAssetsPath); 
+		// 处理Manifest
+		string rootManifest = targetStreamingAssetsPath;
+		string copyManifest = "Assets/StreamingAssets";
+		switch (platform) {
+		case eBuildPlatform.eBuildAndroid:
+			rootManifest += "/Android";
+			copyManifest += "/Android";
+			break;
+		case eBuildPlatform.eBuildIOS:
+			rootManifest += "/IOS";
+			copyManifest += "/IOS";
+			break;
+		case eBuildPlatform.eBuildMac:
+			rootManifest += "/Mac";
+			copyManifest += "/Mac";
+			break;
+		case eBuildPlatform.eBuildWindow:
+			rootManifest += "/Windows";
+			copyManifest += "/Windows";
+			break;
+		}
 
-         /*
+		/*
         if (isAppendBuild) {
             if (!Directory.Exists (copyManifest))
                 Directory.CreateDirectory (copyManifest);
@@ -4354,8 +4354,8 @@ public static class AssetBundleBuild
                 }
             }
         }*/
-           
-        mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
+
+		mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
 
 		string logFileName = string.Empty;
 		string funcName = string.Empty;
