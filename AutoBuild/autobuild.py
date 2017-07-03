@@ -291,6 +291,8 @@ def Main():
             UnityAndroidProjToApk()
         elif BuildPlatform == 2:
             UnityIOSProjToIPA()
+        else:
+            print "不支持此平台"
 
     print "\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>所有执行完毕...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n"
     return
