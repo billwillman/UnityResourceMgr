@@ -4325,8 +4325,9 @@ public static class AssetBundleBuild
 	{
 		string targetStreamingAssetsPath = outPath + '/' + "Assets/StreamingAssets";
 		string searchProjPath = System.IO.Path.GetFullPath(outPath);
-		if (!System.IO.Directory.Exists(searchProjPath))
-			return;
+		if (!System.IO.Directory.Exists (searchProjPath)) {
+			System.IO.Directory.CreateDirectory (searchProjPath);
+		}
 		BuildPlatform (platform, compressType, true, targetStreamingAssetsPath, isAppend);
 		// 处理Manifest
 		string rootManifest = targetStreamingAssetsPath;
