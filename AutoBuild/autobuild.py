@@ -27,6 +27,9 @@ BuildPlatform = -1
 #IOS AppName
 global IOSAppName
 IOSAppName = "IosBuild"
+#Win AppName
+global WinAppName
+WinAppName = "client.exe"
 ##############
 
 def CheckVersionFormat(version, startVer):
@@ -274,6 +277,9 @@ def UnityAndroidProjToApk():
 
 #导出WINDOWS的EXE
 def UnityWinProjToExe():
+
+    global WinAppName
+
     logFile = "%s/autobuild.txt" % GetUnityOrgOutPath();
     f = open(logFile, "w")
     f.close()
@@ -294,10 +300,15 @@ def UnityWinProjToExe():
     montior.register_callback(MonitorLine)
 
     cmd = cmd % (projPath, "AssetBundleBuild.Cmd_Win")
-    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成APK...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成EXE...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 
     process = subprocess.Popen(cmd, shell=True)
     montior.follow(process, 2)
+
+    winExe = "%s/%s" % (GetWinExportProjPath(), WinAppName)
+    if (not os.path.exists(winExe)) or (not os.path.isfile(winExe)):
+        print "\n生成EXE失败~~!!!\n"
+        return False
 
     return True
 
@@ -305,6 +316,10 @@ def UnityWinProjToExe():
 def GetIOSExportProjPath():
     ret = GetUnityOrgProjPath() + "/outPath/IOS_Build"
     return ret
+
+def GetWinExportProjPath():
+    ret = GetUnityOrgProjPath() + "outPath/Win_Build"
+    return ret;
 
 def UnityIOSProjToIPA():
 
