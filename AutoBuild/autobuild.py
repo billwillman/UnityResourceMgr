@@ -352,6 +352,13 @@ def UnityIOSProjToIPA():
     archiveFileName = "%s/%s.xcarchive" % (iosExportPath, IOSAppName)
     defaultIPAFileName = "%s/Unity-iPhone.ipa" % iosExportPath
 
+    print "======>>生成ad-hoc Ipa:"
+    os.system("xcodebuild -exportArchive -archivePath %s -exportOptionsPlist %s/build/ad-hoc.plist -exportPath %s" %
+              (archiveFileName, iosExportPath, iosExportPath))
+    if (not os.path.exists(defaultIPAFileName)) or (not os.path.isfile(defaultIPAFileName)):
+        print "\n生成ad-hoc ipa失败~~!!!\n"
+        return False
+
     print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在清理XCode工程...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
     # 先清理工程
     #os.system("xcodebuild clean -project %s/Unity-iPhone.xcodeproj -target Unity-iPhone -configuration Release -sdk iphoneos" % iosExportPath)
@@ -368,13 +375,6 @@ def UnityIOSProjToIPA():
     print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成IPA...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 
     #生成ad-hoc
-    print "======>>生成ad-hoc Ipa:"
-    os.system("xcodebuild -exportArchive -archivePath %s -exportOptionsPlist %s/build/ad-hoc.plist -exportPath %s" %
-              (archiveFileName, iosExportPath, iosExportPath))
-    if (not os.path.exists(defaultIPAFileName)) or (not os.path.isfile(defaultIPAFileName)):
-        print "\n生成ad-hoc ipa失败~~!!!\n"
-        return False
-
     # IPA改名
     os.rename(defaultIPAFileName, "%s/%s_ad-hoc.ipa" % (iosExportPath, IOSAppName))
 
