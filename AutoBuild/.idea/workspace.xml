@@ -19,8 +19,8 @@
       <file leaf-file-name="autobuild.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/autobuild.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1246">
-              <caret line="353" column="0" lean-forward="true" selection-start-line="353" selection-start-column="0" selection-end-line="353" selection-end-column="0" />
+            <state relative-caret-position="474">
+              <caret line="320" column="36" lean-forward="false" selection-start-line="320" selection-start-column="36" selection-end-line="320" selection-end-column="36" />
               <folding>
                 <element signature="e#50#74#0" expanded="true" />
               </folding>
@@ -54,6 +54,8 @@
       <find>projPath</find>
       <find>IOS_Build</find>
       <find>GetIOSExportProjPath</find>
+      <find>client.exe</find>
+      <find>WinAppName</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -757,8 +759,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/autobuild.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1246">
-          <caret line="353" column="0" lean-forward="true" selection-start-line="353" selection-start-column="0" selection-end-line="353" selection-end-column="0" />
+        <state relative-caret-position="474">
+          <caret line="320" column="36" lean-forward="false" selection-start-line="320" selection-start-column="36" selection-end-line="320" selection-end-column="36" />
           <folding>
             <element signature="e#50#74#0" expanded="true" />
           </folding>

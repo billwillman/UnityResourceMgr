@@ -318,7 +318,7 @@ def GetIOSExportProjPath():
     return ret
 
 def GetWinExportProjPath():
-    ret = GetUnityOrgProjPath() + "outPath/Win_Build"
+    ret = GetUnityOrgProjPath() + "/outPath/Win_Build"
     return ret;
 
 def UnityIOSProjToIPA():
