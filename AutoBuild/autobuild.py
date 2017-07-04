@@ -30,6 +30,9 @@ IOSAppName = "IosBuild"
 #Win AppName
 global WinAppName
 WinAppName = "client.exe"
+#Mac AppName
+global MacAppName
+MacAppName = "client"
 ##############
 
 def CheckVersionFormat(version, startVer):
@@ -55,11 +58,11 @@ def UserInputVersion():
     while True:
 
         while True:
-            s = raw_input("请输入打包平台(0-Windows 1-Android 2-IOS)：")
+            s = raw_input("请输入打包平台(0-Windows 1-Android 2-IOS 3-Mac)：")
             if (s.isdigit()):
                 BuildPlatform = int(s)
-                if BuildPlatform in [0, 1, 2]:
-                    if (IsWindowsPlatform() and (BuildPlatform == 2)):
+                if BuildPlatform in [0, 1, 2, 3]:
+                    if (IsWindowsPlatform() and (BuildPlatform == 2 or BuildPlatform == 3)):
                         print "Windows平台无法打包IOS"
                     else:
                         break
@@ -217,7 +220,7 @@ def UnityBuildABProj():
         print "不支持此平台打包"
         return False
 
-    if not BuildPlatform in [0, 1, 2]:
+    if not BuildPlatform in [0, 1, 2, 3]:
         return False
 
     copyCmd = cmd % (GetUnityOrgProjPath(), "AssetBundleBuild.Cmd_Build_Copy")
@@ -232,7 +235,9 @@ def UnityBuildABProj():
     elif BuildPlatform == 2:
         func = "AssetBundleBuild.Cmd_Build_IOS_ABLz4_Append"
     elif BuildPlatform == 0:
-        func = "AssetBundleBuild.Cmd_BuildWin32_Lz4"
+        func = "AssetBundleBuild.Cmd_Build_Win_ABLz4_Append"
+    elif BuildPlatform == 3:
+        func = "AssetBundleBuild.Cmd_Build_Mac_ABLz4_Append"
     else:
         return False
 
@@ -275,9 +280,42 @@ def UnityAndroidProjToApk():
 
     return True
 
+#生成MACK的APP
+def UnityMacProjToApp():
+    global  MacAppName
+
+    logFile = "%s/autobuild.txt" % GetUnityOrgOutPath();
+    f = open(logFile, "w")
+    f.close()
+
+    projPath = GetUnityProjPath()
+
+    cmd = ""
+    if IsMacPlatform():
+        cmd = "/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -projectPath %s -executeMethod %s -logFile " + logFile
+    elif IsWindowsPlatform():
+        cmd = "Unity.exe -quit -batchmode -nographics -projectPath %s -executeMethod %s -logFile " + logFile
+    else:
+        print "不支持此平台打包"
+        return False
+
+    montior = tail.Tail(logFile)
+    montior.register_callback(MonitorLine)
+
+    cmd = cmd % (projPath, "AssetBundleBuild.Cmd_Mac")
+    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成App...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+
+    process = subprocess.Popen(cmd, shell=True)
+    montior.follow(process, 2)
+
+    macApp = "%s/%s" % (GetMacExportProjPath(), MacAppName)
+    if (not os.path.exists(macApp)) or (not os.path.isfile(macApp)):
+        print "\n生成App失败~~!!!\n"
+        return False
+    return True
+
 #导出WINDOWS的EXE
 def UnityWinProjToExe():
-
     global WinAppName
 
     logFile = "%s/autobuild.txt" % GetUnityOrgOutPath();
@@ -319,6 +357,10 @@ def GetIOSExportProjPath():
 
 def GetWinExportProjPath():
     ret = GetUnityOrgProjPath() + "/outPath/Win_Build"
+    return ret;
+
+def GetMacExportProjPath():
+    ret = GetUnityOrgProjPath() + "/outPath/Mac_Build"
     return ret;
 
 def UnityIOSProjToIPA():
@@ -440,6 +482,8 @@ def Main():
         UnityIOSProjToIPA()
     elif BuildPlatform == 0:
         UnityWinProjToExe()
+    elif BuildPlatform == 3:
+        UnityMacProjToApp()
     else:
         print "不支持此平台"
 

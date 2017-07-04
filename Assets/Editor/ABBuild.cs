@@ -4218,6 +4218,18 @@ public static class AssetBundleBuild
 		mMgr.BuildPackage(eBuildPlatform.eBuildIOS, xcodeProj, true); 
 	}
 
+	static public void Cmd_Mac()
+	{
+		string macOutPath = "../Mac_Build";
+		macOutPath = System.IO.Path.GetFullPath(macOutPath);
+		if (Directory.Exists (macOutPath)) {
+			DeleteDirectorAndFiles (macOutPath);
+		}
+		Directory.CreateDirectory (macOutPath);
+		Debug.Log ("Build Mac: " + macOutPath);
+		mMgr.BuildPackage(eBuildPlatform.eBuildMac, macOutPath, true);
+	}
+
 	static public void Cmd_Win()
 	{
 		string winOutPath = "../Win_Build";
@@ -4402,6 +4414,12 @@ public static class AssetBundleBuild
 	{
 		string outPath = "outPath/Proj";
 		Cmd_Build_AB (eBuildPlatform.eBuildWindow, 2, outPath, true);
+	}
+
+	static public void Cmd_Build_Mac_ABLz4_Append()
+	{
+		string outPath = "outPath/Proj";
+		Cmd_Build_AB (eBuildPlatform.eBuildMac, 2, outPath, true);
 	}
 #endif
 

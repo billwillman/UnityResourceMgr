@@ -19,8 +19,8 @@
       <file leaf-file-name="autobuild.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/autobuild.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="471">
-              <caret line="363" column="42" lean-forward="false" selection-start-line="363" selection-start-column="27" selection-end-line="363" selection-end-column="42" />
+            <state relative-caret-position="279">
+              <caret line="283" column="21" lean-forward="false" selection-start-line="283" selection-start-column="4" selection-end-line="283" selection-end-column="21" />
               <folding>
                 <element signature="e#50#74#0" expanded="true" />
               </folding>
@@ -42,13 +42,11 @@
       <find>/Application</find>
       <find>BuildPlatform</find>
       <find>SaveVersionInfo</find>
-      <find>UserInputVersion</find>
       <find>CheckVersionFormat</find>
       <find>GetUnityProjPath</find>
       <find>logFile =</find>
       <find>autobuild</find>
       <find>UnityIOSProjToIPA</find>
-      <find>UnityBuildABProj</find>
       <find>IOS_</find>
       <find>BUILD</find>
       <find>projPath</find>
@@ -58,6 +56,13 @@
       <find>WinAppName</find>
       <find>GetWinExportProjPath</find>
       <find>archiveFileName</find>
+      <find>UserInputVersion</find>
+      <find>UnityBuildABProj</find>
+      <find>UnityWinProjToExe</find>
+      <find>MacProj</find>
+      <find>GetMacExportProjPath</find>
+      <find>MacAppName</find>
+      <find>UnityMacProjToApp</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -76,7 +81,7 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="230" />
+    <option name="x" value="205" />
     <option name="y" value="22" />
     <option name="width" value="1400" />
     <option name="height" value="1000" />
@@ -341,7 +346,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="230" y="22" width="1400" height="1000" extended-state="0" />
+    <frame x="205" y="22" width="1400" height="1000" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -761,8 +766,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/autobuild.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="471">
-          <caret line="363" column="42" lean-forward="false" selection-start-line="363" selection-start-column="27" selection-end-line="363" selection-end-column="42" />
+        <state relative-caret-position="279">
+          <caret line="283" column="21" lean-forward="false" selection-start-line="283" selection-start-column="4" selection-end-line="283" selection-end-column="21" />
           <folding>
             <element signature="e#50#74#0" expanded="true" />
           </folding>
