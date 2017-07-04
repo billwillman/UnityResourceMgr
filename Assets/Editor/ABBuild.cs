@@ -4226,6 +4226,7 @@ public static class AssetBundleBuild
 			DeleteDirectorAndFiles (macOutPath);
 		}
 		Directory.CreateDirectory (macOutPath);
+		macOutPath += "/client";
 		Debug.Log ("Build Mac: " + macOutPath);
 		mMgr.BuildPackage(eBuildPlatform.eBuildMac, macOutPath, true);
 	}

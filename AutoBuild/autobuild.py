@@ -102,6 +102,8 @@ def UserInputVersion():
             checkStr = checkStr % ("Android", BaseResVersion)
         elif BuildPlatform == 2:
             checkStr = checkStr % ("IOS", BaseResVersion)
+        elif BuildPlatform == 3:
+            checkStr = checkStr % ("Mac", BaseResVersion)
 
         while True:
             s = raw_input(checkStr)
@@ -308,10 +310,12 @@ def UnityMacProjToApp():
     process = subprocess.Popen(cmd, shell=True)
     montior.follow(process, 2)
 
+    '''
     macApp = "%s/%s" % (GetMacExportProjPath(), MacAppName)
-    if (not os.path.exists(macApp)) or (not os.path.isfile(macApp)):
+    if (not os.path.exists(macApp)):
         print "\n生成App失败~~!!!\n"
         return False
+    '''
     return True
 
 #导出WINDOWS的EXE
