@@ -4198,7 +4198,7 @@ public static class AssetBundleBuild
 		// Import Package
 	//	Cmd_OtherImportAssetRootFiles("..");
 	//	Cmd_RemoveAssetRootFiles("..");
-		string apkName = DateTime.Now.ToString("yyyy_MM_dd[HH_mm_ss]") + ".apk";
+		string apkName = "../" + DateTime.Now.ToString("yyyy_MM_dd[HH_mm_ss]") + ".apk";
 		apkName = System.IO.Path.GetFullPath(apkName);
 		Debug.Log("Build APK: " + apkName);
 		mMgr.BuildPackage(eBuildPlatform.eBuildAndroid, apkName, true); 
@@ -4206,7 +4206,7 @@ public static class AssetBundleBuild
 
 	static public void Cmd_IOS()
 	{
-		string xcodeProj = "IOS_Build";
+		string xcodeProj = "../IOS_Build";
 		xcodeProj = System.IO.Path.GetFullPath(xcodeProj);
 		if (Directory.Exists (xcodeProj))
 			DeleteDirectorAndFiles (xcodeProj);
@@ -4216,7 +4216,14 @@ public static class AssetBundleBuild
 
 	static public void Cmd_Win()
 	{
-		string winApp = "../client.exe";
+		string winOutPath = "../Win_Build";
+		winOutPath = System.IO.Path.GetFullPath (winOutPath);
+		if (Directory.Exists (winOutPath)) {
+			DeleteDirectorAndFiles (winOutPath);
+		}
+		Directory.CreateDirectory (winOutPath);
+
+		string winApp = winOutPath + "/client.exe";
 		winApp = System.IO.Path.GetFullPath(winApp);
 		Debug.Log("Build WIN: " + winApp);
 		mMgr.BuildPackage(eBuildPlatform.eBuildWindow, winApp, true); 
@@ -4224,8 +4231,14 @@ public static class AssetBundleBuild
 
 	static public void Cmd_Win_Debug()
 	{
-		string winApp = "../client.exe";
-		winApp = System.IO.Path.GetFullPath(winApp);
+		string winOutPath = "../Win_Build";
+		winOutPath = System.IO.Path.GetFullPath (winOutPath);
+		if (Directory.Exists (winOutPath)) {
+			DeleteDirectorAndFiles (winOutPath);
+		}
+		Directory.CreateDirectory (winOutPath);
+
+		string winApp = winOutPath + "/client.exe";
 		Debug.Log("Build WIN: " + winApp);
 		mMgr.BuildPackage(eBuildPlatform.eBuildWindow, winApp, true, true, true, true); 
 	}
@@ -4368,6 +4381,7 @@ public static class AssetBundleBuild
 		mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
 	}
 
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
     static public void Cmd_Build_Android_ABLz4_Append()
     {
 		string outPath = "outPath/Proj";
@@ -4379,6 +4393,13 @@ public static class AssetBundleBuild
 		string outPath = "outPath/Proj";
 		Cmd_Build_AB (eBuildPlatform.eBuildIOS, 2, outPath, true);
 	}
+
+	static public void Cmd_Build_Win_ABLz4_Append()
+	{
+		string outPath = "outPath/Proj";
+		Cmd_Build_AB (eBuildPlatform.eBuildWindow, 2, outPath, true);
+	}
+#endif
 
     static private void Cmd_Build(int compressType, bool isMd5, eBuildPlatform platform, bool isDebug = false)
 	{

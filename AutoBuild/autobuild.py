@@ -242,6 +242,7 @@ def UnityBuildABProj():
 
     return True
 
+#导出ANDROID APK
 def UnityAndroidProjToApk():
 
     logFile = "%s/autobuild.txt" % GetUnityOrgOutPath();
@@ -263,7 +264,36 @@ def UnityAndroidProjToApk():
     montior = tail.Tail(logFile)
     montior.register_callback(MonitorLine)
 
-    cmd = cmd % (GetUnityOrgProjPath(), "AssetBundleBuild.Cmd_Apk")
+    cmd = cmd % (projPath, "AssetBundleBuild.Cmd_Apk")
+    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成APK...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+
+    process = subprocess.Popen(cmd, shell=True)
+    montior.follow(process, 2)
+
+    return True
+
+#导出WINDOWS的EXE
+def UnityWinProjToExe():
+    logFile = "%s/autobuild.txt" % GetUnityOrgOutPath();
+    f = open(logFile, "w")
+    f.close()
+
+    projPath = GetUnityProjPath()
+
+    #生成EXE
+    cmd = ""
+    if IsMacPlatform():
+        cmd = "/Applications/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -projectPath %s -executeMethod %s -logFile " + logFile
+    elif IsWindowsPlatform():
+        cmd = "Unity.exe -quit -batchmode -nographics -projectPath %s -executeMethod %s -logFile " + logFile
+    else:
+        print "不支持此平台打包"
+        return False
+
+    montior = tail.Tail(logFile)
+    montior.register_callback(MonitorLine)
+
+    cmd = cmd % (projPath, "AssetBundleBuild.Cmd_Win")
     print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成APK...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 
     process = subprocess.Popen(cmd, shell=True)
@@ -297,7 +327,7 @@ def UnityIOSProjToIPA():
     montior = tail.Tail(logFile)
     montior.register_callback(MonitorLine)
 
-    cmd = cmd % (GetUnityOrgProjPath(), "AssetBundleBuild.Cmd_IOS")
+    cmd = cmd % (projPath, "AssetBundleBuild.Cmd_IOS")
     print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成XCode工程...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 
     process = subprocess.Popen(cmd, shell=True)
@@ -346,6 +376,7 @@ def UnityIOSProjToIPA():
 
     return True
 
+#原始工程直接导入WIN工程
 def UnityToExe():
     projPath = GetUnityOrgProjPath()
     if (not os.path.exists(projPath)) or (not os.path.isdir(projPath)):
@@ -372,6 +403,8 @@ def Main():
     LoadVersionInfo()
     UserInputVersion()
     SaveVersionInfo()
+
+    '''
     # Windows平台直接生成EXE
     if BuildPlatform == 0:
         UnityToExe()
@@ -383,6 +416,18 @@ def Main():
             UnityIOSProjToIPA()
         else:
             print "不支持此平台"
+    '''
+
+    UnityBuildABProj()
+    if BuildPlatform == 1:
+        UnityAndroidProjToApk()
+    elif BuildPlatform == 2:
+        UnityIOSProjToIPA()
+    elif BuildPlatform == 0:
+        UnityWinProjToExe()
+    else:
+        print "不支持此平台"
+
 
     print "\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>所有执行完毕...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n"
     return

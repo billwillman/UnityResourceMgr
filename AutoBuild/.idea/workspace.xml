@@ -19,8 +19,8 @@
       <file leaf-file-name="autobuild.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/autobuild.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="189">
-              <caret line="312" column="88" lean-forward="false" selection-start-line="312" selection-start-column="88" selection-end-line="312" selection-end-column="88" />
+            <state relative-caret-position="468">
+              <caret line="329" column="52" lean-forward="false" selection-start-line="329" selection-start-column="45" selection-end-line="329" selection-end-column="52" />
               <folding>
                 <element signature="e#50#74#0" expanded="true" />
               </folding>
@@ -51,6 +51,7 @@
       <find>UnityBuildABProj</find>
       <find>IOS_</find>
       <find>BUILD</find>
+      <find>projPath</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -69,8 +70,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-398" />
-    <option name="y" value="61" />
+    <option name="x" value="232" />
+    <option name="y" value="22" />
     <option name="width" value="1400" />
     <option name="height" value="1000" />
   </component>
@@ -334,7 +335,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-398" y="61" width="1400" height="1000" extended-state="0" />
+    <frame x="232" y="22" width="1400" height="1000" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -564,8 +565,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/autobuild.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
-          <caret line="312" column="88" lean-forward="false" selection-start-line="312" selection-start-column="88" selection-end-line="312" selection-end-column="88" />
+        <state relative-caret-position="468">
+          <caret line="329" column="52" lean-forward="false" selection-start-line="329" selection-start-column="45" selection-end-line="329" selection-end-column="52" />
           <folding>
             <element signature="e#50#74#0" expanded="true" />
           </folding>
