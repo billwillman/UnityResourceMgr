@@ -303,7 +303,7 @@ def UnityWinProjToExe():
 
 #导出的IOS_BUID工程路径
 def GetIOSExportProjPath():
-    ret = GetUnityOrgProjPath() + "/IOS_Build"
+    ret = GetUnityOrgProjPath() + "/outPath/IOS_Build"
     return ret
 
 def UnityIOSProjToIPA():

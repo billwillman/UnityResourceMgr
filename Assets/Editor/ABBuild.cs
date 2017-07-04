@@ -4204,12 +4204,16 @@ public static class AssetBundleBuild
 		mMgr.BuildPackage(eBuildPlatform.eBuildAndroid, apkName, true); 
 	}
 
+	//[MenuItem("Assets/測試/IOS")]
 	static public void Cmd_IOS()
 	{
 		string xcodeProj = "../IOS_Build";
 		xcodeProj = System.IO.Path.GetFullPath(xcodeProj);
-		if (Directory.Exists (xcodeProj))
+		if (Directory.Exists (xcodeProj)) {
 			DeleteDirectorAndFiles (xcodeProj);
+		}
+		Directory.CreateDirectory (xcodeProj);
+
 		Debug.Log ("Build XCode: " + xcodeProj);
 		mMgr.BuildPackage(eBuildPlatform.eBuildIOS, xcodeProj, true); 
 	}
