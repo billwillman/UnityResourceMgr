@@ -2232,7 +2232,6 @@ class AssetBundleMgr
 
 	public void BuildCSharpProjectUpdateFile(string streamAssetsPath, string outPath, string version)
 	{
-#if UNITY_EDITOR_WIN
 		/*
 		string unityEditorPath = GetUnityEditorPath();
 		if (string.IsNullOrEmpty(unityEditorPath))
@@ -2296,7 +2295,6 @@ class AssetBundleMgr
 		bool[] firstDownArr = firstDowns.ToArray();
 		ExternMd5WriteToFileList(fileArr, fileListFileName1, firstDownArr);
 		ExternMd5WriteToFileList(fileArr, fileListFileName2, firstDownArr);
-#endif
 	}
 
 	private void CSharpDllCopyTo(string srcDll, string dstDll)

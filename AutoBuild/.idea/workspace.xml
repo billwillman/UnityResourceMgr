@@ -19,8 +19,8 @@
       <file leaf-file-name="autobuild.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/autobuild.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="621">
-              <caret line="237" column="59" lean-forward="false" selection-start-line="237" selection-start-column="33" selection-end-line="237" selection-end-column="59" />
+            <state relative-caret-position="279">
+              <caret line="227" column="76" lean-forward="false" selection-start-line="227" selection-start-column="62" selection-end-line="227" selection-end-column="76" />
               <folding>
                 <element signature="e#50#74#0" expanded="true" />
               </folding>
@@ -64,6 +64,7 @@
       <find>App失败</find>
       <find>GetMacExportProjPath</find>
       <find>UnityBuildABProj</find>
+      <find>Cmd_Build_Copy</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -769,8 +770,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/autobuild.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="621">
-          <caret line="237" column="59" lean-forward="false" selection-start-line="237" selection-start-column="33" selection-end-line="237" selection-end-column="59" />
+        <state relative-caret-position="279">
+          <caret line="227" column="76" lean-forward="false" selection-start-line="227" selection-start-column="62" selection-end-line="227" selection-end-column="76" />
           <folding>
             <element signature="e#50#74#0" expanded="true" />
           </folding>
