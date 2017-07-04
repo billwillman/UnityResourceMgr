@@ -24,6 +24,9 @@ AppendResVersion = "1.0.0.0"
 #输入平台：0-Windows 1-Android 2-IOS
 global BuildPlatform
 BuildPlatform = -1
+#IOS AppName
+global IOSAppName
+IOSAppName = "IosBuild"
 ##############
 
 def CheckVersionFormat(version, startVer):
@@ -268,7 +271,14 @@ def UnityAndroidProjToApk():
 
     return True
 
+#导出的IOS_BUID工程路径
+def GetIOSExportProjPath():
+    ret = GetUnityOrgProjPath() + "/IOS_Build"
+    return ret
+
 def UnityIOSProjToIPA():
+
+    global  IOSAppName
 
     logFile = "%s/autobuild.txt" % GetUnityOrgOutPath()
     f = open(logFile, "w")
@@ -293,8 +303,46 @@ def UnityIOSProjToIPA():
     process = subprocess.Popen(cmd, shell=True)
     montior.follow(process, 2)
 
-    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在编译XCode工程...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    iosExportPath = GetIOSExportProjPath()
+    archiveFileName = "%s/%s.xcarchive" % (iosExportPath, IOSAppName)
+    defaultIPAFileName = "%s/Unity-iPhone.ipa" % iosExportPath
+
+    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在清理XCode工程...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    # 先清理工程
+    #os.system("xcodebuild clean -project %s/Unity-iPhone.xcodeproj -target Unity-iPhone -configuration Release -sdk iphoneos" % iosExportPath)
+    os.system("xcodebuild clean -project %s/Unity-iPhone.xcodeproj -target Unity-iPhone" % iosExportPath)
+    print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成archive...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+    os.system("xcodebuild archive -project %s/Unity-iPhone.xcodeproj -scheme Unity-iPhone -configuration Release -sdk iphoneos -archivePath %s" %
+              (iosExportPath, archiveFileName))
+
+    #判断文件是否存在
+    if (not os.path.exists(archiveFileName)) or (not os.path.isfile(archiveFileName)):
+        print "\n生成archive失败~~!!!\n"
+        return False
+
     print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>正在生成IPA...>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+
+    #生成ad-hoc
+    print "======>>生成ad-hoc Ipa:"
+    os.system("xcodebuild -exportArchive -archivePath %s -exportOptionsPlist %s/build/ad-hoc.plist -exportPath %s" %
+              (archiveFileName, iosExportPath, iosExportPath))
+    if (not os.path.exists(defaultIPAFileName)) or (not os.path.isfile(defaultIPAFileName)):
+        print "\n生成ad-hoc ipa失败~~!!!\n"
+        return False
+
+    # IPA改名
+    os.rename(defaultIPAFileName, "%s/%s_ad-hoc.ipa" % (iosExportPath, IOSAppName))
+
+    #生成AppStore
+    print "====>>生成AppStore Ipa:"
+    os.system("xcodebuild -exportArchive -archivePath %s -exportOptionsPlist %s/build/appstore.plist -exportPath %s" %
+              (archiveFileName, iosExportPath, iosExportPath))
+    if (not os.path.exists(defaultIPAFileName)) or (not os.path.isfile(defaultIPAFileName)):
+        print "\n生成appstore ipa失败~~!!!\n"
+        return False
+
+    # IPA改名
+    os.rename(defaultIPAFileName, "%s/%s.ipa" % (iosExportPath, IOSAppName))
 
     return True
 
