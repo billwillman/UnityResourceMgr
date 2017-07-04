@@ -4026,7 +4026,7 @@ public static class AssetBundleBuild
 	[MenuItem("Assets/平台打包/Android MD5(压缩)")]
 	static public void OnBuildPlatformAndroidCompressMd5()
 	{
-		BuildPlatform (eBuildPlatform.eBuildAndroid, 1, true);
+		BuildPlatform(eBuildPlatform.eBuildAndroid, 1, true);
 	}
 	
 	[MenuItem("Assets/平台打包/IOS(压缩)")]
@@ -4358,7 +4358,11 @@ public static class AssetBundleBuild
 		if (!System.IO.Directory.Exists (searchProjPath)) {
 			System.IO.Directory.CreateDirectory (searchProjPath);
 		}
-		BuildPlatform (platform, compressType, true, targetStreamingAssetsPath, isAppend);
+
+		if (isAppend)
+			BuildPlatform (platform, compressType, true, null, isAppend);
+		else
+			BuildPlatform (platform, compressType, true, targetStreamingAssetsPath, isAppend);
 		// 处理Manifest
 		string rootManifest = targetStreamingAssetsPath;
 		string copyManifest = "Assets/StreamingAssets";
