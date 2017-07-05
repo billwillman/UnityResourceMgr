@@ -20,7 +20,7 @@
         <entry file="file://$PROJECT_DIR$/autobuild.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="215">
-              <caret line="468" column="46" lean-forward="false" selection-start-line="468" selection-start-column="46" selection-end-line="468" selection-end-column="46" />
+              <caret line="468" column="44" lean-forward="true" selection-start-line="468" selection-start-column="44" selection-end-line="468" selection-end-column="44" />
               <folding>
                 <element signature="e#50#74#0" expanded="true" />
               </folding>
@@ -781,7 +781,7 @@
     <entry file="file://$PROJECT_DIR$/autobuild.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="215">
-          <caret line="468" column="46" lean-forward="false" selection-start-line="468" selection-start-column="46" selection-end-line="468" selection-end-column="46" />
+          <caret line="468" column="44" lean-forward="true" selection-start-line="468" selection-start-column="44" selection-end-line="468" selection-end-column="44" />
           <folding>
             <element signature="e#50#74#0" expanded="true" />
           </folding>
