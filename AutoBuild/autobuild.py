@@ -282,7 +282,7 @@ def UnityAndroidProjToApk():
 
     return True
 
-#生成MACK的APP
+#生成MAC的APP
 def UnityMacProjToApp():
     global  MacAppName
 
@@ -310,12 +310,12 @@ def UnityMacProjToApp():
     process = subprocess.Popen(cmd, shell=True)
     montior.follow(process, 2)
 
-    '''
-    macApp = "%s/%s" % (GetMacExportProjPath(), MacAppName)
-    if (not os.path.exists(macApp)):
+    macApp = "%s/%s.app" % (GetMacExportProjPath(), MacAppName)
+    #print macApp
+    if (not os.access(macApp, os.F_OK)):
         print "\n生成App失败~~!!!\n"
         return False
-    '''
+
     return True
 
 #导出WINDOWS的EXE
@@ -453,6 +453,10 @@ def UnityToExe():
         os.system("Unity.exe -quit -batchmode -nographics -projectPath %s -executeMethod AssetBundleBuild.Cmd_Win" % projPath)
     return True
 
+#检查是否有UNITY进程，如果有提示杀死
+def CheckUnityAppRun():
+    return
+
 # 主函数
 def Main():
 
@@ -460,6 +464,8 @@ def Main():
 
     if (IsWindowsPlatform()):
         print "打包前请确认设置好Unity.exe环境变量"
+
+    CheckUnityAppRun()
 
     LoadVersionInfo()
     UserInputVersion()
