@@ -466,7 +466,7 @@ def kill_process_with_name(process_name):
             each_pro = psutil.Process(pid)
             currName = each_pro.name().lower()
             if currName.startswith(process_name):
-                print "\nfind and kill %s..." % process_name
+                print "\nfind and kill %s..." % currName
                 each_pro.terminate()
                 each_pro.wait(timeout=3)
         except psutil.NoSuchProcess, pid:
