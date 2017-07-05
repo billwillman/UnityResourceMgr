@@ -9,6 +9,7 @@ import  configfile
 import  tail
 import  subprocess
 import re
+import psutil
 
 #######全局变量
 
@@ -453,8 +454,27 @@ def UnityToExe():
         os.system("Unity.exe -quit -batchmode -nographics -projectPath %s -executeMethod AssetBundleBuild.Cmd_Win" % projPath)
     return True
 
+#需要安装psutil,具体安装步骤请在setup里
+def kill_process_with_name(process_name):
+    """根据进程名杀死进程
+    @# 增加跨平台支持
+    """
+    process_name = process_name.lower()
+    pid_list = psutil.pids()
+    for pid in pid_list:
+        try:
+            each_pro = psutil.Process(pid)
+            currName = each_pro.name().lower()
+            if currName.startswith(process_name):
+                print "\nfind and kill %s...\n" % process_name
+                each_pro.terminate()
+                each_pro.wait(timeout=3)
+        except psutil.NoSuchProcess, pid:
+            pass
+
 #检查是否有UNITY进程，如果有提示杀死
 def CheckUnityAppRun():
+    kill_process_with_name("Unity")
     return
 
 # 主函数
