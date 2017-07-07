@@ -10,6 +10,7 @@ import  tail
 import  subprocess
 import re
 import psutil
+import win_utf8_output
 
 #######全局变量
 
