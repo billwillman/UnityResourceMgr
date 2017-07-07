@@ -65,7 +65,7 @@ def UserInputVersion():
                 BuildPlatform = int(s)
                 if BuildPlatform in [0, 1, 2, 3]:
                     if (IsWindowsPlatform() and (BuildPlatform == 2 or BuildPlatform == 3)):
-                        print "Windows平台无法打包IOS"
+                        print "\nWindows平台无法打包IOS或Mac\n"
                     else:
                         break
                 else:
