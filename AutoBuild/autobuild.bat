@@ -1,3 +1,3 @@
 python autobuild.py
-echo æŒ‰ä»»æ„é”®é€€å‡º & pause
+echo °´ÈÎÒâ¼ü¼ÌĞø& pause
 exit 
