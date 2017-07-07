@@ -33,6 +33,8 @@
    7.已经支持DLL热更新，生成DLL热更新步骤：1）右键先编译 CSHARP工程。2）打包APK
 
    8.增量AssetBundle已经完全支持。
+   
+   9.支持脚本一键打包，脚本开发语言为Python, 命令行运行 python autobuild.py或者直接双击autobuild.bat(Windows平台)，脚本运行需要安装psUtil库，Windows直接安装psUtil-setup(在AutoBuild/setup里)，Mac下查看psutil.sh脚本内容，安装psutil库。
 
    
 具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
