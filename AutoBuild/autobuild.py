@@ -39,10 +39,10 @@ MacAppName = "client"
 
 def CheckVersionFormat(version, startVer):
     if version == None:
-        return False
+        return False, None
     version = version.strip()
     if version == "":
-        return False
+        return False, None
     #起始位置匹配
     fmt = "%s.\d+.\d+.\d+" % startVer
     ver = re.match(fmt, version)
