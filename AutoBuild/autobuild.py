@@ -132,6 +132,7 @@ def SaveVersionInfo():
     if file == None:
         return
     file.write(BaseResVersion)
+	file.close()
     return
 
 def LoadVersionInfo():
@@ -154,6 +155,8 @@ def LoadVersionInfo():
     AppendResVersion = version
 
     print "当前资源版本: %s \n" % version
+	
+	file.close()
     return
 
 def GetUnityOrgProjPath():
