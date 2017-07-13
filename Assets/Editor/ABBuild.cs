@@ -2982,6 +2982,10 @@ class AssetBundleMgr
 
             // 删除manifest
             RemoveBundleManifestFiles_5_x(exportDir);
+			if (isForceAppend) {
+                string outAssetStreaming = CreateAssetBundleDir(platform, "outPath/Proj");
+                RemoveBundleManifestFiles_5_x(outAssetStreaming);
+            }
 
             AssetDatabase.Refresh();
 
