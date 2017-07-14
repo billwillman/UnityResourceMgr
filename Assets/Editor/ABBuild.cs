@@ -2818,28 +2818,24 @@ class AssetBundleMgr
 
     }
 
-    // 根据buildVersion.txt准备增量打包信息(增量用)
-    private void CopyVersionForceAppendFiles(eBuildPlatform platform, string outPath) {
-#if USE_UNITY5_X_BUILD
-        if (string.IsNullOrEmpty(outPath))
-            return;
-
+    private void RemoveOrgProjStreamingAssets(eBuildPlatform platform)
+    {
         string dstRoot = "Assets/StreamingAssets";
         switch (platform) {
-            case eBuildPlatform.eBuildWindow:
-                dstRoot += "/Windows";
-                break;
-            case eBuildPlatform.eBuildMac:
-                dstRoot += "/Mac";
-                break;
-            case eBuildPlatform.eBuildAndroid:
-                dstRoot += "/Android";
-                break;
-            case eBuildPlatform.eBuildIOS:
-                dstRoot += "/IOS";
-                break;
-            default:
-                return;
+        case eBuildPlatform.eBuildWindow:
+            dstRoot += "/Windows";
+            break;
+        case eBuildPlatform.eBuildMac:
+            dstRoot += "/Mac";
+            break;
+        case eBuildPlatform.eBuildAndroid:
+            dstRoot += "/Android";
+            break;
+        case eBuildPlatform.eBuildIOS:
+            dstRoot += "/IOS";
+            break;
+        default:
+            return;
         }
 
         if (!Directory.Exists(dstRoot))
@@ -2853,6 +2849,33 @@ class AssetBundleMgr
                     File.Delete(localFileName);
                 }
             }
+        }
+    }
+
+    // 根据buildVersion.txt准备增量打包信息(增量用)
+    private void CopyVersionForceAppendFiles(eBuildPlatform platform, string outPath) {
+#if USE_UNITY5_X_BUILD
+        if (string.IsNullOrEmpty(outPath))
+            return;
+
+        RemoveOrgProjStreamingAssets(platform);
+
+        string dstRoot = "Assets/StreamingAssets";
+        switch (platform) {
+        case eBuildPlatform.eBuildWindow:
+            dstRoot += "/Windows";
+            break;
+        case eBuildPlatform.eBuildMac:
+            dstRoot += "/Mac";
+            break;
+        case eBuildPlatform.eBuildAndroid:
+            dstRoot += "/Android";
+            break;
+        case eBuildPlatform.eBuildIOS:
+            dstRoot += "/IOS";
+            break;
+        default:
+            return;
         }
 
         string curretnVersion, lastVersion;
@@ -2904,7 +2927,7 @@ class AssetBundleMgr
         // 5.x不再需要收集依赖PUSH和POP
         Caching.CleanCache();
         string abOutPath;
-		if (isForceAppend)
+        if (isForceAppend || string.IsNullOrEmpty(outPath))
              abOutPath = null;
         else
             abOutPath = outPath + "/Assets/StreamingAssets";
@@ -2933,6 +2956,8 @@ class AssetBundleMgr
 
             if (isForceAppend)
                 CopyVersionForceAppendFiles(platform, "outPath");
+            else
+                RemoveOrgProjStreamingAssets(platform);
 
             BuildAssetBundlesInfo_5_x(platform, exportDir, compressType, isForceAppend);
 
@@ -2999,6 +3024,59 @@ class AssetBundleMgr
 #endif
     }
 
+    // 删除原始目录的FileList不存在资源
+    private void RemoveFilelistFileNameMd5NoContainsRes(eBuildPlatform platform, string streamingAssets)
+    {
+        if (string.IsNullOrEmpty(streamingAssets))
+            streamingAssets = "Assets/StreamingAssets";
+        if (!Directory.Exists (streamingAssets))
+            return;
+        
+        if (!Directory.Exists (streamingAssets))
+            return;
+        string fileListFileName = Path.GetFullPath(string.Format("{0}/fileList.txt", streamingAssets));
+        if (!File.Exists(fileListFileName))
+            return;
+        ResListFile resFile = new ResListFile();
+        if (!resFile.LoadFromFile(fileListFileName))
+            return;
+
+        fileListFileName = Path.GetFileName(fileListFileName);
+
+        string[] files = Directory.GetFiles(streamingAssets, "*.*", SearchOption.TopDirectoryOnly);
+        // 删除冗余的AB和manifest文件
+        if (files != null && files.Length > 0) {
+            for (int i = 0; i < files.Length; ++i) {
+                string localFileName = Path.GetFileName(files[i]);
+                string extName = Path.GetExtension (localFileName);
+                bool isMainifest = string.Compare (extName, ".mainifest", true) == 0;
+                bool isOrgAssets = string.Compare (extName, ".assets", true) == 0;
+                bool isMeta = string.Compare (extName, ".meta", true) == 0;
+                if (isMeta)
+                    continue;
+
+                if (!isMainifest || isOrgAssets) {
+                    string localFileNameMd5;
+                    if (isOrgAssets)
+                        localFileNameMd5 = AssetBunbleInfo.Md5 (localFileName);
+                    else
+                        localFileNameMd5 = localFileName;
+                    if (string.Compare (localFileName, fileListFileName) != 0 &&
+                        string.Compare (localFileName, "version.txt", true) != 0 &&
+                        string.IsNullOrEmpty (resFile.GetFileContentMd5 (localFileNameMd5))) {
+                        File.Delete (files [i]);
+                    }
+                } else {
+                    string localName = Path.GetFileNameWithoutExtension (localFileName);
+                    string localMd5FileName = AssetBunbleInfo.Md5 (localFileName, true);
+                    if (string.IsNullOrEmpty (resFile.GetFileContentMd5 (localMd5FileName)))
+                        File.Delete (files [i]);
+                }
+            }
+        }
+
+    }
+
     // 删除不包含fileList的资源
     private void RemoveFileListContentMd5NoContainsRes(string rootDir, string version) {
         if (string.IsNullOrEmpty(rootDir) || string.IsNullOrEmpty(version))
@@ -3040,6 +3118,8 @@ class AssetBundleMgr
 	//	if (platform == eBuildPlatform.eBuildAndroid || platform == eBuildPlatform.eBuildIOS ||
 	//	    platform == eBuildPlatform.eBuildWindow)
 		{
+            // 删除先打包目录下的冗余AB，以减少大小
+            RemoveFilelistFileNameMd5NoContainsRes (platform, streamAssetsPath);
             string versionDir;
             string lastVersion;
             AssetBundleBuild.GetPackageVersion(platform, out versionDir, out lastVersion);
@@ -3927,7 +4007,7 @@ public static class AssetBundleBuild
 		mMgr.BuildDirs(resList);
 		mMgr.BuildAssetBundles(platform, compressType, isMd5, outPath, isForceAppend);
         // 增量更新同步一次新工程
-        if (isForceAppend)
+        if (isForceAppend || string.IsNullOrEmpty(outPath))
             mMgr.LocalAssetBundlesCopyToOtherProj("outPath/Proj", platform);
         /*
 		string outpath = GetAndCreateDefaultOutputPackagePath (platform);
