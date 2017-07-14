@@ -2903,6 +2903,10 @@ class AssetBundleMgr
 #if USE_UNITY5_X_BUILD
         // 5.x不再需要收集依赖PUSH和POP
         Caching.CleanCache();
+		if (isForceAppend)
+             abOutPath = null;
+        else
+            abOutPath = outPath + "/Assets/StreamingAssets";
         string exportDir = CreateAssetBundleDir(platform, outPath);
         if (mAssetBundleList.Count > 0)
         {
@@ -2983,7 +2987,7 @@ class AssetBundleMgr
             // 删除manifest
             RemoveBundleManifestFiles_5_x(exportDir);
 			if (isForceAppend) {
-                string outAssetStreaming = CreateAssetBundleDir(platform, "outPath/Proj");
+                string outAssetStreaming = CreateAssetBundleDir(platform, "outPath/Proj/Assets/StreamingAssets");
                 RemoveBundleManifestFiles_5_x(outAssetStreaming);
             }
 
