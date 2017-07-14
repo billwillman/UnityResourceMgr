@@ -2903,6 +2903,7 @@ class AssetBundleMgr
 #if USE_UNITY5_X_BUILD
         // 5.x不再需要收集依赖PUSH和POP
         Caching.CleanCache();
+        string abOutPath;
 		if (isForceAppend)
              abOutPath = null;
         else
