@@ -3027,8 +3027,9 @@ class AssetBundleMgr
     // 删除原始目录的FileList不存在资源
     private void RemoveFilelistFileNameMd5NoContainsRes(eBuildPlatform platform, string streamingAssets)
     {
-        if (string.IsNullOrEmpty(streamingAssets))
-            streamingAssets = "Assets/StreamingAssets";
+        if (string.IsNullOrEmpty (streamingAssets))
+            return;
+        
         if (!Directory.Exists (streamingAssets))
             return;
         
@@ -3048,6 +3049,8 @@ class AssetBundleMgr
         if (files != null && files.Length > 0) {
             for (int i = 0; i < files.Length; ++i) {
                 string localFileName = Path.GetFileName(files[i]);
+                if (string.Compare (localFileName, "AssetBundles.xml", true) == 0)
+                    continue;
                 string extName = Path.GetExtension (localFileName);
                 bool isMainifest = string.Compare (extName, ".mainifest", true) == 0;
                 bool isOrgAssets = string.Compare (extName, ".assets", true) == 0;
@@ -3118,13 +3121,13 @@ class AssetBundleMgr
 	//	if (platform == eBuildPlatform.eBuildAndroid || platform == eBuildPlatform.eBuildIOS ||
 	//	    platform == eBuildPlatform.eBuildWindow)
 		{
-            // 删除先打包目录下的冗余AB，以减少大小
-            RemoveFilelistFileNameMd5NoContainsRes (platform, streamAssetsPath);
             string versionDir;
             string lastVersion;
             AssetBundleBuild.GetPackageVersion(platform, out versionDir, out lastVersion);
             // Create Bunlde到outPut目录
 			CreateBundleResUpdateFiles(streamAssetsPath, "outPath", versionDir, true);
+            // 删除先打包目录下的冗余AB，以减少大小
+            RemoveFilelistFileNameMd5NoContainsRes (platform, streamAssetsPath);
             // Copy Manifest到outPut目录
             CreateManifestResUpdateFiles(streamAssetsPath, "outPath", versionDir);
             // Copy CSharp的Dll
