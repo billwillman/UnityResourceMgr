@@ -3943,8 +3943,8 @@ public static class AssetBundleBuild
 
 			// 开始打包
 			mMgr.BuildDirs(buildList);
-			string abOutPath = outPath + "/Assets/StreamingAssets";
-			mMgr.BuildAssetBundles(platform, 2, true, abOutPath);
+			mMgr.BuildAssetBundles(platform, 2, true, null);
+            mMgr.LocalAssetBundlesCopyToOtherProj("outPath/Proj", platform);
         }
 		
 		public static void BuildFromBuildPkg()
@@ -3999,7 +3999,7 @@ public static class AssetBundleBuild
 		}
 
 	static public void BuildPlatform(eBuildPlatform platform, int compressType = 0, bool isMd5 = false, 
-									 string outPath = null, bool isForceAppend = false)
+									 bool isForceAppend = false)
 	{
 		// GetResAllDirPath ();
 		// 编译平台`
@@ -4008,10 +4008,9 @@ public static class AssetBundleBuild
         List<string> resList = GetResAllDirPath();
 		// resList.Add("Assets/Scene");
 		mMgr.BuildDirs(resList);
-		mMgr.BuildAssetBundles(platform, compressType, isMd5, outPath, isForceAppend);
-        // 增量更新同步一次新工程
-        if (isForceAppend || string.IsNullOrEmpty(outPath))
-            mMgr.LocalAssetBundlesCopyToOtherProj("outPath/Proj", platform);
+		mMgr.BuildAssetBundles(platform, compressType, isMd5, null, isForceAppend);
+
+        mMgr.LocalAssetBundlesCopyToOtherProj("outPath/Proj", platform);
         /*
 		string outpath = GetAndCreateDefaultOutputPackagePath (platform);
 		string outFileName = outpath + "/" + GetCurrentPackageVersion (platform);
@@ -4150,7 +4149,7 @@ public static class AssetBundleBuild
 
     [MenuItem("Assets/平台打包/增量Windows(Lz4)")]
     static public void OnAppendBuildPlatformWinLz4() {
-        BuildPlatform(eBuildPlatform.eBuildWindow, 2, false, null, true);
+        BuildPlatform(eBuildPlatform.eBuildWindow, 2, false, true);
     }
 
     [MenuItem("Assets/平台打包/Windows Md5(Lz4)")]
@@ -4161,7 +4160,7 @@ public static class AssetBundleBuild
 	[MenuItem("Assets/平台打包/增量Windows Md5(Lz4)")]
 	static public void OnAppendBuildPlatformWinLz4Md5()
 	{
-		BuildPlatform(eBuildPlatform.eBuildWindow, 2, true, null, true);
+		BuildPlatform(eBuildPlatform.eBuildWindow, 2, true, true);
 	}
 
 	[MenuItem("Assets/平台打包/OSX(Lz4)")]
@@ -4177,7 +4176,7 @@ public static class AssetBundleBuild
     [MenuItem("Assets/平台打包/增量OSX MD5(Lz4)")]
     static public void OnAppendBuildPlatformOSXLz4Md5()
     {
-        BuildPlatform (eBuildPlatform.eBuildMac, 2, true, null, true);
+        BuildPlatform (eBuildPlatform.eBuildMac, 2, true, true);
     }
 
 	[MenuItem("Assets/平台打包/Android(Lz4)")]
@@ -4193,7 +4192,7 @@ public static class AssetBundleBuild
 	[MenuItem("Assets/平台打包/增量Android MD5(Lz4)")]
 	static public void OnAppendBuildPlatformAndroidLz4Md5()
 	{
-		BuildPlatform(eBuildPlatform.eBuildAndroid, 2, true, null, true);
+		BuildPlatform(eBuildPlatform.eBuildAndroid, 2, true, true);
 	}
 
 	[MenuItem("Assets/平台打包/IOS(Lz4)")]
@@ -4210,7 +4209,7 @@ public static class AssetBundleBuild
     [MenuItem("Assets/平台打包/增量IOS MD5(Lz4)")]
     static public void OnAppendBuildPlatformIOSLz4Md5()
     {
-        BuildPlatform (eBuildPlatform.eBuildIOS, 2, true, null, true);
+        BuildPlatform (eBuildPlatform.eBuildIOS, 2, true, true);
     }
 
 #endif
@@ -4448,11 +4447,8 @@ public static class AssetBundleBuild
 		if (!System.IO.Directory.Exists (searchProjPath)) {
 			System.IO.Directory.CreateDirectory (searchProjPath);
 		}
-
-		if (isAppend)
-			BuildPlatform (platform, compressType, true, null, isAppend);
-		else
-			BuildPlatform (platform, compressType, true, targetStreamingAssetsPath, isAppend);
+            
+	    BuildPlatform (platform, compressType, true, isAppend);
 		// 处理Manifest
 		string rootManifest = targetStreamingAssetsPath;
 		string copyManifest = "Assets/StreamingAssets";
@@ -4561,7 +4557,7 @@ public static class AssetBundleBuild
 		// 增量
 		// build AssetsBundle to Target
 
-		BuildPlatform(platform, compressType, isMd5, targetStreamingAssetsPath); 
+		BuildPlatform(platform, compressType, isMd5); 
 		// 处理Manifest
 		string rootManifest = targetStreamingAssetsPath;
 		string copyManifest = "Assets/StreamingAssets";
