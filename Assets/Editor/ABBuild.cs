@@ -3126,16 +3126,15 @@ class AssetBundleMgr
             AssetBundleBuild.GetPackageVersion(platform, out versionDir, out lastVersion);
             // Create Bunlde到outPut目录
 			CreateBundleResUpdateFiles(streamAssetsPath, "outPath", versionDir, true);
-            // 删除先打包目录下的冗余AB，以减少大小
-            RemoveFilelistFileNameMd5NoContainsRes (platform, streamAssetsPath);
             // Copy Manifest到outPut目录
             CreateManifestResUpdateFiles(streamAssetsPath, "outPath", versionDir);
             // Copy CSharp的Dll
             BuildCSharpProjectUpdateFile(streamAssetsPath, "outPath", versionDir);
-
 			// 修改fileList的文件名为MD5
 			string fileListRootPath = string.Format("outPath/{0}", versionDir);
 			ChangeFileListFileNameToMd5(fileListRootPath);
+            // 删除先打包目录下的冗余AB，以减少大小
+            RemoveFilelistFileNameMd5NoContainsRes (platform, streamAssetsPath);
             // 删除不存在的内容MD5文件名文件
             RemoveFileListContentMd5NoContainsRes("outPath", versionDir);
             #if USE_ZIPVER
