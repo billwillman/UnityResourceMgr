@@ -8,10 +8,13 @@ class UnicodeStreamFilter:
         self.errors = 'replace'
         self.encode_to = self.target.encoding
     def write(self, s):
-        if type(s) == str:
-            s = s.decode("utf-8")
-        s = s.encode(self.encode_to, self.errors).decode(self.encode_to)
-        self.target.write(s)
+		try:
+			if type(s) == str:
+				s = s.decode("utf-8")
+			s = s.encode(self.encode_to, self.errors).decode(self.encode_to)
+			self.target.write(s)
+		except:
+			print "转码错误~!"
 
 if sys.stdout.encoding == 'cp936':
     sys.stdout = UnicodeStreamFilter(sys.stdout)
