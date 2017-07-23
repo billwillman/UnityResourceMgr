@@ -577,6 +577,8 @@ namespace NsHttpClient
         private void Start()
 		{
 			m_Req = WebRequest.Create(m_Url) as HttpWebRequest;
+			m_Req.AllowAutoRedirect = true;
+			m_Req.Method = "GET";
 			m_Req.Timeout = (int)(m_TimeOut * 1000);
 			m_Req.Proxy = null;
 			if (m_FilePos > 0)
@@ -618,6 +620,8 @@ namespace NsHttpClient
 				return;
 			m_IsServerPointInited = true;
 			ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
+			ServicePointManager.DefaultConnectionLimit = Int32.MaxValue;
+            ServicePointManager.Expect100Continue = false;
 		}
 
 		private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)  
