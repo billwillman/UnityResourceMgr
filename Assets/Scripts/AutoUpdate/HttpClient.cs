@@ -621,7 +621,7 @@ namespace NsHttpClient
 				return;
 			m_IsServerPointInited = true;
 			ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
-			ServicePointManager.DefaultConnectionLimit = Int32.MaxValue;
+			ServicePointManager.DefaultConnectionLimit = 512;
             ServicePointManager.Expect100Continue = false;
 		}
 
