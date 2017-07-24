@@ -580,6 +580,10 @@ namespace NsHttpClient
 			m_Req.AllowAutoRedirect = true;
 			m_Req.KeepAlive = false;
 			m_Req.Method = "GET";
+            var serverPoint = m_Req.ServicePoint;
+            if (serverPoint != null) {
+                serverPoint.ConnectionLimit = _cMaxConnectionLimit;
+            }
 		//	m_Req.Timeout = (int)(m_TimeOut * 1000);
 		//	m_Req.ReadWriteTimeout = (int)(m_ReadTimeOut * 1000);
 			m_Req.Proxy = null;
@@ -622,9 +626,11 @@ namespace NsHttpClient
 				return;
 			m_IsServerPointInited = true;
 			ServicePointManager.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CheckValidationResult);
-			ServicePointManager.DefaultConnectionLimit = 512;
+            ServicePointManager.DefaultConnectionLimit = _cMaxConnectionLimit;
             ServicePointManager.Expect100Continue = false;
 		}
+
+        private static readonly  int _cMaxConnectionLimit = 512;
 
 		private static bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)  
 		{
