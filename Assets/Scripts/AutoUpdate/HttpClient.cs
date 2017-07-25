@@ -584,8 +584,8 @@ namespace NsHttpClient
             if (serverPoint != null) {
                 serverPoint.ConnectionLimit = _cMaxConnectionLimit;
             }
-		//	m_Req.Timeout = (int)(m_TimeOut * 1000);
-		//	m_Req.ReadWriteTimeout = (int)(m_ReadTimeOut * 1000);
+			m_Req.Timeout = (int)(m_TimeOut * 1000);
+			m_Req.ReadWriteTimeout = (int)(m_ReadTimeOut * 1000);
 			m_Req.Proxy = null;
 			if (m_FilePos > 0)
 			{
