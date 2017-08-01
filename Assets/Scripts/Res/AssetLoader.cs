@@ -2385,6 +2385,8 @@ public class AssetLoader: IResourceLoader
 		if (!DependBinaryFile.CheckFileHeader (header))
 			return;
 		
+		Dictionary<string, string> fileRealMap = null;
+		
 		for (int i = 0; i < header.abFileCount; ++i) {
 			DependBinaryFile.ABFileHeader abHeader = DependBinaryFile.LoadABFileHeader (stream);
 			AssetCompressType compressType = (AssetCompressType)abHeader.compressType;
@@ -2399,7 +2401,8 @@ public class AssetLoader: IResourceLoader
 #endif
                                                         ;
 
-			string assetBundleFileName = GetCheckFileName(abHeader.abFileName, false, isUseCreateFromFile);
+			string assetBundleFileName = GetCheckFileName(ref fileRealMap, abHeader.abFileName, 
+                                                            false, isUseCreateFromFile);
 
 			AssetInfo asset;
 			if (!mAssetFileNameMap.TryGetValue(assetBundleFileName, out asset)) {
@@ -2432,7 +2435,8 @@ public class AssetLoader: IResourceLoader
 			// 依赖
 			for (int j = 0; j < abHeader.dependFileCount; ++j) {
 				DependBinaryFile.DependInfo depInfo = DependBinaryFile.LoadDependInfo (stream);
-				string dependFileName = GetCheckFileName(depInfo.abFileName, false, isUseCreateFromFile);
+				string dependFileName = GetCheckFileName(ref fileRealMap, depInfo.abFileName,
+                                                            false, isUseCreateFromFile);
 				asset._AddDependFile(dependFileName, depInfo.refCount);
 			}
 		}
@@ -2472,14 +2476,16 @@ public class AssetLoader: IResourceLoader
 		if (nodeList == null) {
 			return;
 		}
-		
-		// string assetFilePath = Path.GetDirectoryName (fileName);
 
-		//string assetFilePath = GetBundlePath(Path.GetDirectoryName (fileName));
-		//string assetFilePath = WWWFileLoadTask.GetStreamingAssetsPath(true);
+        // string assetFilePath = Path.GetDirectoryName (fileName);
 
-		// AssetBundle
-		for (int i = 0; i < nodeList.Count; ++i) {
+        //string assetFilePath = GetBundlePath(Path.GetDirectoryName (fileName));
+        //string assetFilePath = WWWFileLoadTask.GetStreamingAssetsPath(true);
+
+        Dictionary<string, string> fileRealMap = null;
+
+        // AssetBundle
+        for (int i = 0; i < nodeList.Count; ++i) {
 			XMLNode node = nodeList[i] as XMLNode;
 			if (node == null)
 				continue;
@@ -2519,7 +2525,7 @@ public class AssetLoader: IResourceLoader
 
 #endif
                                         ;
-			string assetBundleFileName = GetCheckFileName(localFileName, false, isUseCreateFromFile);
+			string assetBundleFileName = GetCheckFileName(ref fileRealMap, localFileName, false, isUseCreateFromFile);
 
 			AssetInfo asset;
 			if (!mAssetFileNameMap.TryGetValue(assetBundleFileName, out asset)) {
@@ -2583,7 +2589,7 @@ public class AssetLoader: IResourceLoader
 
 							//string dependFileName = string.Format("{0}/{1}", assetFilePath, dependFile.GetValue("@fileName"));
 							string localDependFileName = dependFile.GetValue("@fileName");
-							string dependFileName = GetCheckFileName(localDependFileName, false, isUseCreateFromFile);
+							string dependFileName = GetCheckFileName(ref fileRealMap, localDependFileName, false, isUseCreateFromFile);
 
 							string refStr = dependFile.GetValue("@refCount");
 							int refCount = 1;
@@ -2649,6 +2655,22 @@ public class AssetLoader: IResourceLoader
 #if !USE_DEP_BINARY_AB
 	private float m_LastUsedTime = 0;
 #endif
+
+	 private string GetCheckFileName(ref Dictionary<string, string> fileRealMap, string abFileName, bool isWWW,
+                bool isUseABCreateFromFile) {
+            if (string.IsNullOrEmpty(abFileName))
+                return string.Empty;
+
+            if (fileRealMap == null)
+                fileRealMap = new Dictionary<string, string>();
+            string assetBundleFileName;
+            if (!fileRealMap.TryGetValue(abFileName, out assetBundleFileName)) {
+                assetBundleFileName = GetCheckFileName(abFileName, isWWW, isUseABCreateFromFile);
+                fileRealMap.Add(abFileName, assetBundleFileName);
+            }
+
+            return assetBundleFileName;
+    }
 
 	// 手动调用读取配置
 	public void LoadConfigs(Action<bool> OnFinishEvent)
