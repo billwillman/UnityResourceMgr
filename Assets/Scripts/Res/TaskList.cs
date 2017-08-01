@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils;
 
 // 任务接口
 public abstract class ITask
@@ -339,9 +340,72 @@ public class WWWFileLoadTask: ITask
 		return ret;
 	}
 
+    private class StreamingAssetsPathComparser : StructComparser<StreamingAssetsPathKey> { }
+
+    // 优化GetStreamingAssetsPath
+    // StreamingAssets的Path的Key
+    private struct StreamingAssetsPathKey: IEquatable<StreamingAssetsPathKey> {
+        public bool usePlatform {
+            get;
+            set;
+        }
+
+        public bool isUseABCreateFromFile {
+            get;
+            set;
+        }
+
+        public bool Equals(StreamingAssetsPathKey other) {
+            return this == other;
+        }
+
+        public override bool Equals(object obj) {
+            if (obj == null)
+                return false;
+
+            if (GetType() != obj.GetType())
+                return false;
+
+            if (obj is StreamingAssetsPathKey) {
+                StreamingAssetsPathKey other = (StreamingAssetsPathKey)obj;
+                return Equals(other);
+            } else
+                return false;
+
+        }
+
+        public override int GetHashCode() {
+            int ret = FilePathMgr.InitHashValue();
+            FilePathMgr.HashCode(ref ret, usePlatform);
+            FilePathMgr.HashCode(ref ret, isUseABCreateFromFile);
+            return ret;
+        }
+
+        public static bool operator ==(StreamingAssetsPathKey a, StreamingAssetsPathKey b) {
+            return (a.usePlatform == b.usePlatform) && (a.isUseABCreateFromFile == b.isUseABCreateFromFile);
+        }
+
+        public static bool operator !=(StreamingAssetsPathKey a, StreamingAssetsPathKey b) {
+            return !(a == b);
+        }
+    }
+
+    // 优化StreamingAssetsPath
+    private static Dictionary<StreamingAssetsPathKey, string> m_StreamingAssetsPathMap = 
+                 new Dictionary<StreamingAssetsPathKey, string>(StreamingAssetsPathComparser.Default);
+
 	public static string GetStreamingAssetsPath(bool usePlatform, bool isUseABCreateFromFile = false)
 	{
-		string ret = string.Empty;
+        // 优化StreamingAssetsPath
+        StreamingAssetsPathKey key = new StreamingAssetsPathKey();
+        key.usePlatform = usePlatform;
+        key.isUseABCreateFromFile = isUseABCreateFromFile;
+
+        string ret;
+        if (m_StreamingAssetsPathMap.TryGetValue(key, out ret))
+            return ret;
+
+        ret = string.Empty;
 		switch (Application.platform)
 		{
 			case RuntimePlatform.OSXPlayer:
@@ -422,8 +486,11 @@ public class WWWFileLoadTask: ITask
 				ret = Application.streamingAssetsPath;
 				break;
 		}
-		
-		return ret;
+
+        m_StreamingAssetsPathMap.Add(key, ret);
+
+
+        return ret;
 	}
 	
 	// 普通文件名转WWW文件名
