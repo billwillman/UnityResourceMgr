@@ -150,15 +150,22 @@ namespace Utils
 			return b != 0;
 		}
 
+		
+		private static byte[] m_TempStrBuf = new byte[256];
 		public string ReadString(Stream stream)
 		{
 			int cnt = ReadInt(stream);
 			if (cnt <= 0)
 				return string.Empty;
 
-			byte[] bytes = new byte[cnt];
-			cnt = stream.Read(bytes, 0, cnt);
-			return System.Text.Encoding.UTF8.GetString(bytes, 0, cnt);
+            byte[] bytes;
+            if (m_TempStrBuf == null || cnt > m_TempStrBuf.Length) {
+                m_TempStrBuf = new byte[cnt];
+                bytes = m_TempStrBuf;
+            } else
+                bytes = m_TempStrBuf;
+            cnt = stream.Read(bytes, 0, cnt);
+            return System.Text.Encoding.UTF8.GetString(bytes, 0, cnt);
 		}
 
         public static int InitHashValue() {
