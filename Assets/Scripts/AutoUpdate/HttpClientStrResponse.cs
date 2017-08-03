@@ -14,15 +14,13 @@ namespace NsHttpClient
         }
 
         protected override void End() {
-            lock (m_TxtLock) {
-                byte[] buf = m_Stream.ToArray();
-                string txt = string.Empty;
-                if (buf != null && buf.Length > 0) {
-                    txt = System.Text.Encoding.UTF8.GetString(buf);
-                }
-                lock (m_TxtLock) {
-                    m_Txt = txt;
-                }
+            byte[] buf = m_Stream.ToArray();
+            string txt = string.Empty;
+            if (buf != null && buf.Length > 0) {
+                txt = System.Text.Encoding.UTF8.GetString(buf);
+            }
+            lock (m_TxtLock) {   
+                m_Txt = txt;
             }
         }
 

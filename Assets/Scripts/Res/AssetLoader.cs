@@ -1751,7 +1751,6 @@ public class AssetLoader: IResourceLoader
 		TextAsset asset = LoadObject<TextAsset> (TransFileName(fileName, ".bytes"), cacheType);
 		if (asset == null)
 			return null;
-        //return System.Text.Encoding.UTF8.GetString (asset.bytes);
         return asset.text;
 	}
 
@@ -2123,207 +2122,7 @@ public class AssetLoader: IResourceLoader
 		string ret = GetCheckFileName("AssetBundles.xml", true, false);
 #endif
 		return ret;
-		/*
-		string ret = GetCheckWritePathFileName("AssetBundles.xml", isWWW);
-		if (!string.IsNullOrEmpty(ret))
-			return ret;
-
-		switch (Application.platform) {
-		case RuntimePlatform.OSXEditor:
-			ret = Path.GetFullPath("Assets/StreamingAssets/Mac");
-			if (isWWW)
-				ret = "file:///" + ret;
-			break;
-		case RuntimePlatform.WindowsEditor:
-			ret = Path.GetFullPath("Assets/StreamingAssets/Windows");
-			if (isWWW)
-				ret = "file:///" + ret;
-			break;
-		case RuntimePlatform.OSXPlayer:
-			ret = Application.streamingAssetsPath + "/Mac";
-			if (isWWW)
-				ret = "file:///" + ret;
-			break;
-		case RuntimePlatform.WindowsPlayer:
-			ret = Application.streamingAssetsPath + "/Windows";
-			if (isWWW)
-				ret = "file:///" + ret;
-			break;
-		case RuntimePlatform.Android:
-			if (!isWWW)
-			{
-				//ret = "file:///" + Application.streamingAssetsPath + "/Android";
-				//ret = Application.streamingAssetsPath + "/Android";
-				// 处理下CreateFromFile的路径
-				//ret = ret.Replace("jar:file:", "").Replace(".apk!/", ".apk!");
-				ret = Application.dataPath + "!assets/" + "Android";
-			} else
-			{
-				ret = Application.streamingAssetsPath + "/Android";
-			}
-			break;
-		case RuntimePlatform.IPhonePlayer:
-			ret = Application.streamingAssetsPath + "/IOS";
-			break;
-		default:
-			ret = Application.streamingAssetsPath;
-			break;
-		}
-
-		ret += "/AssetBundles.xml";
-		return ret;*/
 	}
-
-	/*
-	private static string _cBundleRootPath = "Assets/";
-	private string GetBundlePath(string path)
-	{
-		if (string.IsNullOrEmpty (path))
-			return string.Empty;
-		int idx = path.IndexOf (_cBundleRootPath);
-		if (idx < 0)
-			return path;
-		string ret = path.Substring (idx + _cBundleRootPath.Length);
-		return ret;
-	}*/
-
-	/*
-	public void LoadXml()
-	{
-		string fileName = GetXmlFileName (true);
-		if (string.IsNullOrEmpty (fileName)) {
-			return;
-		}
-
-		WWW www = new WWW (fileName);
-
-		if (www == null) {
-			return;
-		}
-
-		if (!www.isDone) {
-			return;
-		}
-
-		byte[] bytes = www.bytes;
-		www.Dispose ();
-		www = null;
-
-		if ((bytes == null) || (bytes.Length <= 0)) {
-			return;
-		}
-
-		fileName = GetXmlFileName (false);
-
-		string str = System.Text.Encoding.UTF8.GetString (bytes);
-		XMLParser parser = new XMLParser ();
-		XMLNode rootNode = parser.Parse (str);
-		if (rootNode == null) {
-			return;
-		}
-
-		XMLNodeList assetBundles = rootNode.GetNodeList("AssetBundles");
-		if ((assetBundles == null) || (assetBundles.Count <= 0)) {
-			return;
-		}
-
-		rootNode = assetBundles [0] as XMLNode;
-		if (rootNode == null) {
-			return;
-		}
-
-		XMLNodeList nodeList = rootNode.GetNodeList ("AssetBundle");
-		if (nodeList == null) {
-			return;
-		}
-
-		 string assetFilePath = Path.GetDirectoryName (fileName);
-		//string assetFilePath = GetBundlePath(Path.GetDirectoryName (fileName));
-
-		// AssetBundle
-		for (int i = 0; i < nodeList.Count; ++i) {
-			XMLNode node = nodeList[i] as XMLNode;
-			if (node == null)
-				continue;
-
-			XMLNodeList subFiles = node.GetNodeList("SubFiles");
-			if ((subFiles == null) || (subFiles.Count <= 0))
-				continue;
-
-			XMLNode subFilesNode = subFiles[0] as XMLNode;
-			if (subFilesNode == null)
-				continue;
-			subFiles = subFilesNode.GetNodeList("SubFile");
-			if ((subFiles == null) || (subFiles.Count <= 0))
-				continue;
-
-			// 1.Attribe
-			string localFileName = node.GetValue("@fileName");
-			string assetBundleFileName = string.Format("{0}/{1}", assetFilePath, localFileName);
-			string compressTypeStr = node.GetValue("@compressType");
-			AssetCompressType compressType = AssetCompressType.astNone;
-			if (!string.IsNullOrEmpty(compressTypeStr))
-			{
-				int compressValue;
-				if (int.TryParse(compressTypeStr, out compressValue))
-					compressType = (AssetCompressType)compressValue;
-			}
-			AssetInfo asset = new AssetInfo(assetBundleFileName);
-			asset._SetCompressType(compressType);
-			// 额外添加一个文件名的映射
-			AddFileAssetMap(assetBundleFileName, asset);
-			// 
-			// 2.SubFiles
-			for (int j = 0; j < subFiles.Count; ++j)
-			{
-				XMLNode subFile = subFiles[j] as XMLNode;
-				if (subFile == null)
-					continue;
-				string subFileName = subFile.GetValue("@fileName");
-				if (string.IsNullOrEmpty(subFileName))
-					continue;
-
-				int hashCode;
-				string hashCodeStr = subFile.GetValue("@hashCode");
-				if (string.IsNullOrEmpty(hashCodeStr))
-					hashCode = Animator.StringToHash(subFileName);
-				else
-				{
-					if (!int.TryParse(hashCodeStr, out hashCode))
-						hashCode = Animator.StringToHash(subFileName);
-				}
-
-				asset._AddSubFile(hashCode);
-				AddFileAssetMap(subFileName, asset);
-			}
-			// 3.DependFiles
-			XMLNodeList dependFiles = node.GetNodeList("DependFiles");
-			if ((dependFiles != null) && (dependFiles.Count > 0))
-			{
-				XMLNode depnedFilesNode = dependFiles[0] as XMLNode;
-				if (depnedFilesNode != null)
-				{
-					dependFiles = depnedFilesNode.GetNodeList("DependFile");
-					if (dependFiles != null)
-					{
-						for (int j = 0; j < dependFiles.Count; ++j)
-						{
-							XMLNode dependFile = dependFiles[j] as XMLNode;
-							if (dependFile == null)
-							{
-								return;
-							}
-							string dependFileName = string.Format("{0}/{1}", assetFilePath, dependFile.GetValue("@fileName"));
-							asset._AddDependFile(dependFileName);
-						}
-					}
-				}
-	
-			}
-		}
-
-	//	GC.Collect ();
-	}*/
 
 	public AssetLoader()
 	{
@@ -2448,15 +2247,15 @@ public class AssetLoader: IResourceLoader
 	//	GC.Collect ();
 	}
 
-	private void LoadXml(byte[] bytes)
+	private void LoadXml(string bytes)
 	{
-		if ((bytes == null) || (bytes.Length <= 0)) {
+		if (string.IsNullOrEmpty(bytes)) {
 			return;
 		}
 
 	//	string fileName = GetXmlFileName (false);
 		
-		string str = System.Text.Encoding.UTF8.GetString (bytes);
+		string str = bytes;
 		XMLParser parser = new XMLParser ();
 		XMLNode rootNode = parser.Parse (str);
 		if (rootNode == null) {
@@ -2630,10 +2429,10 @@ public class AssetLoader: IResourceLoader
 			m_LastUsedTime = curTime;
 #endif
 
-#if USE_DEP_BINARY
-			LoadBinary(mXmlLoaderTask.ByteData);
+#if USE_DEP_BINARY            
+            LoadBinary(mXmlLoaderTask.ByteData);
 #else
-			LoadXml(mXmlLoaderTask.ByteData);
+			LoadXml(mXmlLoaderTask.Text);
 #endif
 
 #if !USE_DEP_BINARY_AB
@@ -2641,7 +2440,7 @@ public class AssetLoader: IResourceLoader
 			Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());
 #endif
 
-			if (mConfigLoaderEvent != null)
+            if (mConfigLoaderEvent != null)
 				mConfigLoaderEvent (true);
 		}
 
