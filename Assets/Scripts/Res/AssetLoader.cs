@@ -1751,7 +1751,8 @@ public class AssetLoader: IResourceLoader
 		TextAsset asset = LoadObject<TextAsset> (TransFileName(fileName, ".bytes"), cacheType);
 		if (asset == null)
 			return null;
-		return System.Text.Encoding.UTF8.GetString (asset.bytes);
+        //return System.Text.Encoding.UTF8.GetString (asset.bytes);
+        return asset.text;
 	}
 
 	public override byte[] LoadBytes(string fileName, ResourceCacheType cacheType)

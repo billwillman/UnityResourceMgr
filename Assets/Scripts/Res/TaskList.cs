@@ -555,7 +555,8 @@ public class WWWFileLoadTask: ITask
 				mProgress = 1.0f;
 				TaskOk ();
 				mByteData = mLoader.bytes;
-			} else
+                mText = mLoader.text;
+            } else
 				TaskFail ();
 
 			mLoader.Dispose ();
@@ -575,6 +576,12 @@ public class WWWFileLoadTask: ITask
 			return mByteData;
 		}
 	}
+
+    public string Text {
+        get {
+            return mText;
+        }
+    }
 
 	public AssetBundle Bundle
 	{
@@ -616,7 +623,8 @@ public class WWWFileLoadTask: ITask
 		UserData = null;
 		_Owner = null;
 		mByteData = null;
-		mBundle = null;
+        mText = string.Empty;
+        mBundle = null;
         IsUsedCached = false;
 	}
 
@@ -660,6 +668,7 @@ public class WWWFileLoadTask: ITask
 
 	private WWW mLoader = null;
 	private byte[] mByteData = null;
+    private string mText = string.Empty;
 	private AssetBundle mBundle = null;
 	private string mWWWFileName = string.Empty;
 	private ThreadPriority mPriority = ThreadPriority.Normal;
