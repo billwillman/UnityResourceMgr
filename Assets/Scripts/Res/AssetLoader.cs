@@ -2172,6 +2172,73 @@ public class AssetLoader: IResourceLoader
 		return info.FileName;
 	}
 
+    private void LoadFlatBuffer(byte[] bytes) {
+        if ((bytes == null) || (bytes.Length <= 0)) {
+            return;
+        }
+
+        FlatBuffers.ByteBuffer buffer = new FlatBuffers.ByteBuffer(bytes);
+        var tree = AssetBundleFlatBuffer.AssetBundleTree.GetRootAsAssetBundleTree(buffer);
+        var header = tree.FileHeader.GetValueOrDefault();
+
+        Dictionary<string, string> fileRealMap = null;
+
+        for (int i = 0; i < header.AbFileCount; ++i) {
+            var assetBundleInfo = tree.AssetBundles(i).GetValueOrDefault();
+            var abHeader = assetBundleInfo.FileHeader.GetValueOrDefault();
+            AssetCompressType compressType = (AssetCompressType)abHeader.CompressType;
+            bool isUseCreateFromFile = compressType == AssetCompressType.astNone
+#if USE_LOADFROMFILECOMPRESS
+                                                        || compressType == AssetCompressType.astUnityLzo
+
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+                                                        || compressType == AssetCompressType.astUnityZip
+#endif
+
+#endif
+                                                        ;
+
+            string assetBundleFileName = GetCheckFileName(ref fileRealMap, abHeader.AbFileName,
+                                                            false, isUseCreateFromFile);
+
+            AssetInfo asset;
+            if (!mAssetFileNameMap.TryGetValue(assetBundleFileName, out asset)) {
+                asset = new AssetInfo(assetBundleFileName);
+                asset._SetCompressType(compressType);
+                // 额外添加一个文件名的映射
+                AddFileAssetMap(assetBundleFileName, asset);
+            } else {
+                ;
+            }
+
+            // 子文件
+            for (int j = 0; j < abHeader.SubFileCount; ++j) {
+                var subInfo = assetBundleInfo.SubFiles(j).GetValueOrDefault();
+                string subFileName = subInfo.FileName;
+                if (string.IsNullOrEmpty(subFileName))
+                    continue;
+                asset._AddSubFile(subFileName);
+                AddFileAssetMap(subFileName, asset);
+                if (!string.IsNullOrEmpty(subInfo.ShaderName)) {
+                    if (!mShaderNameMap.ContainsKey(subInfo.ShaderName))
+                        mShaderNameMap.Add(subInfo.ShaderName, subInfo.FileName);
+                    else {
+                        Debug.LogWarningFormat("ShaderName: {0} has exists!!!", subInfo.ShaderName);
+                    }
+                }
+            }
+
+            // 依赖
+            for (int j = 0; j < abHeader.DependFileCount; ++j) {
+                var depInfo = assetBundleInfo.DependFiles(j).GetValueOrDefault();
+                string dependFileName = GetCheckFileName(ref fileRealMap, depInfo.AbFileName,
+                                                            false, isUseCreateFromFile);
+                asset._AddDependFile(dependFileName, depInfo.RefCount);
+            }
+        }
+
+    }
+
 	//二进制
 	private void LoadBinary(byte[] bytes)
 	{
@@ -2429,8 +2496,12 @@ public class AssetLoader: IResourceLoader
 			m_LastUsedTime = curTime;
 #endif
 
-#if USE_DEP_BINARY            
+#if USE_DEP_BINARY
+#if USE_FLATBUFFER
+            LoadFlatBuffer(mXmlLoaderTask.ByteData);
+#else
             LoadBinary(mXmlLoaderTask.ByteData);
+#endif
 #else
 			LoadXml(mXmlLoaderTask.Text);
 #endif
@@ -2502,9 +2573,12 @@ public class AssetLoader: IResourceLoader
 			TextAsset asset = bundle.LoadAsset<TextAsset>(name);
 			if (asset != null)
 			{
-				LoadBinary(asset.bytes);
-	
-				usedTime = Time.realtimeSinceStartup - startTime;
+#if USE_FLATBUFFER
+                LoadFlatBuffer(asset.bytes);
+#else
+                LoadBinary(asset.bytes);
+#endif
+                usedTime = Time.realtimeSinceStartup - startTime;
 				Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());
 
 				bundle.Unload(true);
@@ -2542,7 +2616,7 @@ public class AssetLoader: IResourceLoader
 		}
 #endif
 
-	}
+            }
 
 	public bool _ExistsFileName(string localFileName)
 	{

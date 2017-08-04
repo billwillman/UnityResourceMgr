@@ -24,6 +24,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using AutoUpdate;
+using FlatBuffers;
 
 public enum eBuildPlatform
 {
@@ -421,6 +422,60 @@ class AssetBunbleInfo: IDependBinary
 		}
 
 	}
+
+    public Offset<AssetBundleFlatBuffer.AssetBundleInfo> ExportFlatBuffer(FlatBufferBuilder builder, bool isMd5, string outPath) {
+        string bundleFileName;
+        if (isMd5)
+            bundleFileName = this.Md5BundleFileName(outPath);
+        else
+            bundleFileName = this.BundleFileName;
+
+        
+        var abFileHeaderOffset = DependBinaryFile.ExportToABFileHeader(builder, this, bundleFileName);
+        List<Offset<AssetBundleFlatBuffer.SubFileInfo>> subFileOffsetList = new List<Offset<AssetBundleFlatBuffer.SubFileInfo>>();
+        if (SubFileCount > 0) {
+            for (int i = 0; i < SubFileCount; ++i) {
+                string fileName = GetBundleFileName(GetSubFiles(i), true, false);
+                if (string.IsNullOrEmpty(fileName))
+                    continue;
+                string resFileName = AssetBundleBuild.GetXmlFileName(fileName);
+                if (string.IsNullOrEmpty(resFileName))
+                    continue;
+                string shaderName = GetShaderName(resFileName);
+                var offset = DependBinaryFile.ExportToSubFile(builder, resFileName, shaderName);
+                subFileOffsetList.Add(offset);
+            }
+        }
+        VectorOffset subFileVectorOffset = AssetBundleFlatBuffer.AssetBundleInfo.CreateSubFilesVector(builder, subFileOffsetList.ToArray());
+        
+
+        List<Offset<AssetBundleFlatBuffer.DependInfo>> dependInfoOffsetList = new List<Offset<AssetBundleFlatBuffer.DependInfo>>();
+        if (DependFileCount > 0) {
+            for (int i = 0; i < DependFileCount; ++i) {
+                string fileName = GetBundleFileName(GetDependFiles(i), false, true);
+                if (string.IsNullOrEmpty(fileName))
+                    continue;
+                int depCnt = AssetBundleRefHelper.GetAssetBundleRefCount(this, fileName);
+                if (isMd5) {
+                    string filePath = outPath + '/' + fileName;
+                    fileName = AssetBunbleInfo.Md5(filePath);
+                }
+
+                if (depCnt <= 0)
+                    depCnt = 1;
+
+                var offset = DependBinaryFile.ExportToDependFile(builder, fileName, depCnt);
+                dependInfoOffsetList.Add(offset);
+            }
+        }
+        var dependInfoOffsetVector = AssetBundleFlatBuffer.AssetBundleInfo.CreateDependFilesVector(builder, dependInfoOffsetList.ToArray());
+
+        AssetBundleFlatBuffer.AssetBundleInfo.StartAssetBundleInfo(builder);
+        AssetBundleFlatBuffer.AssetBundleInfo.AddFileHeader(builder, abFileHeaderOffset);
+        AssetBundleFlatBuffer.AssetBundleInfo.AddSubFiles(builder, subFileVectorOffset);
+        AssetBundleFlatBuffer.AssetBundleInfo.AddDependFiles(builder, dependInfoOffsetVector);
+        return AssetBundleFlatBuffer.AssetBundleInfo.EndAssetBundleInfo(builder);
+    }
 
 //	private static readonly bool _cIsOnlyFileNameMd5 = true;
 	public void ExportXml(StringBuilder builder, bool isMd5, string outPath)
@@ -2066,6 +2121,54 @@ class AssetBundleMgr
 		}
 	}
 
+    // 存放FlatBuffer里
+    private void ExportFlatBuffers(string exportPath, bool isMd5) {
+        if (string.IsNullOrEmpty(exportPath))
+            return;
+        string fullPath = Path.GetFullPath(exportPath);
+        if (string.IsNullOrEmpty(fullPath))
+            return;
+
+#if USE_DEP_BINARY_AB
+        string fileName = "Assets/AssetBundles.xml";
+#else
+		string fileName = string.Format ("{0}/AssetBundles.xml", fullPath);
+#endif
+        if (System.IO.File.Exists(fileName)) {
+            System.IO.File.Delete(fileName);
+        }
+
+        FlatBufferBuilder flatBuilder = new FlatBufferBuilder(1);
+
+        int abFileCount = mAssetBundleList == null ? 0 : mAssetBundleList.Count;
+        var fileHeaderOffset = DependBinaryFile.ExportFileHeader(flatBuilder, abFileCount);
+
+        List<Offset<AssetBundleFlatBuffer.AssetBundleInfo>> assetBundleFlatBufferList = new List<Offset<AssetBundleFlatBuffer.AssetBundleInfo>>();
+        for (int i = 0; i < mAssetBundleList.Count; ++i) {
+            AssetBunbleInfo info = mAssetBundleList[i];
+            if ((info != null) && info.IsBuilded) {
+                var offset = info.ExportFlatBuffer(flatBuilder, isMd5, fullPath);
+                assetBundleFlatBufferList.Add(offset);
+            }
+        }
+        var assetBundlesVector = AssetBundleFlatBuffer.AssetBundleTree.CreateAssetBundlesVector(flatBuilder, assetBundleFlatBufferList.ToArray());
+
+
+        AssetBundleFlatBuffer.AssetBundleTree.StartAssetBundleTree(flatBuilder);
+        AssetBundleFlatBuffer.AssetBundleTree.AddFileHeader(flatBuilder, fileHeaderOffset);
+        AssetBundleFlatBuffer.AssetBundleTree.AddAssetBundles(flatBuilder, assetBundlesVector);
+        var assetBundleTreeOffset = AssetBundleFlatBuffer.AssetBundleTree.EndAssetBundleTree(flatBuilder);
+        AssetBundleFlatBuffer.AssetBundleTree.FinishAssetBundleTreeBuffer(flatBuilder, assetBundleTreeOffset);
+
+        byte[] buffer = flatBuilder.SizedByteArray();
+        if (buffer != null) {
+            FileStream stream = new FileStream(fileName, FileMode.Create);
+            stream.Write(buffer, 0, buffer.Length);
+            stream.Close();
+            stream.Dispose();
+        }
+    }
+
 	// 导出二进制
 	private void ExportBinarys(string exportPath, bool isMd5)
 	{
@@ -2964,14 +3067,19 @@ class AssetBundleMgr
 			// 是否存在冗余资源，如果有打印出来
 			CheckRongYuRes("Err_RongYu.txt");
 
-		#if USE_DEP_BINARY
-			// 二进制格式
-			ExportBinarys(exportDir, isMd5);
-		#else
+#if USE_DEP_BINARY
+            // 二进制格式
+#if USE_FLATBUFFER
+            ExportFlatBuffers(exportDir, isMd5);
+#else
+            ExportBinarys(exportDir, isMd5);
+#endif
+
+#else
             // export xml
             ExportXml(exportDir, isMd5);
-		#endif
-			
+#endif
+
             AssetDatabase.Refresh();
 
 		#if USE_DEP_BINARY && USE_DEP_BINARY_AB
@@ -3183,13 +3291,17 @@ class AssetBundleMgr
 				BuildPipeline.PopAssetDependencies();
 			}
 
-			#if USE_DEP_BINARY
+#if USE_DEP_BINARY
+#if USE_FLATBUFFER
+            ExportFlatBuffer(exportDir, isMd5);
+#else
 			// 二进制格式
 			ExportBinarys(exportDir, isMd5);
-			#else
+#endif
+#else
 			// export xml
 			ExportXml(exportDir, isMd5);
-			#endif
+#endif
 
 			if (isMd5)
 			{
@@ -3956,11 +4068,11 @@ public static class AssetBundleBuild
 			string allNewProjPath = System.IO.Path.GetFullPath(outPath);
 			if (!System.IO.Directory.Exists(allNewProjPath)) {
 				// Create Unity Project
-			#if UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
 				RunCmd("Unity.exe -quit -batchmode -nographics -createProject " + allNewProjPath);
-			#elif UNITY_EDITOR_OSX
+#elif UNITY_EDITOR_OSX
 				RunCmd("/Application/Unity/Unity.app/Contents/MacOS/Unity -quit -batchmode -nographics -createProject " + allNewProjPath);
-			#endif
+#endif
 			}
 
 			// 读取配置文件
@@ -4763,16 +4875,16 @@ public static class AssetBundleBuild
 				path = Path.GetFullPath (path);
 				if (Directory.Exists (path)) {
 					// svn update
-					#if UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
 					string cmd = string.Format("TortoiseProc.exe /command:update /path:\"{0}\" /closeonend:3", path);
 					RunCmd(cmd);
-					#endif
+#endif
 				} else {
 					// svn checkout
-					#if UNITY_EDITOR_WIN
+#if UNITY_EDITOR_WIN
 					string cmd = string.Format("TortoiseProc.exe /command:checkout /path:\"{0}\" /url:\"{1}/{2}\"", path, url, resPaths[i]);
 					RunCmd(cmd);
-					#endif
+#endif
 				}
 			}
 	}
@@ -4998,7 +5110,7 @@ public static class AssetBundleBuild
 		EditorUtility.DisplayProgressBar("设置Tag中...", tagName, process);
 	}
 
-	#if UNITY_5
+#if UNITY_5
 
 	[MenuItem("Assets/清理所有AssetBundle的Tag")]
 	public static void ClearAllAssetNames()
@@ -5016,7 +5128,7 @@ public static class AssetBundleBuild
         EditorUtility.ClearProgressBar();
 	}
 
-	#endif
+#endif
 
 	private static AssetBundleMgr mMgr = new AssetBundleMgr();
 }
