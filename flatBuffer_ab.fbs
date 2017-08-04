@@ -41,3 +41,5 @@ table AssetBundleTree
 	fileHeader:FileHeader;
 	assetBundles:[AssetBundleInfo];
 }
+
+root_type AssetBundleTree;
