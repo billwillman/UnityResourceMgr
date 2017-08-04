@@ -1,4 +1,4 @@
-namespace ABBuild;
+namespace AssetBundleFlatBuffer;
 
 table FileHeader
 {
@@ -23,13 +23,13 @@ table SubFileInfo
 	shaderName:string;
 }
 
-talbe DependInfo
+table DependInfo
 {
-	string abFileName;
-	int refCount;
+	abFileName:string;
+	refCount:int;
 }
 
-talbe AssetBundleInfo
+table AssetBundleInfo
 {
 	fileHeader:AssetBundleFileHeader;
 	subFiles:[SubFileInfo];
