@@ -11,7 +11,7 @@
 #define USE_HAS_EXT
 #define USE_DEP_BINARY
 #define USE_DEP_BINARY_AB
-//#define USE_DEP_BINARY_HEAD
+#define USE_DEP_BINARY_HEAD
 #define USE_ABFILE_ASYNC
 // 是否使用LoadFromFile读取压缩AB
 #define USE_LOADFROMFILECOMPRESS
@@ -2158,7 +2158,6 @@ public class AssetLoader: IResourceLoader
 		}
 
 		mAssetFileNameMap.Clear();
-        m_AssetMapOffsetMap.Clear ();
         ClearBinaryStream ();
         mShaderNameMap.Clear();
 
@@ -2254,14 +2253,14 @@ public class AssetLoader: IResourceLoader
             m_BinaryStream = null;
         }    
 
+        m_AssetMapOffsetMap.Clear ();
+
         m_FileRealMap = null;
     }
 
     private Dictionary<string, long> m_AssetMapOffsetMap = new Dictionary<string, long> ();
     private void LoadAssetOffsetMap(Stream stream, DependBinaryFile.FileHeader header)
     {
-        m_AssetMapOffsetMap.Clear ();
-
         stream.Seek (header.fileMapOffset, SeekOrigin.Begin);
 
         for (int i = 0; i < header.fileMapCount; ++i) {
@@ -2348,15 +2347,12 @@ public class AssetLoader: IResourceLoader
         if (!DependBinaryFile.CheckFileHeader (header))
             return;
         long offset = header.fileMapOffset;
-        if (offset <= 0)
+        if (offset <= 0) {
+            LoadBinary (bytes);
             return;
-        
-        m_BinaryStream.Seek (offset, SeekOrigin.Begin);
-        for (int i = 0; i < header.fileMapCount; ++i) {
-            string resFileName = FilePathMgr.Instance.ReadString (m_BinaryStream);
-            long abOffset = FilePathMgr.Instance.ReadLong(m_BinaryStream);
-            m_AssetMapOffsetMap [resFileName] = abOffset;
         }
+        
+        LoadAssetOffsetMap (m_BinaryStream, header);
     }
 
 	//二进制
