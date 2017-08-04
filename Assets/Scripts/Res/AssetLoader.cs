@@ -11,6 +11,7 @@
 #define USE_HAS_EXT
 #define USE_DEP_BINARY
 #define USE_DEP_BINARY_AB
+//#define USE_DEP_BINARY_HEAD
 #define USE_ABFILE_ASYNC
 // 是否使用LoadFromFile读取压缩AB
 #define USE_LOADFROMFILECOMPRESS
@@ -1373,8 +1374,9 @@ public class AssetLoader: IResourceLoader
 		//int hashCode = Animator.StringToHash (fileName);
 		AssetInfo asset;
 		//if (!mAssetFileNameMap.TryGetValue(hashCode, out asset))
-		if (!mAssetFileNameMap.TryGetValue(fileName, out asset))
-			asset = null;
+        if (!mAssetFileNameMap.TryGetValue (fileName, out asset)) {
+            asset = LoadABFileInfo (fileName);
+        }
 
 		return asset;
 	}
@@ -2156,6 +2158,8 @@ public class AssetLoader: IResourceLoader
 		}
 
 		mAssetFileNameMap.Clear();
+        m_AssetMapOffsetMap.Clear ();
+        ClearBinaryStream ();
         mShaderNameMap.Clear();
 
     }
@@ -2239,12 +2243,130 @@ public class AssetLoader: IResourceLoader
 
     }
 
+
+    private MemoryStream m_BinaryStream = null;
+    private Dictionary<string, string> m_FileRealMap = null;
+    private void ClearBinaryStream()
+    {
+        if (m_BinaryStream != null) {
+            m_BinaryStream.Close ();
+            m_BinaryStream.Dispose ();
+            m_BinaryStream = null;
+        }    
+
+        m_FileRealMap = null;
+    }
+
+    private Dictionary<string, long> m_AssetMapOffsetMap = new Dictionary<string, long> ();
+    private void LoadAssetOffsetMap(Stream stream, DependBinaryFile.FileHeader header)
+    {
+        m_AssetMapOffsetMap.Clear ();
+
+        stream.Seek (header.fileMapOffset, SeekOrigin.Begin);
+
+        for (int i = 0; i < header.fileMapCount; ++i) {
+            string abFileName = FilePathMgr.Instance.ReadString (stream);
+            long offset = FilePathMgr.Instance.ReadLong (stream);
+            m_AssetMapOffsetMap [abFileName] = offset;
+        }
+    }
+
+    private AssetInfo LoadABFileInfo(string resFileName)
+    {
+        if (m_BinaryStream == null)
+            return null;
+
+        long offset;
+        if (!m_AssetMapOffsetMap.TryGetValue (resFileName, out offset))
+            return null;
+        m_BinaryStream.Seek (offset, SeekOrigin.Begin);
+        DependBinaryFile.ABFileHeader abHeader = DependBinaryFile.LoadABFileHeader (m_BinaryStream);
+        AssetCompressType compressType = (AssetCompressType)abHeader.compressType;
+        bool isUseCreateFromFile = compressType == AssetCompressType.astNone
+            #if USE_LOADFROMFILECOMPRESS
+            || compressType == AssetCompressType.astUnityLzo
+
+            #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+            || compressType == AssetCompressType.astUnityZip
+            #endif
+
+            #endif
+            ;
+
+        string assetBundleFileName = GetCheckFileName(ref m_FileRealMap, abHeader.abFileName, 
+            false, isUseCreateFromFile);
+
+        AssetInfo asset;
+        if (!mAssetFileNameMap.TryGetValue(assetBundleFileName, out asset)) {
+            asset = new AssetInfo(assetBundleFileName);
+            asset._SetCompressType(compressType);
+            // 额外添加一个文件名的映射
+            AddFileAssetMap(assetBundleFileName, asset);
+        }
+        else {
+            ;
+        }
+
+        // 子文件
+        for (int j = 0; j < abHeader.subFileCount; ++j) {
+            DependBinaryFile.SubFileInfo subInfo = DependBinaryFile.LoadSubInfo (m_BinaryStream);
+            string subFileName = subInfo.fileName;
+            if (string.IsNullOrEmpty (subFileName))
+                continue;
+            asset._AddSubFile(subFileName);
+            AddFileAssetMap(subFileName, asset);
+            if (!string.IsNullOrEmpty(subInfo.shaderName)) {
+                if (!mShaderNameMap.ContainsKey(subInfo.shaderName))
+                    mShaderNameMap.Add(subInfo.shaderName, subInfo.fileName);
+                else {
+                    Debug.LogWarningFormat("ShaderName: {0} has exists!!!", subInfo.shaderName);
+                }
+            }
+        }
+
+        // 依赖
+        for (int j = 0; j < abHeader.dependFileCount; ++j) {
+            DependBinaryFile.DependInfo depInfo = DependBinaryFile.LoadDependInfo (m_BinaryStream);
+            string dependFileName = GetCheckFileName(ref m_FileRealMap, depInfo.abFileName,
+                false, isUseCreateFromFile);
+            asset._AddDependFile(dependFileName, depInfo.refCount);
+        }
+
+        return asset;
+    }
+
+    private void LoadBinaryHeader(byte[] bytes)
+    {
+        if ((bytes == null) || (bytes.Length <= 0)) {
+            return;
+        }
+
+        ClearBinaryStream ();
+
+        m_BinaryStream = new MemoryStream (bytes);
+        DependBinaryFile.FileHeader header = DependBinaryFile.LoadFileHeader (m_BinaryStream);
+        if (!DependBinaryFile.CheckFileHeader (header))
+            return;
+        long offset = header.fileMapOffset;
+        if (offset <= 0)
+            return;
+        
+        m_BinaryStream.Seek (offset, SeekOrigin.Begin);
+        for (int i = 0; i < header.fileMapCount; ++i) {
+            string resFileName = FilePathMgr.Instance.ReadString (m_BinaryStream);
+            long abOffset = FilePathMgr.Instance.ReadLong(m_BinaryStream);
+            m_AssetMapOffsetMap [resFileName] = abOffset;
+        }
+    }
+
 	//二进制
 	private void LoadBinary(byte[] bytes)
 	{
 		if ((bytes == null) || (bytes.Length <= 0)) {
 			return;
 		}
+
+        ClearBinaryStream ();
 
 		MemoryStream stream = new MemoryStream (bytes);
 
@@ -2500,7 +2622,11 @@ public class AssetLoader: IResourceLoader
 #if USE_FLATBUFFER
             LoadFlatBuffer(mXmlLoaderTask.ByteData);
 #else
+                #if USE_DEP_BINARY_HEAD
+                LoadBinaryHeader(mXmlLoaderTask.ByteData);
+                #else
             LoadBinary(mXmlLoaderTask.ByteData);
+                #endif
 #endif
 #else
 			LoadXml(mXmlLoaderTask.Text);
@@ -2576,7 +2702,11 @@ public class AssetLoader: IResourceLoader
 #if USE_FLATBUFFER
                 LoadFlatBuffer(asset.bytes);
 #else
+        #if USE_DEP_BINARY_HEAD
+                LoadBinaryHeader(asset.bytes);
+        #else
                 LoadBinary(asset.bytes);
+        #endif
 #endif
                 usedTime = Time.realtimeSinceStartup - startTime;
 				Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());

@@ -182,6 +182,12 @@
      <Compile Include="Assets\NGUI\Scripts\UI\UITexture.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UITooltip.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
+     <Compile Include="Assets\Scripts\AssetBundleFlatBuffer\AssetBundleFileHeader.cs" />
+     <Compile Include="Assets\Scripts\AssetBundleFlatBuffer\AssetBundleInfo.cs" />
+     <Compile Include="Assets\Scripts\AssetBundleFlatBuffer\AssetBundleTree.cs" />
+     <Compile Include="Assets\Scripts\AssetBundleFlatBuffer\DependInfo.cs" />
+     <Compile Include="Assets\Scripts\AssetBundleFlatBuffer\FileHeader.cs" />
+     <Compile Include="Assets\Scripts\AssetBundleFlatBuffer\SubFileInfo.cs" />
      <Compile Include="Assets\Scripts\AutoUpdate\AutoUpdateCfgFile.cs" />
      <Compile Include="Assets\Scripts\AutoUpdate\AutoUpdateCheckVersionState.cs" />
      <Compile Include="Assets\Scripts\AutoUpdate\AutoUpdateFileDownloadState.cs" />
@@ -200,6 +206,14 @@
      <Compile Include="Assets\Scripts\AutoUpdate\HttpPicResponse.cs" />
      <Compile Include="Assets\Scripts\AutoUpdate\ThreadMsgList.cs" />
      <Compile Include="Assets\Scripts\AutoUpdate\ZipTools.cs" />
+     <Compile Include="Assets\Scripts\FlatBuffers\ByteBuffer.cs" />
+     <Compile Include="Assets\Scripts\FlatBuffers\FlatBufferBuilder.cs" />
+     <Compile Include="Assets\Scripts\FlatBuffers\FlatBufferConstants.cs" />
+     <Compile Include="Assets\Scripts\FlatBuffers\IFlatbufferObject.cs" />
+     <Compile Include="Assets\Scripts\FlatBuffers\Offset.cs" />
+     <Compile Include="Assets\Scripts\FlatBuffers\Properties\AssemblyInfo.cs" />
+     <Compile Include="Assets\Scripts\FlatBuffers\Struct.cs" />
+     <Compile Include="Assets\Scripts\FlatBuffers\Table.cs" />
      <Compile Include="Assets\Scripts\GameMgr.cs" />
      <Compile Include="Assets\Scripts\Main.cs" />
      <Compile Include="Assets\Scripts\Res\AssetCache.cs" />
@@ -263,6 +277,7 @@
      <None Include="Assets\StreamingAssets\Android\version.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Masked 3.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored 1.shader" />
+     <None Include="Assets\AssetBundles.xml" />
      <None Include="Assets\NGUI\Examples\Atlases\Fantasy\Fantasy Font - Normal.txt" />
      <None Include="Assets\Plugins\Android\res\values-v21\styles.xml" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored 3.shader" />
@@ -279,6 +294,7 @@
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Text.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed 3.shader" />
+     <None Include="Assets\md5Find.txt" />
      <None Include="Assets\NGUI\Examples\Shaders\Unlit - Additive Colored.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Masked.shader" />
      <None Include="Assets\NGUI\Examples\Atlases\Refractive\Refractive Font - Header.txt" />

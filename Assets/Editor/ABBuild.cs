@@ -25,6 +25,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using AutoUpdate;
 using FlatBuffers;
+using Utils;
 
 public enum eBuildPlatform
 {
@@ -60,6 +61,11 @@ class AssetBunbleInfo: IDependBinary
 		get;
 		set;
 	}
+
+    public long FileOffset {
+        get;
+        set;
+    }
 
 	public int CompressType {
 		get;
@@ -371,17 +377,25 @@ class AssetBunbleInfo: IDependBinary
         return ret;
     }
 
+    public static string GetSubFileNameFormat(string subFileName)
+    {
+        string fileName = GetBundleFileName (subFileName, true, false);
+        if (string.IsNullOrEmpty (fileName))
+            return string.Empty;
+        string resFileName = AssetBundleBuild.GetXmlFileName(fileName);
+        if (string.IsNullOrEmpty (resFileName))
+            return string.Empty;
+        return resFileName;
+    }
+
     public void ExportBinarySubFilesAndDependFiles(Stream stream, bool isMd5, string outPath) {
         if ((stream == null) || (FileType == AssetBundleFileType.abError))
             return;
 
         if (SubFileCount > 0) {
             for (int i = 0; i < SubFileCount; ++i) {
-                string fileName = GetBundleFileName(GetSubFiles(i), true, false);
-                if (string.IsNullOrEmpty(fileName))
-                    continue;
-                string resFileName = AssetBundleBuild.GetXmlFileName(fileName);
-                if (string.IsNullOrEmpty(resFileName))
+                string resFileName = GetSubFileNameFormat(GetSubFiles(i));
+                if (string.IsNullOrEmpty (resFileName))
                     continue;
                 string shaderName = GetShaderName(resFileName);
                 DependBinaryFile.ExportToSubFile(stream, resFileName, shaderName);
@@ -424,6 +438,7 @@ class AssetBunbleInfo: IDependBinary
 
 	public void ExportBinary(Stream stream, bool isMd5, string outPath)
 	{
+        FileOffset = stream.Position;
         ExportFileHeader(stream, isMd5, outPath);
         ExportBinarySubFilesAndDependFiles(stream, isMd5, outPath);
     }
@@ -2202,9 +2217,39 @@ class AssetBundleMgr
 				info.ExportBinary(stream, isMd5, fullPath);
 		}
 
+        long abFileMapOffset = stream.Position;
+        long fileMapCnt = AssetBundleMapToBinaryFile (stream);
+
+        stream.Seek (0, SeekOrigin.Begin);
+        DependBinaryFile.ExportFileHeader (stream, abFileCount, DependBinaryFile.FLAG_UNCOMPRESS, abFileMapOffset, fileMapCnt);
+
+
 		stream.Close ();
 		stream.Dispose ();
 	}
+
+    private long AssetBundleMapToBinaryFile(Stream stream)
+    {
+        long cnt = 0;
+        for (int i = 0; i < mAssetBundleList.Count; ++i) {
+            var info = mAssetBundleList [i];
+            if (info != null) {
+                for (int j = 0; j < info.SubFileCount; ++j) {
+                    string fileName = info.GetSubFiles (j);
+                    if (!string.IsNullOrEmpty (fileName)) {
+                        fileName = AssetBunbleInfo.GetSubFileNameFormat(fileName);
+                        if (string.IsNullOrEmpty(fileName))
+                            continue;
+                        FilePathMgr.Instance.WriteString (stream, fileName);
+                        ++cnt;
+                        FilePathMgr.Instance.WriteLong (stream, info.FileOffset);
+                    }
+                }
+            }
+        }
+
+        return cnt;
+    }
 
 	// export xml
 	private void ExportXml(string exportPath, bool isMd5 = false)

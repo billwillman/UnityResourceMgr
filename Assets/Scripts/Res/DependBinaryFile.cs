@@ -59,11 +59,16 @@ public class DependBinaryFile
 		// 标记
 		public int Flag;
 
+        public long fileMapCount;
+        public long fileMapOffset;
+
 		internal void SaveToStream(Stream stream)
 		{
 			FilePathMgr.Instance.WriteString(stream, version);
 			FilePathMgr.Instance.WriteInt(stream, abFileCount);
 			FilePathMgr.Instance.WriteInt(stream, Flag);
+            FilePathMgr.Instance.WriteLong (stream, fileMapCount);
+            FilePathMgr.Instance.WriteLong (stream, fileMapOffset);
 		}
 
         internal Offset<AssetBundleFlatBuffer.FileHeader> SaveToFlatBuffer(FlatBufferBuilder builder) {
@@ -80,6 +85,8 @@ public class DependBinaryFile
 			version = FilePathMgr.Instance.ReadString (stream);
 			abFileCount = FilePathMgr.Instance.ReadInt (stream);
 			Flag = FilePathMgr.Instance.ReadInt (stream);
+            fileMapCount = FilePathMgr.Instance.ReadLong (stream);
+            fileMapOffset = FilePathMgr.Instance.ReadLong (stream);
 		}
 	}
 
@@ -214,12 +221,14 @@ public class DependBinaryFile
 
 #if UNITY_EDITOR
 
-	public static void ExportFileHeader(Stream Stream, int abFileCount, int flag)
+    public static void ExportFileHeader(Stream Stream, int abFileCount, int flag, long fileMapOffset = 0, long fileMapCount = 0)
 	{
 		FileHeader header = new FileHeader();
 		header.version = _CurrVersion;
 		header.abFileCount = abFileCount;
 		header.Flag = flag;
+        header.fileMapOffset = fileMapOffset;
+        header.fileMapCount = fileMapCount;
 		header.SaveToStream(Stream);
 	}
 
