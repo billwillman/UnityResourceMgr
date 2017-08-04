@@ -1,0 +1,43 @@
+namespace ABBuild;
+
+table FileHeader
+{
+	version:string;
+	abFileCount:int;
+	Flag:int;
+}
+
+table AssetBundleFileHeader
+{
+	subFileCount:int;
+	dependFileCount:int;
+	isScene:bool;
+	isMainAsset:bool;
+	compressType:int;
+	abFileName:string;
+}
+
+table SubFileInfo
+{
+	fileName:string;
+	shaderName:string;
+}
+
+talbe DependInfo
+{
+	string abFileName;
+	int refCount;
+}
+
+talbe AssetBundleInfo
+{
+	fileHeader:AssetBundleFileHeader;
+	subFiles:[SubFileInfo];
+	dependFiles:[DependInfo];
+}
+
+table AssetBundleTree
+{
+	fileHeader:FileHeader;
+	assetBundles:[AssetBundleInfo];
+}
