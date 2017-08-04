@@ -371,57 +371,62 @@ class AssetBunbleInfo: IDependBinary
         return ret;
     }
 
-	public void ExportBinary(Stream stream, bool isMd5, string outPath)
-	{
-		if ((stream == null) || (FileType == AssetBundleFileType.abError))
-			return;
+    public void ExportBinarySubFilesAndDependFiles(Stream stream, bool isMd5, string outPath) {
+        if ((stream == null) || (FileType == AssetBundleFileType.abError))
+            return;
 
-		string bundleFileName;
-		if (isMd5)
-			bundleFileName = this.Md5BundleFileName(outPath);
-		else
-			bundleFileName = this.BundleFileName;
-		if (string.IsNullOrEmpty (bundleFileName))
-			return;
-
-		DependBinaryFile.ExportToABFileHeader(stream, this, bundleFileName);
-		if (SubFileCount > 0)
-		{
-			for (int i = 0; i < SubFileCount; ++i)
-			{
-				string fileName = GetBundleFileName(GetSubFiles(i), true, false);
-				if (string.IsNullOrEmpty(fileName))
-					continue;
-				string resFileName = AssetBundleBuild.GetXmlFileName(fileName);
-				if (string.IsNullOrEmpty(resFileName))
-					continue;
+        if (SubFileCount > 0) {
+            for (int i = 0; i < SubFileCount; ++i) {
+                string fileName = GetBundleFileName(GetSubFiles(i), true, false);
+                if (string.IsNullOrEmpty(fileName))
+                    continue;
+                string resFileName = AssetBundleBuild.GetXmlFileName(fileName);
+                if (string.IsNullOrEmpty(resFileName))
+                    continue;
                 string shaderName = GetShaderName(resFileName);
                 DependBinaryFile.ExportToSubFile(stream, resFileName, shaderName);
-			}
-		}
+            }
+        }
 
-		if (DependFileCount > 0)
-		{
-			for (int i = 0; i < DependFileCount; ++i)
-			{
-				string fileName = GetBundleFileName(GetDependFiles(i), false, true);
-				if (string.IsNullOrEmpty(fileName))
-					continue;
-				int depCnt = AssetBundleRefHelper.GetAssetBundleRefCount(this, fileName);
-				if (isMd5)
-				{
-					string filePath = outPath + '/' + fileName;
-					fileName = AssetBunbleInfo.Md5(filePath);
-				}
+        if (DependFileCount > 0) {
+            for (int i = 0; i < DependFileCount; ++i) {
+                string fileName = GetBundleFileName(GetDependFiles(i), false, true);
+                if (string.IsNullOrEmpty(fileName))
+                    continue;
+                int depCnt = AssetBundleRefHelper.GetAssetBundleRefCount(this, fileName);
+                if (isMd5) {
+                    string filePath = outPath + '/' + fileName;
+                    fileName = AssetBunbleInfo.Md5(filePath);
+                }
 
-				if (depCnt <= 0)
-					depCnt = 1;
+                if (depCnt <= 0)
+                    depCnt = 1;
 
-				DependBinaryFile.ExportToDependFile(stream, fileName, depCnt);
-			}	
-		}
+                DependBinaryFile.ExportToDependFile(stream, fileName, depCnt);
+            }
+        }
+    }
 
-	}
+    public void ExportFileHeader(Stream stream, bool isMd5, string outPath) {
+        if ((stream == null) || (FileType == AssetBundleFileType.abError))
+            return;
+
+        string bundleFileName;
+        if (isMd5)
+            bundleFileName = this.Md5BundleFileName(outPath);
+        else
+            bundleFileName = this.BundleFileName;
+        if (string.IsNullOrEmpty(bundleFileName))
+            return;
+
+        DependBinaryFile.ExportToABFileHeader(stream, this, bundleFileName);
+    }
+
+	public void ExportBinary(Stream stream, bool isMd5, string outPath)
+	{
+        ExportFileHeader(stream, isMd5, outPath);
+        ExportBinarySubFilesAndDependFiles(stream, isMd5, outPath);
+    }
 
     public Offset<AssetBundleFlatBuffer.AssetBundleInfo> ExportFlatBuffer(FlatBufferBuilder builder, bool isMd5, string outPath) {
         string bundleFileName;
