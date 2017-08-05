@@ -2242,7 +2242,7 @@ public class AssetLoader: IResourceLoader
 
     }
 
-
+    //-----分块加载AssetBundles.xml
     private MemoryStream m_BinaryStream = null;
     private Dictionary<string, string> m_FileRealMap = null;
     private void ClearBinaryStream()
@@ -2364,6 +2364,8 @@ public class AssetLoader: IResourceLoader
         
         LoadAssetOffsetMap (m_BinaryStream, header);
     }
+
+    //------------------------
 
 	//二进制
 	private void LoadBinary(byte[] bytes)
