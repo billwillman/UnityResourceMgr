@@ -2254,11 +2254,13 @@ public class AssetLoader: IResourceLoader
         }    
 
         m_AssetMapOffsetMap.Clear ();
+        m_OffsetAssetInfoMap.Clear ();
 
         m_FileRealMap = null;
     }
 
     private Dictionary<string, long> m_AssetMapOffsetMap = new Dictionary<string, long> ();
+    private Dictionary<long, AssetInfo> m_OffsetAssetInfoMap = new Dictionary<long, AssetInfo> ();
     private void LoadAssetOffsetMap(Stream stream, DependBinaryFile.FileHeader header)
     {
         stream.Seek (header.fileMapOffset, SeekOrigin.Begin);
@@ -2278,6 +2280,10 @@ public class AssetLoader: IResourceLoader
         long offset;
         if (!m_AssetMapOffsetMap.TryGetValue (resFileName, out offset))
             return null;
+        AssetInfo ret;
+        if (m_OffsetAssetInfoMap.TryGetValue (offset, out ret))
+            return ret;
+        
         m_BinaryStream.Seek (offset, SeekOrigin.Begin);
         DependBinaryFile.ABFileHeader abHeader = DependBinaryFile.LoadABFileHeader (m_BinaryStream);
         AssetCompressType compressType = (AssetCompressType)abHeader.compressType;
@@ -2329,6 +2335,10 @@ public class AssetLoader: IResourceLoader
             string dependFileName = GetCheckFileName(ref m_FileRealMap, depInfo.abFileName,
                 false, isUseCreateFromFile);
             asset._AddDependFile(dependFileName, depInfo.refCount);
+        }
+
+        if (asset != null) {
+            m_OffsetAssetInfoMap.Add (offset, asset);
         }
 
         return asset;
