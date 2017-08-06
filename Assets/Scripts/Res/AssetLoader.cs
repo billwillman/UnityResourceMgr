@@ -2383,13 +2383,18 @@ public class AssetLoader: IResourceLoader
 		MemoryStream stream = new MemoryStream (bytes);
 
 		DependBinaryFile.FileHeader header = DependBinaryFile.LoadFileHeader (stream);
+		/*
 		if (!DependBinaryFile.CheckFileHeaderD01(header)) {
                 // 兼容
                 if (DependBinaryFile.CheckFileHeader(header))
                     LoadBinaryHeader(bytes);
                 return;
             }
-		
+		*/
+		if (!DependBinaryFile.CheckFileHeader(header) && 
+                !DependBinaryFile.CheckFileHeaderD01(header))
+                return;
+				
 		Dictionary<string, string> fileRealMap = null;
 		
 		for (int i = 0; i < header.abFileCount; ++i) {
