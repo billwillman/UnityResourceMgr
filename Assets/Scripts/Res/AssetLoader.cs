@@ -1375,7 +1375,8 @@ public class AssetLoader: IResourceLoader
 		AssetInfo asset;
 		//if (!mAssetFileNameMap.TryGetValue(hashCode, out asset))
         if (!mAssetFileNameMap.TryGetValue (fileName, out asset)) {
-            asset = LoadABFileInfo (fileName);
+            // asset = LoadABFileInfo (fileName);
+            return null;
         }
 
 		return asset;
@@ -2158,7 +2159,7 @@ public class AssetLoader: IResourceLoader
 		}
 
 		mAssetFileNameMap.Clear();
-        ClearBinaryStream ();
+      //  ClearBinaryStream ();
         mShaderNameMap.Clear();
 
     }
@@ -2241,7 +2242,8 @@ public class AssetLoader: IResourceLoader
         }
 
     }
-
+ 
+    /*
     //-----分块加载AssetBundles.xml
     private MemoryStream m_BinaryStream = null;
     private Dictionary<string, string> m_FileRealMap = null;
@@ -2343,42 +2345,44 @@ public class AssetLoader: IResourceLoader
 
         return asset;
     }
+   
+  private void LoadBinaryHeader(byte[] bytes)
+  {
+      if ((bytes == null) || (bytes.Length <= 0)) {
+          return;
+      }
 
-    private void LoadBinaryHeader(byte[] bytes)
-    {
-        if ((bytes == null) || (bytes.Length <= 0)) {
-            return;
-        }
+      ClearBinaryStream ();
 
-        ClearBinaryStream ();
+      m_BinaryStream = new MemoryStream (bytes);
+      DependBinaryFile.FileHeader header = DependBinaryFile.LoadFileHeader (m_BinaryStream);
+      if (!DependBinaryFile.CheckFileHeader(header)) {
 
-        m_BinaryStream = new MemoryStream (bytes);
-        DependBinaryFile.FileHeader header = DependBinaryFile.LoadFileHeader (m_BinaryStream);
-        if (!DependBinaryFile.CheckFileHeader(header)) {
-                // 兼容
-                if (DependBinaryFile.CheckFileHeaderD01(header))
-                    LoadBinary(bytes);
-                return;
-            }
-        long offset = header.fileMapOffset;
-        if (offset <= 0) {
-            LoadBinary (bytes);
-            return;
-        }
-        
-        LoadAssetOffsetMap (m_BinaryStream, header);
-    }
+              // 兼容
+              if (DependBinaryFile.CheckFileHeaderD01(header))
+                  LoadBinary(bytes);
+
+              return;
+          }
+      long offset = header.fileMapOffset;
+      if (offset <= 0) {
+          LoadBinary (bytes);
+          return;
+      }
+
+      LoadAssetOffsetMap (m_BinaryStream, header);
+  } */
 
     //------------------------
 
-	//二进制
-	private void LoadBinary(byte[] bytes)
+    //二进制
+    private void LoadBinary(byte[] bytes)
 	{
 		if ((bytes == null) || (bytes.Length <= 0)) {
 			return;
 		}
 
-        ClearBinaryStream ();
+      //  ClearBinaryStream ();
 
 		MemoryStream stream = new MemoryStream (bytes);
 
@@ -2391,8 +2395,8 @@ public class AssetLoader: IResourceLoader
                 return;
             }
 		*/
-		if (!DependBinaryFile.CheckFileHeader(header) && 
-                !DependBinaryFile.CheckFileHeaderD01(header))
+		if (!DependBinaryFile.CheckFileHeader(header) /*&& 
+                !DependBinaryFile.CheckFileHeaderD01(header)*/)
                 return;
 				
 		Dictionary<string, string> fileRealMap = null;
