@@ -85,6 +85,12 @@ public class DependBinaryFile
 			version = FilePathMgr.Instance.ReadString (stream);
 			abFileCount = FilePathMgr.Instance.ReadInt (stream);
 			Flag = FilePathMgr.Instance.ReadInt (stream);
+            if (version == _D01Version) {
+                // 兼容
+                fileMapCount = 0;
+                fileMapOffset = 0;
+                return;
+            }
             fileMapCount = FilePathMgr.Instance.ReadLong (stream);
             fileMapOffset = FilePathMgr.Instance.ReadLong (stream);
 		}
@@ -213,6 +219,10 @@ public class DependBinaryFile
 		info.LoadFromStream (stream);
 		return info;
 	}
+	
+	public static bool CheckFileHeaderD01(FileHeader header) {
+            return string.Compare(header.version, _D01Version) == 0;
+        }
 
 	public static bool CheckFileHeader(FileHeader header)
 	{
@@ -298,7 +308,8 @@ public class DependBinaryFile
 
 #endif
 
-	private static readonly string _CurrVersion = "_D01";
+	private static readonly string _CurrVersion = "_D02";
+	private static readonly string _D01Version = "_D01";
 	public static readonly int FLAG_UNCOMPRESS = 0x0;
     public static readonly int FLAG_FLATBUFFER = 0x1;
 }

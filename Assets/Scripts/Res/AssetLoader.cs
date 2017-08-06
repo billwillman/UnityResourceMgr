@@ -2354,8 +2354,12 @@ public class AssetLoader: IResourceLoader
 
         m_BinaryStream = new MemoryStream (bytes);
         DependBinaryFile.FileHeader header = DependBinaryFile.LoadFileHeader (m_BinaryStream);
-        if (!DependBinaryFile.CheckFileHeader (header))
-            return;
+        if (!DependBinaryFile.CheckFileHeader(header)) {
+                // 兼容
+                if (DependBinaryFile.CheckFileHeaderD01(header))
+                    LoadBinary(bytes);
+                return;
+            }
         long offset = header.fileMapOffset;
         if (offset <= 0) {
             LoadBinary (bytes);
@@ -2379,8 +2383,12 @@ public class AssetLoader: IResourceLoader
 		MemoryStream stream = new MemoryStream (bytes);
 
 		DependBinaryFile.FileHeader header = DependBinaryFile.LoadFileHeader (stream);
-		if (!DependBinaryFile.CheckFileHeader (header))
-			return;
+		if (!DependBinaryFile.CheckFileHeaderD01(header)) {
+                // 兼容
+                if (DependBinaryFile.CheckFileHeader(header))
+                    LoadBinaryHeader(bytes);
+                return;
+            }
 		
 		Dictionary<string, string> fileRealMap = null;
 		
