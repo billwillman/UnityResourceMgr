@@ -11,7 +11,7 @@
 #define USE_HAS_EXT
 #define USE_DEP_BINARY
 #define USE_DEP_BINARY_AB
-#define USE_DEP_BINARY_HEAD
+//#define USE_DEP_BINARY_HEAD
 #define USE_ABFILE_ASYNC
 // 是否使用LoadFromFile读取压缩AB
 #define USE_LOADFROMFILECOMPRESS
