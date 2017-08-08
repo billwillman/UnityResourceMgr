@@ -2647,11 +2647,11 @@ public class AssetLoader: IResourceLoader
 #if USE_FLATBUFFER
             LoadFlatBuffer(mXmlLoaderTask.ByteData);
 #else
-                #if USE_DEP_BINARY_HEAD
-                LoadBinaryHeader(mXmlLoaderTask.ByteData);
-                #else
+              //  #if USE_DEP_BINARY_HEAD
+             //   LoadBinaryHeader(mXmlLoaderTask.ByteData);
+         //       #else
             LoadBinary(mXmlLoaderTask.ByteData);
-                #endif
+          //      #endif
 #endif
 #else
 			LoadXml(mXmlLoaderTask.Text);
@@ -2727,11 +2727,11 @@ public class AssetLoader: IResourceLoader
 #if USE_FLATBUFFER
                 LoadFlatBuffer(asset.bytes);
 #else
-        #if USE_DEP_BINARY_HEAD
-                LoadBinaryHeader(asset.bytes);
-        #else
+       // #if USE_DEP_BINARY_HEAD
+      //          LoadBinaryHeader(asset.bytes);
+      //  #else
                 LoadBinary(asset.bytes);
-        #endif
+      //  #endif
 #endif
                 usedTime = Time.realtimeSinceStartup - startTime;
 				Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());

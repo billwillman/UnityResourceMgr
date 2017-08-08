@@ -2217,17 +2217,18 @@ class AssetBundleMgr
 				info.ExportBinary(stream, isMd5, fullPath);
 		}
 
-        long abFileMapOffset = stream.Position;
-        long fileMapCnt = AssetBundleMapToBinaryFile (stream);
+      //  long abFileMapOffset = stream.Position;
+      //  long fileMapCnt = AssetBundleMapToBinaryFile (stream);
 
-        stream.Seek (0, SeekOrigin.Begin);
-        DependBinaryFile.ExportFileHeader (stream, abFileCount, DependBinaryFile.FLAG_UNCOMPRESS, abFileMapOffset, fileMapCnt);
+      //  stream.Seek (0, SeekOrigin.Begin);
+      //  DependBinaryFile.ExportFileHeader (stream, abFileCount, DependBinaryFile.FLAG_UNCOMPRESS, abFileMapOffset, fileMapCnt);
 
 
 		stream.Close ();
 		stream.Dispose ();
 	}
 
+    /*
     private long AssetBundleMapToBinaryFile(Stream stream)
     {
         long cnt = 0;
@@ -2249,7 +2250,7 @@ class AssetBundleMgr
         }
 
         return cnt;
-    }
+    }*/
 
 	// export xml
 	private void ExportXml(string exportPath, bool isMd5 = false)
