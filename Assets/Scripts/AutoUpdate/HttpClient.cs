@@ -469,6 +469,17 @@ namespace NsHttpClient
             }
         }
 
+        private bool DecConnectTimeOut(float delta) {
+            if (delta > 0) {
+                lock (this) {
+                    m_TimeOut -= delta;
+                    return m_TimeOut <= float.Epsilon;
+                }
+            }
+
+            return false;
+        }
+
         private bool DecReadTimeOut(float delta) {
             if (delta > 0) {
                 lock (this) {
@@ -537,31 +548,28 @@ namespace NsHttpClient
 				Clear();
 		}
 
-		// 主线程
-		private void OnTimeOutTime(Timer obj, float timer)
-		{
-			// 408请求超时
-			if (m_Listener != null)
-			{
-				if (m_Listener.Status == HttpListenerStatus.hsWating)
-				{
-                    if (m_Listener != null)
-                        m_Listener.OnError(408);
-				}
-				else
-				{
-				//	lock (m_TimerLock)
-					{
-						StopTimeOutTime();
-                        // 开始读取时间判断
-                        StartReadTimeoutTime();
+        // 主线程
+        private void OnTimeOutTime(Timer obj, float timer) {
+            if (DecConnectTimeOut(0.033f)) {
+                // 408请求超时
+                if (m_Listener != null) {
+                    if (m_Listener.Status == HttpListenerStatus.hsWating) {
+                        if (m_Listener != null)
+                            m_Listener.OnError(408);
+                    } else {
+                        //	lock (m_TimerLock)
+                        {
+                            StopTimeOutTime();
+                            // 开始读取时间判断
+                            StartReadTimeoutTime();
+                        }
+                        return;
                     }
-					return;
-				}
-			} 
-			// HttpHelp is Clear
-			// Dispose();
-		}
+                }
+            }
+            // HttpHelp is Clear
+            // Dispose();
+        }
 
         // 主线程
         private void OnReadTimeoutTime(Timer obj, float timer) {
@@ -611,7 +619,7 @@ namespace NsHttpClient
 		{
 			if (m_TimeOutTimer != null)
 				m_TimeOutTimer.Dispose();
-			m_TimeOutTimer = TimerMgr.Instance.CreateTimer(m_TimeOut, true, true);
+			m_TimeOutTimer = TimerMgr.Instance.CreateTimer(0, true, true);
 			m_TimeOutTimer.AddListener(OnTimeOutTime);
 		}
 
