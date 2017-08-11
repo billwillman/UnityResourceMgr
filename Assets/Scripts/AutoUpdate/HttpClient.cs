@@ -471,7 +471,7 @@ namespace NsHttpClient
             }
         }
 
-        internal void ResetConnectTimeOut() {
+        private void ResetConnectTimeOut() {
             lock (this) {
                 m_CurConnectTime = m_TimeOut;
             }
