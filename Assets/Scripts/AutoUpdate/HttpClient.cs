@@ -356,6 +356,7 @@ namespace NsHttpClient
             m_Listener = listener;
 			m_FilePos = filePos;
             ResetReadTimeOut();
+            ResetConnectTimeOut();
 
             CheckServicePoint();
 			// Get
@@ -461,6 +462,7 @@ namespace NsHttpClient
 			m_TimeOut = 5.0f;
             m_ReadTimeOut = 5.0f;
             ResetReadTimeOut();
+            ResetConnectTimeOut();
         }
 
 		internal void ResetReadTimeOut() {
@@ -469,11 +471,17 @@ namespace NsHttpClient
             }
         }
 
+        internal void ResetConnectTimeOut() {
+            lock (this) {
+                m_CurConnectTime = m_TimeOut;
+            }
+        }
+
         private bool DecConnectTimeOut(float delta) {
             if (delta > 0) {
                 lock (this) {
-                    m_TimeOut -= delta;
-                    return m_TimeOut <= float.Epsilon;
+                    m_CurConnectTime -= delta;
+                    return m_CurConnectTime <= float.Epsilon;
                 }
             }
 
@@ -619,7 +627,8 @@ namespace NsHttpClient
 		{
 			if (m_TimeOutTimer != null)
 				m_TimeOutTimer.Dispose();
-			m_TimeOutTimer = TimerMgr.Instance.CreateTimer(0, true, true);
+            ResetConnectTimeOut();
+            m_TimeOutTimer = TimerMgr.Instance.CreateTimer(0, true, true);
 			m_TimeOutTimer.AddListener(OnTimeOutTime);
 		}
 
@@ -649,6 +658,7 @@ namespace NsHttpClient
 		private float m_TimeOut = 5.0f;
         private float m_ReadTimeOut = 5.0f;
         private float m_CurReadTime = 5.0f;
+        private float m_CurConnectTime = 5.0f;
 		private ITimer m_TimeOutTimer = null;
         private ITimer m_ReadOutTimer = null;
         //	private static System.Object m_TimerLock = new object();
