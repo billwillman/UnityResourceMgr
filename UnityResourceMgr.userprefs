@@ -1,13 +1,20 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Editor/ABBuild.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Res/ResourceMgr.cs">
     <Files>
-      <File FileName="Assets/Editor/ABBuild.cs" Line="3009" Column="9" />
+      <File FileName="Assets/Scripts/Res/AssetLoader.cs" Line="2404" Column="5" />
+      <File FileName="Assets/Scripts/Res/DependBinaryFile.cs" Line="192" Column="16" />
+      <File FileName="Assets/Scripts/AutoUpdate/HttpClient.cs" Line="1" Column="1" />
+      <File FileName="Assets/Editor/ABBuild.cs" Line="2242" Column="38" />
+      <File FileName="Assets/Scripts/Test.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/AutoUpdate/HttpHelper.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Res/FilePathMgr.cs" Line="168" Column="55" />
+      <File FileName="Assets/Scripts/Res/ResourceMgr.cs" Line="390" Column="25" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/sheqiong/UnityResourceMgr/Assets/Editor/ABBuild.cs" line="3005" column="1" />
+      <Breakpoint file="/Users/sheqiong/UnityResourceMgr/Assets/Scripts/Res/DependBinaryFile.cs" line="231" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

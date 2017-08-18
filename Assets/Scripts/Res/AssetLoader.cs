@@ -686,8 +686,11 @@ public class AssetInfo
 		// int hashCode = Animator.StringToHash (fileName);
 		if (!ContainFileNameHash(fileName))
 			return null;
-
+        #if USE_HAS_EXT
+        string realFileName = Path.GetFileName(fileName);
+        #else
 		string realFileName = Path.GetFileNameWithoutExtension(fileName);
+        #endif
 		return mBundle.LoadAssetWithSubAssets<T>(realFileName);
 	}
 
@@ -717,7 +720,11 @@ public class AssetInfo
 		if (!IsVaild ())
 			return null;
 
-		string realFileName = Path.GetFileNameWithoutExtension (fileName);
+        #if USE_HAS_EXT
+        string realFileName = Path.GetFileName(fileName);
+        #else
+        string realFileName = Path.GetFileNameWithoutExtension(fileName);
+        #endif
 
 #if USE_UNITY5_X_BUILD
         UnityEngine.Object ret = mBundle.LoadAsset(realFileName, objType);
@@ -782,7 +789,11 @@ public class AssetInfo
 			return true;
 		}
 
-		string realFileName = Path.GetFileNameWithoutExtension(fileName);
+        #if USE_HAS_EXT
+        string realFileName = Path.GetFileName(fileName);
+        #else
+        string realFileName = Path.GetFileNameWithoutExtension(fileName);
+        #endif
 		AssetBundleRequest request = mBundle.LoadAssetWithSubAssetsAsync<T>(realFileName);
 		if (request == null)
 			return false;
@@ -883,7 +894,11 @@ public class AssetInfo
 			return true;
 		}
 
-		string realFileName = Path.GetFileNameWithoutExtension(fileName);
+        #if USE_HAS_EXT
+        string realFileName = Path.GetFileName(fileName);
+        #else
+        string realFileName = Path.GetFileNameWithoutExtension(fileName);
+        #endif
 #if USE_UNITY5_X_BUILD
         AssetBundleRequest request = mBundle.LoadAssetAsync(realFileName, objType);
 #else
@@ -2720,7 +2735,11 @@ public class AssetLoader: IResourceLoader
 			Debug.LogFormat("加载XML AB时间：{0}", usedTime.ToString());
 			startTime = curTime;
 
-			string name = System.IO.Path.GetFileNameWithoutExtension(fileName);
+        #if USE_HAS_EXT
+            string name = Path.GetFileName(fileName);
+        #else
+        string name = Path.GetFileNameWithoutExtension(fileName);
+        #endif
 			TextAsset asset = bundle.LoadAsset<TextAsset>(name);
 			if (asset != null)
 			{
