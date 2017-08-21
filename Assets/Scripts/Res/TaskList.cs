@@ -515,6 +515,9 @@ public class WWWFileLoadTask: ITask
 			case RuntimePlatform.WindowsPlayer:
 				ret = "file:///" + ret; 
 				break;
+			case RuntimePlatform.IPhonePlayer:
+                ret = "file:///" + ret;
+                break;
 			case RuntimePlatform.Android:
 				ret = ret.Replace("/jar:file:/", "jar:file:///");
 				break;
