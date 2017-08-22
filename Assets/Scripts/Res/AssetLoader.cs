@@ -280,6 +280,7 @@ public class AssetInfo
 	internal void ClearTaskData()
 	{
 		m_EndEvt = null;
+		m_DoCheckTaskEvt = null;
 
 		if (m_Timer != null)
 		{
@@ -314,13 +315,16 @@ public class AssetInfo
 			return false;
 		return task.UserData != null;
 	}
+	private Func<ITask, bool> m_DoCheckTaskEvt = null;
 
 	private void OnTimerEvt(Timer obj, float timer)
 	{
 		if (m_TaskList != null)
 		{
 			//m_TaskList.Process(DoCheckTaskVaild);
-			m_TaskList.ProcessDoneContinue(DoCheckTaskVaild);
+			if (m_DoCheckTaskEvt == null)
+				m_DoCheckTaskEvt = new Func<ITask, bool>(DoCheckTaskVaild);
+			m_TaskList.ProcessDoneContinue(m_DoCheckTaskEvt);
 			if (m_TaskList != null && m_TaskList.IsEmpty)
 			{
 				try
