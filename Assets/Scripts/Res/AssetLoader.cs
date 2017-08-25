@@ -1507,7 +1507,27 @@ public class AssetLoader: IResourceLoader
 		if (tex == null)
 			return null;
 
-		Sprite[] ret = _LoadSprites(fileName, ResourceCacheType.rctRefAdd);
+        /*
+        // 新增修改asset针对Sprite读取
+        // 直接先LoadObject<Texture>会导致IO两次
+        AssetInfo asset = FindAssetInfo(fileName);
+        if (asset == null)
+            return null;
+
+        bool isNew = (asset.Cache == null) || IsAssetInfoUnloadDep(asset, fileName);
+        int addCount = 0;
+        if (!LoadAssetInfo(asset, ref addCount, fileName))
+            return null;
+
+        if (isNew) {
+            // 第一次才会这样处理
+            AddOrUpdateDependAssetCache(asset);
+        }*/
+
+        // ----------------------------------------
+
+
+        Sprite[] ret = _LoadSprites(fileName, ResourceCacheType.rctRefAdd);
 
 		return ret;
 	}
