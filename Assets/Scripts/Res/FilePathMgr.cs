@@ -255,6 +255,8 @@ namespace Utils
             }
 
             prop.SetValue(parent, value, null);
+
+            return true;
         }
 
         public bool WriteProperty(Stream stream, System.Reflection.PropertyInfo prop, System.Object value) {
