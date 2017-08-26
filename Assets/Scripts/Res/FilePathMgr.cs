@@ -167,8 +167,72 @@ namespace Utils
 			return b != 0;
 		}
 
-		
-		private static byte[] m_TempStrBuf = new byte[256];
+        public float ReadSingle(Stream stream) {
+            if (stream == null)
+                return 0f;
+            m_TempStrBuf[0] = (byte)stream.ReadByte();
+            m_TempStrBuf[1] = (byte)stream.ReadByte();
+            m_TempStrBuf[2] = (byte)stream.ReadByte();
+            m_TempStrBuf[3] = (byte)stream.ReadByte();
+            float ret = BitConverter.ToSingle(m_TempStrBuf, 0);
+            return ret;
+        }
+
+        ///   <summary>   
+        ///   写入Single,尽量游戏内部减少使用这个函数，原因
+        ///   会new byte[]，编辑器中无所谓
+        ///   </summary> 
+        ///   <param name="stream">写入的流</param>
+        ///   <param name="value">需要写入的值</param> 
+        /// <returns>是否写入</returns>
+        public bool WriteSingle(Stream stream, float value) {
+            if (stream == null)
+                return false;
+            byte[] buffer = BitConverter.GetBytes(value);
+            if (buffer == null || buffer.Length <= 0)
+                return false;
+            for (int i = 0; i < buffer.Length; ++i) {
+                stream.WriteByte(buffer[i]);
+            }
+            return true;
+        }
+
+        public Double ReadDouble(Stream stream) {
+            if (stream == null)
+                return 0f;
+            m_TempStrBuf[0] = (byte)stream.ReadByte();
+            m_TempStrBuf[1] = (byte)stream.ReadByte();
+            m_TempStrBuf[2] = (byte)stream.ReadByte();
+            m_TempStrBuf[3] = (byte)stream.ReadByte();
+            m_TempStrBuf[4] = (byte)stream.ReadByte();
+            m_TempStrBuf[5] = (byte)stream.ReadByte();
+            m_TempStrBuf[6] = (byte)stream.ReadByte();
+            m_TempStrBuf[7] = (byte)stream.ReadByte();
+            double ret = BitConverter.ToDouble(m_TempStrBuf, 0);
+            return ret;
+        }
+
+        ///   <summary>   
+        ///   写入Double,尽量游戏内部减少使用这个函数，原因
+        ///   会new byte[]，编辑器中无所谓
+        ///   </summary> 
+        ///   <param name="stream">写入的流</param>
+        ///   <param name="value">需要写入的值</param> 
+        /// <returns>是否写入</returns>
+        public bool WriteDouble(Stream stream, double value) {
+            if (stream == null)
+                return false;
+            byte[] buffer = BitConverter.GetBytes(value);
+            if (buffer == null || buffer.Length <= 0)
+                return false;
+            for (int i = 0; i < buffer.Length; ++i) {
+                stream.WriteByte(buffer[i]);
+            }
+            return true;
+        }
+
+
+        private static byte[] m_TempStrBuf = new byte[256];
 		public string ReadString(Stream stream)
 		{
 			int cnt = ReadInt(stream);
