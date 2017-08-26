@@ -231,6 +231,32 @@ namespace Utils
             return true;
         }
 
+        public bool WriteProperty(Stream stream, System.Reflection.PropertyInfo prop, System.Object value) {
+            if (prop == null || stream == null)
+                return false;
+
+            if (prop.PropertyType == typeof(int) ||
+                    prop.PropertyType == typeof(uint)) {
+
+                WriteInt(stream, (int)value);
+            } else if (prop.PropertyType == typeof(short) ||
+                      prop.PropertyType == typeof(ushort)) {
+                WriteShort(stream, (short)value);
+            } else if (prop.PropertyType == typeof(float)) {
+                WriteSingle(stream, (float)value);
+            } else if (prop.PropertyType == typeof(double)) {
+                WriteDouble(stream, (double)value);
+            } else if (prop.PropertyType == typeof(string)) {
+                WriteString(stream, (string)value);
+            } else if (prop.PropertyType == typeof(byte)) {
+                stream.WriteByte((byte)value);
+            } else {
+                throw new Exception("不支持此转换");
+            }
+
+            return true;
+        }
+
 
         private static byte[] m_TempStrBuf = new byte[256];
 		public string ReadString(Stream stream)
