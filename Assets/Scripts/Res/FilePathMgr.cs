@@ -57,6 +57,16 @@ namespace Utils
 			return ret;
 		}
 
+        public bool WriteShort(Stream stream, short value) {
+            if (stream == null)
+                return false;
+            int b1 = (int)value & 0xFF;
+            int b2 = ((int)value >> 8) & 0xFF;
+            stream.WriteByte((byte)b1);
+            stream.WriteByte((byte)b2);
+            return true;
+        }
+
 		public bool WriteInt(Stream stream, int value)
 		{
 			if (stream == null)
@@ -119,7 +129,14 @@ namespace Utils
 			return ret;
 		}
 
-		public bool WriteBool(Stream stream, bool value)
+        public short ReadShort(Stream stream) {
+            int b1 = stream.ReadByte();
+            int b2 = stream.ReadByte();
+            short ret = (short)((b2 << 8) | b1);
+            return ret;
+        }
+
+        public bool WriteBool(Stream stream, bool value)
 		{
 			if (stream == null)
 				return false;
