@@ -259,6 +259,32 @@ namespace Utils
             return true;
         }
 
+        public bool WriteObject(Stream stream, System.Object value) {
+            if (stream == null || value == null)
+                return false;
+            System.Type type = value.GetType();
+            if (type == typeof(int) ||
+                    type == typeof(uint)) {
+
+                WriteInt(stream, (int)value);
+            } else if (type == typeof(short) ||
+                      type == typeof(ushort)) {
+                WriteShort(stream, (short)value);
+            } else if (type == typeof(float)) {
+                WriteSingle(stream, (float)value);
+            } else if (type == typeof(double)) {
+                WriteDouble(stream, (double)value);
+            } else if (type == typeof(string)) {
+                WriteString(stream, (string)value);
+            } else if (type == typeof(byte)) {
+                stream.WriteByte((byte)value);
+            } else {
+                throw new Exception("不支持此转换");
+            }
+
+            return true;
+        }
+
         public bool WriteProperty(Stream stream, System.Reflection.PropertyInfo prop, System.Object value) {
             if (prop == null || stream == null)
                 return false;
