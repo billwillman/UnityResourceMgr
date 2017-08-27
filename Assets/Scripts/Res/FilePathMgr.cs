@@ -235,23 +235,27 @@ namespace Utils
             if (prop == null || stream == null || parent == null)
                 return false;
             System.Object value = null;
-            if (prop.PropertyType == typeof(int) ||
-                    prop.PropertyType == typeof(uint)) {
+            System.Type propType = prop.PropertyType;
+            if (propType == typeof(int) ||
+                    propType == typeof(uint)) {
 
                 value = ReadInt(stream);
-            } else if (prop.PropertyType == typeof(short) ||
-                      prop.PropertyType == typeof(ushort)) {
+            } else if (propType == typeof(long) || propType == typeof(ulong)) {
+                value = ReadLong(stream);
+            } 
+            else if (propType == typeof(short) ||
+                      propType == typeof(ushort)) {
                 value = ReadShort(stream);
-            } else if (prop.PropertyType == typeof(float)) {
+            } else if (propType == typeof(float)) {
                 value = ReadSingle(stream);
-            } else if (prop.PropertyType == typeof(double)) {
+            } else if (propType == typeof(double)) {
                 value = ReadDouble(stream);
-            } else if (prop.PropertyType == typeof(string)) {
+            } else if (propType == typeof(string)) {
                 value = ReadString(stream);
-            } else if (prop.PropertyType == typeof(byte)) {
+            } else if (propType == typeof(byte)) {
                 value = (byte)stream.ReadByte();
             } else {
-                throw new Exception("不支持此转换");
+                throw new Exception(string.Format("not support convert: {0}", propType.Name));
             }
 
             prop.SetValue(parent, value, null);
