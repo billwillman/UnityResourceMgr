@@ -230,33 +230,41 @@ namespace Utils
             }
             return true;
         }
+		
+		public System.Object ReadObject(Stream stream, System.Type type) {
+            if (type == null)
+                return null;
+            System.Object value;
+            if (type == typeof(int) ||
+                    type == typeof(uint)) {
+
+                value = ReadInt(stream);
+            } else if (type == typeof(long) || type == typeof(ulong)) {
+                value = ReadLong(stream);
+            } else if (type == typeof(short) ||
+                        type == typeof(ushort)) {
+                value = ReadShort(stream);
+            } else if (type == typeof(float)) {
+                value = ReadSingle(stream);
+            } else if (type == typeof(double)) {
+                value = ReadDouble(stream);
+            } else if (type == typeof(string)) {
+                value = ReadString(stream);
+            } else if (type == typeof(byte)) {
+                value = (byte)stream.ReadByte();
+            } else {
+                throw new Exception(string.Format("not support convert: {0}", type.Name));
+            }
+
+            return value;
+        }
 
         public bool ReadProperty(Stream stream, System.Reflection.PropertyInfo prop, System.Object parent) {
             if (prop == null || stream == null || parent == null)
                 return false;
             System.Object value = null;
             System.Type propType = prop.PropertyType;
-            if (propType == typeof(int) ||
-                    propType == typeof(uint)) {
-
-                value = ReadInt(stream);
-            } else if (propType == typeof(long) || propType == typeof(ulong)) {
-                value = ReadLong(stream);
-            } 
-            else if (propType == typeof(short) ||
-                      propType == typeof(ushort)) {
-                value = ReadShort(stream);
-            } else if (propType == typeof(float)) {
-                value = ReadSingle(stream);
-            } else if (propType == typeof(double)) {
-                value = ReadDouble(stream);
-            } else if (propType == typeof(string)) {
-                value = ReadString(stream);
-            } else if (propType == typeof(byte)) {
-                value = (byte)stream.ReadByte();
-            } else {
-                throw new Exception(string.Format("not support convert: {0}", propType.Name));
-            }
+            value = ReadObject(stream, propType);
 
             prop.SetValue(parent, value, null);
 
