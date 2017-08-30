@@ -252,6 +252,8 @@ namespace Utils
                 value = ReadString(stream);
             } else if (type == typeof(byte)) {
                 value = (byte)stream.ReadByte();
+			} else if (type == typeof(bool)) {
+                value = (bool)ReadBool(stream);
             } else {
                 throw new Exception(string.Format("not support convert: {0}", type.Name));
             }
@@ -293,6 +295,8 @@ namespace Utils
                 WriteString(stream, (string)value);
             } else if (type == typeof(byte)) {
                 stream.WriteByte((byte)value);
+			} else if (type == typeof(bool)) {
+                WriteBool(stream, (bool)value);
             } else {
                 throw new Exception(string.Format("not support convert: {0}", type.Name));
             }
