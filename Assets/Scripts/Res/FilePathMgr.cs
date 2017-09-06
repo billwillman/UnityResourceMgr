@@ -252,8 +252,13 @@ namespace Utils
                 value = ReadString(stream);
             } else if (type == typeof(byte)) {
                 value = (byte)stream.ReadByte();
-			} else if (type == typeof(bool)) {
+            } else if (type == typeof(bool)) {
                 value = (bool)ReadBool(stream);
+            } else if (type == typeof(Vector3)) {
+                float x = (float)ReadDouble(stream);
+                float y = (float)ReadDouble(stream);
+                float z = (float)ReadDouble(stream);
+                value = new Vector3(x, y, z);
             } else {
                 throw new Exception(string.Format("not support convert: {0}", type.Name));
             }
@@ -283,9 +288,8 @@ namespace Utils
                 WriteInt(stream, (int)value);
             } else if (type == typeof(long) || type == typeof(ulong)) {
                 WriteLong(stream, (long)value);
-            } 
-            else if (type == typeof(short) ||
-                      type == typeof(ushort)) {
+            } else if (type == typeof(short) ||
+                        type == typeof(ushort)) {
                 WriteShort(stream, (short)value);
             } else if (type == typeof(float)) {
                 WriteSingle(stream, (float)value);
@@ -295,8 +299,13 @@ namespace Utils
                 WriteString(stream, (string)value);
             } else if (type == typeof(byte)) {
                 stream.WriteByte((byte)value);
-			} else if (type == typeof(bool)) {
+            } else if (type == typeof(bool)) {
                 WriteBool(stream, (bool)value);
+            } else if (type == typeof(Vector3)) {
+                Vector3 vec = (Vector3)value;
+                WriteDouble(stream, vec.x);
+                WriteDouble(stream, vec.y);
+                WriteDouble(stream, vec.z);
             } else {
                 throw new Exception(string.Format("not support convert: {0}", type.Name));
             }
