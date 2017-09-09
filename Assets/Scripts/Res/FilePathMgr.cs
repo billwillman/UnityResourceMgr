@@ -284,25 +284,31 @@ namespace Utils
             System.Type type = value.GetType();
             if (type == typeof(int) ||
                     type == typeof(uint)) {
-
-                WriteInt(stream, (int)value);
+                int v = value != null ? (int)value : 0;
+                WriteInt(stream, v);
             } else if (type == typeof(long) || type == typeof(ulong)) {
-                WriteLong(stream, (long)value);
+                long v = value != null ? (long)value : 0L;
+                WriteLong(stream, v);
             } else if (type == typeof(short) ||
                         type == typeof(ushort)) {
-                WriteShort(stream, (short)value);
+                short v = value != null ? (short)value : (short)0;
+                WriteShort(stream, v);
             } else if (type == typeof(float)) {
-                WriteSingle(stream, (float)value);
+                float v = value != null ? (float)value : 0f;
+                WriteSingle(stream, v);
             } else if (type == typeof(double)) {
-                WriteDouble(stream, (double)value);
+                double v = value != null ? (double)value : 0d;
+                WriteDouble(stream, v);
             } else if (type == typeof(string)) {
                 WriteString(stream, (string)value);
             } else if (type == typeof(byte)) {
-                stream.WriteByte((byte)value);
+                byte v = value != null ? (byte)value : (byte)0;
+                stream.WriteByte(v);
             } else if (type == typeof(bool)) {
-                WriteBool(stream, (bool)value);
+                bool v = value != null ? (bool)value : false;
+                WriteBool(stream, v);
             } else if (type == typeof(Vector3)) {
-                Vector3 vec = (Vector3)value;
+                Vector3 vec = value != null ? (Vector3)value : Vector3.zero;
                 WriteDouble(stream, vec.x);
                 WriteDouble(stream, vec.y);
                 WriteDouble(stream, vec.z);
