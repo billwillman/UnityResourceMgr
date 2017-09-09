@@ -279,7 +279,7 @@ namespace Utils
         }
 
         public bool WriteObject(Stream stream, System.Object value) {
-            if (stream == null || value == null)
+            if (stream == null)
                 return false;
             System.Type type = value.GetType();
             if (type == typeof(int) ||
