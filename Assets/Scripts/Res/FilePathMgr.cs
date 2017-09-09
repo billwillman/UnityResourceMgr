@@ -278,10 +278,10 @@ namespace Utils
             return true;
         }
 
-        public bool WriteObject(Stream stream, System.Object value) {
-            if (stream == null)
+        public bool WriteObject(Stream stream, System.Object value, System.Type valueType) {
+            if (stream == null || valueType == null)
                 return false;
-            System.Type type = value.GetType();
+            System.Type type = valueType;
             if (type == typeof(int) ||
                     type == typeof(uint)) {
                 int v = value != null ? (int)value : 0;
@@ -323,7 +323,7 @@ namespace Utils
             if (prop == null || stream == null)
                 return false;
 
-            return WriteObject(stream, value);
+            return WriteObject(stream, value, prop.PropertyType);
         }
 
 
