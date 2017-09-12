@@ -361,7 +361,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
     // AssetBundle.Unload(false)
     // 使用这个函数，如果是非实例化的资源，不需要调用DestroyObject释放它
-    // 例如：LoadPrefab，refAdd,然后调用ABUnloadFalse，并且unMySelf参数是True的时候，不需要再调用ResourceMgr.Instance.Destroy释放它
+    // 例如：LoadPrefab，refAdd,然后调用ABUnloadFalse，并且unMySelf参数是True的时候，不需要俚饔肦esourceMgr.Instance.Destroy释放它
     // 总结来说：没有ABUnloadFalse的refAdd资源，都要用ResourceMgr.Instance.Destroy对引用计数-1
     public bool ABUnloadFalse(UnityEngine.Object target, bool unMySelf = true) {
 
@@ -1013,6 +1013,10 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		AssetLoader loader = mAssetLoader as AssetLoader;
 		if (loader != null)
 			loader.AutoUpdateClear();
+        ResourcesLoader resLoader = mResLoader as ResourcesLoader;
+        if (resLoader != null) {
+            resLoader.AutoUpdateClear ();
+        }
 		UnloadUnUsed();
 	}
 

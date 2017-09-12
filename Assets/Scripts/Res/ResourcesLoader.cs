@@ -803,5 +803,10 @@ public class ResourcesLoader: IResourceLoader
 		return ret;
 	}
 
+    public void AutoUpdateClear()
+    {
+        m_CacheMap.Clear ();
+    }
+
 	private Dictionary<CacheKey, AssetCache> m_CacheMap = new Dictionary<CacheKey, AssetCache>(CacheKeyComparser.Default);
 }
