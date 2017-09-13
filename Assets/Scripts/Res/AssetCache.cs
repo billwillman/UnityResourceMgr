@@ -817,13 +817,17 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
     }
 
 	// 资源更新清理
-	public void AutoUpdateClear()
+	public void AutoUpdateClear(bool isUnloadTrue = false)
 	{
 		LinkedListNode<AssetCache> first = mTempAssetList.First;
 		while (first != null)
 		{
-			if (first.Value != null)
-				first.Value.UnUsed();
+            if (first.Value != null) {
+                if (isUnloadTrue)
+                    first.Value.UnLoad();
+                else
+                    first.Value.UnUsed();
+            }
 			first = first.Next;
 		}
 		mTempAssetList.Clear();
@@ -832,8 +836,12 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		first = mNotUsedCacheList.First;
 		while (first != null)
 		{
-			if (first.Value != null)
-				first.Value.UnUsed();
+            if (first.Value != null) {
+                if (isUnloadTrue)
+                    first.Value.UnLoad();
+                else
+                    first.Value.UnUsed();
+            }
 			first = first.Next;
 		}
 		mNotUsedCacheList.Clear();
@@ -841,8 +849,12 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
 		first = mUsedCacheList.First;
 		while (first != null)
 		{
-			if (first.Value != null)
-				first.Value.UnUsed();
+            if (first.Value != null) {
+                if (isUnloadTrue)
+                    first.Value.UnLoad();
+                else
+                    first.Value.UnUsed();
+            }
 			first = first.Next;
 		}
 		mUsedCacheList.Clear();
