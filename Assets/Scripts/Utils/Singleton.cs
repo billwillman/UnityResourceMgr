@@ -7,6 +7,8 @@ using System;
 using System.Collections;
 using Utils;
 
+
+// 关于资源的类不允许使用单例
 public class Singleton<T> where T : class, new()
 {
     //

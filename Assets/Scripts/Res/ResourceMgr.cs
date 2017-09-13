@@ -1007,6 +1007,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	}
 
     public void OnAppExit() {
+        AsyncOperationMgr.Instance.Clear();
         AssetCacheManager.Instance.AutoUpdateClear();
         AssetLoader loader = mAssetLoader as AssetLoader;
         if (loader != null)
