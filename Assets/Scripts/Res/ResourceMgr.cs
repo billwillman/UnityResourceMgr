@@ -1006,19 +1006,22 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		}
 	}
 
-	// 资源更新清理
-	public void AutoUpdateClear()
-	{
-		AssetCacheManager.Instance.AutoUpdateClear();
-		AssetLoader loader = mAssetLoader as AssetLoader;
-		if (loader != null)
-			loader.AutoUpdateClear();
+    public void OnAppExit() {
+        AssetCacheManager.Instance.AutoUpdateClear();
+        AssetLoader loader = mAssetLoader as AssetLoader;
+        if (loader != null)
+            loader.AutoUpdateClear();
         ResourcesLoader resLoader = mResLoader as ResourcesLoader;
         if (resLoader != null) {
-            resLoader.AutoUpdateClear ();
+            resLoader.AutoUpdateClear();
         }
-		UnloadUnUsed();
-	}
+    }
+
+    // 资源更新清理
+    public void AutoUpdateClear() {
+        OnAppExit();
+        UnloadUnUsed();
+    }
 
     public string GetABShaderFileNameByName(string shaderName) {
         AssetLoader loader = mAssetLoader as AssetLoader;
