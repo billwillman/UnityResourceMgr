@@ -1006,9 +1006,9 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		}
 	}
 
-    public void OnAppExit() {
+    public void OnAppExit(bool isUnloadTrue = true) {
         AsyncOperationMgr.Instance.Clear();
-        AssetCacheManager.Instance.AutoUpdateClear();
+        AssetCacheManager.Instance.AutoUpdateClear(isUnloadTrue);
         AssetLoader loader = mAssetLoader as AssetLoader;
         if (loader != null)
             loader.AutoUpdateClear();
@@ -1020,7 +1020,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
     // 资源更新清理
     public void AutoUpdateClear() {
-        OnAppExit();
+        OnAppExit(false);
         UnloadUnUsed();
     }
 

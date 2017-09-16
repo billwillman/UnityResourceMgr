@@ -26,6 +26,8 @@ using System.Security.Cryptography;
 using AutoUpdate;
 using FlatBuffers;
 using Utils;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 public enum eBuildPlatform
 {
@@ -1382,7 +1384,11 @@ class AssetBundleMgr
 			++curIdx;
 		}
 
-		for (int i = 0; i < resFiles.Count; ++i)
+        string[] resAllFiles = SmartSort(resFiles);
+        resFiles.Clear();
+        resFiles.AddRange(resAllFiles);
+
+        for (int i = 0; i < resFiles.Count; ++i)
 		{
 			string srcFileName = AssetBunbleInfo.GetLocalPath(resFiles[i]);
 			if (cfg.ContainsLink(srcFileName))
@@ -1412,7 +1418,7 @@ class AssetBundleMgr
 			++curCnt;
 		}
 
-		Dictionary<string, List<string>> dirFileMap = new Dictionary<string, List<string>>();
+        Dictionary<string, List<string>> dirFileMap = new Dictionary<string, List<string>>();
 		var iter = cfg.GetIter();
 		while (iter.MoveNext())
 		{
@@ -1436,10 +1442,11 @@ class AssetBundleMgr
             if (mAssetBundleMap.ContainsKey(path))
                 continue;
             var list = dirIter.Current.Value;
-			// 排个序
-			list.Sort();
-			string[] fileNames = list.ToArray();
-			string fullPath = Path.GetFullPath(path);
+            // 排个序
+            //list.Sort();
+            //string[] fileNames = list.ToArray();
+            string[] fileNames = SmartSort(list);
+            string fullPath = Path.GetFullPath(path);
 			AssetBunbleInfo ab = new AssetBunbleInfo(fullPath, fileNames, isManualDepend);
 			mAssetBundleMap.Add(path, ab);
 			mAssetBundleList.Add(ab);
@@ -1447,7 +1454,22 @@ class AssetBundleMgr
 		dirIter.Dispose();
 	}
 
-	private void BuildSplitABDirs(HashSet<string> splitABDirs, bool isManualDepend = false)
+    // ------------按照文件名方式排序
+    static Regex digitRegex = new Regex(@"\d+");
+    static string[] SmartSort(IEnumerable<string> files) {
+        //这里只传文件名，以避免不必要的开销，不同的文件夹的文件没有智能排序的必要
+        var maxLength = files.Max(file => digitRegex.Matches(file).Cast<Match>().Max(num => num.Length));
+
+        var query = from file in files
+                    let sortFile = digitRegex.Replace(file, m => m.Value.PadLeft(maxLength, '0'))
+                    orderby sortFile
+                    select file;
+
+        return query.ToArray();
+    }
+    //-----------------------------
+
+    private void BuildSplitABDirs(HashSet<string> splitABDirs, bool isManualDepend = false)
 	{
 		if (splitABDirs == null || splitABDirs.Count <= 0)
 			return;
