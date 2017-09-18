@@ -1455,19 +1455,22 @@ class AssetBundleMgr
 	}
 
     // ------------按照文件名方式排序
-    static Regex digitRegex = new Regex(@"\d+");
-    static string[] SmartSort(IEnumerable<string> files) {
-        //这里只传文件名，以避免不必要的开销，不同的文件夹的文件没有智能排序的必要
-        var maxLength = files.Max(file => digitRegex.Matches(file).Cast<Match>().Max(num => num.Length));
+        //static Regex digitRegex = new Regex(@"\d+");
+        static string[] SmartSort(IEnumerable<string> files) {
+            /*
+            //这里只传文件名，以避免不必要的开销，不同的文件夹的文件没有智能排序的必要
+            var maxLength = files.Max(file => digitRegex.Matches(file).Cast<Match>().Max(num => num.Length));
 
-        var query = from file in files
-                    let sortFile = digitRegex.Replace(file, m => m.Value.PadLeft(maxLength, '0'))
-                    orderby sortFile
-                    select file;
+            var query = from file in files
+                        let sortFile = digitRegex.Replace(file, m => m.Value.PadLeft(maxLength, '0'))
+                        orderby sortFile
+                        select file;
 
-        return query.ToArray();
-    }
-    //-----------------------------
+            return query.ToArray();*/
+            string[] ret = files.OrderBy(x => x.Length).ThenBy(x => x).ToArray();
+            return ret;
+        }
+        //-----------------------------
 
     private void BuildSplitABDirs(HashSet<string> splitABDirs, bool isManualDepend = false)
 	{
