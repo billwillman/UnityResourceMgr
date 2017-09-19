@@ -259,6 +259,8 @@ namespace Utils
                 float y = (float)ReadDouble(stream);
                 float z = (float)ReadDouble(stream);
                 value = new Vector3(x, y, z);
+			} else if (type.IsEnum) {
+                value = ReadInt(stream);
             } else {
                 throw new Exception(string.Format("not support convert: {0}", type.Name));
             }
@@ -312,6 +314,10 @@ namespace Utils
                 WriteDouble(stream, vec.x);
                 WriteDouble(stream, vec.y);
                 WriteDouble(stream, vec.z);
+			} else if (type.IsEnum) {
+                // 如果是枚举
+                int v = value != null ? (int)value : 0;
+                WriteInt(stream, v);
             } else {
                 throw new Exception(string.Format("not support convert: {0}", type.Name));
             }
