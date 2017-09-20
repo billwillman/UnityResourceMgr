@@ -205,7 +205,7 @@ public abstract class AssetCache
 public class AssetCacheManager: Singleton<AssetCacheManager>
 {
 	// 未使用时间后清除时间（单位：秒）
-	public static readonly float cCacheUnUsedTime = 60; // 1分钟，后面可调
+	public static readonly float cCacheUnUsedTime = 10f; // 10秒卸载，后面可调
 	// 每次从列表判断次数
 	public static readonly int cCacheTickCount = 5;
 	// 内存警告上限
