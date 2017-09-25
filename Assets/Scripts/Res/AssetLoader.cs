@@ -2215,6 +2215,7 @@ public class AssetLoader: IResourceLoader
 		return info.FileName;
 	}
 
+#if USE_FLATBUFFER
     private void LoadFlatBuffer(byte[] bytes) {
         if ((bytes == null) || (bytes.Length <= 0)) {
             return;
@@ -2281,6 +2282,7 @@ public class AssetLoader: IResourceLoader
         }
 
     }
+#endif
  
     /*
     //-----分块加载AssetBundles.xml
@@ -2329,14 +2331,14 @@ public class AssetLoader: IResourceLoader
         DependBinaryFile.ABFileHeader abHeader = DependBinaryFile.LoadABFileHeader (m_BinaryStream);
         AssetCompressType compressType = (AssetCompressType)abHeader.compressType;
         bool isUseCreateFromFile = compressType == AssetCompressType.astNone
-            #if USE_LOADFROMFILECOMPRESS
+#if USE_LOADFROMFILECOMPRESS
             || compressType == AssetCompressType.astUnityLzo
 
-            #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
             || compressType == AssetCompressType.astUnityZip
-            #endif
+#endif
 
-            #endif
+#endif
             ;
 
         string assetBundleFileName = GetCheckFileName(ref m_FileRealMap, abHeader.abFileName, 
@@ -2759,11 +2761,11 @@ public class AssetLoader: IResourceLoader
 			Debug.LogFormat("加载XML AB时间：{0}", usedTime.ToString());
 			startTime = curTime;
 
-        #if USE_HAS_EXT
+#if USE_HAS_EXT
             string name = Path.GetFileName(fileName);
-        #else
+#else
         string name = Path.GetFileNameWithoutExtension(fileName);
-        #endif
+#endif
 			TextAsset asset = bundle.LoadAsset<TextAsset>(name);
 			if (asset != null)
 			{

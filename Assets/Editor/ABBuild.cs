@@ -445,6 +445,7 @@ class AssetBunbleInfo: IDependBinary
         ExportBinarySubFilesAndDependFiles(stream, isMd5, outPath);
     }
 
+#if USE_FLATBUFFER
     public Offset<AssetBundleFlatBuffer.AssetBundleInfo> ExportFlatBuffer(FlatBufferBuilder builder, bool isMd5, string outPath) {
         string bundleFileName;
         if (isMd5)
@@ -498,6 +499,7 @@ class AssetBunbleInfo: IDependBinary
         AssetBundleFlatBuffer.AssetBundleInfo.AddDependFiles(builder, dependInfoOffsetVector);
         return AssetBundleFlatBuffer.AssetBundleInfo.EndAssetBundleInfo(builder);
     }
+#endif
 
 //	private static readonly bool _cIsOnlyFileNameMd5 = true;
 	public void ExportXml(StringBuilder builder, bool isMd5, string outPath)
@@ -1607,9 +1609,9 @@ class AssetBundleMgr
 	// 生成
 	public void BuildDirs(List<string> dirList, bool isManualDepned = false)
 	{
-		#if !USE_UNITY5_X_BUILD
+#if !USE_UNITY5_X_BUILD
 		isManualDepned = true;
-		#endif
+#endif
 		Clear ();
 		if ((dirList == null) || (dirList.Count <= 0))
 			return;
@@ -1947,7 +1949,7 @@ class AssetBundleMgr
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
         else if (compressType == 2)
 			buildOpts |= BuildAssetBundleOptions.ChunkBasedCompression;
-	#endif
+#endif
 
 		AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(exportDir, buildOpts, target);
 
@@ -2166,6 +2168,7 @@ class AssetBundleMgr
 		}
 	}
 
+#if USE_FLATBUFFER
     // 存放FlatBuffer里
     private void ExportFlatBuffers(string exportPath, bool isMd5) {
         if (string.IsNullOrEmpty(exportPath))
@@ -2213,6 +2216,7 @@ class AssetBundleMgr
             stream.Dispose();
         }
     }
+#endif
 
 	// 导出二进制
 	private void ExportBinarys(string exportPath, bool isMd5)
@@ -2222,11 +2226,11 @@ class AssetBundleMgr
 		string fullPath = Path.GetFullPath (exportPath);
 		if (string.IsNullOrEmpty (fullPath))
 			return;
-		#if USE_DEP_BINARY_AB
+#if USE_DEP_BINARY_AB
 		string fileName = "Assets/AssetBundles.xml";
-		#else
+#else
 		string fileName = string.Format ("{0}/AssetBundles.xml", fullPath);
-		#endif
+#endif
 		if (System.IO.File.Exists (fileName)) {
 			System.IO.File.Delete(fileName);
 		}
@@ -3114,7 +3118,7 @@ class AssetBundleMgr
         if (mAssetBundleList.Count > 0)
         {
 
-		#if USE_DEP_BINARY && USE_DEP_BINARY_AB
+#if USE_DEP_BINARY && USE_DEP_BINARY_AB
 			AssetImporter xmlImport = AssetImporter.GetAtPath("Assets/AssetBundles.xml");
 			if (xmlImport != null)
 			{
@@ -3158,7 +3162,7 @@ class AssetBundleMgr
 
             AssetDatabase.Refresh();
 
-		#if USE_DEP_BINARY && USE_DEP_BINARY_AB
+#if USE_DEP_BINARY && USE_DEP_BINARY_AB
 			BuildTarget target = BuildTarget.Android;
 			if (GetBuildTarget(platform, ref target))
 			{
@@ -3170,9 +3174,9 @@ class AssetBundleMgr
 					xmlImport.SaveAndReimport();
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
                     CallBuild_5_x_API(exportDir, compressType, target, false);
-		#else
+#else
 					CallBuild_5_x_API(exportDir, 0, target,  false);
-		#endif
+#endif
 
 					AssetDatabase.Refresh();
 
@@ -3186,7 +3190,7 @@ class AssetBundleMgr
 				}
 			}
 
-		#endif
+#endif
 
 			if (isMd5)
 			{
@@ -3317,7 +3321,7 @@ class AssetBundleMgr
             RemoveFilelistFileNameMd5NoContainsRes (platform, streamAssetsPath);
             // 删除不存在的内容MD5文件名文件
             RemoveFileListContentMd5NoContainsRes("outPath", versionDir);
-            #if USE_ZIPVER
+#if USE_ZIPVER
 			BuildVersionZips("outPath", versionDir);
 #endif
         }
