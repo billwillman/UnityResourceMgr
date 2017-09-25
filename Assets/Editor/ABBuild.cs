@@ -24,7 +24,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using AutoUpdate;
+#if USE_FLATBUFFER
 using FlatBuffers;
+#endif
 using Utils;
 using System.Linq;
 using System.Text.RegularExpressions;
