@@ -3497,7 +3497,7 @@ public static class AssetBundleBuild
 													 ".txt", ".bytes", ".xml", ".csv", ".json",
 													 ".controller", ".shader", ".anim", ".unity", ".mat",
 													 ".wav", ".mp3", ".ogg",
-													 ".ttf",
+													 ".ttf", ".otf",
 													 ".shadervariants", ".asset"};
 	
 	private static readonly string[] ResourceXmlExts = {".prefab", ".fbx",
@@ -3505,7 +3505,7 @@ public static class AssetBundleBuild
 														".bytes", ".bytes", ".bytes", ".bytes", ".bytes",
 														".controller", ".shader", ".anim", ".unity", ".mat",
 														".audio", ".audio", ".audio",
-													    ".ttf",
+													    ".ttf", ".otf",
 														".shaderVar", ".asset"};
 
 	private static readonly Type[] ResourceExtTypes = {
@@ -3514,7 +3514,7 @@ public static class AssetBundleBuild
 														typeof(UnityEngine.TextAsset), typeof(UnityEngine.TextAsset), typeof(UnityEngine.TextAsset), typeof(UnityEngine.TextAsset), typeof(UnityEngine.TextAsset),
 														typeof(UnityEngine.Object), typeof(UnityEngine.Shader), typeof(UnityEngine.AnimationClip), null, typeof(UnityEngine.Material),
 														typeof(UnityEngine.AudioClip), typeof(UnityEngine.AudioClip), typeof(UnityEngine.AudioClip),
-														typeof(UnityEngine.Font),
+														typeof(UnityEngine.Font), typeof(UnityEngine.Font),
 														typeof(UnityEngine.ShaderVariantCollection), typeof(UnityEngine.ScriptableObject)
 	};
 
