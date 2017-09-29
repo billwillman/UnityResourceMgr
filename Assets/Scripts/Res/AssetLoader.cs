@@ -1406,6 +1406,19 @@ public class AssetLoader: IResourceLoader
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
 #endif
+        AssetInfo asset = null;
+        /*减少IO调用*/
+        return LoadAsyncAssetInfo(fileName, ResourceCacheType.rctRefAdd, priority, out asset,
+            delegate (bool isOk) {
+                if (isOk) {
+                    bool isNew = asset.Cache == null;
+                    AddRefAssetCache(asset, isNew, ResourceCacheType.rctRefAdd);
+                    OnLoadObjectAsync(fileName, asset, isNew, null, ResourceCacheType.rctRefAdd, false);
+                    _LoadSpritesAsync(fileName, null, ResourceCacheType.rctRefAdd, priority, onProcess);
+                }
+            });
+        //--------------------------
+        /*
 		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctRefAdd, priority,
 			delegate(float process, bool isDone, Texture obj) {
 				if (isDone) {
@@ -1429,13 +1442,14 @@ public class AssetLoader: IResourceLoader
 				if (onProcess != null)
 					onProcess(process * 0.9f, isDone, null);
 			}
-		);
-	}
+		);*/
+
+    }
 		
 	private bool _LoadSpritesAsync(string fileName, Texture texture, ResourceCacheType cacheType, int priority, Action<float, bool, UnityEngine.Object[]> onProcess)
 	{
-		if (texture == null)
-			return false;
+		//if (texture == null)
+		//	return false;
 
 		AssetInfo asset = FindAssetInfo(fileName);
 		if (asset == null || asset.Cache == null)
@@ -1448,14 +1462,24 @@ public class AssetLoader: IResourceLoader
 		bool ret = asset.LoadSubsAsync<Sprite>(fileName, priority, 
 		   delegate (AssetBundleRequest req) {
 
-			if (req.isDone)
-			{
-				ResourceMgr.Instance.DestroyObject(texture);
-				_OnLoadSprites(asset, req.allAssets, cacheType);
-			}
+               if (req.isDone) {
+                   if (texture != null)
+                        ResourceMgr.Instance.DestroyObject(texture);
+                   else {
+                       // 如果texture为空，则说明采用跨过了texture模式
+                       AssetCacheManager.Instance.CacheDecRefCount(asset.Cache);
+                   }
+                   _OnLoadSprites(asset, req.allAssets, cacheType);
+               }
 
-			if (onProcess != null)
-				onProcess (req.progress/10.0f + 0.9f, req.isDone, req.allAssets);
+               if (onProcess != null) {
+                   // 判断是否是texture模式
+                   if (texture != null)
+                       onProcess(req.progress / 10.0f + 0.9f, req.isDone, req.allAssets);
+                   else {
+                       onProcess(req.progress, req.isDone, req.allAssets);
+                   }
+               }
 
 		  }
 		);
@@ -1503,27 +1527,19 @@ public class AssetLoader: IResourceLoader
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
 #endif
+        /*
 		Texture tex = LoadObject<Texture>(fileName, ResourceCacheType.rctTemp);
 		if (tex == null)
 			return null;
+            */
 
-        /*
         // 新增修改asset针对Sprite读取
         // 直接先LoadObject<Texture>会导致IO两次
-        AssetInfo asset = FindAssetInfo(fileName);
+        bool isNew;
+        AssetInfo asset = LoadAssetInfo(fileName, ResourceCacheType.rctTemp, out isNew);
         if (asset == null)
             return null;
-
-        bool isNew = (asset.Cache == null) || IsAssetInfoUnloadDep(asset, fileName);
-        int addCount = 0;
-        if (!LoadAssetInfo(asset, ref addCount, fileName))
-            return null;
-
-        if (isNew) {
-            // 第一次才会这样处理
-            AddOrUpdateDependAssetCache(asset);
-        }*/
-
+        OnLoadObject(asset, fileName, null, isNew, ResourceCacheType.rctRefAdd, false);
         // ----------------------------------------
 
 
@@ -1532,53 +1548,66 @@ public class AssetLoader: IResourceLoader
 		return ret;
 	}
 
+    private AssetInfo LoadAssetInfo(string fileName, ResourceCacheType cacheType, out bool isNew) {
+        isNew = false;
+        AssetInfo asset = FindAssetInfo(fileName);
+        if (asset == null)
+            return null;
+        isNew = (asset.Cache == null) || IsAssetInfoUnloadDep(asset, fileName);
+        int addCount = 0;
+        if (!LoadAssetInfo(asset, ref addCount, fileName))
+            return null;
+
+        if (isNew) {
+            // 第一次才会这样处理
+            if (cacheType == ResourceCacheType.rctRefAdd)
+                AddOrUpdateAssetCache(asset);
+            else
+                AddOrUpdateDependAssetCache(asset);
+        } else {
+            if (cacheType == ResourceCacheType.rctRefAdd) {
+                // 只对自己+1处理
+                AssetCacheManager.Instance.CacheAddRefCount(asset.Cache);
+            }
+        }
+
+        return asset;
+    }
+
+    private void OnLoadObject(AssetInfo asset, string fileName, UnityEngine.Object res, 
+        bool isNew, ResourceCacheType cacheType, bool isCheckRes = true) {
+        if (cacheType == ResourceCacheType.rctNone) {
+            if (isNew && (!isCheckRes || res != null)) {
+                if (asset.Cache == null)
+                    asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(res, fileName, null);
+                AssetCacheManager.Instance._AddTempAsset(asset.Cache);
+                // asset.UnUsed ();
+            }
+        } else
+        if (!isCheckRes || res != null) {
+            if (asset.Cache == null)
+                asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(res, fileName, null);
+
+            if (asset.Cache != null)
+                AssetCacheManager.Instance._OnLoadObject(res, asset.Cache);
+        }
+    }
+
 	public T LoadObject<T>(string fileName, ResourceCacheType cacheType) where T: UnityEngine.Object
 	{
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
 #endif
-		AssetInfo asset = FindAssetInfo(fileName);
-		if (asset == null)
-			return null;
-
-		bool isNew = (asset.Cache == null) || IsAssetInfoUnloadDep(asset, fileName);
-		int addCount = 0;
-		if (!LoadAssetInfo (asset, ref addCount, fileName))
-			return null;
-
-		if (isNew) {
-			// 第一次才会这样处理
-			if (cacheType == ResourceCacheType.rctRefAdd)
-				AddOrUpdateAssetCache (asset);
-			else
-				AddOrUpdateDependAssetCache (asset);
-		} else {
-			if (cacheType == ResourceCacheType.rctRefAdd)
-			{
-				// 只对自己+1处理
-				AssetCacheManager.Instance.CacheAddRefCount(asset.Cache);
-			}
-		}
+        bool isNew;
+        AssetInfo asset = LoadAssetInfo(fileName, cacheType, out isNew);
+        if (asset == null)
+            return null;
 
 		T ret = asset.LoadObject (fileName, typeof(T)) as T;
-		if (cacheType == ResourceCacheType.rctNone) {
-			if (isNew)
-			{
-				if (asset.Cache == null)
-					asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(ret, fileName, null);
-				AssetCacheManager.Instance._AddTempAsset(asset.Cache);
-				// asset.UnUsed ();
-			}
-		}
-		else
-		if (ret != null) {
-			if (asset.Cache == null)
-				asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(ret, fileName, null);
-	
-			if (asset.Cache != null)
-				AssetCacheManager.Instance._OnLoadObject(ret, asset.Cache);
-		}
-		return ret;
+
+        OnLoadObject(asset, fileName, ret, isNew, cacheType);
+
+        return ret;
 	}
 
 	private void AddRefAssetCache(AssetInfo asset, bool isNew, ResourceCacheType cacheType)
@@ -1644,67 +1673,74 @@ public class AssetLoader: IResourceLoader
 		return ret;
 	}
 
-	public bool LoadObjectAsync<T>(string fileName, ResourceCacheType cacheType, int priority, Action<float, bool, T> onProcess) where T: UnityEngine.Object
-	{
-#if USE_LOWERCHAR
-		fileName = fileName.ToLower();
-#endif
-		AssetInfo asset = FindAssetInfo(fileName);
-		if (asset == null)
-			return false;
+    private bool LoadAsyncAssetInfo(string fileName, ResourceCacheType cacheType, 
+        int priority, out AssetInfo asset, Action<bool> onEnd) {
+        asset = FindAssetInfo(fileName);
+        if (asset == null)
+            return false;
 
-		int addCount = 0;
-        //	bool isNew = asset.IsNew();
+        int addCount = 0;
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
         if (
 #if USE_LOADFROMFILECOMPRESS
             asset.CompressType == AssetCompressType.astUnityLzo ||
-			asset.CompressType == AssetCompressType.astUnityZip ||
+            asset.CompressType == AssetCompressType.astUnityZip ||
 #endif
             asset.CompressType == AssetCompressType.astNone
-			) {
+            ) {
 #if USE_ABFILE_ASYNC
-			return LoadAsyncAssetInfo(asset, null, ref addCount, priority, fileName,
-				delegate(bool isOk) {
-					if (isOk) {
-						DoLoadObjectAsync<T>(asset, fileName, cacheType, priority, onProcess);
-					}
-				});
+            bool ret = LoadAsyncAssetInfo(asset, null, ref addCount, priority, fileName, onEnd);
+            if (!ret)
+                return false;
 #else
 		if (!LoadAssetInfo (asset, ref addCount, fileName))
 			return false;
-		return DoLoadObjectAsync<T>(asset, fileName, cacheType, priority, onProcess);
+		if (onEnd != null)
+            onEnd(true);
 #endif
-		}
-		else
+        } else
 #endif
-		if (
+        if (
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
             asset.CompressType == AssetCompressType.astUnityLzo ||
 #endif
-            asset.CompressType == AssetCompressType.astUnityZip      
-            )
-		{
-				return LoadWWWAsseetInfo(asset, null, ref addCount, fileName,
-			                  delegate (bool isOk){
-								  if (isOk)
-							      {
-										DoLoadObjectAsync<T>(asset, fileName, cacheType, priority, onProcess);
-								  }
-					});
-		} else
-		{
-			if (!LoadAssetInfo (asset, ref addCount, fileName))
-				return false;
-			return DoLoadObjectAsync<T>(asset, fileName, cacheType, priority, onProcess);
-		}
+            asset.CompressType == AssetCompressType.astUnityZip
+            ) {
+            bool ret = LoadWWWAsseetInfo(asset, null, ref addCount, fileName,
+                          onEnd);
+            if (!ret)
+                return false;
+        } else {
+            if (!LoadAssetInfo(asset, ref addCount, fileName))
+                return false;
+            if (onEnd != null)
+                onEnd(true);
+        }
+
+        return true;
+    }
+
+
+    public bool LoadObjectAsync<T>(string fileName, ResourceCacheType cacheType, int priority, Action<float, bool, T> onProcess) where T: UnityEngine.Object
+	{
+#if USE_LOWERCHAR
+		fileName = fileName.ToLower();
+#endif
+        AssetInfo asset = null;
+        return LoadAsyncAssetInfo(fileName, cacheType, priority, out asset,
+            delegate (bool isOk) {
+                if (isOk) {
+                    DoLoadObjectAsync<T>(asset, fileName, cacheType, priority, onProcess);
+                }
+            });
 	}
 
-	private void OnLoadObjectAsync(string fileName, AssetInfo asset, bool isNew, UnityEngine.Object obj, ResourceCacheType cacheType)
+	private void OnLoadObjectAsync(string fileName, AssetInfo asset, bool isNew, 
+        UnityEngine.Object obj, ResourceCacheType cacheType, bool isCheckObj = true)
 	{
 		if (cacheType == ResourceCacheType.rctNone)
 		{
-			if (isNew && (obj != null))
+			if (isNew && (!isCheckObj || (obj != null)))
 			{
 				if (asset.Cache == null)
 					asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(obj, fileName, null);
@@ -1713,7 +1749,7 @@ public class AssetLoader: IResourceLoader
 			}
 		}
 		else
-		if (obj != null) {
+		if (!isCheckObj || obj != null) {
 			if (asset.Cache == null)
 				asset.Cache = ResourceMgr.Instance.AssetLoader.CreateCache(obj, fileName, null);
 			
