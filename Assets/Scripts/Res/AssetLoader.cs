@@ -1539,7 +1539,7 @@ public class AssetLoader: IResourceLoader
         AssetInfo asset = LoadAssetInfo(fileName, ResourceCacheType.rctTemp, out isNew);
         if (asset == null)
             return null;
-        OnLoadObject(asset, fileName, null, isNew, ResourceCacheType.rctRefAdd, false);
+        OnLoadObject(asset, fileName, null, isNew, ResourceCacheType.rctTemp, false);
         // ----------------------------------------
 
 

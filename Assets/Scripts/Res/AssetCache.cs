@@ -464,9 +464,12 @@ public class AssetCacheManager: Singleton<AssetCacheManager>
             LinkedListNode<AssetCache> node = cache.LinkListNode;
             mUsedCacheList.AddLast(node);
             return true;
+        } else {
+            cache._AddRefCount(refCount);
+            if (isUseTime)
+                cache.LastUsedTime = GetCurrentTime();
+            return true;
         }
-
-        return false;
     }
 
 	// instObj 为实例化的对象
