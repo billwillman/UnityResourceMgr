@@ -1406,8 +1406,9 @@ public class AssetLoader: IResourceLoader
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
 #endif
+        /*
         AssetInfo asset = null;
-        /*减少IO调用*/
+        //减少IO调用
         return LoadAsyncAssetInfo(fileName, ResourceCacheType.rctRefAdd, priority, out asset,
             delegate (bool isOk) {
                 if (isOk) {
@@ -1418,7 +1419,7 @@ public class AssetLoader: IResourceLoader
                 }
             });
         //--------------------------
-        /*
+        */
 		return LoadObjectAsync<Texture>(fileName, ResourceCacheType.rctRefAdd, priority,
 			delegate(float process, bool isDone, Texture obj) {
 				if (isDone) {
@@ -1442,7 +1443,7 @@ public class AssetLoader: IResourceLoader
 				if (onProcess != null)
 					onProcess(process * 0.9f, isDone, null);
 			}
-		);*/
+		);
 
     }
 		
@@ -1527,12 +1528,12 @@ public class AssetLoader: IResourceLoader
 #if USE_LOWERCHAR
 		fileName = fileName.ToLower();
 #endif
-        /*
+        
 		Texture tex = LoadObject<Texture>(fileName, ResourceCacheType.rctTemp);
 		if (tex == null)
 			return null;
-            */
-
+            
+        /*
         // 新增修改asset针对Sprite读取
         // 直接先LoadObject<Texture>会导致IO两次
         bool isNew;
@@ -1540,6 +1541,7 @@ public class AssetLoader: IResourceLoader
         if (asset == null)
             return null;
         OnLoadObject(asset, fileName, null, isNew, ResourceCacheType.rctTemp, false);
+        */
         // ----------------------------------------
 
 
