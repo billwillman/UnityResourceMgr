@@ -77,15 +77,18 @@ public class ABLinkFileCfg
 
 		if (!string.IsNullOrEmpty(linkFileName))
 		{
-			if (m_DirFileCntMap.ContainsKey(linkFileName))
-			{
-				int cnt = m_DirFileCntMap[linkFileName];
-				--cnt;
-				if (cnt <= 0)
-					m_DirFileCntMap.Remove(linkFileName);
-				else
-					m_DirFileCntMap[linkFileName] = cnt;
-			}
+            // 修正LINK的一处BUG，之前用linkFileName,而应该是Dir
+            string linkDir = Path.GetDirectoryName(linkFileName);
+            if (!string.IsNullOrEmpty(linkDir)) {
+                if (m_DirFileCntMap.ContainsKey(linkDir)) {
+                    int cnt = m_DirFileCntMap[linkDir];
+                    --cnt;
+                    if (cnt <= 0)
+                        m_DirFileCntMap.Remove(linkDir);
+                    else
+                        m_DirFileCntMap[linkDir] = cnt;
+                }
+            }
 		}
 	}
 
