@@ -1443,8 +1443,13 @@ class AssetBundleMgr
 		while (dirIter.MoveNext())
 		{
             string path = AssetBunbleInfo.GetLocalPath(dirIter.Current.Key).ToLower();
-            if (mAssetBundleMap.ContainsKey(path))
-                continue;
+            AssetBunbleInfo outAB;
+            if (mAssetBundleMap.TryGetValue(path, out outAB)) {
+                // 这边特殊一点，需要删除并刷新
+                if (outAB != null)
+                    mAssetBundleList.Remove(outAB);
+                mAssetBundleMap.Remove(path);
+            }
             var list = dirIter.Current.Value;
             // 排个序
             //list.Sort();
