@@ -9,7 +9,25 @@ using Utils;
 
 public class NGUIResLoader: BaseResLoader  {
 
-	public bool LoadMainTexture(UITexture uiTexture, string fileName)
+    private void ClearInstanceMaterialMap(UITexture target) {
+        if (target == null)
+            return;
+        ClearInstanceMaterialMap(target.GetInstanceID());
+    }
+
+    private void ClearInstanceMaterialMap(UISprite target) {
+        if (target == null)
+            return;
+        ClearInstanceMaterialMap(target.GetInstanceID());
+    }
+
+    private void ClearInstanceMaterialMap(UI2DSprite target) {
+        if (target == null)
+            return;
+        ClearInstanceMaterialMap(target.GetInstanceID());
+    }
+
+    public bool LoadMainTexture(UITexture uiTexture, string fileName)
 	{
 		if (uiTexture == null || string.IsNullOrEmpty(fileName))
 			return false;
@@ -86,7 +104,8 @@ public class NGUIResLoader: BaseResLoader  {
 			return;
 		ClearResource<Material>(uiTexture);
 		uiTexture.material = null;
-	}
+        ClearInstanceMaterialMap(uiTexture);
+    }
 
 	public bool LoadMaterial(UITexture uiTexture, string fileName)
 	{
@@ -99,8 +118,10 @@ public class NGUIResLoader: BaseResLoader  {
 			uiTexture.material = null;
 			return false;
 		}
-		if (result == 2)
-			uiTexture.material = GameObject.Instantiate(mat);
+        if (result == 2) {
+            uiTexture.material = GameObject.Instantiate(mat);
+            AddOrSetInstanceMaterialMap(uiTexture.GetInstanceID(), uiTexture.material);
+        }
 
 		return mat != null;
 	}
@@ -116,8 +137,10 @@ public class NGUIResLoader: BaseResLoader  {
 			return false;
 		}
 
-		if (result == 2)
-			uiSprite.material = GameObject.Instantiate(mat);
+        if (result == 2) {
+            uiSprite.material = GameObject.Instantiate(mat);
+            AddOrSetInstanceMaterialMap(uiSprite.GetInstanceID(), uiSprite.material);
+        }
 
 		return mat != null;
 	}
@@ -128,7 +151,8 @@ public class NGUIResLoader: BaseResLoader  {
 			return;
 		ClearResource<Material>(uiSprite);
 		uiSprite.material = null;
-	}
+        ClearInstanceMaterialMap(uiSprite);
+    }
 
 	public bool LoadTexture(UISprite uiSprite, string fileName, string matName)
 	{
@@ -286,7 +310,8 @@ public class NGUIResLoader: BaseResLoader  {
 			return;
 		uiSprite.material = null;
 		ClearResource<Material>(uiSprite);
-	}
+        ClearInstanceMaterialMap(uiSprite);
+    }
 
 	public bool LoadMaterial(UI2DSprite uiSprite, string fileName)
 	{
@@ -300,8 +325,10 @@ public class NGUIResLoader: BaseResLoader  {
 			return false;
 		}
 
-		if (result == 2)
-			uiSprite.material = GameObject.Instantiate(mat);
+        if (result == 2) {
+            uiSprite.material = GameObject.Instantiate(mat);
+            AddOrSetInstanceMaterialMap(uiSprite.GetInstanceID(), uiSprite.material);
+        }
 
 		return mat != null;
 	}

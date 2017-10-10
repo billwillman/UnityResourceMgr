@@ -17,9 +17,53 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	#if USE_CHECK_VISIBLE
 	private bool m_IsCheckedVisible = false;
-	#endif
+#endif
 
-	private void CheckVisible()
+    #region Instance Material
+    // 记录实例化的材质Map
+    private Dictionary<int, Material> m_InstanceMaterialMap = null;
+
+    protected void AddOrSetInstanceMaterialMap(int instanceId, Material cloneMaterial) {
+        if (m_InstanceMaterialMap != null && m_InstanceMaterialMap.Count > 0) {
+            Material oldMat;
+            if (m_InstanceMaterialMap.TryGetValue(instanceId, out oldMat)) {
+                if (oldMat != null)
+                    GameObject.Destroy(oldMat);
+                if (cloneMaterial != null)
+                    m_InstanceMaterialMap[instanceId] = cloneMaterial;
+                else
+                    m_InstanceMaterialMap.Remove(instanceId);
+                return;
+            }
+        }
+
+        if (cloneMaterial == null)
+            return;
+
+        if (m_InstanceMaterialMap == null)
+            m_InstanceMaterialMap = new Dictionary<int, Material>();
+        m_InstanceMaterialMap.Add(instanceId, cloneMaterial);
+    }
+
+    protected void ClearInstanceMaterialMap() {
+        if (m_InstanceMaterialMap == null || m_InstanceMaterialMap.Count <= 0)
+            return;
+        var iter = m_InstanceMaterialMap.GetEnumerator();
+        while (iter.MoveNext()) {
+            Material mat = iter.Current.Value;
+            if (mat != null)
+                GameObject.Destroy(mat);
+        }
+        iter.Dispose();
+        m_InstanceMaterialMap.Clear();
+    }
+
+    protected void ClearInstanceMaterialMap(int instanceId) {
+        AddOrSetInstanceMaterialMap(instanceId, null);
+    }
+    #endregion
+
+    private void CheckVisible()
 	{
 		#if USE_CHECK_VISIBLE
 		if (m_IsCheckedVisible)
@@ -291,7 +335,10 @@ public class BaseResLoader: CachedMonoBehaviour
 		//StopAllCoroutines();
 		StopAllLoadCoroutines();
 
-		if (m_ResMap == null)
+        // 清理掉所有实例化的Material
+        ClearInstanceMaterialMap();
+
+        if (m_ResMap == null)
 			return;
 		
 		var iter = m_ResMap.GetEnumerator();
