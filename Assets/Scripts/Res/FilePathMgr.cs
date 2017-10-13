@@ -353,6 +353,31 @@ namespace Utils
         public static int InitHashValue() {
             return _cHash;
         }
+		
+		public static void HashCode(ref int hash, bool value) {
+            byte v = value ? (byte)1: (byte)0;
+            HashCode(ref hash, value);
+        }
+
+        public static void HashCode(ref int hash, short value) {
+            int v = value & 0xFF;
+            HashCode(ref hash, (byte)v);
+
+            v = (value >> 8) & 0xFF;
+            HashCode(ref hash, (byte)v);
+        }
+
+        public static void HashCode(ref int hash, ushort value) {
+            HashCode(ref hash, (ushort)value);
+        }
+
+        public static void HashCode(ref int hash, char value) {
+            HashCode(ref hash, (byte)value);
+        }
+
+        public static void HashCode(ref int hash, uint value) {
+            HashCode(ref hash, (int)value);
+        }
 
         public static void HashCode(ref int hash, byte value) {
             hash = ((hash << 5) + hash) + value;
