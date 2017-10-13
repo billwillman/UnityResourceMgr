@@ -356,7 +356,7 @@ namespace Utils
 		
 		public static void HashCode(ref int hash, bool value) {
             byte v = value ? (byte)1: (byte)0;
-            HashCode(ref hash, value);
+            HashCode(ref hash, v);
         }
 
         public static void HashCode(ref int hash, short value) {
