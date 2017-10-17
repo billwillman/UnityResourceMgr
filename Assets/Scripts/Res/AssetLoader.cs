@@ -2194,8 +2194,16 @@ public class AssetLoader : IResourceLoader {
 
     //------------------------
 
-    //二进制
-    private void LoadBinary(byte[] bytes) {
+    private WaitForEndOfFrame m_LoadWaitEndFrame = null;
+    protected WaitForEndOfFrame LoadWaitEndFrame {
+        get {
+            if (m_LoadWaitEndFrame == null)
+                m_LoadWaitEndFrame = new WaitForEndOfFrame();
+            return m_LoadWaitEndFrame;
+        }
+    }
+
+    private void LoadBinarySync(byte[] bytes) {
         if ((bytes == null) || (bytes.Length <= 0)) {
             return;
         }
@@ -2274,6 +2282,117 @@ public class AssetLoader : IResourceLoader {
 
         stream.Close();
         stream.Dispose();
+    }
+
+    private IEnumerator LoadBinaryAsync(byte[] bytes, Action<bool> onFinish, int maxAsyncCnt) {
+        if ((bytes == null) || (bytes.Length <= 0)) {
+            yield break;
+        }
+
+        //  ClearBinaryStream ();
+
+        MemoryStream stream = new MemoryStream(bytes);
+
+        DependBinaryFile.FileHeader header = DependBinaryFile.LoadFileHeader(stream);
+        /*
+		if (!DependBinaryFile.CheckFileHeaderD01(header)) {
+                // 兼容
+                if (DependBinaryFile.CheckFileHeader(header))
+                    LoadBinaryHeader(bytes);
+                return;
+            }
+		*/
+        if (!DependBinaryFile.CheckFileHeader(header) /*&& 
+                !DependBinaryFile.CheckFileHeaderD01(header)*/)
+            yield break;
+
+        Dictionary<string, string> fileRealMap = null;
+
+        int iterCnt = 0;
+        for (int i = 0; i < header.abFileCount; ++i) {
+            DependBinaryFile.ABFileHeader abHeader = DependBinaryFile.LoadABFileHeader(stream);
+            AssetCompressType compressType = (AssetCompressType)abHeader.compressType;
+            bool isUseCreateFromFile = compressType == AssetCompressType.astNone
+#if USE_LOADFROMFILECOMPRESS
+                                                        || compressType == AssetCompressType.astUnityLzo
+
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+                                                        || compressType == AssetCompressType.astUnityZip
+#endif
+
+#endif
+                                                        ;
+
+            string assetBundleFileName = GetCheckFileName(ref fileRealMap, abHeader.abFileName,
+                                                            false, isUseCreateFromFile);
+
+            AssetInfo asset;
+            if (!mAssetFileNameMap.TryGetValue(assetBundleFileName, out asset)) {
+                asset = new AssetInfo(assetBundleFileName);
+                asset._SetCompressType(compressType);
+                // 额外添加一个文件名的映射
+                AddFileAssetMap(assetBundleFileName, asset);
+                if (++iterCnt >= maxAsyncCnt) {
+                    iterCnt = 0;
+                    yield return LoadWaitEndFrame;
+                }
+            } else {
+                ;
+            }
+
+            // 子文件
+            for (int j = 0; j < abHeader.subFileCount; ++j) {
+                DependBinaryFile.SubFileInfo subInfo = DependBinaryFile.LoadSubInfo(stream);
+                string subFileName = subInfo.fileName;
+                if (string.IsNullOrEmpty(subFileName))
+                    continue;
+                asset._AddSubFile(subFileName);
+                AddFileAssetMap(subFileName, asset);
+                if (!string.IsNullOrEmpty(subInfo.shaderName)) {
+                    if (!mShaderNameMap.ContainsKey(subInfo.shaderName))
+                        mShaderNameMap.Add(subInfo.shaderName, subInfo.fileName);
+                    else {
+                        Debug.LogWarningFormat("ShaderName: {0} has exists!!!", subInfo.shaderName);
+                    }
+                }
+                if (++iterCnt >= maxAsyncCnt) {
+                    iterCnt = 0;
+                    yield return LoadWaitEndFrame;
+                }
+            }
+
+            // 依赖
+            for (int j = 0; j < abHeader.dependFileCount; ++j) {
+                DependBinaryFile.DependInfo depInfo = DependBinaryFile.LoadDependInfo(stream);
+                string dependFileName = GetCheckFileName(ref fileRealMap, depInfo.abFileName,
+                                                            false, isUseCreateFromFile);
+                asset._AddDependFile(dependFileName, depInfo.refCount);
+                if (++iterCnt >= maxAsyncCnt) {
+                    iterCnt = 0;
+                    yield return LoadWaitEndFrame;
+                }
+            }
+        }
+
+        stream.Close();
+        stream.Dispose();
+
+        if (onFinish != null)
+            onFinish(true);
+    }
+
+    //二进制
+    private void LoadBinary(byte[] bytes, Action<bool> onFinish,
+            // 异步参数
+            UnityEngine.MonoBehaviour async = null, int maxAsyncCnt = 1000) {
+        
+        if (async != null) {
+            async.StartCoroutine(LoadBinaryAsync(bytes, onFinish, maxAsyncCnt));
+        } else {
+            LoadBinarySync(bytes);
+            if (onFinish != null)
+                onFinish(true);
+        }
 
         //	GC.Collect ();
     }
@@ -2456,7 +2575,7 @@ public class AssetLoader : IResourceLoader {
             //  #if USE_DEP_BINARY_HEAD
             //   LoadBinaryHeader(mXmlLoaderTask.ByteData);
             //       #else
-            LoadBinary(mXmlLoaderTask.ByteData);
+            LoadBinary(mXmlLoaderTask.ByteData, null);
             //      #endif
 #endif
 #else
@@ -2501,7 +2620,7 @@ public class AssetLoader : IResourceLoader {
     }
 
     // 手动调用读取配置
-    public void LoadConfigs(Action<bool> OnFinishEvent) {
+    public void LoadConfigs(Action<bool> OnFinishEvent, MonoBehaviour async = null) {
 
 #if !USE_DEP_BINARY_AB
 		m_LastUsedTime = Time.realtimeSinceStartup;
@@ -2537,15 +2656,13 @@ public class AssetLoader : IResourceLoader {
                 // #if USE_DEP_BINARY_HEAD
                 //          LoadBinaryHeader(asset.bytes);
                 //  #else
-                LoadBinary(asset.bytes);
+                LoadBinary(asset.bytes, OnFinishEvent, async);
                 //  #endif
 #endif
                 usedTime = Time.realtimeSinceStartup - startTime;
                 Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());
 
                 bundle.Unload(true);
-                if (OnFinishEvent != null)
-                    OnFinishEvent(true);
             } else {
                 Debug.LogErrorFormat("[LoadConfig]读取TextAsset {0} 失敗", name);
                 bundle.Unload(true);

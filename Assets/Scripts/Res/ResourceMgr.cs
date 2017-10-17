@@ -8,11 +8,11 @@ using UnityEngine.SceneManagement;
 public class ResourceMgr: Singleton<ResourceMgr>
 {
 
-	public void LoadConfigs(Action<bool> OnFinish)
+	public void LoadConfigs(Action<bool> OnFinish, MonoBehaviour async = null)
 	{
 		AssetLoader loader = mAssetLoader as AssetLoader;
 		if (loader != null) {
-			loader.LoadConfigs(OnFinish);
+			loader.LoadConfigs(OnFinish, async);
 		}
 	}
 
