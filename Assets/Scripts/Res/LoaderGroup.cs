@@ -14,6 +14,7 @@ public enum LoaderGroupNodeType {
 
     MeshRenderer_Material,
     MeshRenderer_MainTexture,
+    MeshRenderer_Texture,
 
     UITexture_MainTexture,
     UITexture_Material,
@@ -100,7 +101,11 @@ public class LoaderGroupNode {
                 var sp2 = this.spriteRenderer;
                 if (sp2 == null)
                     return;
-                loader.LoadSprite(sp2, fileName);
+                string spriteName = this.Param as string;
+                if (string.IsNullOrEmpty(spriteName))
+                    loader.LoadSprite(sp2, fileName);
+                else
+                    loader.LoadSprite(sp2, fileName, spriteName);
                 break;
             case LoaderGroupNodeType.MeshRenderer_Material:
                 var mr1 = this.meshRenderer;
@@ -113,6 +118,14 @@ public class LoaderGroupNode {
                 if (mr2 == null)
                     return;
                 loader.LoadMainTexture(mr2, fileName);
+                break;
+            case LoaderGroupNodeType.MeshRenderer_Texture:
+                var mr3 = this.meshRenderer;
+                if (mr3 == null)
+                    return;
+                string matName = this.Param as string;
+                if (!string.IsNullOrEmpty(matName))
+                    loader.LoadTexture(mr3, fileName, matName);
                 break;
             case LoaderGroupNodeType.TextMesh_Font:
                 var tM1 = this.textMesh;
@@ -260,6 +273,15 @@ public class LoaderGroup : MonoBehaviour {
         }
     }
 
+    // 挂载
+    public void AttachLoader() {
+        Loader = GetComponent<BaseResLoader>();
+    }
+
+    private void Awake() {
+        AttachLoader();
+    }
+
     // 更新加载
     protected virtual void Update() {
         if (m_LoadList == null)
@@ -288,7 +310,7 @@ public class LoaderGroup : MonoBehaviour {
     // 加载项
     public BaseResLoader Loader {
         get;
-        set;
+        private set;
     }
     /* UISprite */
     // 注册加载Atals
@@ -391,6 +413,66 @@ public class LoaderGroup : MonoBehaviour {
     }
 
     /* ------------------------------------------------- */
+
+    /* SpriteRenderer */
+    public void RegisterSpriteRenderer_SpriteData(SpriteRenderer target, string fileName) {
+        if (target == null || string.IsNullOrEmpty(fileName))
+            return;
+        var node = CreateLoaderGroupNode(target, fileName, LoaderGroupNodeType.SpriteRenderer_SpriteData);
+        if (node == null)
+            return;
+        LoadList.AddLast(node);
+    }
+
+    public void RegisterSpriteRenderer_SpriteData(SpriteRenderer target, string fileName, string spriteName) {
+        if (target == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(spriteName))
+            return;
+        var node = CreateLoaderGroupNode(target, fileName, LoaderGroupNodeType.SpriteRenderer_SpriteData, spriteName);
+        if (node == null)
+            return;
+        LoadList.AddLast(node);
+    }
+
+    public void RegisterSpriteRenderer_Material(SpriteRenderer target, string fileName) {
+        if (target == null || string.IsNullOrEmpty(fileName))
+            return;
+        var node = CreateLoaderGroupNode(target, fileName, LoaderGroupNodeType.SpriteRenderer_Material);
+        if (node == null)
+            return;
+        LoadList.AddLast(node);
+    }
+    /* ------------------------------------------------- */
+
+    /*MeshRenderer*/
+    public void RegisterMeshRenderer_Material(MeshRenderer target, string fileName) {
+        if (target == null || string.IsNullOrEmpty(fileName))
+            return;
+        var node = CreateLoaderGroupNode(target, fileName, LoaderGroupNodeType.MeshRenderer_Material);
+        if (node == null)
+            return;
+        LoadList.AddLast(node);
+    }
+
+    public void RegisterMeshRenderer_MainTexture(MeshRenderer target, string fileName) {
+        if (target == null || string.IsNullOrEmpty(fileName))
+            return;
+        var node = CreateLoaderGroupNode(target, fileName, LoaderGroupNodeType.MeshRenderer_MainTexture);
+        if (node == null)
+            return;
+        LoadList.AddLast(node);
+    }
+
+    public void RegisterMeshRenderer_Texture(MeshRenderer target, string fileName, string shaderTexName) {
+        if (target == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(shaderTexName))
+            return;
+        var node = CreateLoaderGroupNode(target, fileName, LoaderGroupNodeType.MeshRenderer_Texture, shaderTexName);
+        if (node == null)
+            return;
+        LoadList.AddLast(node);
+    }
+    /* ------------------------------------------------- */
+
+
     private void OnDestroy() {
         if (m_LoadList != null)
             m_LoadList.Clear();
