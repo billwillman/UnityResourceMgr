@@ -230,7 +230,8 @@ public class NGUILoaderGroupNode: LoaderGroupNode {
                 if (sp5 == null)
                     return;
                 string spName1 = this.Param as string;
-                nguiLoader.LoadSprite(sp5, fileName, spName1);
+                if (!string.IsNullOrEmpty(spName1))
+                    nguiLoader.LoadSprite(sp5, fileName, spName1);
                 break;
             case LoaderGroupNodeType.UI2DSprite_Material:
                 var sp6 = this.ui2DSprite;
@@ -379,11 +380,11 @@ public class LoaderGroup : MonoBehaviour {
         LoadList.AddLast(node);
     }
 
-    public void RegisterUI2DSprite_SpriteData(UI2DSprite target, string fileName) {
-        if (target == null || string.IsNullOrEmpty(fileName))
+    public void RegisterUI2DSprite_SpriteData(UI2DSprite target, string fileName, string spriteName) {
+        if (target == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(spriteName))
             return;
 
-        var node = CreateNGUIGroupNode(target, fileName, LoaderGroupNodeType.UI2DSprite_SpriteData);
+        var node = CreateNGUIGroupNode(target, fileName, LoaderGroupNodeType.UI2DSprite_SpriteData, spriteName);
         if (node == null)
             return;
         LoadList.AddLast(node);
