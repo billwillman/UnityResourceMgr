@@ -184,7 +184,7 @@ public class ResourceAssetCache: AssetCache
 #if USE_UNLOADASSET
             // 必须不能在Editor中跑
             if (!Application.isEditor)
-                GameObject.DestroyImmediate(mTarget);
+                GameObject.DestroyImmediate(mTarget, true);
 #endif
         }
         else

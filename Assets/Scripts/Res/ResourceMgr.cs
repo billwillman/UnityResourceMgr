@@ -718,7 +718,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 				} else {
                     // 不是UNITY编辑器模式，才可以调用,并且只能使用GameObject.DestroyImmediate
                     if (!Application.isEditor) {
-                        GameObject.DestroyImmediate(orgObj);
+                        GameObject.DestroyImmediate(orgObj, true);
                     }
                 }
 			}
