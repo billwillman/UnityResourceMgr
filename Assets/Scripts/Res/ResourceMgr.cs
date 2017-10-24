@@ -501,18 +501,18 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
         if (!UnLoadOrgObject (obj, isUnloadAsset)) {
 			UnityEngine.GameObject gameObj = obj as GameObject;
-			if (gameObj != null)
-			{
-				int instId = obj.GetInstanceID ();
-
-				// gameObj.transform.parent = null;
-				if (Application.isPlaying)
-					UnityEngine.GameObject.Destroy (obj);
-				else
-					UnityEngine.GameObject.DestroyImmediate (obj);
-				//UnityEngine.GameObject.DestroyImmediate (obj);
-
-				AssetCacheManager.Instance._OnDestroyGameObject (instId);
+            if (gameObj != null) {
+                // 删除实例化的GameObject
+                // isUnloadAsset不能用在实例化的GAMEOBJECT上
+                if (!isUnloadAsset) {
+                    int instId = obj.GetInstanceID();
+                    // gameObj.transform.parent = null;
+                    if (Application.isPlaying)
+                        UnityEngine.GameObject.Destroy(obj);
+                    else
+                        UnityEngine.GameObject.DestroyImmediate(obj);
+                    AssetCacheManager.Instance._OnDestroyGameObject(instId);
+                }
 			} else
 			{
 				if (Application.isPlaying)

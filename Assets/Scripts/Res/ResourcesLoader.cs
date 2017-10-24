@@ -181,6 +181,11 @@ public class ResourceAssetCache: AssetCache
             //	else
             //		Resources.UnloadAsset(mTarget);
             // GameObject.DestroyImmediate(mTarget, true);
+#if USE_UNLOADASSET
+            // 必须不能在Editor中跑
+            if (!Application.isEditor)
+                GameObject.DestroyImmediate(mTarget);
+#endif
         }
         else
         {
@@ -314,7 +319,7 @@ public class ResourcesLoader: IResourceLoader
 		
 	}
 
-	#region public function
+#region public function
 
 	public T LoadObject<T>(string fileName, ResourceCacheType cacheType) where T: UnityEngine.Object
 	{
@@ -388,9 +393,9 @@ public class ResourcesLoader: IResourceLoader
 
 			AssetCache cache = AddRefCache(orgFileName, orgObj, cacheType, typeof(T));
 
-			#if USE_HAS_EXT
+#if USE_HAS_EXT
 			AddCacheMap(cache);
-			#endif
+#endif
 
 			if (onProcess != null)
 				onProcess(request.progress, request.isDone, orgObj);
@@ -412,9 +417,9 @@ public class ResourcesLoader: IResourceLoader
 				}
 
 				AssetCache cache = AddRefCache(orgFileName, orgObj, cacheType, typeof(T));
-				#if USE_HAS_EXT
+#if USE_HAS_EXT
 				AddCacheMap(cache);
-				#endif
+#endif
 
 				if (onProcess != null)
 					onProcess(req.progress, req.isDone, orgObj);
@@ -640,7 +645,7 @@ public class ResourcesLoader: IResourceLoader
 	{
 		return LoadObjectAsync<ShaderVariantCollection> (fileName, cacheType, priority, onProcess);
 	}
-#endif	
+#endif
 
 	public override bool OnSceneLoad(string sceneName)
 	{
@@ -672,7 +677,7 @@ public class ResourcesLoader: IResourceLoader
 		return cache;
 	}
 
-	#endregion public function
+#endregion public function
 
 	private AssetCache FindCache(string fileName, System.Type resType)
 	{
