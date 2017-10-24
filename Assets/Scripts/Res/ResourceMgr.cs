@@ -700,6 +700,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
     // if use ResourceCacheType.rctTempAdd you must call UnLoadOrgObject
     // isUnloadAsset is not used by GameObject
+    // isUnloadAsset只针对原始资源
     private bool UnLoadOrgObject(UnityEngine.Object orgObj, bool isUnloadAsset)
 	{
 		if (orgObj == null)
