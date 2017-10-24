@@ -499,12 +499,12 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			return;
 		}
 
+        bool isGameObj = (obj != null) && (obj is GameObject);
         if (!UnLoadOrgObject (obj, isUnloadAsset)) {
-			UnityEngine.GameObject gameObj = obj as GameObject;
-            if (gameObj != null) {
+            if (isGameObj) {
                 // 删除实例化的GameObject
                 // isUnloadAsset不能用在实例化的GAMEOBJECT上
-                if (!isUnloadAsset) {
+                if (obj != null && !isUnloadAsset) {
                     int instId = obj.GetInstanceID();
                     // gameObj.transform.parent = null;
                     if (Application.isPlaying)
@@ -515,10 +515,12 @@ public class ResourceMgr: Singleton<ResourceMgr>
                 }
 			} else
 			{
-				if (Application.isPlaying)
-					UnityEngine.GameObject.Destroy (obj);
-				else
-					UnityEngine.GameObject.DestroyImmediate (obj);
+                if (obj != null) {
+                    if (Application.isPlaying)
+                        UnityEngine.GameObject.Destroy(obj);
+                    else
+                        UnityEngine.GameObject.DestroyImmediate(obj);
+                }
 
 			}
 		}
@@ -699,7 +701,6 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	}
 
     // if use ResourceCacheType.rctTempAdd you must call UnLoadOrgObject
-    // isUnloadAsset is not used by GameObject
     // isUnloadAsset只针对原始资源
     private bool UnLoadOrgObject(UnityEngine.Object orgObj, bool isUnloadAsset)
 	{
