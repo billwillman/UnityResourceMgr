@@ -498,18 +498,20 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			//UnityEngine.GameObject.DestroyImmediate(obj);
 			return;
 		}
-        
+
         if (!UnLoadOrgObject (obj, isUnloadAsset)) {
             bool isGameObj = (obj != null) && (obj is GameObject);
             if (isGameObj) {
-                // 删除实例化的GameObject
-                int instId = obj.GetInstanceID();
-                // gameObj.transform.parent = null;
-                if (Application.isPlaying)
-                    UnityEngine.GameObject.Destroy(obj);
-                else
-                    UnityEngine.GameObject.DestroyImmediate(obj);
-                AssetCacheManager.Instance._OnDestroyGameObject(instId);
+                if (!isUnloadAsset) {
+                    // 删除实例化的GameObject
+                    int instId = obj.GetInstanceID();
+                    // gameObj.transform.parent = null;
+                    if (Application.isPlaying)
+                        UnityEngine.GameObject.Destroy(obj);
+                    else
+                        UnityEngine.GameObject.DestroyImmediate(obj);
+                    AssetCacheManager.Instance._OnDestroyGameObject(instId);
+                }
             } else {
                 if (obj != null) {
                     if (Application.isPlaying)
@@ -713,8 +715,11 @@ public class ResourceMgr: Singleton<ResourceMgr>
 					Resources.UnloadAsset(orgObj);
 					return true;
 				} else {
-                    GameObject.DestroyImmediate(orgObj, true);
-                    return true;
+                    if (!Application.isEditor && cache is AssetBundleCache) {
+                        // 只有AB的原始GAMEOBJECT才支持这个
+                        GameObject.DestroyImmediate(orgObj, true);
+                        return true;
+                    }
                 }
 			}
 			return false;

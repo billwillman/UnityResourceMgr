@@ -181,9 +181,6 @@ public class ResourceAssetCache: AssetCache
             //	else
             //		Resources.UnloadAsset(mTarget);
             // GameObject.DestroyImmediate(mTarget, true);
-#if USE_UNLOADASSET
-            GameObject.DestroyImmediate(mTarget, true);
-#endif
         }
         else
         {
