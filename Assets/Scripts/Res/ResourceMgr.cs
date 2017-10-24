@@ -498,23 +498,19 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			//UnityEngine.GameObject.DestroyImmediate(obj);
 			return;
 		}
-
-        bool isGameObj = (obj != null) && (obj is GameObject);
+        
         if (!UnLoadOrgObject (obj, isUnloadAsset)) {
+            bool isGameObj = (obj != null) && (obj is GameObject);
             if (isGameObj) {
                 // 删除实例化的GameObject
-                // isUnloadAsset不能用在实例化的GAMEOBJECT上
-                if (obj != null && !isUnloadAsset) {
-                    int instId = obj.GetInstanceID();
-                    // gameObj.transform.parent = null;
-                    if (Application.isPlaying)
-                        UnityEngine.GameObject.Destroy(obj);
-                    else
-                        UnityEngine.GameObject.DestroyImmediate(obj);
-                    AssetCacheManager.Instance._OnDestroyGameObject(instId);
-                }
-			} else
-			{
+                int instId = obj.GetInstanceID();
+                // gameObj.transform.parent = null;
+                if (Application.isPlaying)
+                    UnityEngine.GameObject.Destroy(obj);
+                else
+                    UnityEngine.GameObject.DestroyImmediate(obj);
+                AssetCacheManager.Instance._OnDestroyGameObject(instId);
+            } else {
                 if (obj != null) {
                     if (Application.isPlaying)
                         UnityEngine.GameObject.Destroy(obj);
@@ -522,7 +518,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
                         UnityEngine.GameObject.DestroyImmediate(obj);
                 }
 
-			}
+            }
 		}
 	}
 	
@@ -717,7 +713,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 					Resources.UnloadAsset(orgObj);
 					return true;
 				} else {
-                        GameObject.DestroyImmediate(orgObj, true);
+                    GameObject.DestroyImmediate(orgObj, true);
+                    return true;
                 }
 			}
 			return false;
