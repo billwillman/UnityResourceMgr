@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils;
 
 namespace NsLib.ResMgr {
 
@@ -119,6 +120,64 @@ namespace NsLib.ResMgr {
             }
         }
     }
+
+    public class LoaderGroupKeyComparser : StructComparser<LoaderGroupKey> { }
+
+    public struct LoaderGroupKey: IEquatable<LoaderGroupKey> {
+
+        public bool Equals(LoaderGroupKey other) {
+            return this == other;
+        }
+
+        public override bool Equals(object obj) {
+            if (obj == null)
+                return false;
+
+            if (GetType() != obj.GetType())
+                return false;
+
+            if (obj is LoaderGroupKey) {
+                LoaderGroupKey other = (LoaderGroupKey)obj;
+                return Equals(other);
+            } else
+                return false;
+
+        }
+
+        public static bool operator ==(LoaderGroupKey a, LoaderGroupKey b) {
+            return (a.type == b.type) && (string.Compare(a.fileName, b.fileName) == 0);
+        }
+
+        public static bool operator !=(LoaderGroupKey a, LoaderGroupKey b) {
+            return !(a == b);
+        }
+
+        public override int GetHashCode() {
+            int ret = FilePathMgr.InitHashValue();
+            FilePathMgr.HashCode(ref ret, fileName);
+            FilePathMgr.HashCode(ref ret, type);
+            return ret;
+        }
+
+
+
+
+        public LoaderGroupKey(string fileName, LoaderGroupNodeType type) {
+            this.fileName = fileName;
+            this.type = type;
+        }
+
+        public string fileName {
+            get;
+            private set;
+        }
+
+        public LoaderGroupNodeType type {
+            get;
+            private set;
+        }
+    }
+
 
     // 加载节点
     public class LoaderGroupNode {
@@ -368,7 +427,8 @@ namespace NsLib.ResMgr {
                 if (node != null) {
                     node.Load(loader);
                 }
-                m_LoadMap.Remove(node.Type);
+                LoaderGroupKey key = new LoaderGroupKey(node.FileName, node.Type);
+                m_LoadMap.Remove(key);
                 m_LoadList.RemoveFirst();
 
                 first = m_LoadList.First;
@@ -559,9 +619,10 @@ namespace NsLib.ResMgr {
             if (nodeType == LoaderGroupNodeType.None)
                 return;
 
-            Dictionary<LoaderGroupNodeType, LoaderGroupNode> loadMap = this.LoadMap;
+            var loadMap = this.LoadMap;
+            LoaderGroupKey key = new LoaderGroupKey(fileName, nodeType);
             LoaderGroupNode node;
-            if (loadMap.TryGetValue(nodeType, out node)) {
+            if (loadMap.TryGetValue(key, out node)) {
                 node.AddSubNode(type, target);
                 return;
             }
@@ -572,7 +633,7 @@ namespace NsLib.ResMgr {
             var loadList = this.LoadList;
 
             loadList.AddLast(ret);
-            LoadMap.Add(nodeType, ret);
+            LoadMap.Add(key, ret);
         }
 
         public void CreateLoaderGroupNode(UnityEngine.Object target, string fileName,
@@ -585,9 +646,10 @@ namespace NsLib.ResMgr {
             if (nodeType == LoaderGroupNodeType.None)
                 return;
 
-            Dictionary<LoaderGroupNodeType, LoaderGroupNode> loadMap = this.LoadMap;
+            var loadMap = this.LoadMap;
+            LoaderGroupKey key = new LoaderGroupKey(fileName, nodeType);
             LoaderGroupNode node;
-            if (loadMap.TryGetValue(nodeType, out node)) {
+            if (loadMap.TryGetValue(key, out node)) {
                 node.AddSubNode(type, target);
                 return;
             }
@@ -598,7 +660,7 @@ namespace NsLib.ResMgr {
             var loadList = this.LoadList;
 
             loadList.AddLast(ret);
-            LoadMap.Add(nodeType, ret);
+            LoadMap.Add(key, ret);
         }
 
         protected LinkedList<LoaderGroupNode> LoadList {
@@ -609,16 +671,16 @@ namespace NsLib.ResMgr {
             }
         }
 
-        protected Dictionary<LoaderGroupNodeType, LoaderGroupNode> LoadMap {
+        protected Dictionary<LoaderGroupKey, LoaderGroupNode> LoadMap {
             get {
                 if (m_LoadMap == null)
-                    m_LoadMap = new Dictionary<LoaderGroupNodeType, LoaderGroupNode>();
+                    m_LoadMap = new Dictionary<LoaderGroupKey, LoaderGroupNode>(LoaderGroupKeyComparser.Default);
                 return m_LoadMap;
             }
         }
 
         private LinkedList<LoaderGroupNode> m_LoadList = null;
-        private Dictionary<LoaderGroupNodeType, LoaderGroupNode> m_LoadMap = null;
+        private Dictionary<LoaderGroupKey, LoaderGroupNode> m_LoadMap = null;
     }
 
 }
