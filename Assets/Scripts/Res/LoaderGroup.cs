@@ -33,6 +33,7 @@ namespace NsLib.ResMgr {
 
         UITexture_MainTexture,
         UITexture_Material,
+        UITexture_Texture,
 
         UISprite_Atals,
         UISprite_Material,
@@ -45,9 +46,22 @@ namespace NsLib.ResMgr {
 
     public class LoaderGroupSubNode {
 
+        public LoaderGroupSubNode() {
+
+        }
+
         public LoaderGroupSubNode(LoaderGroupSubNodeType type, UnityEngine.Object target) {
+            Init(type, target);
+        }
+
+        public void Init(LoaderGroupSubNodeType type, UnityEngine.Object target) {
             this.type = type;
             this.target = target;
+        }
+
+        public void Reset() {
+            type = LoaderGroupSubNodeType.None;
+            target = null;
         }
 
         public LoaderGroupSubNodeType type {
@@ -119,6 +133,16 @@ namespace NsLib.ResMgr {
                 return (target != null) && (target is GameObject);
             }
         }
+
+        public LinkedListNode<LoaderGroupSubNode> LinkNode {
+            get {
+                if (m_LinkNode == null)
+                    m_LinkNode = new LinkedListNode<LoaderGroupSubNode>(this);
+                return m_LinkNode;
+            }
+        }
+
+        private LinkedListNode<LoaderGroupSubNode> m_LinkNode = null;
     }
 
     public class LoaderGroupKeyComparser : StructComparser<LoaderGroupKey> { }
@@ -182,34 +206,109 @@ namespace NsLib.ResMgr {
     // 加载节点
     public class LoaderGroupNode {
 
+        public LoaderGroupNode() {
+        }
+
         public LoaderGroupNode(string fileName, LoaderGroupNodeType type,
+            System.Object param = null) {
+            Init(fileName, type, param);
+        }
+
+        public bool LoadAll(int instanceId, BaseResLoader loader) {
+            if (m_SubNodeList == null || loader == null)
+                return false;
+            var node = m_SubNodeList.First;
+            while (node != null) {
+                var next = node.Next;
+                var n = node.Value;
+                if (n != null && n.IsVaild && n.target.GetInstanceID() == instanceId) {
+                    DoLoad(loader, n);
+                    m_SubNodeList.Remove(node);
+                    DestroySubNodeByPool(n);
+                    return true;
+                }
+                node = next;
+            }
+            return false;
+        }
+
+        public void Init(string fileName, LoaderGroupNodeType type,
             System.Object param = null) {
             m_FileName = fileName;
             m_LoaderGroupNodeType = type;
             m_Param = param;
         }
 
+        public void Reset() {
+            m_FileName = string.Empty;
+            m_LoaderGroupNodeType = LoaderGroupNodeType.None;
+            m_Param = null;
+
+            if (m_SubNodeList != null) {
+                var node = m_SubNodeList.First;
+                while (node != null) {
+                    var next = node.Next;
+                    var subNode = node.Value;
+                    DestroySubNodeByPool(subNode);
+                    m_SubNodeList.Remove(node);
+                    node = next;
+                }
+            }
+        }
+
+        public int LoadCount {
+            get {
+                if (m_SubNodeList == null)
+                    return 0;
+                return m_SubNodeList.Count;
+            }
+        }
+
+
+        private static ObjectPool<LoaderGroupSubNode> m_SubNodePool = null;
+        private static void InitPool() {
+            if (m_SubNodePool != null)
+                return;
+            m_SubNodePool = new ObjectPool<LoaderGroupSubNode>();
+            m_SubNodePool.Init(0);
+        }
+        private static LoaderGroupSubNode CreateSubNodeByPool(LoaderGroupSubNodeType type, UnityEngine.Object target) {
+            InitPool();
+            var ret = m_SubNodePool.GetObject();
+            ret.Init(type, target);
+            return ret;
+        }
+        private static void DestroySubNodeByPool(LoaderGroupSubNode node) {
+            if (node == null)
+                return;
+            node.Reset();
+            InitPool();
+            m_SubNodePool.Store(node);
+        }
+
         public void AddSubNode(LoaderGroupSubNodeType type, UnityEngine.Object target) {
             if (m_SubNodeList == null)
-                m_SubNodeList = new List<LoaderGroupSubNode>();
+                m_SubNodeList = new LinkedList<LoaderGroupSubNode>();
 
             // 防止重复加入
             if (IsFind(type, target))
                 return;
 
-            LoaderGroupSubNode subNode = new LoaderGroupSubNode(type, target);
-            m_SubNodeList.Add(subNode);
+            LoaderGroupSubNode subNode = CreateSubNodeByPool(type, target);
+            m_SubNodeList.AddLast(subNode.LinkNode);
         }
 
         private bool IsFind(LoaderGroupSubNodeType type, UnityEngine.Object target) {
             if (m_SubNodeList == null || m_SubNodeList.Count <= 0)
                 return false;
-            for (int i = 0; i < m_SubNodeList.Count; ++i) {
-                var subNode = m_SubNodeList[i];
+            var node = m_SubNodeList.First;
+            while (node != null) {
+                var subNode = node.Value;
                 if (subNode != null && subNode.IsVaild) {
                     if (subNode.type == type && subNode.target == target)
                         return true;
                 }
+                node = node.Next;
             }
             return false;
         }
@@ -259,6 +358,15 @@ namespace NsLib.ResMgr {
                     if (t2 == null)
                         return true;
                     nguiLoader.LoadMaterial(t2, fileName);
+                    break;
+                case LoaderGroupSubNodeType.UITexture_Texture:
+                    var t3 = node.uiTexture;
+                    if (t3 == null)
+                        return true;
+                    string matName = this.Param as string;
+                    if (string.IsNullOrEmpty(matName))
+                        return true;
+                    nguiLoader.LoadTexture(t3, fileName, matName);
                     break;
                 case LoaderGroupSubNodeType.UISprite_Atals:
                     var sp1 = node.uiSprite;
@@ -366,19 +474,35 @@ namespace NsLib.ResMgr {
         public void Load(BaseResLoader loader) {
             if (loader == null || m_SubNodeList == null)
                 return;
-            for (int i = 0; i < m_SubNodeList.Count; ++i) {
-                var subNode = m_SubNodeList[i];
+            loader.IsCheckLoaderGroup = false;
+            var node = m_SubNodeList.First;
+            while (node != null) {
+                var next = node.Next;
+                var subNode = node.Value;
                 if (subNode != null) {
                     DoLoad(loader, subNode);
+
                 }
+                m_SubNodeList.Remove(node);
+                DestroySubNodeByPool(subNode);
+                node = next;
             }
-            m_SubNodeList.Clear();
+            loader.IsCheckLoaderGroup = true;
+        }
+
+        public LinkedListNode<LoaderGroupNode> LinkListNode {
+            get {
+                if (m_LinkListNode == null)
+                    m_LinkListNode = new LinkedListNode<LoaderGroupNode>(this);
+                return m_LinkListNode;
+            }
         }
 
         private string m_FileName = string.Empty;
         private System.Object m_Param = null;
-        private List<LoaderGroupSubNode> m_SubNodeList = null;
+        private LinkedList<LoaderGroupSubNode> m_SubNodeList = null;
         private LoaderGroupNodeType m_LoaderGroupNodeType = LoaderGroupNodeType.None;
+        private LinkedListNode<LoaderGroupNode> m_LinkListNode = null;
     }
 
     public class LoaderGroup : MonoBehaviour {
@@ -398,6 +522,28 @@ namespace NsLib.ResMgr {
         // 挂载
         public void AttachLoader() {
             Loader = GetComponent<BaseResLoader>();
+        }
+
+        public void LoadAll(int instanceId) {
+            if (m_LoadList == null || m_LoadMap == null)
+                return;
+            var loader = this.Loader;
+            if (loader == null)
+                return;
+            var node = m_LoadList.First;
+            while (node != null) {
+                var next = node.Next;
+                var n = node.Value;
+                if (n != null && n.LoadAll(instanceId, loader)) {
+                    if (n.LoadCount <= 0) {
+                        m_LoadList.Remove(node);
+                        LoaderGroupKey key = new LoaderGroupKey(n.FileName, n.Type);
+                        m_LoadMap.Remove(key);
+                        DestroyNodeByPool(n);
+                    }
+                }
+                node = next;
+            }
         }
 
         private void Awake() {
@@ -425,6 +571,7 @@ namespace NsLib.ResMgr {
                 LoaderGroupKey key = new LoaderGroupKey(node.FileName, node.Type);
                 m_LoadMap.Remove(key);
                 m_LoadList.RemoveFirst();
+                DestroyNodeByPool(node);
 
                 first = m_LoadList.First;
                 ++curCnt;
@@ -475,6 +622,13 @@ namespace NsLib.ResMgr {
                 return;
 
             CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UITexture_MainTexture);
+        }
+
+        public void RegisterUITexture_LoadTexture(UITexture target, string fileName, string texShaderName) {
+            if (target == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(texShaderName))
+                return;
+
+            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UITexture_Texture, texShaderName);
         }
 
         public void RegisteUITexture_LoadMaterial(UITexture target, string fileName) {
@@ -562,7 +716,13 @@ namespace NsLib.ResMgr {
 
         public void Clear() {
             if (m_LoadList != null) {
-                m_LoadList.Clear();
+                var node = m_LoadList.First;
+                while (node != null) {
+                    var next = node.Next;
+                    DestroyNodeByPool(node.Value);
+                    m_LoadList.Remove(node);
+                    node = next;
+                }
             }
             if (m_LoadMap != null) {
                 m_LoadMap.Clear();
@@ -577,6 +737,7 @@ namespace NsLib.ResMgr {
                 case LoaderGroupSubNodeType.UI2DSprite_MainTexture:
                 case LoaderGroupSubNodeType.UITexture_MainTexture:
                 case LoaderGroupSubNodeType.UISprite_MainTexture:
+                case LoaderGroupSubNodeType.UITexture_Texture:
                     ret = LoaderGroupNodeType.Texture;
                     break;
 
@@ -599,6 +760,9 @@ namespace NsLib.ResMgr {
 
                 case LoaderGroupSubNodeType.UISprite_Atals:
                     ret = LoaderGroupNodeType.Atals;
+                    break;
+                default:
+                    Debug.LogErrorFormat("[ErrorSubNodeType] {0:D}", (int)subType);
                     break;
             }
 
@@ -628,13 +792,13 @@ namespace NsLib.ResMgr {
                 return;
             }
 
-            LoaderGroupNode ret = new LoaderGroupNode(fileName, nodeType, param);
+            LoaderGroupNode ret = CreateNodeByPool(fileName, nodeType, param);
             ret.AddSubNode(type, target);
 
             var loadList = this.LoadList;
 
-            loadList.AddLast(ret);
-            LoadMap.Add(key, ret);
+            loadList.AddLast(ret.LinkListNode);
+            loadMap.Add(key, ret);
         }
 
         protected LinkedList<LoaderGroupNode> LoadList {
@@ -655,6 +819,31 @@ namespace NsLib.ResMgr {
 
         private LinkedList<LoaderGroupNode> m_LoadList = null;
         private Dictionary<LoaderGroupKey, LoaderGroupNode> m_LoadMap = null;
+
+        private static void InitPool() {
+            if (m_NodePool != null)
+                return;
+            m_NodePool = new ObjectPool<LoaderGroupNode>();
+            m_NodePool.Init(0);
+        }
+
+        private static void DestroyNodeByPool(LoaderGroupNode node) {
+            if (node == null)
+                return;
+            InitPool();
+            node.Reset();
+            m_NodePool.Store(node);
+        }
+
+        private LoaderGroupNode CreateNodeByPool(string fileName, LoaderGroupNodeType type,
+            System.Object param = null) {
+            InitPool();
+            LoaderGroupNode ret = m_NodePool.GetObject();
+            ret.Init(fileName, type, param);
+            return ret;
+        }
+
+        private static ObjectPool<LoaderGroupNode> m_NodePool = null;
     }
 
 }

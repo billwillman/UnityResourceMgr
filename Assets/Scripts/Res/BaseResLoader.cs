@@ -63,6 +63,16 @@ public class BaseResLoader: CachedMonoBehaviour
     }
     #endregion
 
+    private bool m_IsCheckLoaderGroup = true;
+    public bool IsCheckLoaderGroup {
+        get {
+            return m_IsCheckLoaderGroup;
+        }
+        set {
+            m_IsCheckLoaderGroup = value;
+        }
+    }
+
     private void CheckVisible()
 	{
 		#if USE_CHECK_VISIBLE
