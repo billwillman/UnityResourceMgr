@@ -123,7 +123,7 @@ namespace NsLib.ResMgr {
 
     public class LoaderGroupKeyComparser : StructComparser<LoaderGroupKey> { }
 
-    public struct LoaderGroupKey: IEquatable<LoaderGroupKey> {
+    public struct LoaderGroupKey : IEquatable<LoaderGroupKey> {
 
         public bool Equals(LoaderGroupKey other) {
             return this == other;
@@ -233,10 +233,84 @@ namespace NsLib.ResMgr {
             }
         }
 
-        
+        protected bool DoNGUILoad(BaseResLoader loader, LoaderGroupSubNode node) {
+            if (loader == null || node == null || !node.IsVaild)
+                return false;
+
+            string fileName = this.FileName;
+            if (string.IsNullOrEmpty(fileName))
+                return false;
+
+            var nguiLoader = loader as NGUIResLoader;
+            if (nguiLoader == null)
+                return false;
+
+            bool ret = true;
+            LoaderGroupSubNodeType type = node.type;
+            switch (type) {
+                case LoaderGroupSubNodeType.UITexture_MainTexture:
+                    var t1 = node.uiTexture;
+                    if (t1 == null)
+                        return true;
+                    nguiLoader.LoadMainTexture(t1, fileName);
+                    break;
+                case LoaderGroupSubNodeType.UITexture_Material:
+                    var t2 = node.uiTexture;
+                    if (t2 == null)
+                        return true;
+                    nguiLoader.LoadMaterial(t2, fileName);
+                    break;
+                case LoaderGroupSubNodeType.UISprite_Atals:
+                    var sp1 = node.uiSprite;
+                    if (sp1 == null)
+                        return true;
+                    nguiLoader.LoadAltas(sp1, fileName);
+                    break;
+                case LoaderGroupSubNodeType.UISprite_Material:
+                    var sp2 = node.uiSprite;
+                    if (sp2 == null)
+                        return true;
+                    nguiLoader.LoadMaterial(sp2, fileName);
+                    break;
+                case LoaderGroupSubNodeType.UISprite_MainTexture:
+                    var sp3 = node.uiSprite;
+                    if (sp3 == null)
+                        return true;
+                    nguiLoader.LoadMainTexture(sp3, fileName);
+                    break;
+                case LoaderGroupSubNodeType.UI2DSprite_MainTexture:
+                    var sp4 = node.ui2DSprite;
+                    if (sp4 == null)
+                        return true;
+                    nguiLoader.LoadMainTexture(sp4, fileName);
+                    break;
+                case LoaderGroupSubNodeType.UI2DSprite_SpriteData:
+                    var sp5 = node.ui2DSprite;
+                    if (sp5 == null)
+                        return true;
+                    string spName1 = this.Param as string;
+                    if (!string.IsNullOrEmpty(spName1))
+                        nguiLoader.LoadSprite(sp5, fileName, spName1);
+                    break;
+                case LoaderGroupSubNodeType.UI2DSprite_Material:
+                    var sp6 = node.ui2DSprite;
+                    if (sp6 == null)
+                        return true;
+                    nguiLoader.LoadMaterial(sp6, fileName);
+                    break;
+                default:
+                    ret = false;
+                    break;
+            }
+            return ret;
+        }
 
         // 加载
         protected virtual void DoLoad(BaseResLoader loader, LoaderGroupSubNode node) {
+
+            if (DoNGUILoad(loader, node))
+                return;
+
             if (loader == null || node == null || !node.IsVaild)
                 return;
             string fileName = this.FileName;
@@ -305,85 +379,6 @@ namespace NsLib.ResMgr {
         private System.Object m_Param = null;
         private List<LoaderGroupSubNode> m_SubNodeList = null;
         private LoaderGroupNodeType m_LoaderGroupNodeType = LoaderGroupNodeType.None;
-    }
-
-    // NGUI加载节点
-    public class NGUILoaderGroupNode : LoaderGroupNode {
-
-        public NGUILoaderGroupNode(string fileName,
-            LoaderGroupNodeType type, System.Object param = null) : base(fileName, type, param) {
-
-        }
-
-        protected override void DoLoad(BaseResLoader loader, LoaderGroupSubNode node) {
-            if (loader == null || node == null || !node.IsVaild)
-                return;
-
-            string fileName = this.FileName;
-            if (string.IsNullOrEmpty(fileName))
-                return;
-
-            var nguiLoader = loader as NGUIResLoader;
-            if (nguiLoader == null)
-                return;
-
-            LoaderGroupSubNodeType type = node.type;
-            switch (type) {
-                case LoaderGroupSubNodeType.UITexture_MainTexture:
-                    var t1 = node.uiTexture;
-                    if (t1 == null)
-                        return;
-                    nguiLoader.LoadMainTexture(t1, fileName);
-                    break;
-                case LoaderGroupSubNodeType.UITexture_Material:
-                    var t2 = node.uiTexture;
-                    if (t2 == null)
-                        return;
-                    nguiLoader.LoadMaterial(t2, fileName);
-                    break;
-                case LoaderGroupSubNodeType.UISprite_Atals:
-                    var sp1 = node.uiSprite;
-                    if (sp1 == null)
-                        return;
-                    nguiLoader.LoadAltas(sp1, fileName);
-                    break;
-                case LoaderGroupSubNodeType.UISprite_Material:
-                    var sp2 = node.uiSprite;
-                    if (sp2 == null)
-                        return;
-                    nguiLoader.LoadMaterial(sp2, fileName);
-                    break;
-                case LoaderGroupSubNodeType.UISprite_MainTexture:
-                    var sp3 = node.uiSprite;
-                    if (sp3 == null)
-                        return;
-                    nguiLoader.LoadMainTexture(sp3, fileName);
-                    break;
-                case LoaderGroupSubNodeType.UI2DSprite_MainTexture:
-                    var sp4 = node.ui2DSprite;
-                    if (sp4 == null)
-                        return;
-                    nguiLoader.LoadMainTexture(sp4, fileName);
-                    break;
-                case LoaderGroupSubNodeType.UI2DSprite_SpriteData:
-                    var sp5 = node.ui2DSprite;
-                    if (sp5 == null)
-                        return;
-                    string spName1 = this.Param as string;
-                    if (!string.IsNullOrEmpty(spName1))
-                        nguiLoader.LoadSprite(sp5, fileName, spName1);
-                    break;
-                case LoaderGroupSubNodeType.UI2DSprite_Material:
-                    var sp6 = node.ui2DSprite;
-                    if (sp6 == null)
-                        return;
-                    nguiLoader.LoadMaterial(sp6, fileName);
-                    break;
-                default:
-                    base.DoLoad(loader, node);
-                    break;
-            }
-        }
     }
 
     public class LoaderGroup : MonoBehaviour {
@@ -612,28 +607,7 @@ namespace NsLib.ResMgr {
 
         protected void CreateNGUIGroupNode(UIWidget target, string fileName,
              LoaderGroupSubNodeType type, System.Object param = null) {
-            if (target == null || string.IsNullOrEmpty(fileName))
-                return;
-
-            var nodeType = GetLoaderGroupNodeType(type);
-            if (nodeType == LoaderGroupNodeType.None)
-                return;
-
-            var loadMap = this.LoadMap;
-            LoaderGroupKey key = new LoaderGroupKey(fileName, nodeType);
-            LoaderGroupNode node;
-            if (loadMap.TryGetValue(key, out node)) {
-                node.AddSubNode(type, target);
-                return;
-            }
-
-            NGUILoaderGroupNode ret = new NGUILoaderGroupNode(fileName, nodeType, param);
-            ret.AddSubNode(type, target);
-
-            var loadList = this.LoadList;
-
-            loadList.AddLast(ret);
-            LoadMap.Add(key, ret);
+            CreateLoaderGroupNode(target, fileName, type, param);
         }
 
         public void CreateLoaderGroupNode(UnityEngine.Object target, string fileName,
