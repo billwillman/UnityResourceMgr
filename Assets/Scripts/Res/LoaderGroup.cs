@@ -38,10 +38,12 @@ namespace NsLib.ResMgr {
         UISprite_Atals,
         UISprite_Material,
         UISprite_MainTexture,
+        UISprite_Texture,
 
         UI2DSprite_MainTexture,
         UI2DSprite_SpriteData,
         UI2DSprite_Material,
+        UI2DSprite_Texture,
     }
 
     public class LoaderGroupSubNode {
@@ -214,7 +216,7 @@ namespace NsLib.ResMgr {
             Init(fileName, type, param);
         }
 
-        public bool LoadAll(int instanceId, BaseResLoader loader) {
+        public bool LoadAll(int instanceId, BaseResLoader loader, LoaderGroupSubNodeType subType) {
             if (m_SubNodeList == null || loader == null)
                 return false;
             var node = m_SubNodeList.First;
@@ -222,7 +224,9 @@ namespace NsLib.ResMgr {
                 var next = node.Next;
                 var n = node.Value;
                 if (n != null && n.IsVaild && n.target.GetInstanceID() == instanceId) {
-                    DoLoad(loader, n);
+                    // 类型一样直接不加载
+                    if (n.type != subType)
+                        DoLoad(loader, n);
                     m_SubNodeList.Remove(node);
                     DestroySubNodeByPool(n);
                     return true;
@@ -524,7 +528,7 @@ namespace NsLib.ResMgr {
             Loader = GetComponent<BaseResLoader>();
         }
 
-        public void LoadAll(int instanceId) {
+        public void LoadAll(int instanceId, LoaderGroupSubNodeType subType) {
             if (m_LoadList == null || m_LoadMap == null)
                 return;
             var loader = this.Loader;
@@ -534,7 +538,7 @@ namespace NsLib.ResMgr {
             while (node != null) {
                 var next = node.Next;
                 var n = node.Value;
-                if (n != null && n.LoadAll(instanceId, loader)) {
+                if (n != null && n.LoadAll(instanceId, loader, subType)) {
                     if (n.LoadCount <= 0) {
                         m_LoadList.Remove(node);
                         LoaderGroupKey key = new LoaderGroupKey(n.FileName, n.Type);
@@ -707,10 +711,6 @@ namespace NsLib.ResMgr {
 
 
         private void OnDestroy() {
-            Clear();
-        }
-
-        private void OnDisable() {
             Clear();
         }
 
