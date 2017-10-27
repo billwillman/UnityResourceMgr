@@ -16,7 +16,8 @@ namespace NsLib.ResMgr {
         Material,
         SpriteData,
         Texture,
-        Atals
+        Atals,
+        Skeleton
     }
 
     public enum LoaderGroupSubNodeType {
@@ -44,6 +45,8 @@ namespace NsLib.ResMgr {
         UI2DSprite_SpriteData,
         UI2DSprite_Material,
         UI2DSprite_Texture,
+
+        SkeletonAnimation_ScriptObject,
     }
 
     public class LoaderGroupSubNode {
@@ -216,6 +219,11 @@ namespace NsLib.ResMgr {
             Init(fileName, type, param);
         }
 
+        private bool IsLoadAllMustLoad(LoaderGroupSubNodeType currentType, LoaderGroupSubNodeType nextType) {
+            bool ret = currentType != nextType;
+            return ret;
+        }
+
         public bool LoadAll(int instanceId, BaseResLoader loader, LoaderGroupSubNodeType subType) {
             if (m_SubNodeList == null || loader == null)
                 return false;
@@ -225,7 +233,7 @@ namespace NsLib.ResMgr {
                 var n = node.Value;
                 if (n != null && n.IsVaild && n.target.GetInstanceID() == instanceId) {
                     // 类型一样直接不加载
-                    if (n.type != subType)
+                    if (IsLoadAllMustLoad(n.type, subType))
                         DoLoad(loader, n);
                     m_SubNodeList.Remove(node);
                     DestroySubNodeByPool(n);
@@ -419,6 +427,7 @@ namespace NsLib.ResMgr {
 
         // 加载
         protected virtual void DoLoad(BaseResLoader loader, LoaderGroupSubNode node) {
+
 
             if (DoNGUILoad(loader, node))
                 return;
@@ -747,6 +756,10 @@ namespace NsLib.ResMgr {
                 case LoaderGroupSubNodeType.UISprite_Material:
                 case LoaderGroupSubNodeType.UITexture_Material:
                     ret = LoaderGroupNodeType.Material;
+                    break;
+
+                case LoaderGroupSubNodeType.SkeletonAnimation_ScriptObject:
+                    ret = LoaderGroupNodeType.Skeleton;
                     break;
 
                 case LoaderGroupSubNodeType.TextMesh_Font:
