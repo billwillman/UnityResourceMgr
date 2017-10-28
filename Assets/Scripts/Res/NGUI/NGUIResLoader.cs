@@ -121,6 +121,11 @@ public class NGUIResLoader: BaseResLoader  {
         if (result == 2) {
             uiTexture.material = GameObject.Instantiate(mat);
             AddOrSetInstanceMaterialMap(uiTexture.GetInstanceID(), uiTexture.material);
+        } else if (result == 1) {
+            if (uiTexture.material == null) {
+                mat = GetInstanceMaterialMap(uiTexture.GetInstanceID());
+                uiTexture.material = mat;
+            }
         }
 
 		return mat != null;
@@ -140,9 +145,14 @@ public class NGUIResLoader: BaseResLoader  {
         if (result == 2) {
             uiSprite.material = GameObject.Instantiate(mat);
             AddOrSetInstanceMaterialMap(uiSprite.GetInstanceID(), uiSprite.material);
+        } else if (result == 1) {
+            if (uiSprite.material == null) {
+                mat = GetInstanceMaterialMap(uiSprite.GetInstanceID());
+                uiSprite.material = mat;
+            }
         }
 
-		return mat != null;
+        return mat != null;
 	}
 
 	public void ClearMaterial(UISprite uiSprite)
@@ -328,9 +338,14 @@ public class NGUIResLoader: BaseResLoader  {
         if (result == 2) {
             uiSprite.material = GameObject.Instantiate(mat);
             AddOrSetInstanceMaterialMap(uiSprite.GetInstanceID(), uiSprite.material);
+        } else if (result == 1) {
+            if (uiSprite.material == null) {
+                mat = GetInstanceMaterialMap(uiSprite.GetInstanceID());
+                uiSprite.material = mat;
+            }
         }
 
-		return mat != null;
+        return mat != null;
 	}
 
 	public bool LoadAltas(UISprite uiSprite, string fileName)

@@ -23,6 +23,15 @@ public class BaseResLoader: CachedMonoBehaviour
     // 记录实例化的材质Map
     private Dictionary<int, Material> m_InstanceMaterialMap = null;
 
+    protected Material GetInstanceMaterialMap(int instanceId) {
+        if (m_InstanceMaterialMap != null && m_InstanceMaterialMap.Count > 0) {
+            Material ret;
+            if (m_InstanceMaterialMap.TryGetValue(instanceId, out ret))
+                return ret;
+        }
+        return null;
+    }
+
     protected void AddOrSetInstanceMaterialMap(int instanceId, Material cloneMaterial) {
         if (m_InstanceMaterialMap != null && m_InstanceMaterialMap.Count > 0) {
             Material oldMat;
@@ -484,6 +493,10 @@ public class BaseResLoader: CachedMonoBehaviour
 
 		if (result == 2)
 			renderer.sharedMaterial = mat;
+        else if (result == 1) {
+            if (renderer.sharedMaterial == null)
+                renderer.sharedMaterial = mat;
+        }
 		return mat != null;
 	}
 
@@ -508,8 +521,12 @@ public class BaseResLoader: CachedMonoBehaviour
 
 		if (result == 2)
 			sprite.sharedMaterial = mat;
+        else if (result == 1) {
+            if (sprite.sharedMaterial == null)
+                sprite.sharedMaterial = mat;
+        }
 
-		return mat != null;
+        return mat != null;
 	}
 
 	public void ClearMaterial(SpriteRenderer sprite)
