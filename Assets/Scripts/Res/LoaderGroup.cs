@@ -184,7 +184,7 @@ namespace NsLib.ResMgr {
         public override int GetHashCode() {
             int ret = FilePathMgr.InitHashValue();
             FilePathMgr.HashCode(ref ret, fileName);
-            FilePathMgr.HashCode(ref ret, type);
+            FilePathMgr.HashCode(ref ret, (int)type);
             return ret;
         }
 
