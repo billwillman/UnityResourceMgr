@@ -194,9 +194,12 @@ public class ResourceMgr: Singleton<ResourceMgr>
         GameObject ret = GameObject.Instantiate(orgObj);
         if (ret != null)
         {
-            AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
-            var script = ret.AddComponent<ResInstDestroy>();
-			script.CheckVisible();
+			// 优化GC,只有在必要的地方才加脚本
+            if (AssetCacheManager.Instance.FindOrgObjCache(orgObj) != null) {
+				AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
+				var script = ret.AddComponent<ResInstDestroy>();
+				script.CheckVisible();
+			}
         }
         return ret;
     }
@@ -219,10 +222,13 @@ public class ResourceMgr: Singleton<ResourceMgr>
         GameObject ret = GameObject.Instantiate(orgObj);
         if (ret != null)
         {
-            AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
-            ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
-            script.DelayDestroyTime = delayDestroyTime;
-			script.CheckVisible();
+			// 优化GC,只有在必要的地方才加脚本
+            if (AssetCacheManager.Instance.FindOrgObjCache(orgObj) != null) {
+				AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
+				ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
+				script.DelayDestroyTime = delayDestroyTime;
+				script.CheckVisible();
+			}
         }
         return ret;
     }
