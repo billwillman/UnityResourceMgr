@@ -648,7 +648,7 @@ namespace NsLib.ResMgr {
             if (target == null || string.IsNullOrEmpty(fileName))
                 return;
 
-            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UISprite_Material);
+            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UITexture_Material);
         }
 
         /* ------------------------------------------------- */
