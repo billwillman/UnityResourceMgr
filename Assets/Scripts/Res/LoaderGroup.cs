@@ -192,19 +192,30 @@ namespace NsLib.ResMgr {
 
 
         public LoaderGroupKey(string fileName, LoaderGroupNodeType type) {
-            this.fileName = fileName;
-            this.type = type;
+			m_FileName = fileName;
+			m_Type = type;
         }
 
         public string fileName {
-            get;
-            private set;
+            get {
+				return m_FileName;
+			}
+            private set {
+				m_FileName = value;
+			}
         }
 
         public LoaderGroupNodeType type {
-            get;
-            private set;
+            get {
+				return m_Type;
+			}
+            private set {
+				m_Type = value;
+			}
         }
+
+		private string m_FileName;
+		private LoaderGroupNodeType m_Type;
     }
 
 
