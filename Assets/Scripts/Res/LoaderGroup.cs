@@ -235,6 +235,25 @@ namespace NsLib.ResMgr {
             return ret;
         }
 
+        public bool ClearLoader(int instanceId, BaseResLoader loader, LoaderGroupSubNodeType subType) {
+            if (m_SubNodeList == null || loader == null)
+                return false;
+            var node = m_SubNodeList.First;
+            while (node != null) {
+                var next = node.Next;
+                var n = node.Value;
+                if (n != null && n.IsVaild && n.target.GetInstanceID() == instanceId) {
+                    if (!IsLoadAllMustLoad(n.type, subType)) {
+                        m_SubNodeList.Remove(node);
+                        DestroySubNodeByPool(n);
+                        return true;
+                    }
+                }
+                node = next;
+            }
+            return false;
+        }
+
         public bool LoadAll(int instanceId, BaseResLoader loader, LoaderGroupSubNodeType subType) {
             if (m_SubNodeList == null || loader == null)
                 return false;
@@ -546,6 +565,26 @@ namespace NsLib.ResMgr {
         // 挂载
         public void AttachLoader() {
             Loader = GetComponent<BaseResLoader>();
+        }
+
+        private void ClearLoader(int instanceId, LoaderGroupSubNodeType subType) {
+            if (m_LoadList == null || m_LoadMap == null)
+                return;
+            var loader = this.Loader;
+            if (loader == null)
+                return;
+            var node = m_LoadList.First;
+            while (node != null) {
+                var next = node.Next;
+                var n = node.Value;
+                if (n != null && n.ClearLoader(instanceId, loader, subType)) {
+                    m_LoadList.Remove(node);
+                    LoaderGroupKey key = new LoaderGroupKey(n.FileName, n.Type);
+                    m_LoadMap.Remove(key);
+                    DestroyNodeByPool(n);
+                }
+                node = next;
+            }
         }
 
         public void LoadAll(int instanceId, LoaderGroupSubNodeType subType) {
