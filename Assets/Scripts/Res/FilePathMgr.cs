@@ -333,7 +333,7 @@ namespace Utils
         }
 
 
-        private static byte[] m_TempStrBuf = new byte[256];
+        private static byte[] m_TempStrBuf = new byte[1024];
 		public string ReadString(Stream stream)
 		{
 			int cnt = ReadInt(stream);
@@ -341,9 +341,8 @@ namespace Utils
 				return string.Empty;
 
             byte[] bytes;
-            if (m_TempStrBuf == null || cnt > m_TempStrBuf.Length) {
-                m_TempStrBuf = new byte[cnt];
-                bytes = m_TempStrBuf;
+            if (cnt > m_TempStrBuf.Length) {
+				bytes = new byte[cnt];
             } else
                 bytes = m_TempStrBuf;
             cnt = stream.Read(bytes, 0, cnt);
