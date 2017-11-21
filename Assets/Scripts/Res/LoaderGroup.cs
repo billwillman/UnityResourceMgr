@@ -229,6 +229,21 @@ namespace NsLib.ResMgr {
             System.Object param = null) {
             Init(fileName, type, param);
         }
+		
+		public int GetFirstDepth() {
+            if (m_SubNodeList == null || m_SubNodeList.Count <= 0)
+                return int.MaxValue;
+            var node = m_SubNodeList.First;
+            if (node == null)
+                return int.MaxValue;
+            var target = node.Value.target;
+            if (target == null)
+                return int.MaxValue;
+            var ngui = target as UIWidget;
+            if (ngui == null)
+                return int.MaxValue;
+            return ngui.depth;
+        }
 
         private bool IsLoadAllMustLoad(LoaderGroupSubNodeType currentType, LoaderGroupSubNodeType nextType) {
             bool ret = currentType != nextType;
@@ -836,6 +851,30 @@ namespace NsLib.ResMgr {
              LoaderGroupSubNodeType type, System.Object param = null) {
             CreateLoaderGroupNode(target, fileName, type, param);
         }
+		
+		private void AddLoadNode(LoaderGroupKey key, LoaderGroupNode node) {
+            if (node == null)
+                return;
+
+            var loadList = this.LoadList;
+            var loadMap = this.LoadMap;
+
+            var checkNode = loadList.First;
+            var currentDepth = node.GetFirstDepth();
+            while (checkNode != null) {
+                var checkDepth = checkNode.Value.GetFirstDepth();
+                if (currentDepth < checkDepth)
+                    break;
+                checkNode = checkNode.Next;
+            }
+
+            if (checkNode != null)
+                loadList.AddBefore(checkNode, node.LinkListNode);
+            else
+                loadList.AddLast(node.LinkListNode);
+
+            loadMap.Add(key, node);
+        }
 
         public void CreateLoaderGroupNode(UnityEngine.Object target, string fileName,
             LoaderGroupSubNodeType type,
@@ -858,10 +897,7 @@ namespace NsLib.ResMgr {
             LoaderGroupNode ret = CreateNodeByPool(fileName, nodeType, param);
             ret.AddSubNode(type, target);
 
-            var loadList = this.LoadList;
-
-            loadList.AddLast(ret.LinkListNode);
-            loadMap.Add(key, ret);
+            AddLoadNode(key, ret);
         }
 
         protected LinkedList<LoaderGroupNode> LoadList {
