@@ -46,7 +46,7 @@ namespace Utils
 			if (stream == null)
 				return false;
 
-			int high = (int)((ulong)value & 0xFFFFFFFF00000000) >> 32;
+			int high = (int)(((ulong)value & 0xFFFFFFFF00000000) >> 32);
 			int low = (int)((ulong)value & 0xFFFFFFFF);
 			bool ret = WriteInt(stream, low);
 			if (!ret)
@@ -113,8 +113,8 @@ namespace Utils
 		public long ReadLong(Stream stream)
 		{
 			long low = ReadInt(stream);
-			long high = ReadInt(stream);
-			long ret = (high << 32) | low;
+            long high = ReadInt(stream);
+            long ret = (long)((((ulong)(high << 32)) & 0xFFFFFFFF00000000) | ((ulong)(low & 0xFFFFFFFF)));
 			return ret;
 		}
 
