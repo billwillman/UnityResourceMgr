@@ -10,36 +10,27 @@ namespace Utils
 {
 	public class FilePathMgr: Singleton<FilePathMgr>
 	{
-		#if _USE_JAVA_WRITEPATH
 		private string m_WritePath = string.Empty;
-		#endif
 
 		public string WritePath
 		{
-			get
-			{
-				#if _USE_JAVA_WRITEPATH
-				if (string.IsNullOrEmpty(m_WritePath))
-				{
+			get {
+                if (string.IsNullOrEmpty(m_WritePath)) {
+#if _USE_JAVA_WRITEPATH
 					// call java function
-					
 					if (string.IsNullOrEmpty(m_WritePath))
 						m_WritePath = Application.persistentDataPath;
-				}
-				
-				return m_WritePath;
-				#else
+#else
+                    m_WritePath = Application.persistentDataPath;
+                    if (string.IsNullOrEmpty(m_WritePath)) {
+                        // call Java function
+                    }
+#endif
+                }
+                return m_WritePath;
+            }
 
-				string ret = Application.persistentDataPath;
-				if (string.IsNullOrEmpty(ret))
-				{
-					// call Java function
-				}
-
-				return ret;
-				#endif
-			}
-		}
+        }
 
 		public bool WriteLong(Stream stream, long value)
 		{
