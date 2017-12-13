@@ -3214,7 +3214,7 @@ class AssetBundleMgr
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
                     CallBuild_5_x_API(exportDir, compressType, target, false, true);
 #else
-					CallBuild_5_x_API(exportDir, 0, target,  false);
+					CallBuild_5_x_API(exportDir, 0, target,  false, true);
 #endif
 
 					AssetDatabase.Refresh();
