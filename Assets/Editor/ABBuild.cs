@@ -265,7 +265,7 @@ class AssetBunbleInfo: IDependBinary
 		
 		CheckIsScene();
 
-		Set_5_x_AssetBundleNames();
+	//	Set_5_x_AssetBundleNames();
 
 		IsBuilded = false;
 	}
@@ -295,7 +295,7 @@ class AssetBunbleInfo: IDependBinary
 
 		CheckIsScene ();
 
-        Set_5_x_AssetBundleNames();
+    //    Set_5_x_AssetBundleNames();
 
 		IsBuilded = false;
 
@@ -1936,7 +1936,36 @@ class AssetBundleMgr
 		ProcessBuild_5_x(m_TempExportDir, m_TempCompressType, m_TempBuildTarget, m_TempIsAppendForce);
 	}
 
-	private AssetBundleManifest CallBuild_5_x_API(string exportDir, int compressType, BuildTarget target, bool isReBuild = true)
+    private UnityEditor.AssetBundleBuild[] BuildAssetBundleBuildArrayFrommAssetBundleList(bool isUseAssetBundleXml = false) {
+        List<UnityEditor.AssetBundleBuild> buildList = new List<UnityEditor.AssetBundleBuild>();
+        for (int i = 0; i < mAssetBundleList.Count; ++i) {
+            AssetBunbleInfo info = mAssetBundleList[i];
+            if (info != null) {
+                UnityEditor.AssetBundleBuild build = new UnityEditor.AssetBundleBuild();
+                build.assetBundleName = info.BundleFileName;
+                build.assetBundleVariant = string.Empty;
+                List<string> subFileList = new List<string>();
+                for (int j = 0; j < info.SubFileCount; ++j) {
+                    subFileList.Add(info.GetSubFiles(j));
+                }
+                build.assetNames = subFileList.ToArray();
+                buildList.Add(build);
+            }
+        }
+
+        if (isUseAssetBundleXml) {
+            UnityEditor.AssetBundleBuild build = new UnityEditor.AssetBundleBuild();
+            build.assetBundleName = "AssetBundles.xml";
+            build.assetBundleVariant = string.Empty;
+            build.assetNames = new string[] { "Assets/AssetBundles.xml" };
+            buildList.Add(build);
+        }
+
+        return buildList.ToArray();
+    }
+
+    private AssetBundleManifest CallBuild_5_x_API(string exportDir, int compressType, BuildTarget target, bool isReBuild = true, 
+        bool isBuildAssetBundleXml = false)
 	{
 		BuildAssetBundleOptions buildOpts = /*BuildAssetBundleOptions.DisableWriteTypeTree |*/
 			BuildAssetBundleOptions.DeterministicAssetBundle;
@@ -1958,9 +1987,12 @@ class AssetBundleMgr
 			buildOpts |= BuildAssetBundleOptions.ChunkBasedCompression;
 #endif
 
-		AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(exportDir, buildOpts, target);
 
-		return manifest;
+        // AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(exportDir, buildOpts, target);
+        UnityEditor.AssetBundleBuild[] abs = BuildAssetBundleBuildArrayFrommAssetBundleList(isBuildAssetBundleXml);
+        AssetBundleManifest manifest = BuildPipeline.BuildAssetBundles(exportDir, abs, buildOpts, target);    
+    
+        return manifest;
 	}
 	
 	void ProcessBuild_5_x(string exportDir, int compressType, BuildTarget target, bool isForceAppend)
@@ -3177,17 +3209,17 @@ class AssetBundleMgr
 					xmlImport = AssetImporter.GetAtPath("Assets/AssetBundles.xml");
 				if (xmlImport != null)
 				{
-					xmlImport.assetBundleName = "AssetBundles.xml";
-					xmlImport.SaveAndReimport();
+				//	xmlImport.assetBundleName = "AssetBundles.xml";
+				//	xmlImport.SaveAndReimport();
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
-                    CallBuild_5_x_API(exportDir, compressType, target, false);
+                    CallBuild_5_x_API(exportDir, compressType, target, false, true);
 #else
 					CallBuild_5_x_API(exportDir, 0, target,  false);
 #endif
 
 					AssetDatabase.Refresh();
 
-					string xmlSrcFile = string.Format("{0}/assetbundles.xml", exportDir);
+					string xmlSrcFile = string.Format("{0}/AssetBundles.xml", exportDir);
 					if (File.Exists(xmlSrcFile))
 					{
 						string xmlDstFile = string.Format("{0}/AssetBundles.xml", exportDir);
