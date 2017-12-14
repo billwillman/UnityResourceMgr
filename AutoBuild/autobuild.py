@@ -1,4 +1,5 @@
-#!/usr/bin/python #coding=utf-8
+#!/usr/bin/python 
+#coding=utf-8
 
 '''
 自动化打包脚本
