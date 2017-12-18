@@ -161,11 +161,14 @@ namespace Utils
         public float ReadSingle(Stream stream) {
             if (stream == null)
                 return 0f;
-            m_TempStrBuf[0] = (byte)stream.ReadByte();
-            m_TempStrBuf[1] = (byte)stream.ReadByte();
-            m_TempStrBuf[2] = (byte)stream.ReadByte();
-            m_TempStrBuf[3] = (byte)stream.ReadByte();
-            float ret = BitConverter.ToSingle(m_TempStrBuf, 0);
+            float ret;
+            lock (m_Lock) {
+                m_TempStrBuf[0] = (byte)stream.ReadByte();
+                m_TempStrBuf[1] = (byte)stream.ReadByte();
+                m_TempStrBuf[2] = (byte)stream.ReadByte();
+                m_TempStrBuf[3] = (byte)stream.ReadByte();
+                ret = BitConverter.ToSingle(m_TempStrBuf, 0);
+            }
             return ret;
         }
 
@@ -191,15 +194,19 @@ namespace Utils
         public Double ReadDouble(Stream stream) {
             if (stream == null)
                 return 0f;
-            m_TempStrBuf[0] = (byte)stream.ReadByte();
-            m_TempStrBuf[1] = (byte)stream.ReadByte();
-            m_TempStrBuf[2] = (byte)stream.ReadByte();
-            m_TempStrBuf[3] = (byte)stream.ReadByte();
-            m_TempStrBuf[4] = (byte)stream.ReadByte();
-            m_TempStrBuf[5] = (byte)stream.ReadByte();
-            m_TempStrBuf[6] = (byte)stream.ReadByte();
-            m_TempStrBuf[7] = (byte)stream.ReadByte();
-            double ret = BitConverter.ToDouble(m_TempStrBuf, 0);
+            double ret;
+            lock (m_Lock) {
+                m_TempStrBuf[0] = (byte)stream.ReadByte();
+                m_TempStrBuf[1] = (byte)stream.ReadByte();
+                m_TempStrBuf[2] = (byte)stream.ReadByte();
+                m_TempStrBuf[3] = (byte)stream.ReadByte();
+                m_TempStrBuf[4] = (byte)stream.ReadByte();
+                m_TempStrBuf[5] = (byte)stream.ReadByte();
+                m_TempStrBuf[6] = (byte)stream.ReadByte();
+                m_TempStrBuf[7] = (byte)stream.ReadByte();
+
+                ret = BitConverter.ToDouble(m_TempStrBuf, 0);
+            }
             return ret;
         }
 
@@ -325,19 +332,29 @@ namespace Utils
 
 
         private static byte[] m_TempStrBuf = new byte[1024];
+		private static System.Object m_Lock = new object();
 		public string ReadString(Stream stream)
 		{
 			int cnt = ReadInt(stream);
 			if (cnt <= 0)
 				return string.Empty;
-
             byte[] bytes;
+            string result;
             if (cnt > m_TempStrBuf.Length) {
-				bytes = new byte[cnt];
-            } else
-                bytes = m_TempStrBuf;
-            cnt = stream.Read(bytes, 0, cnt);
-            return System.Text.Encoding.UTF8.GetString(bytes, 0, cnt);
+                bytes = new byte[cnt];
+                cnt = stream.Read(bytes, 0, cnt);
+                result = System.Text.Encoding.UTF8.GetString(bytes, 0, cnt);
+            } else {
+                lock (m_Lock) {
+                    bytes = m_TempStrBuf;
+                    cnt = stream.Read(bytes, 0, cnt);
+                    result = System.Text.Encoding.UTF8.GetString(bytes, 0, cnt);
+                }
+            }
+           
+            
+            bytes = null;
+            return result;
 		}
 
         public static int InitHashValue() {
