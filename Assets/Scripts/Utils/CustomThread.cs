@@ -58,6 +58,8 @@ namespace Utils
                 LocalThreadState = ThreadState.Running;
                 m_Thread.Start ();
             }
+			
+			m_IsDispose = false;
         }
 
         protected override void OnFree(bool isManual)
