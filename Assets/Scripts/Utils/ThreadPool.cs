@@ -61,9 +61,13 @@ namespace Utils {
         }
 
         public void Clear() {
+            if (m_Pool.Count <= 0)
+                return;
             ThreadPoolThread thread = m_Pool.Pop();
             while (thread != null) {
                 thread.Dispose();
+                if (m_Pool.Count <= 0)
+                    break;
                 thread = m_Pool.Pop();
             }
             m_Pool.Clear();
@@ -72,7 +76,9 @@ namespace Utils {
         // 线程池创建线程
         private ThreadPoolThread CreateThread(Action<System.Object> onThreadProcess, System.Object state = null,
             Action<ThreadPoolThread> onMainThreadEnd = null) {
-            ThreadPoolThread ret = m_Pool.Pop();
+            ThreadPoolThread ret = null;
+            if (m_Pool.Count > 0)
+                ret = m_Pool.Pop();
             if (ret == null)
                 ret = new ThreadPoolThread(onThreadProcess, state, onMainThreadEnd);
             else {
