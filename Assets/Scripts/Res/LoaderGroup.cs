@@ -863,15 +863,21 @@ namespace NsLib.ResMgr {
             var currentDepth = node.GetFirstDepth();
             while (checkNode != null) {
                 var checkDepth = checkNode.Value.GetFirstDepth();
-                if (currentDepth < checkDepth)
+                if (currentDepth <= checkDepth)
                     break;
                 checkNode = checkNode.Next;
             }
 
+            // 保护一下
+            var linkListNode = node.LinkListNode;
+            if (linkListNode.List != null)
+                linkListNode.List.Remove(linkListNode);
+            //-----------------------
+
             if (checkNode != null)
-                loadList.AddBefore(checkNode, node.LinkListNode);
+                loadList.AddBefore(checkNode, linkListNode);
             else
-                loadList.AddLast(node.LinkListNode);
+                loadList.AddLast(linkListNode);
 
             loadMap.Add(key, node);
         }
