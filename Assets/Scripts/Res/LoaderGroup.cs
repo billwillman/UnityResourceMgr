@@ -793,8 +793,8 @@ namespace NsLib.ResMgr {
                 var node = m_LoadList.First;
                 while (node != null) {
                     var next = node.Next;
+					m_LoadList.Remove(node);
                     DestroyNodeByPool(node.Value);
-                    m_LoadList.Remove(node);
                     node = next;
                 }
             }
