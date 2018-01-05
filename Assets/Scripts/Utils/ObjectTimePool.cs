@@ -211,6 +211,11 @@ namespace Utils
 			{
 				obj.UsedTime = GetCurrentTime();
 				obj.State = ITimePoolObj<K>.TimeObjState.to_NotUsed;
+				// ------保护一次
+                if (obj.LinkNode.List != null) {
+                    obj.LinkNode.List.Remove(obj.LinkNode);
+                }
+                //----------------
 				m_NotUsedList.AddLast(obj.LinkNode);
 				m_NotUsedHashMap.Add(obj.GetHashKey(), obj);
 			}
