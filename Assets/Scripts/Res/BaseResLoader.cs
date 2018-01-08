@@ -406,6 +406,8 @@ public class BaseResLoader: CachedMonoBehaviour
 		}
 
 		mat = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
+		if (mat == null)
+			return 0;
 		SetResources(target, null, typeof(Material[]));
 		SetResource(target, mat, typeof(Material), "", fileName);
 		return 2;
