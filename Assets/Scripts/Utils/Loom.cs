@@ -73,7 +73,7 @@ public class Loom : MonoBehaviour{
         }
         Interlocked.Increment(ref numThreads);
         //ThreadPool.QueueUserWorkItem(RunAction, a);
-        NsLib.Utils.ThreadPool.QueueUserWorkItem(RunAction, a);
+        Utils.ThreadPool.QueueUserWorkItem(RunAction, a);
         return null;
     }  
 	  
