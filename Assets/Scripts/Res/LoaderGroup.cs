@@ -388,6 +388,15 @@ namespace NsLib.ResMgr {
                 return m_LoaderGroupNodeType;
             }
         }
+		
+		protected void RefreshSpriteAnimiate(UISprite sp) {
+            if (sp == null)
+                return;
+            UISpriteAnimation ani = sp.GetComponent<UISpriteAnimation>();
+            if (ani != null) {
+                ani.RebuildSpriteList();
+            }
+        }
 
         protected bool DoNGUILoad(BaseResLoader loader, LoaderGroupSubNode node) {
             if (loader == null || node == null || !node.IsVaild)
@@ -429,7 +438,13 @@ namespace NsLib.ResMgr {
                     var sp1 = node.uiSprite;
                     if (sp1 == null)
                         return true;
-                    nguiLoader.LoadAltas(sp1, fileName);
+                    if (nguiLoader.LoadAltas(sp1, fileName)) {
+                        string spriteName = this.Param as string;
+                        if (!string.IsNullOrEmpty(spriteName))
+                            sp1.spriteName = spriteName;
+                        // 判断是否有SpriteAnimation
+                        RefreshSpriteAnimiate(sp1);
+                    }
                     break;
                 case LoaderGroupSubNodeType.UISprite_Material:
                     var sp2 = node.uiSprite;
@@ -668,6 +683,16 @@ namespace NsLib.ResMgr {
                 return;
 
             CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UISprite_Atals);
+        }
+		
+		public void RegisterUISprite_LoadAtlas(UISprite target, string fileName, string spriteName) {
+            if (target == null || string.IsNullOrEmpty(fileName))
+                return;
+            if (string.IsNullOrEmpty(spriteName)) {
+                RegisterUISprite_LoadAtlas(target, fileName);
+                return;
+            }
+            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UISprite_Atals, spriteName);
         }
 
         public void RegisterUISprite_LoadMaterial(UISprite target, string fileName) {
