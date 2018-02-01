@@ -808,6 +808,12 @@ namespace NsLib.ResMgr {
         }
         /* ------------------------------------------------- */
 
+		/*
+		// 如果是解耦的UI，然后打队列的方式请开启下面代码
+		private void OnDisable() {
+            this.Clear();
+        }
+		*/
 
         private void OnDestroy() {
             Clear();
