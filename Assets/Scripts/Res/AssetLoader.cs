@@ -1083,7 +1083,7 @@ public class AssetInfo {
     private static AssetLoader mLoader = null;
 }
 
-public class AssetLoader : IResourceLoader {
+public sealed class AssetLoader : IResourceLoader {
     public override bool OnSceneLoad(string sceneName) {
         if (string.IsNullOrEmpty(sceneName))
             return false;

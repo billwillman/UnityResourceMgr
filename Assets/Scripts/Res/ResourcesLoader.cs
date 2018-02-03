@@ -244,7 +244,7 @@ public class ResourceAssetCache: AssetCache
 	private static Utils.ObjectPool<ResourceAssetCache> m_Pool = new Utils.ObjectPool<ResourceAssetCache>();
 }
 
-public class ResourcesLoader: IResourceLoader
+public sealed class ResourcesLoader: IResourceLoader
 {
 	private static readonly string cResourcesStartPath = "resources/";
 	
