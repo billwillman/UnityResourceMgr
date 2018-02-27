@@ -8,11 +8,12 @@ using UnityEngine.SceneManagement;
 public class ResourceMgr: Singleton<ResourceMgr>
 {
 
-	public void LoadConfigs(Action<bool> OnFinish, MonoBehaviour async = null)
+    // isThreadMode: 是否是真多线程异步加载 async: 采用协程。在多线程和协程同时传入，优先使用多线程
+    public void LoadConfigs(Action<bool> OnFinish, MonoBehaviour async = null, bool isThreadMode = false)
 	{
 		AssetLoader loader = mAssetLoader as AssetLoader;
 		if (loader != null) {
-			loader.LoadConfigs(OnFinish, async);
+			loader.LoadConfigs(OnFinish, async, isThreadMode);
 		}
 	}
 

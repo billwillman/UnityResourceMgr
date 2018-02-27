@@ -2381,15 +2381,116 @@ public sealed class AssetLoader : IResourceLoader {
             onFinish(true);
     }
 
-    //二进制
+    // LOOM库
+    private void LoadBinaryLoomAsync(byte[] bytes, Action<bool> onFinish) {
+        if ((bytes == null) || (bytes.Length <= 0))
+            return;
+
+        // 保证不是第一次，为了LOOM在线程里操作
+        WWWFileLoadTask.GetStreamingAssetsPath(true, true);
+        string writePath = FilePathMgr.GetInstance().WritePath;
+        //----------------------------------------------------
+
+        Loom.RunAsync(() => {
+            MemoryStream stream = new MemoryStream(bytes);
+            DependBinaryFile.FileHeader header = DependBinaryFile.LoadFileHeader(stream);
+            if (!DependBinaryFile.CheckFileHeader(header))
+                return;
+            Dictionary<string, string> fileRealMap = null;
+            for (int i = 0; i < header.abFileCount; ++i) {
+                DependBinaryFile.ABFileHeader abHeader = DependBinaryFile.LoadABFileHeader(stream);
+                AssetCompressType compressType = (AssetCompressType)abHeader.compressType;
+                bool isUseCreateFromFile = compressType == AssetCompressType.astNone || compressType == AssetCompressType.astUnityLzo
+#if UNITY_5_3 || UNITY_5_4
+                    || compressType == AssetCompressType.astUnityZip
+#endif
+                    ;
+
+                string assetBundleFileName = GetCheckFileName(ref fileRealMap, abHeader.abFileName,
+                                                            false, isUseCreateFromFile);
+
+                AssetInfo asset;
+                if (!mAssetFileNameMap.TryGetValue(assetBundleFileName, out asset)) {
+                    asset = new AssetInfo(assetBundleFileName);
+                    asset._SetCompressType(compressType);
+                    // 额外添加一个文件名的映射
+                    AddFileAssetMap(assetBundleFileName, asset);
+                } else {
+                    ;
+                }
+
+                // 子文件
+                for (int j = 0; j < abHeader.subFileCount; ++j) {
+                    DependBinaryFile.SubFileInfo subInfo = DependBinaryFile.LoadSubInfo(stream);
+                    string subFileName = subInfo.fileName;
+                    if (string.IsNullOrEmpty(subFileName))
+                        continue;
+                    asset._AddSubFile(subFileName);
+                    AddFileAssetMap(subFileName, asset);
+                    if (!string.IsNullOrEmpty(subInfo.shaderName)) {
+                        if (!mShaderNameMap.ContainsKey(subInfo.shaderName))
+                            mShaderNameMap.Add(subInfo.shaderName, subInfo.fileName);
+                        else {
+                            Debug.LogWarningFormat("ShaderName: {0} has exists!!!", subInfo.shaderName);
+                        }
+                    }
+                }
+
+                // 依赖
+                for (int j = 0; j < abHeader.dependFileCount; ++j) {
+                    DependBinaryFile.DependInfo depInfo = DependBinaryFile.LoadDependInfo(stream);
+
+                    string dependFileName = GetCheckFileName(ref fileRealMap, depInfo.abFileName,
+                                                            false, isUseCreateFromFile);
+
+                    asset._AddDependFile(dependFileName, depInfo.refCount);
+                }
+
+                // 进度
+                float process = ((float)(i + 1)) / ((float)header.abFileCount);
+                LoadConfigProcess = process;
+            }
+
+            stream.Close();
+            stream.Dispose();
+
+            Loom.QueueOnMainThread(() => {
+                // 进度为1f
+                LoadConfigProcess = 1f;
+                if (onFinish != null)
+                    onFinish(true);
+            });
+        });
+    }
+
+    private float m_LoadConfigProcess = 0f;
+    // 加载进度
+    public float LoadConfigProcess {
+        get {
+            lock (this) {
+                return m_LoadConfigProcess;
+            }
+        }
+        private set {
+            lock (this) {
+                m_LoadConfigProcess = value;
+            }
+        }
+    }
+
+    //二进制 isThreadMode: LOOM库多线程
     private void LoadBinary(byte[] bytes, Action<bool> onFinish,
             // 异步参数
-            UnityEngine.MonoBehaviour async = null, int maxAsyncCnt = 1000) {
-        
+            UnityEngine.MonoBehaviour async = null, bool isThreadMode = false, int maxAsyncCnt = 1000) {
+        if (isThreadMode) {
+            // 真。多线程版本
+            LoadBinaryLoomAsync(bytes, onFinish);
+        } else 
         if (async != null) {
             async.StartCoroutine(LoadBinaryAsync(bytes, onFinish, maxAsyncCnt));
         } else {
             LoadBinarySync(bytes);
+            LoadConfigProcess = 1f;
             if (onFinish != null)
                 onFinish(true);
         }
@@ -2619,8 +2720,10 @@ public sealed class AssetLoader : IResourceLoader {
         return assetBundleFileName;
     }
 
-    // 手动调用读取配置
-    public void LoadConfigs(Action<bool> OnFinishEvent, MonoBehaviour async = null) {
+    // 手动调用读取配置, isThreadMode: 是否是多线程LOOM库的方式
+    public void LoadConfigs(Action<bool> OnFinishEvent, MonoBehaviour async = null, bool isThreadMode = false) {
+
+        LoadConfigProcess = 0f;
 
 #if !USE_DEP_BINARY_AB
 		m_LastUsedTime = Time.realtimeSinceStartup;
@@ -2656,7 +2759,7 @@ public sealed class AssetLoader : IResourceLoader {
                 // #if USE_DEP_BINARY_HEAD
                 //          LoadBinaryHeader(asset.bytes);
                 //  #else
-                LoadBinary(asset.bytes, OnFinishEvent, async);
+                LoadBinary(asset.bytes, OnFinishEvent, async, isThreadMode);
                 //  #endif
 #endif
                 usedTime = Time.realtimeSinceStartup - startTime;
@@ -2666,11 +2769,13 @@ public sealed class AssetLoader : IResourceLoader {
             } else {
                 Debug.LogErrorFormat("[LoadConfig]读取TextAsset {0} 失敗", name);
                 bundle.Unload(true);
+                LoadConfigProcess = 1f;
                 if (OnFinishEvent != null)
                     OnFinishEvent(false);
             }
         } else {
             Debug.LogErrorFormat("[LoadConfig]加載 {0} bundle失敗", fileName);
+            LoadConfigProcess = 1f;
             if (OnFinishEvent != null)
                 OnFinishEvent(false);
         }
