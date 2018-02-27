@@ -2377,6 +2377,8 @@ public sealed class AssetLoader : IResourceLoader {
         stream.Close();
         stream.Dispose();
 
+        LoadConfigProcess = 1f;
+
         if (onFinish != null)
             onFinish(true);
     }
