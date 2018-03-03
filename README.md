@@ -35,6 +35,8 @@
    8.增量AssetBundle已经完全支持。
    
    9.支持脚本一键打包，脚本开发语言为Python, 命令行运行 python autobuild.py或者直接双击autobuild.bat(Windows平台)，脚本运行需要安装psUtil库，Windows直接安装psUtil-setup(在AutoBuild/setup里)，Mac下查看psutil.sh脚本内容，安装psutil库。
+   
+   10.AB的依赖配置文件支持三种方式加载：1.同步加载。2.多线程加载（基于改造后的LOOM库，不使用系统线程池，系统线程池在5.3.8版本会有几率卡死，申请不到额外线程）。3.协程异步加载。
 
    
 具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
