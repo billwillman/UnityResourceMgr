@@ -134,6 +134,7 @@ namespace NsLib.ResMgr {
 
                 // 冗余的大小
                 long errSumNum = 0;
+                long errCnt = 0;
                 var iter = rongyuMap.GetEnumerator();
                 int index = 0;
                 while (iter.MoveNext()) {
@@ -161,6 +162,7 @@ namespace NsLib.ResMgr {
 
                     long memSize = perMemSize * iter.Current.Value.refCount;
                     errSumNum += perMemSize * (iter.Current.Value.refCount - 1);
+                    errCnt += (iter.Current.Value.refCount - 1);
                     string bundleNames = string.Empty;
                     if (iter.Current.Value.includeBundles != null) {
                         var bundleNameIter = iter.Current.Value.includeBundles.GetEnumerator();
@@ -183,7 +185,7 @@ namespace NsLib.ResMgr {
                 }
                 iter.Dispose();
 
-                string errSumStr = string.Format(itemFmt, "冗余总计", EditorUtility.FormatBytes(errSumNum), 0, string.Empty);
+                string errSumStr = string.Format(itemFmt, "冗余总计", EditorUtility.FormatBytes(errSumNum), errCnt, string.Empty);
                 if (string.IsNullOrEmpty(ret))
                     ret = errSumStr;
                 else
