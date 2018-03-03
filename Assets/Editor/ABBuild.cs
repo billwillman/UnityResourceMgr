@@ -134,7 +134,7 @@ class AssetBunbleInfo: IDependBinary
 	}
 #endif
 
-	private static string GetBundleFileName(string path, bool removeAssets, bool doReplace)
+	public static string GetBundleFileName(string path, bool removeAssets, bool doReplace)
 	{
 		if (string.IsNullOrEmpty(path))
 			return string.Empty;
