@@ -250,6 +250,7 @@ namespace NsLib.ResMgr {
             return ret;
         }
 
+		/*
         public bool ClearLoader(int instanceId, BaseResLoader loader, LoaderGroupSubNodeType subType) {
             if (m_SubNodeList == null || loader == null)
                 return false;
@@ -268,6 +269,7 @@ namespace NsLib.ResMgr {
             }
             return false;
         }
+		*/
 
         public bool LoadAll(int instanceId, BaseResLoader loader, LoaderGroupSubNodeType subType) {
             if (m_SubNodeList == null || loader == null)
@@ -597,6 +599,7 @@ namespace NsLib.ResMgr {
             Loader = GetComponent<BaseResLoader>();
         }
 
+		/*
         private void ClearLoader(int instanceId, LoaderGroupSubNodeType subType) {
             if (m_LoadList == null || m_LoadMap == null)
                 return;
@@ -616,6 +619,7 @@ namespace NsLib.ResMgr {
                 node = next;
             }
         }
+		*/
 
         public void LoadAll(int instanceId, LoaderGroupSubNodeType subType) {
             if (m_LoadList == null || m_LoadMap == null)
