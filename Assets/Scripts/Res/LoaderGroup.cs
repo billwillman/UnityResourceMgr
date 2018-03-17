@@ -55,18 +55,26 @@ namespace NsLib.ResMgr {
 
         }
 
-        public LoaderGroupSubNode(LoaderGroupSubNodeType type, UnityEngine.Object target) {
-            Init(type, target);
+        public LoaderGroupSubNode(LoaderGroupSubNodeType type, UnityEngine.Object target, System.Object param) {
+            Init(type, target, param);
         }
 
-        public void Init(LoaderGroupSubNodeType type, UnityEngine.Object target) {
+        public System.Object Param {
+            get {
+                return m_Param;
+            }
+        }
+
+        public void Init(LoaderGroupSubNodeType type, UnityEngine.Object target, System.Object param) {
             this.type = type;
             this.target = target;
+            m_Param = param;
         }
 
         public void Reset() {
             type = LoaderGroupSubNodeType.None;
             target = null;
+            m_Param = null;
         }
 
         public LoaderGroupSubNodeType type {
@@ -148,6 +156,7 @@ namespace NsLib.ResMgr {
         }
 
         private LinkedListNode<LoaderGroupSubNode> m_LinkNode = null;
+        private System.Object m_Param = null;
     }
 
     public class LoaderGroupKeyComparser : StructComparser<LoaderGroupKey> { }
@@ -225,9 +234,8 @@ namespace NsLib.ResMgr {
         public LoaderGroupNode() {
         }
 
-        public LoaderGroupNode(string fileName, LoaderGroupNodeType type,
-            System.Object param = null) {
-            Init(fileName, type, param);
+        public LoaderGroupNode(string fileName, LoaderGroupNodeType type) {
+            Init(fileName, type);
         }
 		
 		public int GetFirstDepth() {
@@ -291,17 +299,14 @@ namespace NsLib.ResMgr {
             return false;
         }
 
-        public void Init(string fileName, LoaderGroupNodeType type,
-            System.Object param = null) {
+        public void Init(string fileName, LoaderGroupNodeType type) {
             m_FileName = fileName;
             m_LoaderGroupNodeType = type;
-            m_Param = param;
         }
 
         public void Reset() {
             m_FileName = string.Empty;
             m_LoaderGroupNodeType = LoaderGroupNodeType.None;
-            m_Param = null;
 
             if (m_SubNodeList != null) {
                 var node = m_SubNodeList.First;
@@ -331,10 +336,11 @@ namespace NsLib.ResMgr {
             m_SubNodePool = new ObjectPool<LoaderGroupSubNode>();
             m_SubNodePool.Init(0);
         }
-        private static LoaderGroupSubNode CreateSubNodeByPool(LoaderGroupSubNodeType type, UnityEngine.Object target) {
+        private static LoaderGroupSubNode CreateSubNodeByPool(LoaderGroupSubNodeType type, 
+            UnityEngine.Object target, System.Object param) {
             InitPool();
             var ret = m_SubNodePool.GetObject();
-            ret.Init(type, target);
+            ret.Init(type, target, param);
             return ret;
         }
         private static void DestroySubNodeByPool(LoaderGroupSubNode node) {
@@ -345,7 +351,7 @@ namespace NsLib.ResMgr {
             m_SubNodePool.Store(node);
         }
 
-        public void AddSubNode(LoaderGroupSubNodeType type, UnityEngine.Object target) {
+        public void AddSubNode(LoaderGroupSubNodeType type, UnityEngine.Object target, System.Object param) {
             if (m_SubNodeList == null)
                 m_SubNodeList = new LinkedList<LoaderGroupSubNode>();
 
@@ -353,7 +359,7 @@ namespace NsLib.ResMgr {
             if (IsFind(type, target))
                 return;
 
-            LoaderGroupSubNode subNode = CreateSubNodeByPool(type, target);
+            LoaderGroupSubNode subNode = CreateSubNodeByPool(type, target, param);
             m_SubNodeList.AddLast(subNode.LinkNode);
         }
 
@@ -376,12 +382,6 @@ namespace NsLib.ResMgr {
         public string FileName {
             get {
                 return m_FileName;
-            }
-        }
-
-        public System.Object Param {
-            get {
-                return m_Param;
             }
         }
 
@@ -431,7 +431,7 @@ namespace NsLib.ResMgr {
                     var t3 = node.uiTexture;
                     if (t3 == null)
                         return true;
-                    string matName = this.Param as string;
+                    string matName = node.Param as string;
                     if (string.IsNullOrEmpty(matName))
                         return true;
                     nguiLoader.LoadTexture(t3, fileName, matName);
@@ -441,9 +441,11 @@ namespace NsLib.ResMgr {
                     if (sp1 == null)
                         return true;
                     if (nguiLoader.LoadAltas(sp1, fileName)) {
+                        /*
                         string spriteName = this.Param as string;
                         if (!string.IsNullOrEmpty(spriteName))
                             sp1.spriteName = spriteName;
+                        */
                         // 判断是否有SpriteAnimation
                         RefreshSpriteAnimiate(sp1);
                     }
@@ -470,7 +472,7 @@ namespace NsLib.ResMgr {
                     var sp5 = node.ui2DSprite;
                     if (sp5 == null)
                         return true;
-                    string spName1 = this.Param as string;
+                    string spName1 = node.Param as string;
                     if (!string.IsNullOrEmpty(spName1))
                         nguiLoader.LoadSprite(sp5, fileName, spName1);
                     break;
@@ -511,7 +513,7 @@ namespace NsLib.ResMgr {
                     var sp2 = node.spriteRenderer;
                     if (sp2 == null)
                         return;
-                    string spriteName = this.Param as string;
+                    string spriteName = node.Param as string;
                     if (string.IsNullOrEmpty(spriteName))
                         loader.LoadSprite(sp2, fileName);
                     else
@@ -533,7 +535,7 @@ namespace NsLib.ResMgr {
                     var mr3 = node.meshRenderer;
                     if (mr3 == null)
                         return;
-                    string matName = this.Param as string;
+                    string matName = node.Param as string;
                     if (!string.IsNullOrEmpty(matName))
                         loader.LoadTexture(mr3, fileName, matName);
                     break;
@@ -574,7 +576,6 @@ namespace NsLib.ResMgr {
         }
 
         private string m_FileName = string.Empty;
-        private System.Object m_Param = null;
         private LinkedList<LoaderGroupSubNode> m_SubNodeList = null;
         private LoaderGroupNodeType m_LoaderGroupNodeType = LoaderGroupNodeType.None;
         private LinkedListNode<LoaderGroupNode> m_LinkListNode = null;
@@ -696,7 +697,9 @@ namespace NsLib.ResMgr {
                 RegisterUISprite_LoadAtlas(target, fileName);
                 return;
             }
-            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UISprite_Atals, spriteName);
+
+            target.spriteName = spriteName;
+            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UISprite_Atals);
         }
 
         public void RegisterUISprite_LoadMaterial(UISprite target, string fileName) {
@@ -931,12 +934,12 @@ namespace NsLib.ResMgr {
             LoaderGroupKey key = new LoaderGroupKey(fileName, nodeType);
             LoaderGroupNode node;
             if (loadMap.TryGetValue(key, out node)) {
-                node.AddSubNode(type, target);
+                node.AddSubNode(type, target, param);
                 return;
             }
 
-            LoaderGroupNode ret = CreateNodeByPool(fileName, nodeType, param);
-            ret.AddSubNode(type, target);
+            LoaderGroupNode ret = CreateNodeByPool(fileName, nodeType);
+            ret.AddSubNode(type, target, param);
 
             AddLoadNode(key, ret);
         }
@@ -975,11 +978,10 @@ namespace NsLib.ResMgr {
             m_NodePool.Store(node);
         }
 
-        private LoaderGroupNode CreateNodeByPool(string fileName, LoaderGroupNodeType type,
-            System.Object param = null) {
+        private LoaderGroupNode CreateNodeByPool(string fileName, LoaderGroupNodeType type) {
             InitPool();
             LoaderGroupNode ret = m_NodePool.GetObject();
-            ret.Init(fileName, type, param);
+            ret.Init(fileName, type);
             return ret;
         }
 
