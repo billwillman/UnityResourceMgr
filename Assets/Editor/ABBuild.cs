@@ -2801,7 +2801,11 @@ class AssetBundleMgr
     static public void SetUnityPackageVersion(string apkVersion) {
         PlayerSettings.bundleVersion = apkVersion;
         // 立即保存设置
+#if UNITY_5_6
+        AssetDatabase.SaveAssets();
+#else
         EditorApplication.SaveAssets();
+#endif
     }
 
 	private void CreateBundleResUpdateFiles(string streamAssetsPath, string outPath, string version, bool isRemoveVersionDir)

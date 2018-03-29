@@ -126,8 +126,11 @@ namespace NsLib.ResMgr {
                                  "<td width = \"180\">{2:D}</td>" +
                                  "<td width = \"581\">{3}</td>" +
                                  "</tr>";
-
+#if UNITY_5_6
+                var type = System.Reflection.Assembly.Load("UnityEditor.dll").GetType("UnityEditor.TextureUtil");
+#else
                 var type = Types.GetType("UnityEditor.TextureUtil", "UnityEditor.dll");
+#endif
                 MethodInfo methodInfo = type.GetMethod("GetStorageMemorySize", BindingFlags.Static | BindingFlags.Instance | BindingFlags.Public);
                 if (methodInfo == null)
                     return ret;

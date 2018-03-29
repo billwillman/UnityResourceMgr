@@ -200,7 +200,7 @@ public class AssetCacheManager : Singleton<AssetCacheManager> {
         mRunTime.AddListener(OnTimerEvent);
     }
 
-    public uint GetCheckMemorySize() {
+    public ulong GetCheckMemorySize() {
         /*
 		if ((Application.platform == RuntimePlatform.WindowsPlayer) || (Application.platform == RuntimePlatform.WindowsWebPlayer) ||
 			(Application.platform == RuntimePlatform.OSXPlayer) || (Application.platform == RuntimePlatform.OSXWebPlayer)) {
@@ -221,10 +221,19 @@ public class AssetCacheManager : Singleton<AssetCacheManager> {
 		}*/
 
         if (Application.isEditor)
-            return Profiler.GetTotalReservedMemory() / 2;
+            return GetTotalReservedMemory() / 2;
         else
-            return Profiler.GetTotalReservedMemory();
+            return GetTotalReservedMemory();
         //return Profiler.usedHeapSize;
+    }
+
+    private ulong GetTotalReservedMemory()
+    {
+#if UNITY_5_6
+       return (ulong)UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong();
+#else
+       return (ulong)Profiler.GetTotalReservedMemory();
+#endif
     }
 
     public void ClearUnUsed(bool isStep = false) {

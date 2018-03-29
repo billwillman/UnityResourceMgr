@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Hidden/Unlit/Premultiplied Colored 2"
 {
 	Properties
@@ -64,7 +66,7 @@ Shader "Hidden/Unlit/Premultiplied Colored 2"
 			v2f vert (appdata_t v)
 			{
 				v2f o;
-				o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.color = v.color;
 				o.texcoord = v.texcoord;
 				o.worldPos.xy = v.vertex.xy * _ClipRange0.zw + _ClipRange0.xy;
