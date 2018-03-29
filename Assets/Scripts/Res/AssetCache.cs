@@ -684,7 +684,7 @@ public class AssetCacheManager : Singleton<AssetCacheManager> {
             UpdateMemClearTime(deltTime);
             if (CanClearMem()) {
 #if (!UNITY_EDITOR) && (!ENABLE_PROFILER)
-                    uint checkMemorySize = GetCheckMemorySize ();
+                    var checkMemorySize = GetCheckMemorySize ();
                     if (checkMemorySize >= cCacheMemoryLimit)
                     {
                         ResetMemMaxClearTime();
