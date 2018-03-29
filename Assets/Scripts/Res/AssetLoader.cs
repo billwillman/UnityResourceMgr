@@ -231,7 +231,7 @@ public class AssetInfo {
         }
     }
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
     internal BundleCreateAsyncTask AsyncTask {
         get {
             return m_AsyncTask;
@@ -240,7 +240,7 @@ public class AssetInfo {
 #endif
 
     private WWWFileLoadTask m_WWWTask = null;
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
     private BundleCreateAsyncTask m_AsyncTask = null;
 #endif
     private TaskList m_TaskList = null;
@@ -261,7 +261,7 @@ public class AssetInfo {
             m_WWWTask = null;
         }
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
         if (m_AsyncTask != null) {
             m_AsyncTask.Release();
             m_AsyncTask = null;
@@ -418,7 +418,7 @@ public class AssetInfo {
         return m_TaskList;
     }
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
     private static void OnLocalAsyncResult(ITask task) {
         BundleCreateAsyncTask asycTask = task as BundleCreateAsyncTask;
         if (asycTask == null)
@@ -475,7 +475,7 @@ public class AssetInfo {
         }
     }
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
 
     // 5.3新的异步加载方法
     public bool LoadAsync(TaskList taskList, int priority) {
@@ -571,7 +571,7 @@ public class AssetInfo {
         //	mIsLoading = false;
         if (mCompressType == AssetCompressType.astNone) {
             //	ClearTaskData();
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
             mBundle = AssetBundle.LoadFromFile(mFileName);
 #else
 			mBundle = AssetBundle.CreateFromFile(mFileName);
@@ -581,13 +581,13 @@ public class AssetInfo {
         } else
         if (mCompressType == AssetCompressType.astUnityLzo
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
             || mCompressType == AssetCompressType.astUnityZip
 #endif
             ) {
             // Lz4 new compressType
             //	ClearTaskData();
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
             mBundle = AssetBundle.LoadFromFile(mFileName);
 #else
 			mBundle = AssetBundle.CreateFromFile(mFileName);
@@ -1115,7 +1115,7 @@ public sealed class AssetLoader : IResourceLoader {
         if (asset == null)
             return false;
         int addCount = 0;
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
         if (
 #if USE_LOADFROMFILECOMPRESS
             asset.CompressType == AssetCompressType.astUnityLzo ||
@@ -1135,7 +1135,7 @@ public sealed class AssetLoader : IResourceLoader {
         } else
 #endif
         if (
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
             asset.CompressType == AssetCompressType.astUnityLzo ||
 #endif
             asset.CompressType == AssetCompressType.astUnityZip
@@ -1206,7 +1206,7 @@ public sealed class AssetLoader : IResourceLoader {
 
         int addCount = 0;
         //bool isNew = asset.IsNew();
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
         if (asset.CompressType == AssetCompressType.astUnityLzo ||
             asset.CompressType == AssetCompressType.astUnityZip ||
             asset.CompressType == AssetCompressType.astNone
@@ -1505,7 +1505,7 @@ public sealed class AssetLoader : IResourceLoader {
 
         int addCount = 0;
         //	bool isNew = asset.IsNew();
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
         if (
 #if USE_LOADFROMFILECOMPRESS
             asset.CompressType == AssetCompressType.astUnityLzo ||
@@ -1528,7 +1528,7 @@ public sealed class AssetLoader : IResourceLoader {
         } else
 #endif
         if (
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
             asset.CompressType == AssetCompressType.astUnityLzo ||
 #endif
             asset.CompressType == AssetCompressType.astUnityZip
@@ -1700,7 +1700,7 @@ public sealed class AssetLoader : IResourceLoader {
     }
 #endif
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
 
     internal bool LoadAsyncAssetInfo(AssetInfo asset, TaskList taskList, ref int addCount, int priority,
                                      string resFileName, Action<bool> onEnd = null) {
@@ -2013,7 +2013,7 @@ public sealed class AssetLoader : IResourceLoader {
 #if USE_LOADFROMFILECOMPRESS
                                                         || compressType == AssetCompressType.astUnityLzo
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
                                                         || compressType == AssetCompressType.astUnityZip
 #endif
 
@@ -2112,7 +2112,7 @@ public sealed class AssetLoader : IResourceLoader {
 #if USE_LOADFROMFILECOMPRESS
             || compressType == AssetCompressType.astUnityLzo
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
             || compressType == AssetCompressType.astUnityZip
 #endif
 
@@ -2234,7 +2234,7 @@ public sealed class AssetLoader : IResourceLoader {
 #if USE_LOADFROMFILECOMPRESS
                                                         || compressType == AssetCompressType.astUnityLzo
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
                                                         || compressType == AssetCompressType.astUnityZip
 #endif
 
@@ -2316,7 +2316,7 @@ public sealed class AssetLoader : IResourceLoader {
 #if USE_LOADFROMFILECOMPRESS
                                                         || compressType == AssetCompressType.astUnityLzo
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
                                                         || compressType == AssetCompressType.astUnityZip
 #endif
 
@@ -2570,7 +2570,7 @@ public sealed class AssetLoader : IResourceLoader {
 #if USE_LOADFROMFILECOMPRESS
                                         || compressType == AssetCompressType.astUnityLzo
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
                                         || compressType == AssetCompressType.astUnityZip
 #endif
 
@@ -2737,7 +2737,7 @@ public sealed class AssetLoader : IResourceLoader {
 
         AssetBundle bundle;
         string fileName = GetXmlFileName();
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
         bundle = AssetBundle.LoadFromFile(fileName);
 #else
 		bundle = AssetBundle.CreateFromFile(fileName);

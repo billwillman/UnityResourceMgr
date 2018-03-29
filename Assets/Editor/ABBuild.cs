@@ -1982,7 +1982,7 @@ class AssetBundleMgr
 			buildOpts |= BuildAssetBundleOptions.ForceRebuildAssetBundle;
 		if (compressType == 0)
 			buildOpts |= BuildAssetBundleOptions.UncompressedAssetBundle;
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
         else if (compressType == 2)
 			buildOpts |= BuildAssetBundleOptions.ChunkBasedCompression;
 #endif
@@ -3213,9 +3213,9 @@ class AssetBundleMgr
 					xmlImport = AssetImporter.GetAtPath("Assets/AssetBundles.xml");
 				if (xmlImport != null)
 				{
-				//	xmlImport.assetBundleName = "AssetBundles.xml";
-				//	xmlImport.SaveAndReimport();
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+                    //	xmlImport.assetBundleName = "AssetBundles.xml";
+                    //	xmlImport.SaveAndReimport();
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
                     CallBuild_5_x_API(exportDir, compressType, target, false, true);
 #else
 					CallBuild_5_x_API(exportDir, 0, target,  false, true);
@@ -4361,7 +4361,7 @@ public static class AssetBundleBuild
 		BuildPlatform (eBuildPlatform.eBuildIOS, 1, true);
 	}
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
 
     [MenuItem("Assets/平台打包/-----------")]
 	static public void OnBuildPlatformNone1() {
@@ -4591,7 +4591,7 @@ public static class AssetBundleBuild
 		Cmd_Build(0, true, eBuildPlatform.eBuildWindow, true);
 	}
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
     [MenuItem("Assets/发布/Win32_Debug(Lz4)")]
 	static public void Cmd_BuidWin32_Debug_Lz4()
 	{
@@ -4605,7 +4605,7 @@ public static class AssetBundleBuild
         Cmd_Build(1, true, eBuildPlatform.eBuildWindow);
     }
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
     [MenuItem("Assets/发布/Win32(Lz4)")]
 	static public void Cmd_BuildWin32_Lz4() {
 		Cmd_Build(2, true, eBuildPlatform.eBuildWindow);
@@ -4718,7 +4718,7 @@ public static class AssetBundleBuild
 		mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
 	}
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
     static public void Cmd_Build_Android_ABLz4_Append()
     {
 		string outPath = "outPath/Proj";
@@ -4867,7 +4867,7 @@ public static class AssetBundleBuild
         Cmd_Build(1, true, eBuildPlatform.eBuildAndroid);
     }
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
     [MenuItem("Assets/发布/APK_整包(Lz4)")]
 	static public void Cmd_BuildAPK_Lz4() {
 		Cmd_Build(2, true, eBuildPlatform.eBuildAndroid);

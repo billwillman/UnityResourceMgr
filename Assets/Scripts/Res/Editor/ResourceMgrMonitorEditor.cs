@@ -254,7 +254,7 @@ public class ResourceMgrMonitorEditor: Editor
 				isChg = true;
 			}
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
             cnt = BundleCreateAsyncTask.GetPoolCount();
 			if (cnt != m_LastBundleCreateCnt)
 			{
@@ -307,7 +307,7 @@ public class ResourceMgrMonitorEditor: Editor
 		EditorGUILayout.LabelField("AssetBundleCache Pool");
 		EditorGUILayout.IntField(m_LastBundleCacheCnt);
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
         EditorGUILayout.Space();
 		EditorGUILayout.LabelField("BundleCreateAsyncTask Pool");
 		EditorGUILayout.IntField(m_LastBundleCreateCnt);
