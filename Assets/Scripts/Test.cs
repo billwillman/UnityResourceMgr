@@ -28,8 +28,6 @@ public class Test : CachedMonoBehaviour {
 			} else
 			if (GUI.Button(new Rect(100, 220, 150, 50), "(异步)读取Sprites"))
 			{
-                ResourceMgr.Instance.LoadShader ("resources/@shaders/lightmap-unlit-wind.shader", ResourceCacheType.rctRefAdd);
-                return;
 				m_IsSpritesLoading = true;
 				if (!ResourceMgr.Instance.LoadSpritesAsync("resources/@spirtes/spirtes.png",
 				  delegate (float process, bool isDone, Object[] objs) {
