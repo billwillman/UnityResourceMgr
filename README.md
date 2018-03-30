@@ -41,6 +41,7 @@
    
 具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
 
+### 已经支持5.3和5.6版本UNITY。5.6打AB请选择MD5打包方式
 ### todo: 将读取AssetBundles.xml放在C++层解析，进一步减少MONO堆内存使用量
 
 
