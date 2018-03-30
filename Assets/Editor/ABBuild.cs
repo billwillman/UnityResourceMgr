@@ -2381,7 +2381,7 @@ class AssetBundleMgr
 #endif
 	}
 
-	public string GetUnityEditorPath()
+	public static string GetUnityEditorPath()
 	{
 #if UNITY_EDITOR_WIN
 			string pathList = System.Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
@@ -5038,31 +5038,35 @@ public static class AssetBundleBuild
 				Directory.CreateDirectory(root);
 		}
 	}
-	
-	static private void DeleteDirectorAndFiles(string dir) {
-            if (string.IsNullOrEmpty(dir))
-                return;
-            if (Directory.Exists(dir)) {
-                var subDirs = System.IO.Directory.GetDirectories(dir);
-                if (subDirs != null) {
-                    for (int i = 0; i < subDirs.Length; ++i) {
-                        string subDir = subDirs[i];
-                        DeleteDirectorAndFiles(subDir);
-                    }
-                }
 
-                var subFiles = System.IO.Directory.GetFiles(dir);
-                if (subFiles != null) {
-                    for (int j = 0; j < subFiles.Length; ++j) {
-                        System.IO.File.Delete(subFiles[j]);
-                    }
+    static internal void DeleteDirectorAndFiles(string dir, bool isDebugLog = false) {
+        if (string.IsNullOrEmpty(dir))
+            return;
+        if (Directory.Exists(dir)) {
+            var subDirs = System.IO.Directory.GetDirectories(dir);
+            if (subDirs != null) {
+                for (int i = 0; i < subDirs.Length; ++i) {
+                    string subDir = subDirs[i];
+                    DeleteDirectorAndFiles(subDir, isDebugLog);
                 }
-
-                System.IO.Directory.Delete(dir);
             }
-        }
 
-	static private void Cmd_CopyList(string outPath, List<string> copyList)
+            var subFiles = System.IO.Directory.GetFiles(dir);
+            if (subFiles != null) {
+                for (int j = 0; j < subFiles.Length; ++j) {
+                    if (isDebugLog)
+                        Debug.LogFormat("正在删除文件{0}", subFiles[j]);
+                    System.IO.File.Delete(subFiles[j]);
+                }
+            }
+
+            if (isDebugLog)
+                Debug.LogFormat("正在删除目录{0}", dir);
+            System.IO.Directory.Delete(dir);
+        }
+    }
+
+    static private void Cmd_CopyList(string outPath, List<string> copyList)
 		{
 			if (string.IsNullOrEmpty(outPath) || copyList == null || copyList.Count <= 0)
 				return;
