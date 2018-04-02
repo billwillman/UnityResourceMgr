@@ -13,6 +13,17 @@ public struct PkgSplitABDirInfo
 	public int splitCnt;
 }
 
+public enum PkgPlatformType {
+    // 所有平台
+    pkgAll,
+    // Android
+    pkgAndroid,
+    // IOS
+    pkgIOS,
+    // PC
+    pkgPC
+}
+
 // 编译配置文件
 public class BuildPkg
 {
@@ -82,36 +93,44 @@ public class BuildPkg
 		return true;
 	}
 
-	private string[] LoadSection (string str, string section)
+	private string[] LoadSection (string str, string section, bool isCheckPlatform = true)
 	{
-		if (string.IsNullOrEmpty (str) || string.IsNullOrEmpty (section))
-			return null;
-		section = string.Format ("[{0}]", section);
-		int idx = str.IndexOf (section, StringComparison.CurrentCultureIgnoreCase);
-		if (idx < 0)
-			return null;
-		int startIdx = idx + section.Length;
-		int endIdx = startIdx;
-		endIdx = str.IndexOf ('[', endIdx);
-		string ss;
-		if (endIdx < 0)
-			ss = str.Substring (startIdx);
-		else
-			ss = str.Substring (startIdx, endIdx - startIdx);
-		ss = ss.Trim ();
-		if (string.IsNullOrEmpty (ss))
-			return null;
+        if (string.IsNullOrEmpty(str) || string.IsNullOrEmpty(section))
+            return null;
+        section = string.Format("[{0}]", section);
+        int idx = str.IndexOf(section, StringComparison.CurrentCultureIgnoreCase);
+        if (idx < 0)
+            return null;
+        int startIdx = idx + section.Length;
+        int endIdx = startIdx;
+        endIdx = str.IndexOf('[', endIdx);
+        string ss;
+        if (endIdx < 0)
+            ss = str.Substring(startIdx);
+        else
+            ss = str.Substring(startIdx, endIdx - startIdx);
+        ss = ss.Trim();
+        if (string.IsNullOrEmpty(ss))
+            return null;
 
-		char[] splitChar = new char[1];
-		splitChar [0] = '\n';
-		string[] ret = ss.Split (splitChar);
+        char[] splitChar = new char[1];
+        splitChar[0] = '\n';
+        string[] ret = ss.Split(splitChar);
+        if (isCheckPlatform) {
+            List<string> lists = new List<string>();
+            for (int i = 0; i < ret.Length; ++i) {
+                string s = ret[i].Trim();
+                CheckPkgPlatform(ref s);
+                if (!string.IsNullOrEmpty(s)) {
+                    if (!lists.Contains(s))
+                        lists.Add(s);
+                }
+            }
+            ret = lists.ToArray();
+        }
 
-		for (int i = 0; i < ret.Length; ++i) {
-			ret [i] = ret [i].Trim ();
-		}
-
-		return ret;
-	}
+        return ret;
+    }
 
 	private void Clear ()
 	{
@@ -148,7 +167,48 @@ public class BuildPkg
 		}
 	}
 
-	private string[] m_Copys = null;
+    private void CheckPkgPlatform(ref string line) {
+        PkgPlatformType platformType = GetPkgPlatformType(ref line);
+        if (platformType == PkgPlatformType.pkgAll)
+            return;
+        BuildTarget buildTarget = EditorUserBuildSettings.activeBuildTarget;
+        switch (platformType) {
+            case PkgPlatformType.pkgAndroid:
+                if (buildTarget != BuildTarget.Android)
+                    line = string.Empty;
+                break;
+            case PkgPlatformType.pkgIOS:
+                if (buildTarget != BuildTarget.iOS && buildTarget != BuildTarget.iOS)
+                    line = string.Empty;
+                break;
+            case PkgPlatformType.pkgPC:
+                if (buildTarget != BuildTarget.StandaloneLinux && buildTarget != BuildTarget.StandaloneLinux64 &&
+                    buildTarget != BuildTarget.StandaloneLinuxUniversal && buildTarget != BuildTarget.StandaloneOSXIntel &&
+                    buildTarget != BuildTarget.StandaloneOSXIntel64 && buildTarget != BuildTarget.StandaloneOSXUniversal &&
+                    buildTarget != BuildTarget.StandaloneWindows && buildTarget != BuildTarget.StandaloneWindows64)
+                    line = string.Empty;
+                break;
+        }
+    }
+
+    private PkgPlatformType GetPkgPlatformType(ref string line) {
+        PkgPlatformType ret = PkgPlatformType.pkgAll;
+        if (string.IsNullOrEmpty(line))
+            return ret;
+        if (line.StartsWith("{Android}", StringComparison.CurrentCultureIgnoreCase)) {
+            line = line.Substring(9);
+            ret = PkgPlatformType.pkgAndroid;
+        } else if (line.StartsWith("{IOS}", StringComparison.CurrentCultureIgnoreCase)) {
+            line = line.Substring(5);
+            ret = PkgPlatformType.pkgIOS;
+        } else if (line.StartsWith("{PC}", StringComparison.CurrentCultureIgnoreCase)) {
+            line = line.Substring(4);
+            ret = PkgPlatformType.pkgPC;
+        }
+        return ret;
+    }
+
+    private string[] m_Copys = null;
 	private string[] m_Svns = null;
 	private string[] m_AssetBundles = null;
 	private List<PkgSplitABDirInfo> m_SplitABDirList = null;
