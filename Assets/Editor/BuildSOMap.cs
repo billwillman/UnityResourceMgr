@@ -209,7 +209,8 @@ namespace NsLib {
 
 #if UNITY_EDITOR_WIN
             // WINDOWS平台
-            string cmdToolPath = "../符号表工具/buglySymbolAndroid";
+			// Proj工程目录
+            string cmdToolPath = "../../../符号表工具/buglySymbolAndroid";
             string cmd = string.Format("java -jar {0}/buglySymbolAndroid.jar -i {1}", cmdToolPath, newBuildSODir);
             AssetBundleBuild.RunCmd(cmd);
 #elif UNITY_EDITOR_OSX
