@@ -901,7 +901,7 @@ namespace NsLib.ResMgr {
             var currentDepth = node.GetFirstDepth();
             while (checkNode != null) {
                 var checkDepth = checkNode.Value.GetFirstDepth();
-                if (currentDepth <= checkDepth)
+                if (currentDepth < checkDepth)
                     break;
                 checkNode = checkNode.Next;
             }
