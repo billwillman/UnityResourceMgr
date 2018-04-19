@@ -367,6 +367,10 @@ public class ResourceMgrMonitorEditor: Editor
 		{
 			ResourceMgr.Instance.UnloadUnUsed();
 		}
+
+        if (GUILayout.Button("测试AutoUpdateClear")) {
+            ResourceMgr.Instance.AutoUpdateClear();
+        }
 	}
 
 	string GetBundleKey(string fileName)
