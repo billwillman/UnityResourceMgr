@@ -400,9 +400,11 @@ public class BaseResLoader: CachedMonoBehaviour
 		ResValue value;
 		if (FindResValue (key, out value)) {
 			if (string.Compare (value.tag, fileName) == 0)
+			{
 				// 相等说明当前已经是，所以不需要外面设置了
 				mat = value.obj as Material;
-			return 1;
+				return 1;
+			}
 		}
 
 		mat = ResourceMgr.Instance.LoadMaterial(fileName, ResourceCacheType.rctRefAdd);
