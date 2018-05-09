@@ -551,7 +551,10 @@ namespace NsLib.ResMgr {
         public void Load(BaseResLoader loader) {
             if (loader == null || m_SubNodeList == null)
                 return;
-            loader.IsCheckLoaderGroup = false;
+			/*
+			if (loader != null)
+                loader.AddLoaderGroupAllRef();
+			*/
             var node = m_SubNodeList.First;
             while (node != null) {
                 var next = node.Next;
@@ -564,7 +567,10 @@ namespace NsLib.ResMgr {
                 DestroySubNodeByPool(subNode);
                 node = next;
             }
-            loader.IsCheckLoaderGroup = true;
+			/*
+			if (loader != null)
+                loader.DecLoaderGroupAllRef();
+			*/
         }
 
         public LinkedListNode<LoaderGroupNode> LinkListNode {

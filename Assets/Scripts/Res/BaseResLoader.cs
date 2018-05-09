@@ -71,17 +71,7 @@ public class BaseResLoader: CachedMonoBehaviour
         AddOrSetInstanceMaterialMap(instanceId, null);
     }
     #endregion
-
-    private bool m_IsCheckLoaderGroup = true;
-    public bool IsCheckLoaderGroup {
-        get {
-            return m_IsCheckLoaderGroup;
-        }
-        set {
-            m_IsCheckLoaderGroup = value;
-        }
-    }
-
+	
     private void CheckVisible()
 	{
 		#if USE_CHECK_VISIBLE
@@ -986,4 +976,53 @@ public class BaseResLoader: CachedMonoBehaviour
 	{
 		StartLoadCoroutine(onGetItem, LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadSprite, delayTime));
 	}
+	
+	/*
+		protected bool LoadAllLoaderGroupBegin(UnityEngine.Object target, LoaderGroupSubNodeType subType) {
+            if (target == null || !IsCheckLoaderGroup)
+                return false;
+
+            // 针对自己，还要针对上抛的对象考虑，也要通知上抛对象的LoadAll
+            if (m_LoaderGroup != null) {
+                ++m_LoaderGroupAllRef;
+                int instanceId = target.GetInstanceID();
+                m_LoaderGroup.LoadAll(instanceId, subType);
+                if (!IsTopLoader) {
+                    EventDispatcher.Notify<UnityEngine.Object, LoaderGroupSubNodeType>(
+                        EnumNotify.CACGE_MANAGER_LOADALL, target, subType);
+                }
+                return true;
+            } else {
+                // 判断自己是否已经是顶部UI的UIBASE,如果不是则考虑上抛
+                if (!IsTopLoader) {
+                    ++m_LoaderGroupAllRef;
+                    // 说明不是顶部的UIBase,上抛
+                    EventDispatcher.Notify<UnityEngine.Object, LoaderGroupSubNodeType>(
+                        EnumNotify.CACGE_MANAGER_LOADALL, target, subType);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        protected void LoadAllLoaderGroupEnd() {
+            DecLoaderGroupAllRef();
+        }
+
+        private int m_LoaderGroupAllRef = 0;
+        public bool IsCheckLoaderGroup {
+            get {
+                return m_LoaderGroupAllRef <= 0;
+            }
+        }
+        public void AddLoaderGroupAllRef() {
+            ++m_LoaderGroupAllRef;
+        }
+
+        public void DecLoaderGroupAllRef() {
+            --m_LoaderGroupAllRef;
+            if (m_LoaderGroupAllRef < 0)
+                m_LoaderGroupAllRef = 0;
+        }
+		*/
 }
