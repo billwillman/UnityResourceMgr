@@ -49,9 +49,14 @@ namespace NsHttpClient
 			}
 		}
 
+		private Texture2D m_GeneratorTex = null;
 		// 主线程调用
 		public Texture2D GeneratorTexture()
 		{
+			// 不要反复创建TEXTURE
+            if (m_GeneratorTex != null)
+                return m_GeneratorTex;
+			
 			lock (m_Lock)
 			{
 				if (m_Width <= 0 || m_Height <= 0 || m_PicBuf == null || m_PicBuf.Length <= 0)
@@ -59,6 +64,7 @@ namespace NsHttpClient
 
 				Texture2D ret = new Texture2D(m_Width, m_Height, TextureFormat.ARGB32, false);
 				ret.LoadImage(m_PicBuf, !m_CanRead);
+				m_GeneratorTex = ret;
 				return ret;
 			}
 		}
