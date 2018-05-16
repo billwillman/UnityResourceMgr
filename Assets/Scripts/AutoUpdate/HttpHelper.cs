@@ -133,7 +133,7 @@ namespace NsHttpClient
 
 		// 保证OpenUrl在主线程调用
 		public static HttpClient OpenUrl<T>(string url, T listener, long filePos,  Action<HttpClient, HttpListenerStatus> OnEnd = null, 
-            Action<HttpClient> OnProcess = null, float connectTimeOut = 5.0f, float readTimeOut = 5.0f) where T: HttpClientResponse
+            Action<HttpClient> OnProcess = null, float connectTimeOut = 5.0f, float readTimeOut = 5.0f, string postStr = "") where T: HttpClientResponse
 		{
 			if (string.IsNullOrEmpty(url) || listener == null || filePos < 0)
 				return null;
@@ -146,7 +146,13 @@ namespace NsHttpClient
                 callBack.OnProcess = OnProcess;
             }
             ret.UserData = callBack;
-			ret.Init(url, listener, filePos, connectTimeOut, readTimeOut);
+            HttpClientType clientType = HttpClientType.httpGet;
+            byte[] postBuf = null;
+            if (!string.IsNullOrEmpty(postStr)) {
+                clientType = HttpClientType.httpPost;
+                postBuf = System.Text.Encoding.UTF8.GetBytes(postStr);
+            }
+			ret.Init(url, listener, filePos, connectTimeOut, readTimeOut, clientType, postBuf);
 			m_LinkList.AddLast(ret.LinkNode);
 
 			return ret;
@@ -178,12 +184,12 @@ namespace NsHttpClient
 
         // 保证OpenUrl在主线程调用
         public static HttpClient OpenUrl<T>(string url, T listener, Action<HttpClient, HttpListenerStatus> OnEnd = null, 
-			Action<HttpClient> OnProcess = null, float connectTimeOut = 5.0f, float readTimeOut = 5.0f) where T: HttpClientResponse
+			Action<HttpClient> OnProcess = null, float connectTimeOut = 5.0f, float readTimeOut = 5.0f, string postStr = "") where T: HttpClientResponse
 		{
 			if (string.IsNullOrEmpty(url) || listener == null)
 				return null;
 
-			return OpenUrl<T>(url, listener, 0, OnEnd, OnProcess, connectTimeOut, readTimeOut);
+			return OpenUrl<T>(url, listener, 0, OnEnd, OnProcess, connectTimeOut, readTimeOut, postStr);
 		}
 
 	}
