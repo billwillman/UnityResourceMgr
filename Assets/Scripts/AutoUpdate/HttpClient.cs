@@ -700,6 +700,7 @@ namespace NsHttpClient
             } else {
                 m_Req.Method = "POST";
                 m_Req.ContentType = "application/x-www-form-urlencoded";
+                m_Req.ContentLength = m_PostBuf.Length;
                 StartRequest();
             }
 
