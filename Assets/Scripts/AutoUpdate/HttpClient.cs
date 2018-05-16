@@ -14,8 +14,10 @@ namespace NsHttpClient
 		hsNone,
 		// 发生错误
 		hsError,
-		// 等待链接
-		hsWating,
+        hsRequesting,
+        hsRequested,
+        // 等待链接
+        hsWating,
 		// 正在进行
 		hsDoing,
 		// 进行完成
@@ -31,8 +33,11 @@ namespace NsHttpClient
 		void OnError(int status);
 		void OnResponse(HttpWebResponse rep, HttpClient client);
         void OnEnd();
+        // 流写入
+        void OnRequesting();
+        void OnRequested();
 
-		HttpListenerStatus Status
+        HttpListenerStatus Status
 		{
 			get;
 		}
@@ -61,7 +66,15 @@ namespace NsHttpClient
 			Status = HttpListenerStatus.hsWating;
 		}
 
-		public void OnClose()
+        public void OnRequesting() {
+            Status = HttpListenerStatus.hsRequesting;
+        }
+
+        public void OnRequested() {
+            Status = HttpListenerStatus.hsRequested;
+        }
+
+        public void OnClose()
 		{
 			Status = HttpListenerStatus.hsNone;
 			DoClose();
@@ -332,29 +345,46 @@ namespace NsHttpClient
 		protected long m_MaxReadBytes = 0;
 	}
 
-	// Http模块
-	public class HttpClient: DisposeObject
+    // HttpClient类型：GET 和 POST类型
+    public enum HttpClientType {
+        httpGet,
+        httpPost
+    }
+
+    // Http模块
+    public class HttpClient: DisposeObject
 	{
 		public HttpClient()
 		{}
 
-		public HttpClient(string url, IHttpClientListener listener, float connectTimeOut, float readTimeOut = 5.0f)
+		public HttpClient(string url, IHttpClientListener listener, float connectTimeOut, float readTimeOut = 5.0f,
+            HttpClientType clientType = HttpClientType.httpGet, string postStr = "")
 		{
-			Init(url, listener, 0, connectTimeOut, readTimeOut);
+			Init(url, listener, 0, connectTimeOut, readTimeOut, clientType, GeneratorPostBuf(clientType, postStr));
 		}
-			
-		public HttpClient(string url, IHttpClientListener listener, long filePos, float connectTimeOut, float readTimeOut = 5.0f)
+
+        public HttpClient(string url, IHttpClientListener listener, long filePos, float connectTimeOut, float readTimeOut = 5.0f)
 		{
 			Init(url, listener, filePos, connectTimeOut, readTimeOut);
 		}
 
-		public void Init(string url, IHttpClientListener listener, long filePos, float connectTimeOut, float readTimeOut = 5.0f)
+        private byte[] GeneratorPostBuf(HttpClientType clientType, string postStr) {
+            if (clientType == HttpClientType.httpGet || string.IsNullOrEmpty(postStr))
+                return null;
+            byte[] ret = System.Text.Encoding.UTF8.GetBytes(postStr);
+            return ret;
+        }
+
+        public void Init(string url, IHttpClientListener listener, long filePos, float connectTimeOut, float readTimeOut = 5.0f,
+            HttpClientType clientType = HttpClientType.httpGet, byte[] postBuf = null)
 		{
 			m_Url = url;
 			m_TimeOut = connectTimeOut;
             m_ReadTimeOut = readTimeOut;
             m_Listener = listener;
 			m_FilePos = filePos;
+            m_ClientType = clientType;
+            m_PostBuf = postBuf;
             ResetReadTimeOut();
             ResetConnectTimeOut();
 
@@ -414,7 +444,37 @@ namespace NsHttpClient
 			}
 		}
 
-		private void OnResponse(IAsyncResult result)
+        private void OnRequest(IAsyncResult result) {
+            HttpWebRequest req = result.AsyncState as HttpWebRequest;
+            if (req == null)
+                return;
+            try {
+                // ResetReadTimeOut();
+                var stream = req.EndGetRequestStream(result);
+                if (stream == null) {
+                    if (m_Listener != null)
+                        m_Listener.OnError(-1);
+                    return;
+                }
+                if (m_PostBuf != null && m_PostBuf.Length > 0) {
+                    stream.Write(m_PostBuf, 0, m_PostBuf.Length);
+                    // 置空
+                    m_PostBuf = null;
+                    stream.Flush();
+                }
+                stream.Close();
+                stream.Dispose();
+
+                if (m_Listener != null) {
+                    m_Listener.OnRequested();
+                }
+            } catch {
+                if (m_Listener != null)
+                    m_Listener.OnError(-1);
+            }
+        }
+
+        private void OnResponse(IAsyncResult result)
 		{
 			HttpWebRequest req = result.AsyncState as HttpWebRequest;
 			if (req == null)
@@ -458,7 +518,10 @@ namespace NsHttpClient
 			Close();
 			m_Listener = null;
 			m_FilePos = 0;
-			m_Url = string.Empty;
+            m_PostBuf = null;
+            // 重置为GET
+            m_ClientType = HttpClientType.httpGet;
+            m_Url = string.Empty;
 			m_TimeOut = 5.0f;
             m_ReadTimeOut = 5.0f;
             ResetReadTimeOut();
@@ -558,10 +621,25 @@ namespace NsHttpClient
 
         // 主线程
         private void OnTimeOutTime(Timer obj, float timer) {
+
+            if (m_ClientType == HttpClientType.httpPost) {
+                if (m_Listener != null) {
+                    var status = m_Listener.Status;
+                    if (status == HttpListenerStatus.hsRequested) {
+                        // 处理一下状态
+                        ResetConnectTimeOut();
+                        StartResponse();
+                        return;
+                    }
+                }
+            }
+
             if (DecConnectTimeOut(0.033f)) {
                 // 408请求超时
                 if (m_Listener != null) {
-                    if (m_Listener.Status == HttpListenerStatus.hsWating) {
+                    var status = m_Listener.Status;
+                    if (status == HttpListenerStatus.hsWating ||
+                        status == HttpListenerStatus.hsRequesting) {
                         if (m_Listener != null)
                             m_Listener.OnError(408);
                     } else {
@@ -575,7 +653,7 @@ namespace NsHttpClient
                     }
                 }
             }
-            // HttpHelp is Clear
+            // httphelper is Dispose
             // Dispose();
         }
 
@@ -592,28 +670,56 @@ namespace NsHttpClient
 
         private void Start()
 		{
-			m_Req = WebRequest.Create(m_Url) as HttpWebRequest;
-			m_Req.AllowAutoRedirect = true;
-			m_Req.KeepAlive = false;
-			m_Req.Method = "GET";
+            m_Req = WebRequest.Create(m_Url) as HttpWebRequest;
+            m_Req.AllowAutoRedirect = true;
+            m_Req.KeepAlive = false;
+
             var serverPoint = m_Req.ServicePoint;
             if (serverPoint != null) {
-                serverPoint.ConnectionLimit = _cMaxConnectionLimit;
+                serverPoint.ConnectionLimit = 512;
+                serverPoint.Expect100Continue = false;
             }
-			m_Req.Timeout = (int)(m_TimeOut * 1000);
-			m_Req.ReadWriteTimeout = (int)(m_ReadTimeOut * 1000);
-			m_Req.Proxy = null;
-			if (m_FilePos > 0)
-			{
-				m_Req.AddRange((int)m_FilePos);
-			}
-			AsyncCallback callBack = new AsyncCallback(OnResponse);
-			m_Req.BeginGetResponse(callBack, m_Req);
 
-			if (m_Listener != null)
-				m_Listener.OnStart();
-			StartTimeoutTime();
-		}
+            m_Req.Timeout = (int)(m_TimeOut * 1000);
+            m_Req.ReadWriteTimeout = (int)(m_ReadTimeOut * 1000);
+            m_Req.Proxy = null;
+
+            if (m_FilePos > 0) {
+                m_Req.AddRange((int)m_FilePos);
+            }
+
+            // Post判断安全, 必须要有PostBuf
+            if (m_PostBuf == null || m_PostBuf.Length <= 0) {
+                m_PostBuf = null;
+                m_ClientType = HttpClientType.httpGet;
+            }
+
+            if (m_ClientType == HttpClientType.httpGet) {
+                m_Req.Method = "GET";
+                StartResponse();
+            } else {
+                m_Req.Method = "POST";
+                m_Req.ContentType = "application/x-www-form-urlencoded";
+                StartRequest();
+            }
+
+            StartTimeoutTime();
+        }
+
+        private void StartRequest() {
+            AsyncCallback callBack = new AsyncCallback(OnRequest);
+            m_Req.BeginGetRequestStream(callBack, m_Req);
+            if (m_Listener != null)
+                m_Listener.OnRequesting();
+        }
+
+        private void StartResponse() {
+            AsyncCallback callBack = new AsyncCallback(OnResponse);
+            m_Req.BeginGetResponse(callBack, m_Req);
+
+            if (m_Listener != null)
+                m_Listener.OnStart();
+        }
 
         private void StartReadTimeoutTime() {
             if (m_ReadOutTimer != null)
@@ -661,11 +767,14 @@ namespace NsHttpClient
         private float m_CurConnectTime = 5.0f;
 		private ITimer m_TimeOutTimer = null;
         private ITimer m_ReadOutTimer = null;
+        // 默认采用GET模式
+        private HttpClientType m_ClientType = HttpClientType.httpGet;
         //	private static System.Object m_TimerLock = new object();
         private HttpWebRequest m_Req = null;
 		private IHttpClientListener m_Listener = null;
 		private long m_FilePos = 0;
-		private LinkedListNode<HttpClient> m_LinkNode = null;
+        private byte[] m_PostBuf = null;
+        private LinkedListNode<HttpClient> m_LinkNode = null;
 
 		private static bool m_IsServerPointInited = false;
 	}
