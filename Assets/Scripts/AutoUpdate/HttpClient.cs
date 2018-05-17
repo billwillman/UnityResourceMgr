@@ -113,7 +113,8 @@ namespace NsHttpClient
 			get
 			{
 				return (Status != HttpListenerStatus.hsDoing) && (Status != HttpListenerStatus.hsWating) &&
-						(Status != HttpListenerStatus.hsNone);
+						(Status != HttpListenerStatus.hsNone) && (Status != HttpListenerStatus.hsRequesting) &&
+                        (Status != HttpListenerStatus.hsRequested);
 			}
 		}
 
@@ -468,7 +469,10 @@ namespace NsHttpClient
                 if (m_Listener != null) {
                     m_Listener.OnRequested();
                 }
-            } catch {
+            } catch (Exception e) {
+#if DEBUG
+                UnityEngine.Debug.LogError(e.ToString());
+#endif
                 if (m_Listener != null)
                     m_Listener.OnError(-1);
             }

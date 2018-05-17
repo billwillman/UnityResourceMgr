@@ -171,15 +171,39 @@ namespace NsHttpClient
 			m_LinkList.Clear();
 		}
 
+        public static string GetTimeStampStr() {
+            return DateTime.UtcNow.Ticks.ToString();
+        }
+
         public static string AddTimeStamp(string url) {
             bool isHttps = url.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase);
             if (!isHttps) {
+                string timeStampStr = GetTimeStampStr();
                 if (url.IndexOf('?') > 0)
-                    url += string.Format("&t={0}", DateTime.UtcNow.Ticks.ToString());
+                    url += string.Format("&t={0}", timeStampStr);
                 else
-                    url += string.Format("?t={0}", DateTime.UtcNow.Ticks.ToString());
+                    url += string.Format("?t={0}", timeStampStr);
             }
             return url;
+        }
+
+        // 生成Http Post数据
+        public static string GeneratorPostString(params string[]  keyValues) {
+            if (keyValues == null || keyValues.Length <= 0)
+                return string.Empty;
+            int num = keyValues.Length / 2;
+            if (num <= 0)
+                return string.Empty;
+            System.Text.StringBuilder builder = new System.Text.StringBuilder();
+            for (int i = 0; i < num; ++i) {
+                string key = keyValues[i * 2];
+                string value = keyValues[i * 2 + 1];
+                builder.AppendFormat("{0}={1}", key, value);
+                if (i < num - 1)
+                    builder.Append('&');
+            }
+            string ret = builder.ToString(); 
+            return ret;
         }
 
         // 保证OpenUrl在主线程调用
