@@ -146,13 +146,18 @@ namespace NsHttpClient
                 callBack.OnProcess = OnProcess;
             }
             ret.UserData = callBack;
-            HttpClientType clientType = HttpClientType.httpGet;
             byte[] postBuf = null;
             if (!string.IsNullOrEmpty(postStr)) {
-                clientType = HttpClientType.httpPost;
-                postBuf = System.Text.Encoding.UTF8.GetBytes(postStr);
+                try {
+                    postBuf = System.Text.Encoding.UTF8.GetBytes(postStr);
+                } catch {
+                    postBuf = null;
+                }
             }
-			ret.Init(url, listener, filePos, connectTimeOut, readTimeOut, clientType, postBuf);
+
+            HttpClientType clientType = postBuf != null ? HttpClientType.httpPost : HttpClientType.httpGet;
+
+            ret.Init(url, listener, filePos, connectTimeOut, readTimeOut, clientType, postBuf);
 			m_LinkList.AddLast(ret.LinkNode);
 
 			return ret;
