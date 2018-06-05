@@ -3187,8 +3187,10 @@ class AssetBundleMgr
 
             BuildAssetBundlesInfo_5_x(platform, exportDir, compressType, isForceAppend);
 
-			// 是否存在冗余资源，如果有打印出来
-			CheckRongYuRes("Err_RongYu.txt");
+            // 是否存在冗余资源，如果有打印出来
+            // 不在使用Importer.AssetBundleName，所以冗余也不通过这个打印了
+            //CheckRongYuRes("Err_RongYu.txt");
+            // 冗余检查请用 ArtCheck/美术冗余资源检查
 
 #if USE_DEP_BINARY
             // 二进制格式
