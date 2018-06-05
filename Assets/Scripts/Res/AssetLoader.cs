@@ -495,7 +495,11 @@ public class AssetInfo {
         m_AsyncTask = BundleCreateAsyncTask.Create(mFileName, priority);
         if (m_AsyncTask != null) {
             // 优化AB加载
-            m_AsyncTask.StartLoad();
+            /* 异步UNITY内部已经直接返回了AssetBundle通过AssetBundleRequest */
+            var bundle = m_AsyncTask.StartLoad();
+            if (bundle != null)
+                mBundle = bundle;
+            /*--------------------------------------------------------------*/
             m_AsyncTask.UserData = this;
             taskList.AddTask(m_AsyncTask, true);
             if (taskList.UserData != null) {

@@ -144,14 +144,18 @@ public class BundleCreateAsyncTask: ITask
 		return ret;
 	}
 
-	public void StartLoad()
+	public AssetBundle StartLoad()
 	{
 		if (m_Req == null)
 		{
 			m_Req = AssetBundle.LoadFromFileAsync(m_FileName);
-			if (m_Req != null)
-				m_Req.priority = m_Priority;
+            if (m_Req != null) {
+                m_Req.priority = m_Priority;
+                return m_Req.assetBundle;
+            }
 		}
+
+        return null;
 	}
 
 	public override void Release()
