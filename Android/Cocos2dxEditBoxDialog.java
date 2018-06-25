@@ -148,6 +148,19 @@ public class Cocos2dxEditBoxDialog extends Dialog {
   
         final LinearLayout layout = new LinearLayout(this.getContext());  
         layout.setOrientation(LinearLayout.VERTICAL);  
+        
+      //添加以下代码
+        layout.setOnClickListener(new View.OnClickListener() {
+ 
+            @Override
+            public void onClick(View v) {
+                // TODO Auto-generated method stub
+            	SendToUnityImeString();
+                Cocos2dxEditBoxDialog.this.closeKeyboard();
+                Cocos2dxEditBoxDialog.this.dismiss();
+            }
+        });
+        //=========
   
         final LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);  
   
@@ -299,7 +312,7 @@ public class Cocos2dxEditBoxDialog extends Dialog {
             		if (actionId != EditorInfo.IME_NULL || (actionId == EditorInfo.IME_NULL && event != null && event.getAction() == KeyEvent.ACTION_DOWN)) {  
             			// Cocos2dxHelper.setEditTextDialogResult(Cocos2dxEditBoxDialog.this.mInputEditText.getText().toString());  
             			// 发送给UNITY IME接收
-            			SendToUnityImeString(Cocos2dxEditBoxDialog.this.mInputEditText.getText().toString());
+            			SendToUnityImeString();
             			Cocos2dxEditBoxDialog.this.closeKeyboard();  
             			Cocos2dxEditBoxDialog.this.dismiss();  
             			return true;  
@@ -316,6 +329,11 @@ public class Cocos2dxEditBoxDialog extends Dialog {
     	{
     		
     	}
+    }
+    
+    private void SendToUnityImeString()
+    {
+    	SendToUnityImeString(Cocos2dxEditBoxDialog.this.mInputEditText.getText().toString());
     }
     
     // 发送给UNITY层
@@ -341,7 +359,7 @@ public class Cocos2dxEditBoxDialog extends Dialog {
         	{
         		// 回调给Cocos2d并且关闭键盘  
         		// Cocos2dxHelper.setEditTextDialogResult(Cocos2dxEditBoxDialog.this.mInputEditText.getText().toString());  
-        		SendToUnityImeString(Cocos2dxEditBoxDialog.this.mInputEditText.getText().toString());
+        		SendToUnityImeString();
         	
         		Cocos2dxEditBoxDialog.this.closeKeyboard();  
         		Cocos2dxEditBoxDialog.this.dismiss();  
