@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 public class Cocos2dxHandler extends Handler {
 	// ===========================================================
@@ -41,6 +42,8 @@ public class Cocos2dxHandler extends Handler {
 	}
 	
 	private void showEditBoxDialog(Message msg) {
+		Log.i("Unity", "showEditBoxDialog");
+		
 		EditBoxMessage editBoxMessage = (EditBoxMessage)msg.obj;
 		Cocos2dxEditBoxDialog dialog = new Cocos2dxEditBoxDialog(this.mActivity.get(),
 				editBoxMessage.title,
@@ -51,6 +54,7 @@ public class Cocos2dxHandler extends Handler {
 				editBoxMessage.maxLength);
 		
 		dialog.InitUnityMethod(editBoxMessage.gameObjName, editBoxMessage.methodName);
+		dialog.show();
 	}
 	
 	public static class EditBoxMessage {
