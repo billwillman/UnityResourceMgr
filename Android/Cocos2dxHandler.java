@@ -42,7 +42,7 @@ public class Cocos2dxHandler extends Handler {
 	}
 	
 	private void showEditBoxDialog(Message msg) {
-		Log.i("Unity", "showEditBoxDialog");
+	//	Log.i("Unity", "showEditBoxDialog");
 		
 		EditBoxMessage editBoxMessage = (EditBoxMessage)msg.obj;
 		Cocos2dxEditBoxDialog dialog = new Cocos2dxEditBoxDialog(this.mActivity.get(),
