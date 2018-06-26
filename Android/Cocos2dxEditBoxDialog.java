@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.InputFilter;
 import android.text.InputType;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
@@ -67,6 +68,8 @@ public class Cocos2dxEditBoxDialog extends Dialog {
      * Indicates that the text entered is confidential data that should be obscured whenever possible. This implies EDIT_BOX_INPUT_FLAG_SENSITIVE. 
      */  
     private final int kEditBoxInputFlagPassword = 0;  
+    
+    private final int kEditBoxInputFlagNormal = -1;
   
     /** 
      * Indicates that the text entered is sensitive data that the implementation must never store into a dictionary or table for use in predictive, auto-completing, or other accelerated input schemes. A credit card number is an example of sensitive data. 
@@ -142,6 +145,7 @@ public class Cocos2dxEditBoxDialog extends Dialog {
     protected void onCreate(final Bundle pSavedInstanceState) {  
     	try
     	{
+    		
         super.onCreate(pSavedInstanceState);  
   
         this.getWindow().setBackgroundDrawable(new ColorDrawable(0x80000000));  
@@ -230,7 +234,7 @@ public class Cocos2dxEditBoxDialog extends Dialog {
                 this.mInputModeContraints = InputType.TYPE_CLASS_TEXT;  
                 break;  
             default:  
-  
+            	
                 break;  
         }  
   
@@ -257,6 +261,7 @@ public class Cocos2dxEditBoxDialog extends Dialog {
                 this.mInputFlagConstraints = InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS;  
                 break;  
             default:  
+            	this.mInputFlagConstraints = 0;
                 break;  
         }  
   
@@ -293,6 +298,7 @@ public class Cocos2dxEditBoxDialog extends Dialog {
             public void run() {  
             	try
             	{
+            	
             		Cocos2dxEditBoxDialog.this.mInputEditText.requestFocus();  
             		Cocos2dxEditBoxDialog.this.mInputEditText.setSelection(Cocos2dxEditBoxDialog.this.mInputEditText.length());  
             		Cocos2dxEditBoxDialog.this.openKeyboard();  
@@ -327,7 +333,7 @@ public class Cocos2dxEditBoxDialog extends Dialog {
         
     	} catch (Exception e)
     	{
-    		
+    		Log.i("Unity", "Create Cocos2dxEditorDialog Exception");
     	}
     }
     
