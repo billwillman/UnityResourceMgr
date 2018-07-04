@@ -1443,6 +1443,12 @@ class AssetBundleMgr
 		while (dirIter.MoveNext())
 		{
             string path = AssetBunbleInfo.GetLocalPath(dirIter.Current.Key).ToLower();
+
+            if (!path.Contains(splitDir.ToLower())) {
+                // 优化：不包含的不会处理
+                continue;
+            }
+
             AssetBunbleInfo outAB;
             if (mAssetBundleMap.TryGetValue(path, out outAB)) {
                 // 这边特殊一点，需要删除并刷新
