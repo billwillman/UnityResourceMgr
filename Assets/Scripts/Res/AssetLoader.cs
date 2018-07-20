@@ -2387,6 +2387,7 @@ public sealed class AssetLoader : IResourceLoader {
             onFinish(true);
     }
 
+    private System.Object m_BinaryLoomLock = new object();
     // LOOM库
     private void LoadBinaryLoomAsync(byte[] bytes, Action<bool> onFinish) {
         if ((bytes == null) || (bytes.Length <= 0))
@@ -2398,74 +2399,77 @@ public sealed class AssetLoader : IResourceLoader {
         //----------------------------------------------------
 
         Loom.RunAsync(() => {
-            MemoryStream stream = new MemoryStream(bytes);
-            DependBinaryFile.FileHeader header = DependBinaryFile.LoadFileHeader(stream);
-            if (!DependBinaryFile.CheckFileHeader(header))
-                return;
-            Dictionary<string, string> fileRealMap = null;
-            for (int i = 0; i < header.abFileCount; ++i) {
-                DependBinaryFile.ABFileHeader abHeader = DependBinaryFile.LoadABFileHeader(stream);
-                AssetCompressType compressType = (AssetCompressType)abHeader.compressType;
-                bool isUseCreateFromFile = compressType == AssetCompressType.astNone || compressType == AssetCompressType.astUnityLzo
+            // 防止多次调用造成数据混乱
+            lock (m_BinaryLoomLock) {
+                MemoryStream stream = new MemoryStream(bytes);
+                DependBinaryFile.FileHeader header = DependBinaryFile.LoadFileHeader(stream);
+                if (!DependBinaryFile.CheckFileHeader(header))
+                    return;
+                Dictionary<string, string> fileRealMap = null;
+                for (int i = 0; i < header.abFileCount; ++i) {
+                    DependBinaryFile.ABFileHeader abHeader = DependBinaryFile.LoadABFileHeader(stream);
+                    AssetCompressType compressType = (AssetCompressType)abHeader.compressType;
+                    bool isUseCreateFromFile = compressType == AssetCompressType.astNone || compressType == AssetCompressType.astUnityLzo
 #if UNITY_5_3 || UNITY_5_4
                     || compressType == AssetCompressType.astUnityZip
 #endif
                     ;
 
-                string assetBundleFileName = GetCheckFileName(ref fileRealMap, abHeader.abFileName,
-                                                            false, isUseCreateFromFile);
+                    string assetBundleFileName = GetCheckFileName(ref fileRealMap, abHeader.abFileName,
+                                                                false, isUseCreateFromFile);
 
-                AssetInfo asset;
-                if (!mAssetFileNameMap.TryGetValue(assetBundleFileName, out asset)) {
-                    asset = new AssetInfo(assetBundleFileName);
-                    asset._SetCompressType(compressType);
-                    // 额外添加一个文件名的映射
-                    AddFileAssetMap(assetBundleFileName, asset);
-                } else {
-                    ;
-                }
+                    AssetInfo asset;
+                    if (!mAssetFileNameMap.TryGetValue(assetBundleFileName, out asset)) {
+                        asset = new AssetInfo(assetBundleFileName);
+                        asset._SetCompressType(compressType);
+                        // 额外添加一个文件名的映射
+                        AddFileAssetMap(assetBundleFileName, asset);
+                    } else {
+                        ;
+                    }
 
-                // 子文件
-                for (int j = 0; j < abHeader.subFileCount; ++j) {
-                    DependBinaryFile.SubFileInfo subInfo = DependBinaryFile.LoadSubInfo(stream);
-                    string subFileName = subInfo.fileName;
-                    if (string.IsNullOrEmpty(subFileName))
-                        continue;
-                    asset._AddSubFile(subFileName);
-                    AddFileAssetMap(subFileName, asset);
-                    if (!string.IsNullOrEmpty(subInfo.shaderName)) {
-                        if (!mShaderNameMap.ContainsKey(subInfo.shaderName))
-                            mShaderNameMap.Add(subInfo.shaderName, subInfo.fileName);
-                        else {
-                            Debug.LogWarningFormat("ShaderName: {0} has exists!!!", subInfo.shaderName);
+                    // 子文件
+                    for (int j = 0; j < abHeader.subFileCount; ++j) {
+                        DependBinaryFile.SubFileInfo subInfo = DependBinaryFile.LoadSubInfo(stream);
+                        string subFileName = subInfo.fileName;
+                        if (string.IsNullOrEmpty(subFileName))
+                            continue;
+                        asset._AddSubFile(subFileName);
+                        AddFileAssetMap(subFileName, asset);
+                        if (!string.IsNullOrEmpty(subInfo.shaderName)) {
+                            if (!mShaderNameMap.ContainsKey(subInfo.shaderName))
+                                mShaderNameMap.Add(subInfo.shaderName, subInfo.fileName);
+                            else {
+                                Debug.LogWarningFormat("ShaderName: {0} has exists!!!", subInfo.shaderName);
+                            }
                         }
                     }
+
+                    // 依赖
+                    for (int j = 0; j < abHeader.dependFileCount; ++j) {
+                        DependBinaryFile.DependInfo depInfo = DependBinaryFile.LoadDependInfo(stream);
+
+                        string dependFileName = GetCheckFileName(ref fileRealMap, depInfo.abFileName,
+                                                                false, isUseCreateFromFile);
+
+                        asset._AddDependFile(dependFileName, depInfo.refCount);
+                    }
+
+                    // 进度
+                    float process = ((float)(i + 1)) / ((float)header.abFileCount);
+                    LoadConfigProcess = process;
                 }
 
-                // 依赖
-                for (int j = 0; j < abHeader.dependFileCount; ++j) {
-                    DependBinaryFile.DependInfo depInfo = DependBinaryFile.LoadDependInfo(stream);
+                stream.Close();
+                stream.Dispose();
 
-                    string dependFileName = GetCheckFileName(ref fileRealMap, depInfo.abFileName,
-                                                            false, isUseCreateFromFile);
-
-                    asset._AddDependFile(dependFileName, depInfo.refCount);
-                }
-
-                // 进度
-                float process = ((float)(i + 1)) / ((float)header.abFileCount);
-                LoadConfigProcess = process;
+                Loom.QueueOnMainThread(() => {
+                    // 进度为1f
+                    LoadConfigProcess = 1f;
+                    if (onFinish != null)
+                        onFinish(true);
+                });
             }
-
-            stream.Close();
-            stream.Dispose();
-
-            Loom.QueueOnMainThread(() => {
-                // 进度为1f
-                LoadConfigProcess = 1f;
-                if (onFinish != null)
-                    onFinish(true);
-            });
         });
     }
 
