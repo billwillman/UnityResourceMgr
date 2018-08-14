@@ -16,6 +16,7 @@ public class LuaLoader: LuaFileUtils
 	{
 		if (string.IsNullOrEmpty(fileName))
 			return null;
+		fileName = fileName.ToLower();
 		bool isLuaExt = fileName.EndsWith(_cResLuaExt);
 		if (!isLuaExt)
 			fileName = Path.ChangeExtension(fileName, _cResLuaExt);
