@@ -1,7 +1,9 @@
 require "testcreategameobject"
 
+local resMgr = Singleton_ResourceMgr.Instance
+
 local function TestResoureMgrCreateGameObject()
-	local gameObj = Singleton_ResourceMgr.Instance:CreateGameObject("resources/@prefab/cube.prefab")
+	local gameObj = resMgr:CreateGameObject("resources/@prefab/cube.prefab")
 end
 
 --float process, bool isDone, GameObject gameObj
@@ -12,7 +14,7 @@ local function OnTestResourceMgrCreateGameObjectAsync(process, isDone, gameObj)
 end
 
 local function TestResourceMgrCreateGameObjectAsync()
-	Singleton_ResourceMgr.Instance:CreateGameObjectAsync("resources/@prefab/cube.prefab", OnTestResourceMgrCreateGameObjectAsync)
+	resMgr:CreateGameObjectAsync("resources/@prefab/cube.prefab", OnTestResourceMgrCreateGameObjectAsync)
 end
 
 function Main()

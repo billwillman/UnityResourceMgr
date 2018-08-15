@@ -23,7 +23,7 @@ public class LuaMain : MonoBehaviour {
 		TimerMgr.Instance.UnScaleTick(Time.unscaledTime);
 	}
 
-	void OnResourceConfigFinish(bool isOk)
+	public static void EnterLuaGame()
 	{
 		var gameMgr = GetComponent<LuaGameMgr>();
 		if (gameMgr == null)
@@ -31,6 +31,11 @@ public class LuaMain : MonoBehaviour {
 			gameMgr = gameObject.AddComponent<LuaGameMgr>();
 		}
 		m_GameMgr = gameMgr;
+	}
+
+	void OnResourceConfigFinish(bool isOk)
+	{
+		DownloadCheck.ShowDownload();	
 	}
 
 	public LuaGameMgr GameMgr

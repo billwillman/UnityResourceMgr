@@ -140,7 +140,7 @@ namespace AutoUpdate
 			TasksRelease ();
 		}
 
-		private void Clear ()
+		public void Clear ()
 		{
 			lock (m_Lock)
 			{
