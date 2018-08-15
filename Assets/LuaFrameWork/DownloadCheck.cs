@@ -29,7 +29,7 @@ public class DownloadCheck : MonoBehaviour {
 	void EnterGame()
 	{
 		GameObject.Destroy(gameObject);
-		LuaMain.EnterLuaGame();
+		LuaMain.Main.EnterLuaGame();
 	}
 
 	void OnDownStateChanged(AutoUpdateState state)

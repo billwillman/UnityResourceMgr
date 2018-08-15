@@ -3,8 +3,19 @@ using System.Collections;
 
 // Lua Start
 public class LuaMain : MonoBehaviour {
+
+	private static LuaMain m_Main = null;
+	public static LuaMain Main
+	{
+		get
+		{
+			return m_Main;
+		}
+	}
+
 	void Awake()
 	{
+		m_Main = this;
 		InitResources();
 	}
 
@@ -23,7 +34,7 @@ public class LuaMain : MonoBehaviour {
 		TimerMgr.Instance.UnScaleTick(Time.unscaledTime);
 	}
 
-	public static void EnterLuaGame()
+	public void EnterLuaGame()
 	{
 		var gameMgr = GetComponent<LuaGameMgr>();
 		if (gameMgr == null)
