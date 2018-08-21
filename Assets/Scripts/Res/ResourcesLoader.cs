@@ -400,8 +400,8 @@ public sealed class ResourcesLoader: IResourceLoader
 		request.priority = priority;
 
 		var ret = AsyncOperationMgr.Instance.AddAsyncOperation<ResourceRequest, System.Object> (request,
-		                                              delegate (ResourceRequest req) {
-			if (req.isDone)
+		                                              delegate (ResourceRequest req, bool isDone) {
+			if (isDone)
 			{
 				T orgObj = req.asset as T;
 				if (orgObj == null)
@@ -417,11 +417,11 @@ public sealed class ResourcesLoader: IResourceLoader
 #endif
 
 				if (onProcess != null)
-					onProcess(req.progress, req.isDone, orgObj);
+					onProcess(req.progress, isDone, orgObj);
 			} else
 			{
 				if (onProcess != null)
-					onProcess(req.progress, req.isDone, null);
+					onProcess(req.progress, isDone, null);
 			}
 			
 		}

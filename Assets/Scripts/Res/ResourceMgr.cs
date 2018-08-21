@@ -58,7 +58,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return true;
 	}
 
-	private bool DoLoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess, bool isLoadedActive, int priority)
+	private bool DoLoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation, bool> onProcess, bool isLoadedActive, int priority)
 	{
 		AsyncOperation opt;
 		if (isAdd) {
@@ -80,7 +80,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 		if (opt.isDone) {
 			if (onProcess != null)
-				onProcess(opt);
+				onProcess(opt, true);
 			return true;
 		}
 
@@ -90,9 +90,9 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt, onProcess) != null;
 		else {
 			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt,
-				delegate(AsyncOperation obj) {
+				delegate(AsyncOperation obj, bool isDone) {
 					if (onProcess != null)
-						onProcess(obj);
+						onProcess(obj, isDone);
 					if (obj.progress >= 0.9f) {
 						AsyncOperationMgr.Instance.RemoveAsyncOperation(obj);
 					}
@@ -101,7 +101,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	}
 
 	// isLoadedActive: 是否加载完就激活
-	public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation> onProcess, bool isLoadedActive = true, int priority = 0)
+    // bool isDone，是否已经完成
+	public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation, bool> onProcess, bool isLoadedActive = true, int priority = 0)
 	{
 		if (mAssetLoader.OnSceneLoadAsync (sceneName, 
 		                                   delegate {

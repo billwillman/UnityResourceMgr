@@ -697,7 +697,7 @@ public class AssetInfo {
             m_OrgResMap.Add(fileName, obj);
     }
 
-    internal bool LoadSubsAsync<T>(string fileName, int priority, Action<AssetBundleRequest> onProcess) where T : UnityEngine.Object {
+    internal bool LoadSubsAsync<T>(string fileName, int priority, Action<AssetBundleRequest, bool> onProcess) where T : UnityEngine.Object {
         if (string.IsNullOrEmpty(fileName) || (!IsVaild()))
             return false;
 #if USE_LOWERCHAR
@@ -726,7 +726,7 @@ public class AssetInfo {
 
         if (request.isDone) {
             if (onProcess != null)
-                onProcess(request);
+                onProcess(request, true);
 
             return true;
         }
@@ -735,7 +735,7 @@ public class AssetInfo {
         return AddAsyncOperation(fileName, objType, request, onProcess);
     }
 
-    private bool AddAsyncOperation(string fileName, System.Type objType, AssetBundleRequest request, Action<AssetBundleRequest> onProcess) {
+    private bool AddAsyncOperation(string fileName, System.Type objType, AssetBundleRequest request, Action<AssetBundleRequest, bool> onProcess) {
         if (string.IsNullOrEmpty(fileName) || objType == null || request == null)
             return false;
 
@@ -782,10 +782,10 @@ public class AssetInfo {
             m_AsyncLoadDict.Remove(item.UserData);
     }
 
-    private void OnAsyncLoadEvt(AssetBundleRequest req) {
+    private void OnAsyncLoadEvt(AssetBundleRequest req, bool isDone) {
         if (req == null)
             return;
-        if (!req.isDone)
+        if (!isDone)
             return;
 
         var item = AsyncOperationMgr.Instance.FindItem<AssetBundleRequest, AsyncLoadKey>(req);
@@ -794,7 +794,7 @@ public class AssetInfo {
         RemoveAsyncLoadDict(item);
     }
 
-    public bool LoadObjectAsync(string fileName, Type objType, int priority, Action<AssetBundleRequest> onProcess) {
+    public bool LoadObjectAsync(string fileName, Type objType, int priority, Action<AssetBundleRequest, bool> onProcess) {
         if (string.IsNullOrEmpty(fileName) || (!IsVaild()))
             return false;
 #if USE_LOWERCHAR
@@ -827,7 +827,7 @@ public class AssetInfo {
 
         if (request.isDone) {
             if (onProcess != null)
-                onProcess(request);
+                onProcess(request, true);
 
             return true;
         }
@@ -1313,15 +1313,15 @@ public sealed class AssetLoader : IResourceLoader {
         }
 
         bool ret = asset.LoadSubsAsync<Sprite>(fileName, priority,
-           delegate (AssetBundleRequest req) {
+           delegate (AssetBundleRequest req, bool isDone) {
 
-               if (req.isDone) {
+               if (isDone) {
                    ResourceMgr.Instance.DestroyObject(texture);
                    _OnLoadSprites(asset, req.allAssets, cacheType);
                }
 
                if (onProcess != null)
-                   onProcess(req.progress / 10.0f + 0.9f, req.isDone, req.allAssets);
+                   onProcess(req.progress / 10.0f + 0.9f, isDone, req.allAssets);
 
            }
         );
@@ -1474,9 +1474,9 @@ public sealed class AssetLoader : IResourceLoader {
         //asset.IsUsing = true;
         asset.AddUsingCnt();
         bool ret = asset.LoadObjectAsync(fileName, typeof(T), priority,
-                                      delegate (AssetBundleRequest req) {
+                                      delegate (AssetBundleRequest req, bool isDone) {
 
-                                          if (req.isDone) {
+                                          if (isDone) {
                                               //asset.IsUsing = false;
                                               asset.DecUsingCnt();
                                               bool isNew = (asset.Cache == null) || IsAssetInfoUnloadDep(asset, fileName);
@@ -1488,7 +1488,7 @@ public sealed class AssetLoader : IResourceLoader {
                                           }
 
                                           if (onProcess != null)
-                                              onProcess(req.progress, req.isDone, req.asset as T);
+                                              onProcess(req.progress, isDone, req.asset as T);
                                       }
         );
 
