@@ -30,8 +30,9 @@ public class GameMgr: Singleton<GameMgr>
 
 	public void OnAppExit()
 	{
+       
         NsHttpClient.HttpHelper.OnAppExit();
-        ResourceMgr.Instance.OnAppExit();
+        ResourceMgr.Instance.OnApplicationQuit();
 	}
 
 	public void OnSceneLoad(int level)

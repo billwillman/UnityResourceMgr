@@ -513,17 +513,19 @@ public class ResourceMgr: Singleton<ResourceMgr>
                     // 删除实例化的GameObject
                     int instId = obj.GetInstanceID();
                     // gameObj.transform.parent = null;
-                    if (Application.isPlaying)
-                        UnityEngine.GameObject.Destroy(obj);
-                    else
+                    if (Application.isPlaying) {
+                        if (!IsQuitApp)
+                            UnityEngine.GameObject.Destroy(obj);
+                    } else
                         UnityEngine.GameObject.DestroyImmediate(obj);
                     AssetCacheManager.Instance._OnDestroyGameObject(instId);
                 }
             } else {
                 if (obj != null) {
-                    if (Application.isPlaying)
-                        UnityEngine.GameObject.Destroy(obj);
-                    else
+                    if (Application.isPlaying) {
+                        if (!IsQuitApp)
+                            UnityEngine.GameObject.Destroy(obj);
+                    } else
                         UnityEngine.GameObject.DestroyImmediate(obj);
                 }
 
@@ -1019,7 +1021,12 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		}
 	}
 
-    public void OnAppExit(bool isUnloadTrue = true) {
+    public bool IsQuitApp {
+        get;
+        private set;
+    }
+
+    private void OnAppExit(bool isUnloadTrue = true) {
         AsyncOperationMgr.Instance.Clear();
         AssetCacheManager.Instance.AutoUpdateClear(isUnloadTrue);
         AssetLoader loader = mAssetLoader as AssetLoader;
@@ -1029,6 +1036,12 @@ public class ResourceMgr: Singleton<ResourceMgr>
         if (resLoader != null) {
             resLoader.AutoUpdateClear();
         }
+    }
+
+    // 应用QUIT通知
+    public void OnApplicationQuit() {
+        IsQuitApp = true;
+        OnAppExit();
     }
 
     // 资源更新清理
