@@ -184,7 +184,11 @@ public class BuildPkg
             case PkgPlatformType.pkgPC:
                 if (buildTarget != BuildTarget.StandaloneLinux && buildTarget != BuildTarget.StandaloneLinux64 &&
                     buildTarget != BuildTarget.StandaloneLinuxUniversal && buildTarget != BuildTarget.StandaloneOSXIntel &&
-                    buildTarget != BuildTarget.StandaloneOSXIntel64 && buildTarget != BuildTarget.StandaloneOSXUniversal &&
+#if UNITY_2018
+                    buildTarget != BuildTarget.StandaloneOSXIntel64 && buildTarget != BuildTarget.StandaloneOSX &&
+#else
+					buildTarget != BuildTarget.StandaloneOSXIntel64 && buildTarget != BuildTarget.StandaloneOSXUniversal &&
+#endif
                     buildTarget != BuildTarget.StandaloneWindows && buildTarget != BuildTarget.StandaloneWindows64)
                     line = string.Empty;
                 break;

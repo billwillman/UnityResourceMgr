@@ -1988,7 +1988,7 @@ class AssetBundleMgr
 			buildOpts |= BuildAssetBundleOptions.ForceRebuildAssetBundle;
 		if (compressType == 0)
 			buildOpts |= BuildAssetBundleOptions.UncompressedAssetBundle;
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018
         else if (compressType == 2)
 			buildOpts |= BuildAssetBundleOptions.ChunkBasedCompression;
 #endif
@@ -2807,7 +2807,7 @@ class AssetBundleMgr
     static public void SetUnityPackageVersion(string apkVersion) {
         PlayerSettings.bundleVersion = apkVersion;
         // 立即保存设置
-#if UNITY_5_6
+#if UNITY_5_6  || UNITY_2018
         AssetDatabase.SaveAssets();
 #else
         EditorApplication.SaveAssets();
@@ -3157,7 +3157,11 @@ class AssetBundleMgr
     {
 #if USE_UNITY5_X_BUILD
         // 5.x不再需要收集依赖PUSH和POP
+#if UNITY_2018
+        Caching.ClearCache();
+#else
         Caching.CleanCache();
+#endif
         string abOutPath;
         if (isForceAppend || string.IsNullOrEmpty(outPath))
              abOutPath = null;
@@ -3223,7 +3227,7 @@ class AssetBundleMgr
 				{
                     //	xmlImport.assetBundleName = "AssetBundles.xml";
                     //	xmlImport.SaveAndReimport();
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018
                     CallBuild_5_x_API(exportDir, compressType, target, false, true);
 #else
 					CallBuild_5_x_API(exportDir, 0, target,  false, true);
@@ -3386,8 +3390,9 @@ class AssetBundleMgr
 		AssetBunbleInfo.ClearMd5FileMap();
 #if USE_UNITY5_X_BUILD
         // 5.x版本采用新打包
-        string appVersion = Application.unityVersion;
-        if (appVersion.StartsWith("5."))
+        // 去掉判断版本号地方，做2017，2018兼容性
+     //   string appVersion = Application.unityVersion;
+       // if (appVersion.StartsWith("5."))
         {
 			BuildAssetBundles_5_x(platform, compressType, outPath, isMd5, isForceAppend);
             return;
@@ -4369,7 +4374,7 @@ public static class AssetBundleBuild
 		BuildPlatform (eBuildPlatform.eBuildIOS, 1, true);
 	}
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018
 
     [MenuItem("Assets/平台打包/-----------")]
 	static public void OnBuildPlatformNone1() {
@@ -4599,7 +4604,7 @@ public static class AssetBundleBuild
 		Cmd_Build(0, true, eBuildPlatform.eBuildWindow, true);
 	}
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018
     [MenuItem("Assets/发布/Win32_Debug(Lz4)")]
 	static public void Cmd_BuidWin32_Debug_Lz4()
 	{
@@ -4613,7 +4618,7 @@ public static class AssetBundleBuild
         Cmd_Build(1, true, eBuildPlatform.eBuildWindow);
     }
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018
     [MenuItem("Assets/发布/Win32(Lz4)")]
 	static public void Cmd_BuildWin32_Lz4() {
 		Cmd_Build(2, true, eBuildPlatform.eBuildWindow);
@@ -4726,7 +4731,7 @@ public static class AssetBundleBuild
 		mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
 	}
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018
     static public void Cmd_Build_Android_ABLz4_Append()
     {
 		string outPath = "outPath/Proj";
@@ -4875,7 +4880,7 @@ public static class AssetBundleBuild
         Cmd_Build(1, true, eBuildPlatform.eBuildAndroid);
     }
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018
     [MenuItem("Assets/发布/APK_整包(Lz4)")]
 	static public void Cmd_BuildAPK_Lz4() {
 		Cmd_Build(2, true, eBuildPlatform.eBuildAndroid);

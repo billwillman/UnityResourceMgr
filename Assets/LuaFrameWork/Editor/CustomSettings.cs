@@ -28,7 +28,9 @@ public static class CustomSettings  {
 		typeof(UnityEngine.Resources),
 		typeof(UnityEngine.Physics),
 		typeof(UnityEngine.RenderSettings),
-		typeof(UnityEngine.QualitySettings),
+#if !UNITY_2018
+        typeof(UnityEngine.QualitySettings),
+#endif
 		typeof(UnityEngine.GL),
 		typeof(UnityEngine.Graphics),
 	};
@@ -79,7 +81,7 @@ public static class CustomSettings  {
 		_GT(typeof(InjectType)),
 		_GT(typeof(Debugger)).SetNameSpace(null),          
 
-		#if USING_DOTWEENING
+#if USING_DOTWEENING
 		_GT(typeof(DG.Tweening.DOTween)),
 		_GT(typeof(DG.Tweening.Tween)).SetBaseType(typeof(System.Object)).AddExtendType(typeof(DG.Tweening.TweenExtensions)),
 		_GT(typeof(DG.Tweening.Sequence)).AddExtendType(typeof(DG.Tweening.TweenSettingsExtensions)),
@@ -97,7 +99,7 @@ public static class CustomSettings  {
 		_GT(typeof(AudioSource)).AddExtendType(typeof(DG.Tweening.ShortcutExtensions)),
 		//_GT(typeof(LineRenderer)).AddExtendType(typeof(DG.Tweening.ShortcutExtensions)),
 		//_GT(typeof(TrailRenderer)).AddExtendType(typeof(DG.Tweening.ShortcutExtensions)),    
-		#else
+#else
 
 		_GT(typeof(Component)),
 		_GT(typeof(Transform)),
@@ -108,7 +110,7 @@ public static class CustomSettings  {
 		_GT(typeof(AudioSource)),
 		//_GT(typeof(LineRenderer))
 		//_GT(typeof(TrailRenderer))
-		#endif
+#endif
 
 		_GT(typeof(Behaviour)),
 		_GT(typeof(MonoBehaviour)),        
@@ -131,9 +133,9 @@ public static class CustomSettings  {
 		_GT(typeof(AsyncOperation)).SetBaseType(typeof(System.Object)),        
 		_GT(typeof(LightType)),
 		_GT(typeof(SleepTimeout)),
-		#if UNITY_5_3_OR_NEWER && !UNITY_5_6_OR_NEWER
+#if UNITY_5_3_OR_NEWER && !UNITY_5_6_OR_NEWER
 		_GT(typeof(UnityEngine.Experimental.Director.DirectorPlayer)),
-		#endif
+#endif
 		_GT(typeof(Animator)),
 		_GT(typeof(Input)),
 		_GT(typeof(KeyCode)),
@@ -142,11 +144,11 @@ public static class CustomSettings  {
 
 
 		_GT(typeof(MeshRenderer)),
-		#if !UNITY_5_4_OR_NEWER
+#if !UNITY_5_4_OR_NEWER
 		_GT(typeof(ParticleEmitter)),
 		_GT(typeof(ParticleRenderer)),
 		_GT(typeof(ParticleAnimator)), 
-		#endif
+#endif
 
 		_GT(typeof(BoxCollider)),
 		_GT(typeof(MeshCollider)),
@@ -161,8 +163,9 @@ public static class CustomSettings  {
 		_GT(typeof(QueueMode)),  
 		_GT(typeof(PlayMode)),
 		_GT(typeof(WrapMode)),
-
-		_GT(typeof(QualitySettings)),
+#if !UNITY_2018
+        _GT(typeof(QualitySettings)),
+#endif
 		_GT(typeof(RenderSettings)),                                                   
 		_GT(typeof(BlendWeights)),           
 		_GT(typeof(RenderTexture)), 
@@ -197,11 +200,11 @@ public static class CustomSettings  {
 	public static List<Type> dynamicList = new List<Type>()
 	{
 		typeof(MeshRenderer),
-		#if !UNITY_5_4_OR_NEWER
+#if !UNITY_5_4_OR_NEWER
 		typeof(ParticleEmitter),
 		typeof(ParticleRenderer),
 		typeof(ParticleAnimator),
-		#endif
+#endif
 
 		typeof(BoxCollider),
 		typeof(MeshCollider),

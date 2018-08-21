@@ -102,7 +102,7 @@ public abstract class ITask
 	private TaskList mOwner = null;
 }
 
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018
 
 // LoadFromFileAsync
 public class BundleCreateAsyncTask: ITask
@@ -429,7 +429,11 @@ public class WWWFileLoadTask: ITask
                     var target = UnityEditor.EditorUserBuildSettings.activeBuildTarget;
                         if (target == UnityEditor.BuildTarget.StandaloneOSXIntel ||
                             target == UnityEditor.BuildTarget.StandaloneOSXIntel64 ||
-                            target == UnityEditor.BuildTarget.StandaloneOSXUniversal)
+#if UNITY_2018
+                            target == UnityEditor.BuildTarget.StandaloneOSX)
+#else
+							target == UnityEditor.BuildTarget.StandaloneOSXUniversal)
+#endif
                             ret += "/Mac";
                         else if (target == UnityEditor.BuildTarget.Android)
                             ret += "/Android";

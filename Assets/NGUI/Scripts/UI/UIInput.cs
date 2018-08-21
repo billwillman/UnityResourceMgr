@@ -886,7 +886,12 @@ public class UIInput : MonoBehaviour
 		bool isMac = (
 			rp == RuntimePlatform.OSXEditor ||
 			rp == RuntimePlatform.OSXPlayer ||
-			rp == RuntimePlatform.OSXWebPlayer);
+#if UNITY_2018
+            rp == RuntimePlatform.WebGLPlayer
+#else
+            rp == RuntimePlatform.OSXWebPlayer
+#endif
+            );
 
 		bool ctrl = isMac ?
 			((ev.modifiers & EventModifiers.Command) != 0) :
@@ -1090,11 +1095,11 @@ public class UIInput : MonoBehaviour
 	}
 #endif
 
-	/// <summary>
-	/// Insert the specified text string into the current input value, respecting selection and validation.
-	/// </summary>
+        /// <summary>
+        /// Insert the specified text string into the current input value, respecting selection and validation.
+        /// </summary>
 
-	protected virtual void Insert (string text)
+    protected virtual void Insert (string text)
 	{
 		string left = GetLeftText();
 		string right = GetRightText();
