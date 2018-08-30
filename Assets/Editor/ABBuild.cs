@@ -5270,5 +5270,23 @@ public static class AssetBundleBuild
 
 #endif
 
-	private static AssetBundleMgr mMgr = new AssetBundleMgr();
+    // 打开文件夹对话框
+    public static void InternalOpenFolder(string folder) {
+        folder = string.Format("\"{0}\"", folder);
+        switch (Application.platform) {
+            case RuntimePlatform.WindowsEditor:
+                System.Diagnostics.Process.Start("Explorer.exe", folder.Replace('/', '\\'));
+                break;
+
+            case RuntimePlatform.OSXEditor:
+                System.Diagnostics.Process.Start("open", folder);
+                break;
+
+            default:
+                throw new Exception(string.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
+        }
+    }
+
+
+    private static AssetBundleMgr mMgr = new AssetBundleMgr();
 }
