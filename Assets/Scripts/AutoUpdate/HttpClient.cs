@@ -214,8 +214,8 @@ namespace NsHttpClient
 
 				if (m_OrgStream.CanTimeout)
 					m_OrgStream.ReadTimeout = _cReadTimeOut;
-
-				m_MaxReadBytes = rep.ContentLength;
+                System.Threading.Interlocked.Exchange(ref m_MaxReadBytes, rep.ContentLength);
+				//m_MaxReadBytes = rep.ContentLength;
 				if (m_MaxReadBytes == -1) {
                     // 有些页面会返回-1，ContentLength会忽略 
                     // 但客户端需要最大长度否则有问题
@@ -279,7 +279,8 @@ namespace NsHttpClient
                 int read = req.m_OrgStream.EndRead(result);
                 if (read > 0) {
                     req.DoFlush(read);
-                    req.m_ReadBytes += read;
+                    System.Threading.Interlocked.Add(ref req.m_ReadBytes, read);
+                  //  req.m_ReadBytes += read;
                     // MaxReadBytes为-1，说明忽略了ContentLength
                     if (req.IsIngoreMaxReadBytes || req.ReadBytes < req.MaxReadBytes)
                         req.m_OrgStream.BeginRead(req.m_Buf, 0, req.m_Buf.Length, m_ReadCallBack, req);
