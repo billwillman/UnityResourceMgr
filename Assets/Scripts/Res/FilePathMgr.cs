@@ -330,10 +330,11 @@ namespace Utils
             return WriteObject(stream, value, prop.PropertyType);
         }
 
-
-        private static byte[] m_TempStrBuf = new byte[1024];
+		private static readonly int m_TempCount = 1024;
+        private static byte[] m_TempStrBuf = new byte[m_TempCount];
+		private static char[] m_TempCharBuf = new char[m_TempCount];
 		private static System.Object m_Lock = new object();
-		public string ReadString(Stream stream)
+		public unsafe string ReadString(Stream stream)
 		{
 			int cnt = ReadInt(stream);
 			if (cnt <= 0)
@@ -343,12 +344,29 @@ namespace Utils
             if (cnt > m_TempStrBuf.Length) {
                 bytes = new byte[cnt];
                 cnt = stream.Read(bytes, 0, cnt);
-                result = System.Text.Encoding.UTF8.GetString(bytes, 0, cnt);
+				lock (m_Lock)
+				{
+					m_TempStrBuf = bytes;
+                    m_TempCharBuf = new char[cnt];
+                    fixed (byte* byteBuf = bytes)
+                    fixed (char* charBuf = m_TempCharBuf)
+					{
+						cnt = System.Text.Encoding.UTF8.GetChars(byteBuf, cnt, charBuf, m_TempCharBuf.Length);
+                        result = new string(charBuf, 0, cnt);
+					}
+				}
+              //  result = System.Text.Encoding.UTF8.GetString(bytes, 0, cnt);
             } else {
                 lock (m_Lock) {
                     bytes = m_TempStrBuf;
                     cnt = stream.Read(bytes, 0, cnt);
-                    result = System.Text.Encoding.UTF8.GetString(bytes, 0, cnt);
+					fixed (byte* byteBuf = bytes)
+                    fixed (char* charBuf = m_TempCharBuf)
+					{
+						cnt = System.Text.Encoding.UTF8.GetChars(byteBuf, cnt, charBuf, m_TempCharBuf.Length);
+                        result = new string(charBuf, 0, cnt);
+					}
+                   // result = System.Text.Encoding.UTF8.GetString(bytes, 0, cnt);
                 }
             }
            
