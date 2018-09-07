@@ -1053,6 +1053,14 @@ public class AssetInfo {
         mChildFileNameHashs.Add(fileName);
     }
 
+	internal void _InitDependFileCapity(int cap)
+	{
+		if (cap < 0)
+			cap = 0;
+		if (mDependFileNames == null)
+			mDependFileNames = new List<DependFileInfo>(cap);
+	}
+
     internal void _AddDependFile(string fileName, int refCount = 1) {
         if (string.IsNullOrEmpty(fileName))
             return;
@@ -2023,8 +2031,8 @@ public sealed class AssetLoader : IResourceLoader {
 
 #endif
                                                         ;
-
-            string assetBundleFileName = GetCheckFileName(ref fileRealMap, abHeader.AbFileName,
+			InitCheckFileNameMap(ref fileRealMap, header.AbFileCount);
+            string assetBundleFileName = GetCheckFileName(ref fileRealMap, abHeader.abFileName,
                                                             false, isUseCreateFromFile);
 
             AssetInfo asset;
@@ -2059,6 +2067,7 @@ public sealed class AssetLoader : IResourceLoader {
                 var depInfo = assetBundleInfo.DependFiles(j).GetValueOrDefault();
                 string dependFileName = GetCheckFileName(ref fileRealMap, depInfo.AbFileName,
                                                             false, isUseCreateFromFile);
+				asset._InitDependFileCapity(abHeader.DependFileCount);
                 asset._AddDependFile(dependFileName, depInfo.RefCount);
             }
         }
@@ -2243,8 +2252,8 @@ public sealed class AssetLoader : IResourceLoader {
 #endif
 
 #endif
-                                                        ;
-
+                                                       ;
+			InitCheckFileNameMap(ref fileRealMap, header.abFileCount);
             string assetBundleFileName = GetCheckFileName(ref fileRealMap, abHeader.abFileName,
                                                             false, isUseCreateFromFile);
 
@@ -2280,6 +2289,7 @@ public sealed class AssetLoader : IResourceLoader {
                 DependBinaryFile.DependInfo depInfo = DependBinaryFile.LoadDependInfo(stream);
                 string dependFileName = GetCheckFileName(ref fileRealMap, depInfo.abFileName,
                                                             false, isUseCreateFromFile);
+				asset._InitDependFileCapity(abHeader.dependFileCount);
                 asset._AddDependFile(dependFileName, depInfo.refCount);
             }
         }
@@ -2326,7 +2336,7 @@ public sealed class AssetLoader : IResourceLoader {
 
 #endif
                                                         ;
-
+			InitCheckFileNameMap(ref fileRealMap, header.abFileCount);
             string assetBundleFileName = GetCheckFileName(ref fileRealMap, abHeader.abFileName,
                                                             false, isUseCreateFromFile);
 
@@ -2370,6 +2380,7 @@ public sealed class AssetLoader : IResourceLoader {
                 DependBinaryFile.DependInfo depInfo = DependBinaryFile.LoadDependInfo(stream);
                 string dependFileName = GetCheckFileName(ref fileRealMap, depInfo.abFileName,
                                                             false, isUseCreateFromFile);
+				asset._InitDependFileCapity(abHeader.dependFileCount);
                 asset._AddDependFile(dependFileName, depInfo.refCount);
                 if (++iterCnt >= maxAsyncCnt) {
                     iterCnt = 0;
@@ -2414,7 +2425,8 @@ public sealed class AssetLoader : IResourceLoader {
                     || compressType == AssetCompressType.astUnityZip
 #endif
                     ;
-
+					
+					InitCheckFileNameMap(ref fileRealMap, header.abFileCount);
                     string assetBundleFileName = GetCheckFileName(ref fileRealMap, abHeader.abFileName,
                                                                 false, isUseCreateFromFile);
 
@@ -2451,7 +2463,7 @@ public sealed class AssetLoader : IResourceLoader {
 
                         string dependFileName = GetCheckFileName(ref fileRealMap, depInfo.abFileName,
                                                                 false, isUseCreateFromFile);
-
+						asset._InitDependFileCapity(abHeader.dependFileCount);
                         asset._AddDependFile(dependFileName, depInfo.refCount);
                     }
 
@@ -2714,7 +2726,15 @@ public sealed class AssetLoader : IResourceLoader {
 	private float m_LastUsedTime = 0;
 #endif
 
-    private string GetCheckFileName(ref Dictionary<string, string> fileRealMap, string abFileName, bool isWWW,
+private void InitCheckFileNameMap(ref Dictionary<string, string> fileRealMap, int cap)
+{
+	if (cap < 0)
+		cap = 0;
+	if (fileRealMap == null)
+		fileRealMap = new Dictionary<string, string>(cap);
+}
+
+private string GetCheckFileName(ref Dictionary<string, string> fileRealMap, string abFileName, bool isWWW,
                bool isUseABCreateFromFile) {
         if (string.IsNullOrEmpty(abFileName))
             return string.Empty;
