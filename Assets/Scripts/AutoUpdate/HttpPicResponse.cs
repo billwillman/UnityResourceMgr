@@ -65,8 +65,7 @@ namespace NsHttpClient
 
 				Texture2D ret = new Texture2D(m_Width, m_Height, TextureFormat.ARGB32, false);
 				ret.LoadImage(m_PicBuf, !m_CanRead);
-                // 原子操作
-                Interlocked.Exchange<Texture2D>(ref m_GeneratorTex, ret);
+                m_GeneratorTex = ret;
 				return ret;
 			}
 		}
