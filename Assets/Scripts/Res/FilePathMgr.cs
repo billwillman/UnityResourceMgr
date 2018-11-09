@@ -393,7 +393,7 @@ namespace Utils
         }
 
         public static void HashCode(ref int hash, ushort value) {
-            HashCode(ref hash, (ushort)value);
+            HashCode(ref hash, (short)value);
         }
 
         public static void HashCode(ref int hash, char value) {
