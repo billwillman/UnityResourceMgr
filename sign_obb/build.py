@@ -73,6 +73,19 @@ def AutoSign():
 
     return
 
+def BuildObbFrom(fileDir, outDir, apkName, patchName, apkVersion):
+    obbFileName = "%s.%d.%s.obb" % (patchName, apkVersion, apkName);
+
+    outFileName = outDir + "/" + obbFileName;
+
+    cmd = "jobb -d %s -o %s -pn %s -pv %d" % (fileDir, outFileName, apkName, apkVersion);
+
+    print cmd;
+
+    os.system(cmd);
+
+    return;
+
 def BuildObb():
 
     fileDir = "";
@@ -130,16 +143,7 @@ def BuildObb():
             apkVersion = int(s);
             break;
 
-    obbFileName = "%s.%d.%s.obb" % (patchName, apkVersion,apkName);
-
-    outFileName = outDir + "/" + obbFileName;
-
-    cmd = "jobb -d %s -o %s -pn %s -pv %d" % (fileDir, outFileName, apkName, apkVersion);
-
-    print cmd;
-
-    os.system(cmd);
-
+    BuildObbFrom(fileDir, outDir, apkName, patchName, apkVersion);
     return
 
 def getApkInfoFromLog(logFile):
@@ -216,7 +220,7 @@ def buildFromApk():
         elif s == 'n' or s == 'N':
             return;
 
-    idx = srcApkFile.index('.');
+    idx = srcApkFile.rfind('.');
     if (idx < 0):
         return;
 
@@ -227,14 +231,33 @@ def buildFromApk():
         shutil.rmtree(unzipDir)
 
     #2.解压APK
-    print "%s 开始解压APK..." % srcApkFile
+    print "%s 开始解压APK，解压目录： %s" % (srcApkFile, unzipDir)
     f = zipfile.ZipFile(srcApkFile, 'r')
     for file in f.namelist():
         f.extract(file, unzipDir)
+    f.close();
     print "解压APK完成..."
     #3.assets/Android目录打OBB
+    #obb目录
+    obboutPath = os.path.dirname(srcApkFile);
+    obbSrcPath = "%s/assets/Android" % unzipDir;
+    s = "%s 生成obb" % obbSrcPath;
+    print s;
+    BuildObbFrom(obbSrcPath, obboutPath,packageName, "main", versionCode);
     #4.删除assets/Android目录
-    #5.重新签名，生成新的不带assets/Android资源的APK
+    s = "%s 删除" % obbSrcPath;
+    print s;
+    shutil.rmtree(obbSrcPath);
+    #5.压缩解压删除后的，并变成JAR
+    zipFileName = unzipDir + ".jar";
+    s = "重新压缩 %s" % zipFileName
+    f = zipfile.ZipFile(zipFileName, 'w');
+    for dirpath, dirnames, filenames in os.walk(unzipDir):
+        for file in filenames:
+            f.write(file, zipFileName)
+    f.close();
+    print "重新压缩完成"
+    #6.重新签名，生成新的不带assets/Android资源的APK
 
     return
 
