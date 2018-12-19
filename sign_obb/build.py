@@ -13,13 +13,13 @@ import win_utf8_output
 import zipfile
 import shutil
 
-def AutoSign():
+def AutoSignFrom(unsignPath, signPath):
     keystorePath = "";
     while True:
         s = raw_input("\n请输入.keystore的文件路径：\n")
         if (s != None):
             s.strip();
-        if (s== None or len(s) <= 0):
+        if (s == None or len(s) <= 0):
             continue;
         keystorePath = s;
         break;
@@ -29,7 +29,7 @@ def AutoSign():
         s = raw_input("\n请输入keystore的alias：\n")
         if (s != None):
             s.strip();
-        if (s== None or len(s) <= 0):
+        if (s == None or len(s) <= 0):
             continue;
         keystoreAlias = s;
         break;
@@ -39,11 +39,21 @@ def AutoSign():
         s = raw_input("\n请输入keystore的密码：\n")
         if (s != None):
             s.strip();
-        if (s== None or len(s) <= 0):
+        if (s == None or len(s) <= 0):
             continue;
         keystorePassword = s;
         break;
 
+    cmd = "jarsigner -verbose -keystore %s -storepass %s -signedjar %s %s %s" % \
+          (keystorePath, keystorePassword, signPath, unsignPath, keystoreAlias);
+
+    print cmd;
+
+    os.system(cmd);
+
+    return
+
+def AutoSign():
     unsignPath = "";
     while True:
         s = raw_input("\n请输入待签名的apk文件路径(文件为jar，请自行ZIP工具压缩生成jar)：\n")
@@ -64,12 +74,7 @@ def AutoSign():
         signPath = s;
         break;
 
-    cmd = "jarsigner -verbose -keystore %s -storepass %s -signedjar %s %s %s" % \
-          (keystorePath, keystorePassword, signPath, unsignPath, keystoreAlias);
-
-    print cmd;
-
-    os.system(cmd);
+    AutoSignFrom(unsignPath, signPath);
 
     return
 
@@ -248,16 +253,33 @@ def buildFromApk():
     s = "%s 删除" % obbSrcPath;
     print s;
     shutil.rmtree(obbSrcPath);
+    metaDir = "%s/META-INF" % unzipDir;
+    s = "%s 删除" % metaDir;
+    print s;
+    shutil.rmtree(metaDir);
     #5.压缩解压删除后的，并变成JAR
     zipFileName = unzipDir + ".jar";
     s = "重新压缩 %s" % zipFileName
     f = zipfile.ZipFile(zipFileName, 'w');
-    for dirpath, dirnames, filenames in os.walk(unzipDir):
-        for file in filenames:
-            f.write(file, zipFileName)
+
+    #for dirpath, dirnames, filenames in os.walk(unzipDir):
+     #   for file in filenames:
+      #      f.write(file, zipFileName)
+    for path, dirnames, filenames in os.walk(unzipDir):
+        # 去掉目标跟路径，只对目标文件夹下边的文件及文件夹进行压缩
+        fpath = path.replace(unzipDir, '')
+        for filename in filenames:
+            s = "压缩=》%s" % filename;
+            print s;
+            f.write(os.path.join(path, filename), os.path.join(fpath, filename))
+
     f.close();
     print "重新压缩完成"
     #6.重新签名，生成新的不带assets/Android资源的APK
+    print "开始重签名..."
+    signApkFileName = zipFileName[0:len(zipFileName) - 4] + "_sign.apk";
+    AutoSignFrom(zipFileName, signApkFileName);
+    print "生成签名APK完成"
 
     return
 
