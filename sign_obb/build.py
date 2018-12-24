@@ -12,6 +12,7 @@ import time
 import win_utf8_output
 import zipfile
 import shutil
+import  tail
 
 def AutoSignFrom(unsignPath, signPath):
     keystorePath = "";
@@ -190,6 +191,9 @@ def getApkInfoFromLog(logFile):
 
     return  packageName, versionCode;
 
+def MonitorLine(txt):
+    print txt
+
 def buildFromApk():
     srcApkFile = "";
     while True:
@@ -206,8 +210,18 @@ def buildFromApk():
 
     print "读取APK包信息..."
     logFile = os.path.dirname(os.path.realpath(__file__)) + "/aapt.txt";
+
+    # 如果文件不存在则重新生成
+    f = open(logFile, "w")
+    f.close()
+
+    montior = tail.Tail(logFile)
+    montior.register_callback(MonitorLine)
+
     cmd = "aapt dump badging %s > %s" % (srcApkFile, logFile);
-    os.system(cmd);
+    # os.system(cmd);
+    process = subprocess.Popen(cmd, shell=True)
+    montior.follow(process, 2)
 
     # 从日志文件中读取包名和versionCode
     packageName, versionCode = getApkInfoFromLog(logFile);
