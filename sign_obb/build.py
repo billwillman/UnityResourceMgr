@@ -260,7 +260,7 @@ def buildFromApk():
     #5.压缩解压删除后的，并变成JAR
     zipFileName = unzipDir + ".jar";
     s = "重新压缩 %s" % zipFileName
-    f = zipfile.ZipFile(zipFileName, 'w');
+    f = zipfile.ZipFile(zipFileName, 'w', zipfile.ZIP_DEFLATED);
 
     #for dirpath, dirnames, filenames in os.walk(unzipDir):
      #   for file in filenames:
