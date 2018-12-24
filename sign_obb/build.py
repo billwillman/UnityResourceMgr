@@ -239,6 +239,10 @@ def buildFromApk():
     print "%s 开始解压APK，解压目录： %s" % (srcApkFile, unzipDir)
     f = zipfile.ZipFile(srcApkFile, 'r')
     for file in f.namelist():
+        s = file;
+        s = s.decode("ascii").encode("utf-8")
+        s = "解压=>%s" % s;
+        print s;
         f.extract(file, unzipDir)
     f.close();
     print "解压APK完成..."
