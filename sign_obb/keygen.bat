@@ -1,0 +1,1 @@
+keytool -genkey -alias com.tencent.test -keyalg RSA -validity 20000 -keystore test.keystore
