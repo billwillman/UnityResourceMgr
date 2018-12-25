@@ -357,7 +357,7 @@ def buildFromApk():
     #选择JOBB还是其他
     obbFileName = "";
     while True:
-        s = raw_input("选择生成OBB方式：1.Zip生成 2.JObb生成");
+        s = raw_input("\n选择生成OBB方式：1.Zip生成 2.JObb生成\n");
         if (s.isdigit()):
             cmdId = int(s)
             if cmdId in [1, 2]:
