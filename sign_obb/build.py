@@ -79,6 +79,29 @@ def AutoSign():
 
     return
 
+# 使用ZIP来做OBB
+def BuildObbZipFrom(fileDir, outDir, apkName, patchName, apkVersion):
+    obbFileName = "%s.%d.%s.obb" % (patchName, apkVersion, apkName);
+    outFileName = outDir + "/" + obbFileName;
+    f = zipfile.ZipFile(outFileName, 'w', zipfile.ZIP_STORED);
+
+    print "开始obb压缩..."
+    idx =  fileDir.index("assets");
+    startDir = fileDir;
+    if (idx >= 0):
+        startDir = fileDir[0:idx];
+    for path, dirnames, filenames in os.walk(fileDir):
+        # 去掉目标跟路径，只对目标文件夹下边的文件及文件夹进行压缩
+        fpath = path.replace(startDir, '')
+        for filename in filenames:
+            s = "obb压缩=》%s" % filename;
+            print s;
+            f.write(os.path.join(path, filename), os.path.join(fpath, filename))
+
+    f.close();
+    print "obb压缩完成..."
+    return;
+
 def BuildObbFrom(fileDir, outDir, apkName, patchName, apkVersion):
     logFile = os.path.dirname(os.path.realpath(__file__)) + "/jobb.txt";
 
@@ -296,6 +319,7 @@ def buildFromApk():
     s = "%s 生成obb" % obbSrcPath;
     print s;
     BuildObbFrom(obbSrcPath, obboutPath,packageName, "main", versionCode);
+    #BuildObbZipFrom(obbSrcPath, obboutPath,packageName, "main", versionCode);
     #4.删除assets/Android目录
     s = "%s 删除" % obbSrcPath;
     print s;
