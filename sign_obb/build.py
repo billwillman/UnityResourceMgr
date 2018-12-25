@@ -263,6 +263,25 @@ def md5sum(file_path):
   md5 = str(hash_code).lower()
   return md5
 
+# Unity的MD5计算方式
+def UnityMd5Encry(file_path):
+    f = open(file_path, 'rb')
+    md5_obj = hashlib.md5()
+    f.seek(0, 2);
+    #文件大小
+    length = f.tell();
+    offset = length - min(length, 65558);
+    f.seek(offset, 0);
+    while True:
+        d = f.read(1024)
+        if not d:
+            break
+        md5_obj.update(d)
+    hash_code = md5_obj.hexdigest()
+    f.close()
+    md5 = str(hash_code).lower()
+    return md5;
+
 #修改settings.xml的设置
 def writeObbSettings(settingfileName, obbFileName):
     print "开始写入 %s" % settingfileName;
@@ -277,8 +296,8 @@ def writeObbSettings(settingfileName, obbFileName):
         child.text = "True";
         break;
 
-    # 增加MD5选项
-    fmd5 = md5sum(obbFileName);
+    # UNITY特定MD5算法
+    fmd5 = UnityMd5Encry(obbFileName);
     newNode = ET.SubElement(root, "bool", {"name": fmd5});
     newNode.text = "True";
 
