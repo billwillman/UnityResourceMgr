@@ -82,8 +82,17 @@ def AutoSign():
 
     return
 
+def get_files(path, rule):
+    all = []
+    for fpathe,dirs,fs in os.walk(path):   # os.walk获取所有的目录
+        for f in fs:
+            filename = os.path.join(fpathe,f)
+            if filename.endswith(rule):  # 判断是否是".sfx"结尾
+                all.append(filename)
+    return all
+
 # 使用ZIP来做OBB
-def BuildObbZipFrom(fileDir, outDir, apkName, patchName, apkVersion):
+def BuildObbZipFrom(fileDir, outDir, apkName, patchName, apkVersion, mp4Root):
     obbFileName = "%s.%d.%s.obb" % (patchName, apkVersion, apkName);
     outFileName = outDir + "/" + obbFileName;
     f = zipfile.ZipFile(outFileName, 'w', zipfile.ZIP_STORED);
@@ -100,6 +109,20 @@ def BuildObbZipFrom(fileDir, outDir, apkName, patchName, apkVersion):
             s = "obb压缩=》%s" % filename;
             print s;
             f.write(os.path.join(path, filename), os.path.join(fpath, filename))
+
+    # 查找mp4文件也写入OBB里
+    if (mp4Root != None):
+        mp4files = get_files(mp4Root, ".mp4");
+        if mp4files != None:
+            for fileName in mp4files:
+                idx = fileName.index("assets");
+                if (idx < 0):
+                    continue;
+                dstFileName = fileName[idx:];
+                s = "obb压缩=》%s" % filename;
+                print s;
+                f.write(fileName, dstFileName);
+
 
     f.close();
     print "obb压缩完成..."
@@ -378,6 +401,7 @@ def buildFromApk():
     #obb目录
     obboutPath = os.path.dirname(srcApkFile);
     obbSrcPath = "%s/assets/Android" % unzipDir;
+    mp4Root = "%s/assets" % unzipDir;
     s = "%s 生成obb" % obbSrcPath;
     print s;
 
@@ -389,7 +413,7 @@ def buildFromApk():
             cmdId = int(s)
             if cmdId in [1, 2]:
                 if cmdId == 1:
-                    obbFileName = BuildObbZipFrom(obbSrcPath, obboutPath, packageName, "main", versionCode);
+                    obbFileName = BuildObbZipFrom(obbSrcPath, obboutPath, packageName, "main", versionCode, mp4Root);
                     break;
                 elif cmdId == 2:
                     obbFileName = BuildObbFrom(obbSrcPath, obboutPath,packageName, "main", versionCode);
