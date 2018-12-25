@@ -80,15 +80,44 @@ def AutoSign():
     return
 
 def BuildObbFrom(fileDir, outDir, apkName, patchName, apkVersion):
+    logFile = os.path.dirname(os.path.realpath(__file__)) + "/jobb.txt";
+
+    # 如果文件不存在则重新生成
+    f = open(logFile, "w")
+    f.close()
+
+    montior = tail.Tail(logFile)
+    montior.register_callback(MonitorLine)
+
     obbFileName = "%s.%d.%s.obb" % (patchName, apkVersion, apkName);
 
     outFileName = outDir + "/" + obbFileName;
 
-    cmd = "jobb -d %s -o %s -pn %s -pv %d" % (fileDir, outFileName, apkName, apkVersion);
-
+    #cmd = "java -jar jobb.jar -d %s -o %s -pn %s -pv %d" % (fileDir, outFileName, apkName, apkVersion);
+    cmd = "jobb -d %s -o %s -pn %s -pv %d -v %s -ov" % (fileDir, outFileName, apkName, apkVersion, logFile);
     print cmd;
 
-    os.system(cmd);
+    #os.system(cmd);
+    process = subprocess.Popen(cmd, shell=True)
+    montior.follow(process, 2)
+
+    while True:
+        s = raw_input("\n是否提取生成的obb检查？(Y/N)\n")
+        if (s != None):
+            s.strip();
+        if s == 'y' or s == 'Y':
+            dumpDir = "%s.%d.%s.dump" % (patchName, apkVersion, apkName);
+            dumpDir = outDir + "/" + dumpDir;
+            if (os.path.exists(dumpDir) and os.path.isdir(dumpDir)):
+                print "正在删除目录：%s" % dumpDir;
+                shutil.rmtree(dumpDir)
+            cmd = "jobb -dump %s -d %s -v %s " % (outFileName, dumpDir, logFile);
+            print cmd;
+            process = subprocess.Popen(cmd, shell=True)
+            montior.follow(process, 2)
+            break
+        elif s == 'n' or s == 'N':
+            break;
 
     return;
 
