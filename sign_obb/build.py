@@ -284,7 +284,8 @@ def writeObbSettings(settingfileName, obbFileName):
 
     print "obb %s md5=> %s" % (obbFileName, fmd5);
 
-    tree.write(settingfileName, encoding="utf-8");
+    tree.write(settingfileName, encoding="utf-8",xml_declaration=True);
+
     print "写入Settings.xml完毕..."
     return;
 
