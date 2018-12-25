@@ -122,10 +122,9 @@ def BuildObbZipFrom(fileDir, outDir, apkName, patchName, apkVersion, mp4Root):
                 s = "obb压缩=》%s" % filename;
                 print s;
                 f.write(fileName, dstFileName);
-				s = "删除=> %s" % fileName;
-				print s;
-				os.remove(fileName);
-				
+                s = "删除=》%s" % fileName;
+                print s;
+                os.remove(fileName);
 
 
     f.close();
