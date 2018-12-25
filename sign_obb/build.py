@@ -13,6 +13,9 @@ import win_utf8_output
 import zipfile
 import shutil
 import  tail
+import xml.etree.ElementTree as ET
+import xml.dom.minidom as minidom
+import hashlib
 
 def AutoSignFrom(unsignPath, signPath):
     keystorePath = "";
@@ -100,7 +103,7 @@ def BuildObbZipFrom(fileDir, outDir, apkName, patchName, apkVersion):
 
     f.close();
     print "obb压缩完成..."
-    return;
+    return outFileName;
 
 def BuildObbFrom(fileDir, outDir, apkName, patchName, apkVersion):
     logFile = os.path.dirname(os.path.realpath(__file__)) + "/jobb.txt";
@@ -142,7 +145,7 @@ def BuildObbFrom(fileDir, outDir, apkName, patchName, apkVersion):
         elif s == 'n' or s == 'N':
             break;
 
-    return;
+    return outFileName;
 
 def BuildObb():
 
@@ -246,6 +249,38 @@ def getApkInfoFromLog(logFile):
 def MonitorLine(txt):
     print txt
 
+def md5sum(filename):
+    fd = open(filename,"r")
+    fcont = fd.read()
+    fd.close()
+    fmd5 = hashlib.md5(fcont)
+    return fmd5.hexdigest();
+
+#修改settings.xml的设置
+def writeObbSettings(settingfileName, obbFileName):
+    print "开始写入 %s" % settingfileName;
+    tree = ET.parse(settingfileName);
+    root = tree.getroot();
+    for child in root:
+        name = child.get('name');
+        if (name == None):
+            continue;
+        if (name.lower() != "useobb"):
+            continue;
+        child.text = "True";
+        break;
+
+    # 增加MD5选项
+    fmd5 = md5sum(obbFileName);
+    newNode = ET.SubElement(root, "bool", {"name": fmd5});
+    newNode.text = "True";
+
+    print "obb md5=> %s" % fmd5;
+
+    tree.write(settingfileName);
+    print "写入Settings.xml完毕..."
+    return;
+
 def buildFromApk():
     srcApkFile = "";
     while True:
@@ -318,8 +353,24 @@ def buildFromApk():
     obbSrcPath = "%s/assets/Android" % unzipDir;
     s = "%s 生成obb" % obbSrcPath;
     print s;
-    BuildObbFrom(obbSrcPath, obboutPath,packageName, "main", versionCode);
-    #BuildObbZipFrom(obbSrcPath, obboutPath,packageName, "main", versionCode);
+
+    #选择JOBB还是其他
+    obbFileName = "";
+    while True:
+        s = raw_input("选择生成OBB方式：1.Zip生成 2.JObb生成");
+        if (s.isdigit()):
+            cmdId = int(s)
+            if cmdId in [1, 2]:
+                if cmdId == 1:
+                    obbFileName = BuildObbZipFrom(obbSrcPath, obboutPath, packageName, "main", versionCode);
+                    break;
+                elif cmdId == 2:
+                    obbFileName = BuildObbFrom(obbSrcPath, obboutPath,packageName, "main", versionCode);
+                    break;
+    # 重新写入settings.xml
+    settingsFileName = "%s/assets/bin/Data/settings.xml" % unzipDir;
+    writeObbSettings(settingsFileName, obbFileName);
+
     #4.删除assets/Android目录
     s = "%s 删除" % obbSrcPath;
     print s;
