@@ -7,8 +7,7 @@
 #define LOGW(...) __android_log_print(ANDROID_LOG_WARN , "Unity", __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR , "Unity", __VA_ARGS__)
 
-// 后面通过字符串提供掉com_package_demo
 JNIEXPORT void JNICALL Java_com_package_NsEncry_NsEncry_CheckSign(JNIEnv* env)
 {
-
+	LOGD("abc");
 }
