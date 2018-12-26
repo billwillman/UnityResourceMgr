@@ -6,7 +6,7 @@ LOCAL_MODULE    := NsEncry
 LOCAL_MODULE_FILENAME := libNsEncry
 LOCAL_C_INCLUDE := $(LOCAL_PATH)
 #LOCAL_SRC_FILES表示使用到的类
-#LOCAL_SRC_FILES := libEncry.cpp \
+LOCAL_SRC_FILES := libEncry.cpp \
 
 LOCAL_LDLIBS    := -lm -llog -ljnigraphics
 
