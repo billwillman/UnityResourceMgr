@@ -334,6 +334,25 @@ def writeObbSettings(settingfileName, obbFileName):
     print "写入Settings.xml完毕..."
     return;
 
+# 注入自己的SO库到里面
+def ImportEncrySOInApk(apkRootPath):
+    # 1.编译自己的SO库(至少包括x86 armv7)
+    # 2.反编译class.dex
+    # 3.混淆并重新生成新的class.dex
+    return False;
+
+# 加密等
+def EncryApk(apkRootPath):
+    if apkRootPath == None:
+        return False;
+    if (os.path.exists(apkRootPath) and os.path.isdir(apkRootPath)):
+        # 注入SO到APK中
+        ret = ImportEncrySOInApk(apkRootPath);
+        if not ret:
+            return ret;
+        return True;
+    return False;
+
 def buildFromApk():
     srcApkFile = "";
     while True:
