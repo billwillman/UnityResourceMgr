@@ -45,6 +45,8 @@
 
 发现Unity 2018更改底层后导致的一个问题：就是AsyncOperation的isDone属性的赋值，貌似UNITY底层放到子线程赋值了，导致主线程同步执行两个函数，isDone的判断不一致，第一个为false, 另外一个为true, 导致有概率资源加载不出来，此问题已经修正。在5.3中，没有此问题。
 
+#### 脚本sign_obb目录里build.py是用来拆分 APK + obb, 用于上GOOGLE平台等海外需求使用。
+
 ### todo: 将读取AssetBundles.xml放在C++层解析，进一步减少MONO堆内存使用量
 
 
