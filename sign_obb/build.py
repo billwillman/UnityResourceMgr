@@ -607,6 +607,26 @@ def diffApk(oldApkFileName, newApkFileName):
                 print "Diff Md5=> %s = %s" % (srcMd5, dstMd5);
                 dstApk.extract(dstName, diffPath);
 
+    # 生成dstApk没有的但srcApk有的文件
+    for srcName in srcNameList:
+        idx = -1;
+        try:
+            idx = dstNameList.index(srcName);
+        except:
+            idx = -1;
+        if idx < 0:
+            s = srcName;
+            s = s.decode("ascii").encode("utf-8")
+            # 判断目录是否存在，如果不存在创建
+            if ((not os.path.exists(diffPath)) or (not os.path.isdir(diffPath))):
+                os.makedirs(diffPath);
+            delFileName = "%s/%s__" % (diffPath, s);
+            print "delete file=>%s" % delFileName;
+            f = open(delFileName, "w");
+            f.close();
+
+
+
     srcApk.close();
     dstApk.close();
 
@@ -709,10 +729,17 @@ def combineApk_patchFrom(apkFileName, patchFileName):
     # 遍历SrcApk把没有的fileName写入
     for info in srcF.infolist():
         findInfo = None;
+        isDelete = False;
         for pInfo in srcP.infolist():
             if cmp(info.filename, pInfo.filename) == 0:
                 findInfo = pInfo;
                 break;
+            delFileName = info.filename + "__";
+            if cmp(delFileName, pInfo.filename):
+                isDelete = True;
+        # 如果是删除文件，则直接跳过
+        if isDelete:
+            continue;
         if (findInfo == None):
             s = info.filename;
             s = s.decode("ascii").encode("utf-8")
@@ -727,6 +754,7 @@ def combineApk_patchFrom(apkFileName, patchFileName):
             buf = f.read();
             dstF.writestr(info.filename, buf, compressType);
             f.close();
+        '''
         else:
             s = findInfo.filename;
             s = s.decode("ascii").encode("utf-8")
@@ -740,6 +768,26 @@ def combineApk_patchFrom(apkFileName, patchFileName):
             buf = f.read();
             dstF.writestr(findInfo.filename, buf, compressType);
             f.close();
+        '''
+
+    # 再循环Patch新增的
+    for pInfo in srcP.infolist():
+        s = pInfo.filename;
+        s = s.decode("ascii").encode("utf-8")
+        #如果以 __ 结尾的文件为需要删除的文件，所以在写入的时候忽略
+        if s.endswith("__"):
+            continue;
+        srcDir = os.path.dirname(pInfo.filename);
+        compressType = srcApkDirMap[srcDir];
+        if compressType == None:
+            compressType = zipfile.ZIP_DEFLATED;
+        s = "Patch写入=》%s 压缩类型：%d" % (s, int(compressType));
+        print s;
+        f = srcP.open(pInfo.filename);
+        buf = f.read();
+        dstF.writestr(findInfo.filename, buf, compressType);
+        f.close();
+
 
     dstF.close();
     srcP.close();
@@ -771,6 +819,7 @@ def combineApk_patch():
             continue;
         newPatchFileName = s;
         break;
+
     ret = combineApk_patchFrom(oldApkFileNmae, newPatchFileName);
     return ret;
 
