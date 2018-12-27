@@ -660,6 +660,120 @@ def buildDiffApk():
     ret = diffApk(oldApkFileNmae, newApkFileName);
     return ret;
 
+def combineApk_patchFrom(apkFileName, patchFileName):
+    if (not os.path.exists(apkFileName)) or (not os.path.isfile(apkFileName)):
+        return False;
+    if (not os.path.exists(patchFileName)) or (not os.path.isfile(patchFileName)):
+        return False;
+    apkFileName = os.path.realpath(apkFileName);
+    patchFileName = os.path.realpath(patchFileName);
+
+    # 原始APK目录字典
+    srcF = zipfile.ZipFile(apkFileName, 'r')
+
+    # 获得原始APK的目录结构
+    print "读取原始APK目录结构..."
+    srcApkDirMap = {};
+    for info in srcF.infolist():
+        dir = os.path.dirname(info.filename);
+        dir = dir.decode("ascii").encode("utf-8")
+        if not srcApkDirMap.has_key(dir):
+            print "目录：%s 压缩类型：%d" % (dir, int(info.compress_type));
+            srcApkDirMap[dir] = info.compress_type;
+
+    print "开始合并生成APK..."
+
+    srcP = zipfile.ZipFile(patchFileName, 'r');
+
+    outDstDir = os.path.dirname(apkFileName);
+    print outDstDir;
+
+    idx = apkFileName.rfind(".apk");
+    dstFileName = apkFileName[0:idx];
+    idx = dstFileName.index(outDstDir);
+    dstFileName = dstFileName[idx + len(outDstDir) + 1:];
+    print dstFileName;
+
+    idx = patchFileName.rfind(".zip");
+    patchName = patchFileName[0:idx];
+    outPatchDir = os.path.dirname(patchName);
+    idx = patchName.index(outPatchDir);
+    patchName = patchName[idx+len(outPatchDir) + 1:];
+    print patchName;
+
+    dstFileName = "%s/%s_%s.apk" % (outDstDir, dstFileName, patchName)
+    s = "生成=》%s" % dstFileName;
+    print s;
+    dstF = zipfile.ZipFile(dstFileName, "w");
+
+    # 遍历SrcApk把没有的fileName写入
+    for info in srcF.infolist():
+        findInfo = None;
+        for pInfo in srcP.infolist():
+            if cmp(info.filename, pInfo.filename) == 0:
+                findInfo = pInfo;
+                break;
+        if (findInfo == None):
+            s = info.filename;
+            s = s.decode("ascii").encode("utf-8")
+            s = "源APK写入=》%s" % s;
+            print s;
+            srcDir = os.path.dirname(info.filename);
+            srcDir = srcDir.decode("ascii").encode("utf-8")
+            compressType = srcApkDirMap[srcDir];
+            if compressType == None:
+                compressType = zipfile.ZIP_DEFLATED;
+            f = srcF.open(info.filename);
+            buf = f.read();
+            dstF.writestr(info.filename, buf, compressType);
+            f.close();
+        else:
+            s = findInfo.filename;
+            s = s.decode("ascii").encode("utf-8")
+            s = "Patch写入=》%s" % s;
+            print s;
+            srcDir = os.path.dirname(findInfo.filename);
+            compressType = srcApkDirMap[srcDir];
+            if compressType == None:
+                compressType = zipfile.ZIP_DEFLATED;
+            f = srcP.open(findInfo.filename);
+            buf = f.read();
+            dstF.writestr(findInfo.filename, buf, compressType);
+            f.close();
+
+    dstF.close();
+    srcP.close();
+    srcF.close();
+
+    print "生成新APK完毕..."
+
+    return True;
+
+def combineApk_patch():
+    oldApkFileNmae = "";
+    while True:
+        s = raw_input("\n请设置老版本APK文件路径：\n");
+        if (not os.path.exists(s)) or (not os.path.isfile(s)):
+            continue;
+        isApk = os.path.splitext(s)[-1].lower() == ".apk";
+        if (not isApk):
+            continue;
+        oldApkFileNmae = s;
+        break;
+
+    newPatchFileName = "";
+    while True:
+        s = raw_input("\n请设置Patch文件路径(.zip)：\n");
+        if (not os.path.exists(s)) or (not os.path.isfile(s)):
+            continue;
+        isApk = os.path.splitext(s)[-1].lower() == ".zip";
+        if (not isApk):
+            continue;
+        newPatchFileName = s;
+        break;
+    ret = combineApk_patchFrom(oldApkFileNmae, newPatchFileName);
+    return ret;
+
 def Main():
 
     info = "\n请确认配置好以下环境变量：\n1.重签名：jarsigner（在JDK安装目录bin下）\n2.Obb生成：jobb（在Android SDK目录的tools下）\n" \
@@ -667,11 +781,11 @@ def Main():
     print info;
 
     while True:
-        s = raw_input("\n请选择操作类型：0.根据整APK生成拆分APK  1.自动签名  2.生成obb  3.Apk差异生成  4.退出\n")
+        s = raw_input("\n请选择操作类型：0.根据整APK生成拆分APK  1.自动签名  2.生成obb  3.Apk差异生成  4.Apk+patch生成新APK  5.退出\n")
         if (s.isdigit()):
             cmdId = int(s)
-            if (cmdId in [0,1, 2, 3, 4]):
-                if (cmdId == 4):
+            if (cmdId in [0,1, 2, 3, 4, 5]):
+                if (cmdId == 5):
                     break;
             if (cmdId == 1):
                 AutoSign();
@@ -681,6 +795,8 @@ def Main():
                 buildFromApk();
             elif (cmdId == 3):
                 buildDiffApk();
+            elif (cmdId == 4):
+                combineApk_patch();
     return;
 
 ##################################### 调用入口 ###################################

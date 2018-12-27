@@ -14,8 +14,8 @@
       <file leaf-file-name="build.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
-              <caret line="606" column="62" lean-forward="false" selection-start-line="606" selection-start-column="62" selection-end-line="606" selection-end-column="62" />
+            <state relative-caret-position="549">
+              <caret line="747" column="22" lean-forward="false" selection-start-line="747" selection-start-column="22" selection-end-line="747" selection-end-column="22" />
               <folding>
                 <element signature="e#56#80#0" expanded="true" />
               </folding>
@@ -27,21 +27,11 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>os.path.dirname</find>
-      <find>UnityMd</find>
-      <find>diff</find>
-      <find>UnityMd5EncryFromF</find>
-      <find>extract</find>
-      <find>&quot;ascii&quot;</find>
-      <find>index</find>
-      <find>rmtree</find>
-      <find>ZipFile</find>
       <find>'w');</find>
       <find>zipfile.ZipFile</find>
       <find>difA</find>
       <find>fileDir</find>
       <find>fileDir.index(&quot;assets&quot;);</find>
-      <find>.index</find>
       <find>zipFon</find>
       <find>filenames</find>
       <find>12004-12004</find>
@@ -57,6 +47,16 @@
       <find>diffAPk</find>
       <find>diffApk</find>
       <find>Diff</find>
+      <find>zipFil</find>
+      <find>rfind</find>
+      <find>ZipFile</find>
+      <find>namelist</find>
+      <find>is_di</find>
+      <find>is_zipfile</find>
+      <find>.CRC</find>
+      <find>srcApkDirMap</find>
+      <find>.index</find>
+      <find>combine</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -73,8 +73,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="31" />
-    <option name="y" value="136" />
+    <option name="x" value="472" />
+    <option name="y" value="91" />
     <option name="width" value="1918" />
     <option name="height" value="956" />
   </component>
@@ -141,7 +141,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="31" y="136" width="1918" height="956" extended-state="0" />
+    <frame x="472" y="91" width="1918" height="956" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -202,8 +202,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="606" column="62" lean-forward="false" selection-start-line="606" selection-start-column="62" selection-end-line="606" selection-end-column="62" />
+        <state relative-caret-position="549">
+          <caret line="747" column="22" lean-forward="false" selection-start-line="747" selection-start-column="22" selection-end-line="747" selection-end-column="22" />
           <folding>
             <element signature="e#56#80#0" expanded="true" />
           </folding>
