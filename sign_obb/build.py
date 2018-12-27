@@ -603,8 +603,8 @@ def diffApk(oldApkFileName, newApkFileName):
             dstMd5 = md5sumF(dstF);
             dstF.close();
             if (cmp(srcMd5, dstMd5) != 0):
-                print "Diff Md5=> %s = %s" % (srcMd5, dstMd5);
                 print "Diff=》%s" % s;
+                print "Diff Md5=> %s = %s" % (srcMd5, dstMd5);
                 dstApk.extract(dstName, diffPath);
 
     srcApk.close();

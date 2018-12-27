@@ -14,8 +14,8 @@
       <file leaf-file-name="build.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="636">
-              <caret line="656" column="21" lean-forward="false" selection-start-line="656" selection-start-column="21" selection-end-line="656" selection-end-column="21" />
+            <state relative-caret-position="255">
+              <caret line="606" column="62" lean-forward="false" selection-start-line="606" selection-start-column="62" selection-end-line="606" selection-end-column="62" />
               <folding>
                 <element signature="e#56#80#0" expanded="true" />
               </folding>
@@ -27,7 +27,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>unzipDir</find>
       <find>os.path.dirname</find>
       <find>UnityMd</find>
       <find>diff</find>
@@ -57,6 +56,7 @@
       <find>isApk = os.path.splitext(s)[-1].lower() == &quot;.apk&quot;;d</find>
       <find>diffAPk</find>
       <find>diffApk</find>
+      <find>Diff</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -202,8 +202,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="636">
-          <caret line="656" column="21" lean-forward="false" selection-start-line="656" selection-start-column="21" selection-end-line="656" selection-end-column="21" />
+        <state relative-caret-position="255">
+          <caret line="606" column="62" lean-forward="false" selection-start-line="606" selection-start-column="62" selection-end-line="606" selection-end-column="62" />
           <folding>
             <element signature="e#56#80#0" expanded="true" />
           </folding>
