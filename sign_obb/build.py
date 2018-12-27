@@ -716,13 +716,13 @@ def combineApk_patchFrom(apkFileName, patchFileName):
         if (findInfo == None):
             s = info.filename;
             s = s.decode("ascii").encode("utf-8")
-            s = "源APK写入=》%s" % s;
-            print s;
             srcDir = os.path.dirname(info.filename);
             srcDir = srcDir.decode("ascii").encode("utf-8")
             compressType = srcApkDirMap[srcDir];
             if compressType == None:
                 compressType = zipfile.ZIP_DEFLATED;
+            s = "源APK写入=》%s 压缩类型：%d" % (s, int(compressType));
+            print s;
             f = srcF.open(info.filename);
             buf = f.read();
             dstF.writestr(info.filename, buf, compressType);
@@ -730,12 +730,12 @@ def combineApk_patchFrom(apkFileName, patchFileName):
         else:
             s = findInfo.filename;
             s = s.decode("ascii").encode("utf-8")
-            s = "Patch写入=》%s" % s;
-            print s;
             srcDir = os.path.dirname(findInfo.filename);
             compressType = srcApkDirMap[srcDir];
             if compressType == None:
                 compressType = zipfile.ZIP_DEFLATED;
+            s = "Patch写入=》%s 压缩类型：%d" % (s, int(compressType));
+            print s;
             f = srcP.open(findInfo.filename);
             buf = f.read();
             dstF.writestr(findInfo.filename, buf, compressType);

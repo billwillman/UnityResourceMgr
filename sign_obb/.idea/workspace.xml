@@ -14,8 +14,8 @@
       <file leaf-file-name="build.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="549">
-              <caret line="747" column="22" lean-forward="false" selection-start-line="747" selection-start-column="22" selection-end-line="747" selection-end-column="22" />
+            <state relative-caret-position="264">
+              <caret line="723" column="35" lean-forward="false" selection-start-line="723" selection-start-column="34" selection-end-line="723" selection-end-column="35" />
               <folding>
                 <element signature="e#56#80#0" expanded="true" />
               </folding>
@@ -202,8 +202,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="549">
-          <caret line="747" column="22" lean-forward="false" selection-start-line="747" selection-start-column="22" selection-end-line="747" selection-end-column="22" />
+        <state relative-caret-position="264">
+          <caret line="723" column="35" lean-forward="false" selection-start-line="723" selection-start-column="34" selection-end-line="723" selection-end-column="35" />
           <folding>
             <element signature="e#56#80#0" expanded="true" />
           </folding>
