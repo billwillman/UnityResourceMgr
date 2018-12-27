@@ -14,8 +14,8 @@
       <file leaf-file-name="build.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="340">
-              <caret line="633" column="24" lean-forward="false" selection-start-line="633" selection-start-column="24" selection-end-line="633" selection-end-column="24" />
+            <state relative-caret-position="370">
+              <caret line="620" column="84" lean-forward="false" selection-start-line="620" selection-start-column="84" selection-end-line="620" selection-end-column="84" />
               <folding>
                 <element signature="e#56#80#0" expanded="true" />
               </folding>
@@ -27,7 +27,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>os.path.isdir(diffPath)</find>
       <find>os.path.isdir(</find>
       <find>unzipDir</find>
       <find>os.path.dirname</find>
@@ -54,9 +53,10 @@
       <find>unzip</find>
       <find>diffAp</find>
       <find>os.path.join</find>
-      <find>diffApk</find>
       <find>.apk</find>
       <find>.write</find>
+      <find>zipfile.ZipFile(zipFileName</find>
+      <find>diffApk</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -202,8 +202,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="633" column="24" lean-forward="false" selection-start-line="633" selection-start-column="24" selection-end-line="633" selection-end-column="24" />
+        <state relative-caret-position="370">
+          <caret line="620" column="84" lean-forward="false" selection-start-line="620" selection-start-column="84" selection-end-line="620" selection-end-column="84" />
           <folding>
             <element signature="e#56#80#0" expanded="true" />
           </folding>

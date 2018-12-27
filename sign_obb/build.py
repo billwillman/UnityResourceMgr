@@ -618,7 +618,7 @@ def diffApk(oldApkFileName, newApkFileName):
             # 压缩吧
             for fileName in filenames:
                 if (zipFile == None):
-                    zipFile = zipfile.ZipFile(zipFileName, 'w');
+                    zipFile = zipfile.ZipFile(zipFileName, 'w', zipfile.ZIP_DEFLATED);
                 fpath = dirpath.replace(diffPath, '')
                 if len(fpath) > 0:
                     if (fpath[0] == '\\' or fpath[0] == '/'):
