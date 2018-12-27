@@ -98,7 +98,11 @@ def BuildObbZipFrom(fileDir, outDir, apkName, patchName, apkVersion, mp4Root):
     f = zipfile.ZipFile(outFileName, 'w', zipfile.ZIP_STORED);
 
     print "开始obb压缩..."
-    idx =  fileDir.index("assets");
+    idx = -1;
+    try:
+        idx =  fileDir.index("assets");
+    except:
+        idx = -1;
     startDir = fileDir;
     if (idx >= 0):
         startDir = fileDir[0:idx];
@@ -115,7 +119,11 @@ def BuildObbZipFrom(fileDir, outDir, apkName, patchName, apkVersion, mp4Root):
         mp4files = get_files(mp4Root, ".mp4");
         if mp4files != None:
             for fileName in mp4files:
-                idx = fileName.index("assets");
+                idx = -1;
+                try:
+                    idx = fileName.index("assets");
+                except:
+                    idx = -1;
                 if (idx < 0):
                     continue;
                 dstFileName = fileName[idx:];
@@ -241,12 +249,20 @@ def getApkInfoFromLog(logFile):
     f.close();
 
     tmplen = len("package: name='");
-    index = readStr.index("package: name='");
+    index = -1;
+    try:
+        index = readStr.index("package: name='");
+    except:
+        index = -1;
     if (index < 0):
         return None, None;
     index += tmplen;
     readStr = readStr[index:len(readStr) - index];
-    index = readStr.index("'");
+    index = -1;
+    try:
+        index = readStr.index("'");
+    except:
+        index = -1;
     if (index < 0):
         return None, None;
     packageName = readStr[0:index];
@@ -255,12 +271,20 @@ def getApkInfoFromLog(logFile):
 
     readStr = readStr[index + 1:len(readStr) - index];
     tmplen = len("versionCode='");
-    index = readStr.index("versionCode='");
+    index = -1;
+    try:
+        index = readStr.index("versionCode='");
+    except:
+        index = -1;
     if (index < 0):
         return packageName, None;
     index += tmplen;
     readStr = readStr[index:len(readStr) - index];
-    index = readStr.index("'");
+    index = -1;
+    try:
+        index = readStr.index("'");
+    except:
+        index = -1;
     if (index < 0):
         return packageName, None;
     versionCodeStr = readStr[0:index];
@@ -275,6 +299,18 @@ def getApkInfoFromLog(logFile):
 def MonitorLine(txt):
     print txt
 
+def md5sumF(f):
+    md5_obj = hashlib.md5()
+    while True:
+        d = f.read(8096)
+        if not d:
+            break
+        md5_obj.update(d)
+    hash_code = md5_obj.hexdigest()
+    f.close()
+    md5 = str(hash_code).lower()
+    return md5
+
 #较大文件处理
 def md5sum(file_path):
   f = open(file_path,'rb')
@@ -288,6 +324,23 @@ def md5sum(file_path):
   f.close()
   md5 = str(hash_code).lower()
   return md5
+
+def UnityMd5EncryFromF(f):
+    md5_obj = hashlib.md5()
+    f.seek(0, 2);
+    # 文件大小
+    length = f.tell();
+    offset = length - min(length, 65558);
+    f.seek(offset, 0);
+    while True:
+        d = f.read(1024)
+        if not d:
+            break
+        md5_obj.update(d)
+    hash_code = md5_obj.hexdigest()
+    f.close()
+    md5 = str(hash_code).lower()
+    return md5;
 
 # Unity的MD5计算方式
 def UnityMd5Encry(file_path):
@@ -478,17 +531,141 @@ def buildFromApk():
 
     return
 
+# 真正比较APK差异的
+def diffApk(oldApkFileName, newApkFileName):
+    if (not os.path.exists(oldApkFileName)) or (not os.path.isfile(oldApkFileName)):
+        return False;
+    if (not os.path.exists(newApkFileName)) or (not os.path.isfile(newApkFileName)):
+        return False;
+
+    logFile = os.path.dirname(os.path.realpath(__file__)) + "/aapt.txt";
+    # 如果文件不存在则重新生成
+    f = open(logFile, "w")
+    f.close()
+    montior = tail.Tail(logFile)
+    montior.register_callback(MonitorLine)
+    # 1.获取SrcApk的版本号
+    print "读取老APK包信息..."
+    cmd = "aapt dump badging %s > %s" % (oldApkFileName, logFile);
+    # os.system(cmd);
+    process = subprocess.Popen(cmd, shell=True)
+    montior.follow(process, 2)
+    oldPackageName, oldVersionCode = getApkInfoFromLog(logFile);
+    # 2.获取dstApk的版本号
+    print "读取新APK包信息..."
+    cmd = "aapt dump badging %s > %s" % (newApkFileName, logFile);
+    # os.system(cmd);
+    process = subprocess.Popen(cmd, shell=True)
+    montior.follow(process, 2)
+    newPackageName, newVersionCode = getApkInfoFromLog(logFile);
+    if cmp(oldPackageName, newPackageName) != 0:
+        print ">>>oldPackageName != newPackageName<<<"
+        return False;
+    # 3.确认生成DIFF的ZIP包文件名
+    while True:
+        s = "\n是否生成版本号 %d 到 %d的差异？(Y/N)\n" % (oldVersionCode, newVersionCode);
+        s = raw_input(s)
+        if (s != None):
+            s.strip();
+        if s == 'y' or s == 'Y':
+            break
+        elif s == 'n' or s == 'N':
+            return False;
+    outDiffDir = os.path.dirname(os.path.realpath(newApkFileName));
+    diffPath = "%s/%d-%d" % (outDiffDir, oldVersionCode, newVersionCode);
+    if (os.path.exists(diffPath) and os.path.isdir(diffPath)):
+        print "删除目录=》%s" % diffPath;
+        shutil.rmtree(diffPath)
+
+    srcApk = zipfile.ZipFile(oldApkFileName, 'r')
+    dstApk = zipfile.ZipFile(newApkFileName, 'r')
+
+    # 开始APK内部比较，发现不一样，读取出来放到DIFF里
+    srcNameList = srcApk.namelist();
+    dstNameList = dstApk.namelist();
+    for dstName in dstNameList:
+        s = dstName;
+        s = s.decode("ascii").encode("utf-8")
+        idx =  -1;
+        try:
+            idx = srcNameList.index(dstName);
+        except:
+            idx = -1;
+        if (idx < 0):
+            print "src not find=》%s" % s;
+            dstApk.extract(dstName, diffPath);
+        else:
+            srcName = srcNameList[idx];
+            srcF = srcApk.open(srcName);
+            srcMd5 = md5sumF(srcF);
+            srcF.close();
+            dstF = dstApk.open(dstName);
+            dstMd5 = md5sumF(dstF);
+            dstF.close();
+            if (cmp(srcMd5, dstMd5) != 0):
+                print "Diff Md5=> %s = %s" % (srcMd5, dstMd5);
+                print "Diff=》%s" % s;
+                dstApk.extract(dstName, diffPath);
+
+    srcApk.close();
+    dstApk.close();
+
+    #检测diffPath里是否有文件，如果有，则压缩
+    zipFile = None;
+    zipFileName = "%s.zip" % diffPath;
+    if (os.path.exists(diffPath) and os.path.isdir(diffPath)):
+        for dirpath, dirnames, filenames in os.walk(diffPath):
+            # 压缩吧
+            for fileName in filenames:
+                if (zipFile == None):
+                    zipFile = zipfile.ZipFile(zipFileName, 'w');
+                fpath = dirpath.replace(diffPath, '')
+                if len(fpath) > 0:
+                    if (fpath[0] == '\\' or fpath[0] == '/'):
+                        fpath = fpath[1:];
+                srcFileName = os.path.join(dirpath, fileName);
+                dstFileName = os.path.join(fpath, fileName);
+                print "%s 压缩=》%s" % (srcFileName, dstFileName);
+                zipFile.write(srcFileName, dstFileName);
+
+    if zipFile != None:
+        zipFile.close();
+
+    print "Apk差异生成完毕..."
+    return True;
+
+# 生成两个APK差异
+def buildDiffApk():
+    oldApkFileNmae = "";
+    while True:
+        s = raw_input("\n请设置老版本APK文件路径：\n");
+        if (not os.path.exists(s)) or (not os.path.isfile(s)):
+            continue;
+        oldApkFileNmae = s;
+        break;
+
+    newApkFileName = "";
+    while True:
+        s = raw_input("\n请设置新版本APK文件路径：\n");
+        if (not os.path.exists(s)) or (not os.path.isfile(s)):
+            continue;
+        newApkFileName = s;
+        break;
+    ret = diffApk(oldApkFileNmae, newApkFileName);
+    return ret;
+
 def Main():
 
-    info = "\n请确认配置好以下环境变量：\n1.重签名：jarsigner（在JDK安装目录bin下）\n2.Obb生成：jobb（在Android SDK目录的tools下）\n3.查看签名：aapt（在Android SDK目录build-tools中任意一个版本目录下）\n"
+    info = "\n请确认配置好以下环境变量：\n1.重签名：jarsigner（在JDK安装目录bin下）\n2.Obb生成：jobb（在Android SDK目录的tools下）\n" \
+           "3.查看签名：aapt（在Android SDK目录build-tools中任意一个版本目录下）\n"
     print info;
 
     while True:
-        s = raw_input("\n请选择操作类型：0.根据整APK生成拆分APK  1.自动签名  2.生成obb  3.退出\n")
+        s = raw_input("\n请选择操作类型：0.根据整APK生成拆分APK  1.自动签名  2.生成obb  3.Apk差异生成  4.退出\n")
         if (s.isdigit()):
             cmdId = int(s)
-            if (cmdId in [0,1, 2, 3]):
-                if (cmdId == 3):
+            if (cmdId in [0,1, 2, 3, 4]):
+                if (cmdId == 4):
                     break;
             if (cmdId == 1):
                 AutoSign();
@@ -496,6 +673,8 @@ def Main():
                 BuildObb();
             elif (cmdId == 0):
                 buildFromApk();
+            elif (cmdId == 3):
+                buildDiffApk();
     return;
 
 ##################################### 调用入口 ###################################
