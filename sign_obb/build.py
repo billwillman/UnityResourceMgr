@@ -714,7 +714,7 @@ def combineApk_patchFrom(apkFileName, patchFileName):
     idx = apkFileName.rfind(".apk");
     dstFileName = apkFileName[0:idx];
     idx = dstFileName.index(outDstDir);
-    dstFileName = dstFileName[idx + len(outDstDir) + 1:];
+    dstFileName = dstFileName[idx + len(outDstDir) - 1:];
     print dstFileName;
 
     idx = patchFileName.rfind(".zip");
@@ -738,7 +738,7 @@ def combineApk_patchFrom(apkFileName, patchFileName):
                 findInfo = pInfo;
                 break;
             delFileName = info.filename + "__";
-            if cmp(delFileName, pInfo.filename):
+            if cmp(delFileName, pInfo.filename) == 0:
                 isDelete = True;
         # 如果是删除文件，则直接跳过
         if isDelete:
@@ -788,7 +788,7 @@ def combineApk_patchFrom(apkFileName, patchFileName):
         print s;
         f = srcP.open(pInfo.filename);
         buf = f.read();
-        dstF.writestr(findInfo.filename, buf, compressType);
+        dstF.writestr(pInfo.filename, buf, compressType);
         f.close();
 
 
