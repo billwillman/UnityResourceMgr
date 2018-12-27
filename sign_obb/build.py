@@ -641,6 +641,9 @@ def buildDiffApk():
         s = raw_input("\n请设置老版本APK文件路径：\n");
         if (not os.path.exists(s)) or (not os.path.isfile(s)):
             continue;
+        isApk = os.path.splitext(s)[-1].lower() == ".apk";
+        if (not isApk):
+            continue;
         oldApkFileNmae = s;
         break;
 
@@ -648,6 +651,9 @@ def buildDiffApk():
     while True:
         s = raw_input("\n请设置新版本APK文件路径：\n");
         if (not os.path.exists(s)) or (not os.path.isfile(s)):
+            continue;
+        isApk = os.path.splitext(s)[-1].lower() == ".apk";
+        if (not isApk):
             continue;
         newApkFileName = s;
         break;
