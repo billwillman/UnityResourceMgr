@@ -621,6 +621,9 @@ def diffApk(oldApkFileName, newApkFileName):
             if ((not os.path.exists(diffPath)) or (not os.path.isdir(diffPath))):
                 os.makedirs(diffPath);
             delFileName = "%s/%s__" % (diffPath, s);
+            delDir = os.path.dirname(delFileName)
+            if ((not os.path.exists(delDir)) or (not os.path.isdir(delDir))):
+                os.makedirs(delDir);
             print "delete file=>%s" % delFileName;
             f = open(delFileName, "w");
             f.close();
