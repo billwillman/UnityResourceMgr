@@ -907,6 +907,15 @@ def combineApk_patch():
 
 # 防二次重签名
 def protectedTwoSign():
+    while True:
+        s = raw_input("\n请输入完整APK包文件路径：\n")
+        if (s != None):
+            s.strip();
+        if (s== None or len(s) <= 0):
+            continue;
+        isApk = os.path.splitext(s)[-1].lower() == ".apk";
+        if (not isApk):
+            continue;
     return
 
 def Main():
