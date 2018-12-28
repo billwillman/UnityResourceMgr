@@ -580,6 +580,83 @@ def diffApk(oldApkFileName, newApkFileName):
     srcApk = zipfile.ZipFile(oldApkFileName, 'r')
     dstApk = zipfile.ZipFile(newApkFileName, 'r')
 
+    #读取srcApk dstApk的settings.xml，读取useObb字段是否为true
+    settingsName = "assets/bin/Data/settings.xml";
+    srcSetting = srcApk.getinfo(settingsName);
+    dstSetting = dstApk.getinfo(settingsName);
+    if srcSetting != None and dstSetting != None:
+        print "检查settings.xml..."
+        srcS = srcApk.open(srcSetting.filename);
+        srcStr = srcS.read();
+        srcS.close();
+        dstS = dstApk.open(dstSetting.filename);
+        dstStr = dstS.read();
+        dstS.close();
+        sTree = ET.fromstring(srcStr);
+        dTree = ET.fromstring(dstStr);
+
+        sUseObb = False;
+        dUseObb = False;
+
+        sRoot = sTree.getroot();
+        for node in sRoot.iter("bool"):
+            name = node.get("name");
+            if name != None:
+                name = name.lower();
+                if cmp(name, "useobb") == 0:
+                    text = node.text;
+                    if (text != None):
+                        text = text.lower();
+                        if cmp(text, "true"):
+                            sUseObb = True;
+                            break;
+
+        dRoot = dTree.getroot();
+        for node in dRoot.iter("bool"):
+            name = node.get("name");
+            if name != None:
+                name = name.lower();
+                if cmp(name, "useobb") == 0:
+                    text = node.text;
+                    if (text != None):
+                        text = text.lower();
+                        if cmp(text, "true"):
+                            dUseObb = True;
+                            break;
+        s = "srcApk使用Obb：%s dstApk使用Obb：%s" % (sUseObb, dUseObb);
+        print s;
+        if sUseObb and dUseObb:
+            newApkPath = "%s_obb.jar" % diffPath;
+            # 1.解压新版APK
+            print "读取新Apk..."
+            newApk = zipfile.ZipFile(newApkPath, 'w');
+            for info in dstApk.infolist():
+                s = info.filename;
+                s = s.decode("ascii").encode("utf-8")
+                s = "读取=>%s" % s;
+                print s;
+                f = dstApk.open(info.filename);
+                buf = f.read();
+                f.close();
+                newApk.writestr(info.filename, buf, info.compress_type)
+
+            # 2.拷贝老版本APK settings.xml覆盖掉
+            info = srcApk.getinfo(srcSetting.filename);
+            if info != None:
+                print "从老Apk覆盖新Apk的settings.xml"
+                f = srcApk.open(info.filename);
+                buf = f.read();
+                newApk.writestr(info.filename, buf, info.compress_type);
+                f.close();
+            newApk.close();
+            # 3.重新签名生成新APK
+            newDstApkFile = "%s_obb.apk" % diffPath;
+            AutoSignFrom(newApkPath, newDstApkFile);
+            # 4.新生成APK作为dstApk
+            dstApk.close();
+            dstApk = zipfile.ZipFile(newDstApkFile, 'r')
+
+
     # 开始APK内部比较，发现不一样，读取出来放到DIFF里
     srcNameList = srcApk.namelist();
     dstNameList = dstApk.namelist();

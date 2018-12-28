@@ -14,8 +14,8 @@
       <file leaf-file-name="build.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="264">
-              <caret line="740" column="52" lean-forward="false" selection-start-line="740" selection-start-column="52" selection-end-line="740" selection-end-column="52" />
+            <state relative-caret-position="256">
+              <caret line="650" column="27" lean-forward="true" selection-start-line="650" selection-start-column="27" selection-end-line="650" selection-end-column="27" />
               <folding>
                 <element signature="e#56#80#0" expanded="true" />
               </folding>
@@ -27,16 +27,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>12004-12004</find>
-      <find>in os.walk(</find>
-      <find>BuildObbZipFrom</find>
-      <find>unzip</find>
-      <find>os.path.join</find>
-      <find>.write</find>
-      <find>zipfile.ZipFile(zipFileName</find>
-      <find>.apk</find>
-      <find>isApk = os.path.splitext(s)[-1].lower() == &quot;.apk&quot;;d</find>
-      <find>diffAPk</find>
       <find>Diff</find>
       <find>zipFil</find>
       <find>rfind</find>
@@ -54,9 +44,19 @@
       <find>buildDiffApk</find>
       <find>diffAp</find>
       <find>dir =</find>
-      <find>diffApk</find>
       <find>comb</find>
       <find>combine</find>
+      <find>settings</find>
+      <find>ET.</find>
+      <find>&quot;name&quot;</find>
+      <find>getroot</find>
+      <find>text</find>
+      <find>extract</find>
+      <find>AutoSing</find>
+      <find>infoli</find>
+      <find>autoD</find>
+      <find>AutoSignFrom</find>
+      <find>diffApk</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -73,8 +73,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="111" />
-    <option name="y" value="39" />
+    <option name="x" value="537" />
+    <option name="y" value="65" />
     <option name="width" value="1918" />
     <option name="height" value="956" />
   </component>
@@ -93,6 +93,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
@@ -105,7 +106,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -141,7 +141,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="111" y="39" width="1918" height="956" extended-state="0" />
+    <frame x="537" y="65" width="1918" height="956" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -151,14 +151,13 @@
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="运行" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25236592" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25184017" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Docker" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="SciView" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -192,6 +191,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.py">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#56#80#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build.py">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="129">
           <caret line="343" column="20" lean-forward="true" selection-start-line="343" selection-start-column="20" selection-end-line="343" selection-end-column="20" />
           <folding>
@@ -202,8 +211,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="264">
-          <caret line="740" column="52" lean-forward="false" selection-start-line="740" selection-start-column="52" selection-end-line="740" selection-end-column="52" />
+        <state relative-caret-position="256">
+          <caret line="650" column="27" lean-forward="true" selection-start-line="650" selection-start-column="27" selection-end-line="650" selection-end-column="27" />
           <folding>
             <element signature="e#56#80#0" expanded="true" />
           </folding>
