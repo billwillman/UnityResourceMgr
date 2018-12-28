@@ -793,7 +793,7 @@ def combineApk_patchFrom(apkFileName, patchFileName):
     idx = apkFileName.rfind(".apk");
     dstFileName = apkFileName[0:idx];
     idx = dstFileName.index(outDstDir);
-    dstFileName = dstFileName[idx + len(outDstDir) - 1:];
+    dstFileName = dstFileName[idx + len(outDstDir) + 1:];
     print dstFileName;
 
     idx = patchFileName.rfind(".zip");
