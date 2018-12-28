@@ -592,13 +592,12 @@ def diffApk(oldApkFileName, newApkFileName):
         dstS = dstApk.open(dstSetting.filename);
         dstStr = dstS.read();
         dstS.close();
-        sTree = ET.fromstring(srcStr);
-        dTree = ET.fromstring(dstStr);
+        sRoot = ET.fromstring(srcStr);
+        dRoot = ET.fromstring(dstStr);
 
         sUseObb = False;
         dUseObb = False;
 
-        sRoot = sTree.getroot();
         for node in sRoot.iter("bool"):
             name = node.get("name");
             if name != None:
@@ -607,11 +606,10 @@ def diffApk(oldApkFileName, newApkFileName):
                     text = node.text;
                     if (text != None):
                         text = text.lower();
-                        if cmp(text, "true"):
+                        if cmp(text, "true") == 0:
                             sUseObb = True;
                             break;
 
-        dRoot = dTree.getroot();
         for node in dRoot.iter("bool"):
             name = node.get("name");
             if name != None:
@@ -620,11 +618,12 @@ def diffApk(oldApkFileName, newApkFileName):
                     text = node.text;
                     if (text != None):
                         text = text.lower();
-                        if cmp(text, "true"):
+                        if cmp(text, "true") == 0:
                             dUseObb = True;
                             break;
         s = "srcApk使用Obb：%s dstApk使用Obb：%s" % (sUseObb, dUseObb);
         print s;
+        raw_input("\n任意键继续\n");
         if sUseObb and dUseObb:
             newApkPath = "%s_obb.jar" % diffPath;
             # 1.解压新版APK
@@ -633,6 +632,9 @@ def diffApk(oldApkFileName, newApkFileName):
             for info in dstApk.infolist():
                 s = info.filename;
                 s = s.decode("ascii").encode("utf-8")
+                #需要忽略新的settings.xml,后面使用老的settings.xml
+                if (cmp(s, settingsName)):
+                    continue;
                 s = "读取=>%s" % s;
                 print s;
                 f = dstApk.open(info.filename);
