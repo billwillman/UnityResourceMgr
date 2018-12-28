@@ -905,18 +905,23 @@ def combineApk_patch():
     ret = combineApk_patchFrom(oldApkFileNmae, newPatchFileName);
     return ret;
 
+# 防二次重签名
+def protectedTwoSign():
+    return
+
 def Main():
 
     info = "\n请确认配置好以下环境变量：\n1.重签名：jarsigner（在JDK安装目录bin下）\n2.Obb生成：jobb（在Android SDK目录的tools下）\n" \
-           "3.查看签名：aapt（在Android SDK目录build-tools中任意一个版本目录下）\n"
+           "3.查看签名：aapt（在Android SDK目录build-tools中任意一个版本目录下）\n" \
+           "4.防二次重签名：apktool\n"
     print info;
 
     while True:
-        s = raw_input("\n请选择操作类型：0.根据整APK生成拆分APK  1.自动签名  2.生成obb  3.Apk差异生成  4.Apk+patch生成新APK  5.退出\n")
+        s = raw_input("\n【请选择操作类型】：\n  0.根据整APK生成拆分APK\n  1.自动签名\n  2.生成obb\n  3.Apk差异生成\n  4.Apk+patch生成新APK\n  5.防二次重签名\n  6.退出\n")
         if (s.isdigit()):
             cmdId = int(s)
-            if (cmdId in [0,1, 2, 3, 4, 5]):
-                if (cmdId == 5):
+            if (cmdId in [0,1, 2, 3, 4, 5, 6]):
+                if (cmdId == 6):
                     break;
             if (cmdId == 1):
                 AutoSign();
@@ -928,6 +933,8 @@ def Main():
                 buildDiffApk();
             elif (cmdId == 4):
                 combineApk_patch();
+            elif (cmdId == 5):
+                protectedTwoSign();
     return;
 
 ##################################### 调用入口 ###################################
