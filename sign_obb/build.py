@@ -633,7 +633,7 @@ def diffApk(oldApkFileName, newApkFileName):
                 s = info.filename;
                 s = s.decode("ascii").encode("utf-8")
                 #需要忽略新的settings.xml,后面使用老的settings.xml
-                if (cmp(s, settingsName)):
+                if (cmp(s, settingsName) == 0):
                     continue;
                 s = "读取=>%s" % s;
                 print s;

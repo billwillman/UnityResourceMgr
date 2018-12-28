@@ -14,8 +14,8 @@
       <file leaf-file-name="build.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/build.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="161">
-              <caret line="587" column="17" lean-forward="false" selection-start-line="587" selection-start-column="17" selection-end-line="587" selection-end-column="17" />
+            <state relative-caret-position="245">
+              <caret line="815" column="18" lean-forward="false" selection-start-line="815" selection-start-column="15" selection-end-line="815" selection-end-column="18" />
               <folding>
                 <element signature="e#56#80#0" expanded="true" />
               </folding>
@@ -27,8 +27,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>zipFil</find>
-      <find>rfind</find>
       <find>ZipFile</find>
       <find>namelist</find>
       <find>is_di</find>
@@ -57,6 +55,8 @@
       <find>diffApk</find>
       <find>getroot</find>
       <find>检查</find>
+      <find>settings.xml</find>
+      <find>cmp</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -73,8 +73,8 @@
     <sorting>DEFINITION_ORDER</sorting>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="143" />
-    <option name="y" value="137" />
+    <option name="x" value="742" />
+    <option name="y" value="24" />
     <option name="width" value="1918" />
     <option name="height" value="956" />
   </component>
@@ -141,7 +141,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="143" y="137" width="1918" height="956" extended-state="0" />
+    <frame x="742" y="24" width="1918" height="956" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -211,8 +211,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/build.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="161">
-          <caret line="587" column="17" lean-forward="false" selection-start-line="587" selection-start-column="17" selection-end-line="587" selection-end-column="17" />
+        <state relative-caret-position="245">
+          <caret line="815" column="18" lean-forward="false" selection-start-line="815" selection-start-column="15" selection-end-line="815" selection-end-column="18" />
           <folding>
             <element signature="e#56#80#0" expanded="true" />
           </folding>
