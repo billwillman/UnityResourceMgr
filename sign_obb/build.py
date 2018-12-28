@@ -585,7 +585,7 @@ def diffApk(oldApkFileName, newApkFileName):
     srcSetting = srcApk.getinfo(settingsName);
     dstSetting = dstApk.getinfo(settingsName);
     if srcSetting != None and dstSetting != None:
-        print "检查settings.xml..."
+        print "\n检查settings.xml..."
         srcS = srcApk.open(srcSetting.filename);
         srcStr = srcS.read();
         srcS.close();
