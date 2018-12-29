@@ -905,6 +905,68 @@ def combineApk_patch():
     ret = combineApk_patchFrom(oldApkFileNmae, newPatchFileName);
     return ret;
 
+'''
+static
+{
+    System.LoadLibrary
+}
+# direct methods
+.method static constructor <clinit>()V
+    .locals 1
+
+    .prologue
+    .line 14
+    const-string v0, "mono"
+
+    invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
+
+    .line 15
+    const-string v0, "gdmo"
+
+    invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
+
+    .line 16
+    const-string v0, "NsEncry"
+
+    invoke-static {v0}, Ljava/lang/System;->loadLibrary(Ljava/lang/String;)V
+
+    .line 12
+    return-void
+.end method
+
+调用签名库
+
+.method public onCreate(Landroid/os/Bundle;)V
+    .locals 2
+    .param p1, "bundle"    # Landroid/os/Bundle;
+
+    .prologue
+    .line 22
+    invoke-super {p0, p1}, Lcom/unity3d/player/UnityPlayerActivity;->onCreate(Landroid/os/Bundle;)V
+
+    .line 24
+    invoke-virtual {p0}, Lcom/UnityResources/Test/UnityResourceMain;->GetInternalWritePath()Ljava/lang/String;
+
+    move-result-object v1
+
+    .line 25
+    .local v1, "internalWritePath":Ljava/lang/String;
+    invoke-virtual {p0}, Lcom/UnityResources/Test/UnityResourceMain;->GetExternWritePath()Ljava/lang/String;
+
+    move-result-object v0
+
+    .line 26
+    .local v0, "externWritePath":Ljava/lang/String;
+    invoke-direct {p0, v1, v0}, Lcom/UnityResources/Test/UnityResourceMain;->SendWritePath(Ljava/lang/String;Ljava/lang/String;)V
+
+    .line 28
+    invoke-static {}, Lcom/NsEncryPackage/NsEncry/NsEncry;->CheckSign()V
+
+    .line 29
+    return-void
+.end method
+'''
+
 # 防二次重签名
 def protectedTwoSign():
     while True:
