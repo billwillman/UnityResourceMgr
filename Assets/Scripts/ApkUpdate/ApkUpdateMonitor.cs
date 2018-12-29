@@ -6,7 +6,12 @@ namespace NsLib.ApkUpdate
     // Apk更新监控器
     public class ApkUpdateMonitor : MonoBehaviour
     {
-        private ApkUpdateMgr m_Mgr = new ApkUpdateMgr();
+        private ApkUpdateStateMgr m_Mgr = null;
+
+        void Awake()
+        {
+            m_Mgr = new ApkUpdateStateMgr(this);
+        }
 
         void Update()
         {

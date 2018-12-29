@@ -32,24 +32,36 @@ namespace NsLib.ApkUpdate
         End 
     }
 
-    internal class ApkUpdateBaseState : IState<ApkUpdateState, ApkUpdateMgr>
+    internal class ApkUpdateBaseState : IState<ApkUpdateState, ApkUpdateMonitor>
     {
-        public virtual bool CanEnter(ApkUpdateState target)
+        public virtual bool CanEnter(ApkUpdateMonitor target)
         {
             return false;
         }
 
-        public virtual bool CanExit(ApkUpdateState target)
+        public virtual bool CanExit(ApkUpdateMonitor target)
         {
             return false;
         }
-        public virtual void Enter(ApkUpdateState target) { }
-        public virtual void Exit(ApkUpdateState target) { }
-        public virtual void Process(ApkUpdateState target) { }
+        public virtual void Enter(ApkUpdateMonitor target) { }
+        public virtual void Exit(ApkUpdateMonitor target) { }
+        public virtual void Process(ApkUpdateMonitor target) { }
+
+        public ApkUpdateState Id
+        {
+            get;
+            set;
+        }
     }
 
-    internal class ApkUpdateMgr : StateMgr<ApkUpdateState, ApkUpdateMgr>
+    internal class ApkUpdateStateMgr : StateMgr<ApkUpdateState, ApkUpdateMonitor>
     {
+
+        public ApkUpdateStateMgr(ApkUpdateMonitor target)
+            : base(target)
+        {
+
+        }
         /// <summary>
         /// 出现错误的回调
         /// </summary>
