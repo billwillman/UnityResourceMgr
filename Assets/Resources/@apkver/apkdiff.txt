@@ -1,0 +1,8 @@
+{
+	"1-2":
+	{
+		"DiffName": "1-2",
+		"DiffZipMd5": "",
+		"NewApkMd5": ""
+	}
+}

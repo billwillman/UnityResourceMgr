@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Utils;
 
+// 只负责Apk更新
 namespace NsLib.ApkUpdate
 {
     // Apk更新状态
@@ -22,21 +24,40 @@ namespace NsLib.ApkUpdate
         DownloadingNewZip,
         // 修改老的OBB文件名更改为新的VersionCode对应的OBB文件名
         ChangeOldObbFileName,
-        // 检测OBB是否满足UNITY的MD5规范（UNITY的MD5并不是所有内容的MD5），如果不满足则去下载全新的MD5
-        CheckObbUnityMd5,
+        // 检测OBB是否满足UNITY的MD5规范，以及检查是否是下载完整的规范
+        CheckObbMd5,
         // 下载OBB（如果玩家OBB手动删除的情况）
         DowningObb,
         // 结束
         End 
     }
 
-    internal class ApkUpdateMgr
+    internal class ApkUpdateBaseState : IState<ApkUpdateState, ApkUpdateMgr>
+    {
+        public virtual bool CanEnter(ApkUpdateState target)
+        {
+            return false;
+        }
+
+        public virtual bool CanExit(ApkUpdateState target)
+        {
+            return false;
+        }
+        public virtual void Enter(ApkUpdateState target) { }
+        public virtual void Exit(ApkUpdateState target) { }
+        public virtual void Process(ApkUpdateState target) { }
+    }
+
+    internal class ApkUpdateMgr : StateMgr<ApkUpdateState, ApkUpdateMgr>
     {
         /// <summary>
         /// 出现错误的回调
         /// </summary>
         /// <param name="errState">具体哪个状态出错</param>
         internal void OnError(ApkUpdateState errState)
+        { }
+
+        internal void Update()
         { }
     }
 }
