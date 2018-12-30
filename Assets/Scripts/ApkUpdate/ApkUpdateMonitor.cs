@@ -40,8 +40,13 @@ namespace NsLib.ApkUpdate
 
         void Update()
         {
-            if (m_Mgr != null)
-                m_Mgr.Update();
         }
+
+        /// <summary>
+        /// 出现错误的回调
+        /// </summary>
+        /// <param name="errState">具体哪个状态出错</param>
+        internal void OnError(ApkUpdateState errState)
+        { }
     }
 }

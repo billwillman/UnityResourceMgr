@@ -36,12 +36,12 @@ namespace NsLib.ApkUpdate
     {
         public virtual bool CanEnter(ApkUpdateMonitor target)
         {
-            return false;
+            return true;
         }
 
         public virtual bool CanExit(ApkUpdateMonitor target)
         {
-            return false;
+            return true;
         }
         public virtual void Enter(ApkUpdateMonitor target) { }
         public virtual void Exit(ApkUpdateMonitor target) { }
@@ -62,14 +62,6 @@ namespace NsLib.ApkUpdate
         {
 
         }
-        /// <summary>
-        /// 出现错误的回调
-        /// </summary>
-        /// <param name="errState">具体哪个状态出错</param>
-        internal void OnError(ApkUpdateState errState)
-        { }
-
-        internal void Update()
-        { }
+       
     }
 }
