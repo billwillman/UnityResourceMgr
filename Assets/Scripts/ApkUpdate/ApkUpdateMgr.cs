@@ -47,6 +47,8 @@ namespace NsLib.ApkUpdate
         public virtual void Exit(ApkUpdateMonitor target) { }
         public virtual void Process(ApkUpdateMonitor target) { }
 
+        public virtual void Clear() { }
+
         public ApkUpdateState Id
         {
             get;
@@ -60,7 +62,7 @@ namespace NsLib.ApkUpdate
         public ApkUpdateStateMgr(ApkUpdateMonitor target)
             : base(target)
         {
-
+            Register(ApkUpdateState.CheckApkVersion, new Apk_CheckVersionState());
         }
        
     }

@@ -13,6 +13,38 @@ namespace NsLib.ApkUpdate
         private string m_Https_CurApkVer = string.Empty;
         private string m_Https_ApkDiffs = string.Empty;
 
+        private ApkVersionJson m_Jsons = new ApkVersionJson();
+
+        internal bool ChangeState(ApkUpdateState newState)
+        {
+            if (m_Mgr == null)
+                return false;
+            return m_Mgr.ChangeState(newState);
+        }
+
+        public void Clear()
+        {
+            if (m_Mgr != null)
+            {
+                var curState = m_Mgr.CurrState as ApkUpdateBaseState;
+                if (curState != null)
+                    curState.Clear();
+            }
+        }
+
+        internal string Https_CurApkVer
+        {
+            get
+            {
+                return m_Https_CurApkVer;
+            }
+        }
+
+        internal bool LoadCurApkVer(string str)
+        {
+            return m_Jsons.LoadCurrApkVersionJson(str);
+        }
+
         public static ApkUpdateMonitor GetInstance()
         {
             if (m_Instance == null)
@@ -40,6 +72,16 @@ namespace NsLib.ApkUpdate
 
         void Update()
         {
+        }
+
+        public bool Start(string https_curApkVer, string https_ApkDiffs)
+        {
+            Clear();
+            m_Https_CurApkVer = https_curApkVer;
+            m_Https_ApkDiffs = https_ApkDiffs;
+            if (string.IsNullOrEmpty(m_Https_CurApkVer) || string.IsNullOrEmpty(m_Https_ApkDiffs))
+                return false;
+            return true;
         }
 
         /// <summary>
