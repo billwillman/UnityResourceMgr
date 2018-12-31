@@ -17,6 +17,12 @@ namespace NsLib.ApkUpdate
             }
         }
 
+        private void OnCheckVersion()
+        {
+            // 检测当前版本, 获得当前本地的VersionCode
+
+        }
+
         private void OnHttpsCallBack(HttpClient https, HttpListenerStatus status)
         {
             m_Https = null;
@@ -37,7 +43,7 @@ namespace NsLib.ApkUpdate
                             return;
                         }
                         // 处理吧，这个获得成功
-
+                        OnCheckVersion();
                     } else
                         ApkUpdateMonitor.GetInstance().OnError(this.Id);
                     break;
@@ -59,6 +65,7 @@ namespace NsLib.ApkUpdate
                 target.OnError(this.Id);
                 return;
             }
+            url = HttpHelper.AddTimeStamp(url);
             m_Https = HttpHelper.OpenUrl<HttpClientStrResponse>(url, new HttpClientStrResponse(), OnHttpsCallBack);
         }
 

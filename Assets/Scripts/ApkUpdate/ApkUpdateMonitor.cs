@@ -89,6 +89,8 @@ namespace NsLib.ApkUpdate
         /// </summary>
         /// <param name="errState">具体哪个状态出错</param>
         internal void OnError(ApkUpdateState errState)
-        { }
+        { 
+            
+        }
     }
 }
