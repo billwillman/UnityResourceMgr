@@ -28,6 +28,14 @@ namespace NsLib.ApkUpdate
             // 清理掉没有用的APK版本
             ApkUpdateMonitor.GetInstance().ClearApk(apkName);
 
+            string zipName = ApkUpdateMonitor.GetInstance().GetNewZipDiffMd5();
+            if (string.IsNullOrEmpty(zipName))
+            {
+                ApkUpdateMonitor.GetInstance().OnError(ApkUpdateState.CheckApkDiff, ApkUpdateError.Get_Server_ApkDiff_Error);
+                return;
+            }
+
+            ApkUpdateMonitor.GetInstance().ClearZip(zipName);
             ApkUpdateMonitor.GetInstance().ChangeState(ApkUpdateState.CheckLocalNewApk);
         }
 

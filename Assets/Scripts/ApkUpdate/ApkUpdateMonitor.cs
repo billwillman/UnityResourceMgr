@@ -118,6 +118,19 @@ namespace NsLib.ApkUpdate
             return GetNewApkDiffMd5(m_Jsons.CurApkVer.VersionCode, ServerVersionCode);
         }
 
+        internal string GetNewZipDiffMd5(int oldVer, int newVer)
+        {
+            var info = m_Jsons.GetDiffApkInfo(oldVer, newVer);
+            if (info == null)
+                return string.Empty;
+            return info.DiffZipMd5;
+        }
+
+        internal string GetNewZipDiffMd5()
+        {
+            return GetNewZipDiffMd5(m_Jsons.CurApkVer.VersionCode, ServerVersionCode);
+        }
+
         public static ApkUpdateMonitor GetInstance()
         {
             if (m_Instance == null)
