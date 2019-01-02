@@ -17,6 +17,8 @@ namespace NsLib.ApkUpdate
         Get_Server_Version_Url_Error,
         Get_Local_ApkSavePath_Error,
         FILE_APK_ERROR,
+        Get_Server_ApkDiff_Url_Error,
+        Get_Server_ApkDiff_Error,
     }
 
     public interface IApkUpdateMonitor
@@ -96,6 +98,11 @@ namespace NsLib.ApkUpdate
         internal bool LoadCurApkVer(string str)
         {
             return m_Jsons.LoadCurrApkVersionJson(str);
+        }
+
+        internal bool LoadApkDiff(string str)
+        {
+            return m_Jsons.LoadDiffApkJson(str);
         }
 
         internal string GetNewApkDiffMd5(int oldVer, int newVer)
