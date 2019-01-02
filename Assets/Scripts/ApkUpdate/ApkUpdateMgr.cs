@@ -63,6 +63,8 @@ namespace NsLib.ApkUpdate
         {
             Register(ApkUpdateState.CheckApkVersion, new Apk_CheckVersionState());
             Register(ApkUpdateState.CheckLocalNewApk, new Apk_CheckLocalNewApk());
+            Register(ApkUpdateState.CheckApkDiff, new Apk_CheckApkDiff());
+            Register(ApkUpdateState.CheckLocalNewZip, new Apk_CheckLocalNewZip());
         }
        
     }
