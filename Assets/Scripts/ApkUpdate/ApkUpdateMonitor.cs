@@ -27,6 +27,7 @@ namespace NsLib.ApkUpdate
         int GetLocalVersionCode();
         // 新APK保存路径
         string GetNewApkSavePath();
+        string GetDiffZipSavePath();
     }
 
     // Apk更新监控器
@@ -220,6 +221,40 @@ namespace NsLib.ApkUpdate
    
         }
 
+        internal void ClearZip(string noDelZipName)
+        {
+            string savePath = m_Inter.GetDiffZipSavePath();
+            if (string.IsNullOrEmpty(savePath))
+                return;
+            string[] zips = Directory.GetFiles(savePath, "*.zip", SearchOption.TopDirectoryOnly);
+            if (zips == null || zips.Length <= 0)
+                return;
+            for (int i = 0; i < zips.Length; ++i)
+            {
+                try
+                {
+                    string fileName = zips[i];
+                    if (string.IsNullOrEmpty(fileName))
+                        continue;
+                    bool isDelete = true;
+                    if (!string.IsNullOrEmpty(noDelZipName))
+                    {
+                        string name = Path.GetFileNameWithoutExtension(fileName);
+                        if (string.Compare(noDelZipName, name, true) == 0)
+                        {
+                            isDelete = false;
+                        }
+                    }
+                    if (isDelete)
+                        File.Delete(fileName);
+                }
+                catch (Exception e)
+                {
+                    Error(e.ToString());
+                }
+            }
+        }
+
         internal void ClearApk(string noDelApkName)
         {
             string savePath = m_Inter.GetNewApkSavePath();
@@ -239,7 +274,7 @@ namespace NsLib.ApkUpdate
                     if (!string.IsNullOrEmpty(noDelApkName))
                     {
                         string name = Path.GetFileNameWithoutExtension(fileName);
-                        if (string.Compare(noDelApkName, noDelApkName, true) == 0)
+                        if (string.Compare(noDelApkName, name, true) == 0)
                         {
                             isDelete = false;
                         }
