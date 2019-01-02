@@ -76,6 +76,18 @@ public class UnityResourceMain extends UnityPlayerActivity {
 		return f.getAbsolutePath();
 	}
 	
+	public static String GetSDCardPath()
+    {
+    	try
+    	{
+    		File f = Environment.getExternalStorageDirectory();
+    		return f.getAbsolutePath();
+    	} catch (Exception e)
+    	{
+    		return "";
+    	}
+    }
+	
 	/**
      * 获取应用obb位置
      * @param paramContext
