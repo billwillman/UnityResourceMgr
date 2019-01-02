@@ -220,6 +220,40 @@ namespace NsLib.ApkUpdate
    
         }
 
+        internal void ClearApk(string noDelApkName)
+        {
+            string savePath = m_Inter.GetNewApkSavePath();
+            if (string.IsNullOrEmpty(savePath))
+                return;
+            string[] apks = Directory.GetFiles(savePath, "*.apk", SearchOption.TopDirectoryOnly);
+            if (apks == null || apks.Length <= 0)
+                return;
+            for (int i = 0; i < apks.Length; ++i)
+            {
+                try
+                {
+                    string fileName = apks[i];
+                    if (string.IsNullOrEmpty(fileName))
+                        continue;
+                    bool isDelete = true;
+                    if (!string.IsNullOrEmpty(noDelApkName))
+                    {
+                        string name = Path.GetFileNameWithoutExtension(fileName);
+                        if (string.Compare(noDelApkName, noDelApkName, true) == 0)
+                        {
+                            isDelete = false;
+                        }
+                    }
+
+                    if (isDelete)
+                        File.Delete(fileName);
+
+                } catch (Exception e)
+                {
+                    Error(e.ToString());
+                }
+            }
+        }
 
 
     }

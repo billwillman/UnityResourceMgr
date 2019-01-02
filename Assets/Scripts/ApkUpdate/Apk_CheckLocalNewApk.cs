@@ -15,7 +15,13 @@ namespace NsLib.ApkUpdate
                 string serverMd5 = ApkUpdateMonitor.GetInstance().GetNewApkDiffMd5();
                 if (string.Compare(md5, serverMd5, true) == 0)
                 {
-                    // 説明相等
+                    // 説明相等, 説明下載完畢
+                    // 准备安装APK
+                    ApkUpdateMonitor.GetInstance().ChangeState(ApkUpdateState.InstallNewApk);
+                } else
+                {
+                    // 重新合并APK
+                    ApkUpdateMonitor.GetInstance().ChangeState(ApkUpdateState.CombiningNewApk);
                 }
             } catch(Exception e)
             {
@@ -32,9 +38,10 @@ namespace NsLib.ApkUpdate
                 target.OnError(ApkUpdateState.CheckLocalNewApk, ApkUpdateError.Get_Local_ApkSavePath_Error);
                 return;
             }
-            int serverVerCode = target.ServerVersionCode;
-            int clientVerCode = target.Inter.GetLocalVersionCode();
-            string apkFileName = string.Format("{0}/{1:D}-{2:D}", SavePath, clientVerCode, serverVerCode);
+            string diffMd5 = target.GetNewApkDiffMd5();
+            // 删除其他APK
+            target.ClearApk(diffMd5);
+            string apkFileName = string.Format("{0}/{1}.apk", SavePath, diffMd5);
             if (File.Exists(apkFileName))
             {
                 // 文件存在
