@@ -25,6 +25,7 @@ namespace NsLib.ApkUpdate
                 ApkUpdateMonitor.GetInstance().OnError(ApkUpdateState.CheckApkDiff, ApkUpdateError.Get_Server_ApkDiff_Error);
                 return;
             }
+            // 清理掉没有用的APK版本
             ApkUpdateMonitor.GetInstance().ClearApk(apkName);
 
             ApkUpdateMonitor.GetInstance().ChangeState(ApkUpdateState.CheckLocalNewApk);
