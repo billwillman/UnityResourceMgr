@@ -13,13 +13,22 @@ namespace NsLib.ApkUpdate
         {
 #if UNITY_ANDROID && !UNITY_EDITOR
             string verCode = m_fee.CallStatic<string>("GetCurrentVersionCode");
-            Debug.LogFormat("current VersionCode: %s", verCode);
+            Debug.LogFormat("current VersionCode: {0:D}", verCode);
             int ret;
             if (!int.TryParse(verCode, out ret))
                 ret = -1;
             return ret;
 #else
             return 1;
+#endif
+        }
+
+        public static string GetSDCardPath()
+        {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        return m_fee.CallStatic<string>("GetSDCardPath");
+#else
+            return string.Empty;
 #endif
         }
     }

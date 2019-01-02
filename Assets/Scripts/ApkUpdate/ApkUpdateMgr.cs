@@ -8,10 +8,9 @@ namespace NsLib.ApkUpdate
     // Apk更新状态
     public enum ApkUpdateState
     {
-        // 出错
-        Error = -1,
         // Apk版本检测
         CheckApkVersion = 0,
+        CheckApkDiff,
         // 检测本地是否是新的APK，并下载是完整的（必须是完整的，不能只算文件一部分MD5）
         CheckLocalNewApk,
         // 检测本地是否是新的ZIP，并下载是完整的（必须是完整的，不能只算文件一部分MD5）
@@ -63,6 +62,7 @@ namespace NsLib.ApkUpdate
             : base(target)
         {
             Register(ApkUpdateState.CheckApkVersion, new Apk_CheckVersionState());
+            Register(ApkUpdateState.CheckLocalNewApk, new Apk_CheckLocalNewApk());
         }
        
     }

@@ -20,7 +20,26 @@ namespace NsLib.ApkUpdate
         private void OnCheckVersion()
         {
             // 检测当前版本, 获得当前本地的VersionCode
+            int localVerCode = ApkUpdateMonitor.GetInstance().Inter.GetLocalVersionCode();
+            if (localVerCode < 0)
+            {
+                ApkUpdateMonitor.GetInstance().OnError(this.Id, ApkUpdateError.Get_Local_VersionCode_Error);
+                return;
+            }
 
+            int serverVerCode = ApkUpdateMonitor.GetInstance().ServerVersionCode;
+            ApkUpdateMonitor.Log("local versionCode: %d, server versionCode: %d", localVerCode, serverVerCode);
+            if (serverVerCode > localVerCode)
+            {
+                // 说明要更新, 先检查本地是否有生成好的APK
+                ApkUpdateMonitor.GetInstance().ChangeState(ApkUpdateState.CheckApkDiff);
+            } else
+            {
+                // 说明本地比服务器版本还高则忽略
+
+                // 检查OBB完整性
+                ApkUpdateMonitor.GetInstance().ChangeState(ApkUpdateState.CheckObbMd5);
+            }
         }
 
         private void OnHttpsCallBack(HttpClient https, HttpListenerStatus status)
@@ -29,7 +48,7 @@ namespace NsLib.ApkUpdate
             switch (status)
             {
                 case HttpListenerStatus.hsError:
-                    ApkUpdateMonitor.GetInstance().OnError(this.Id);
+                    ApkUpdateMonitor.GetInstance().OnError(this.Id, ApkUpdateError.Get_Server_Version_Error);
                     break;
                 case HttpListenerStatus.hsDone:
                     var rep = https.Listener as HttpClientStrResponse;
@@ -39,16 +58,16 @@ namespace NsLib.ApkUpdate
                         bool isOk = ApkUpdateMonitor.GetInstance().LoadCurApkVer(str);
                         if (!isOk)
                         {
-                            ApkUpdateMonitor.GetInstance().OnError(this.Id);
+                            ApkUpdateMonitor.GetInstance().OnError(this.Id, ApkUpdateError.Get_Server_Version_Error);
                             return;
                         }
                         // 处理吧，这个获得成功
                         OnCheckVersion();
                     } else
-                        ApkUpdateMonitor.GetInstance().OnError(this.Id);
+                        ApkUpdateMonitor.GetInstance().OnError(this.Id, ApkUpdateError.Get_Server_Version_Error);
                     break;
                 default:
-                    ApkUpdateMonitor.GetInstance().OnError(this.Id);
+                    ApkUpdateMonitor.GetInstance().OnError(this.Id, ApkUpdateError.Get_Server_Version_Error);
                     break;
             }
         }
@@ -62,7 +81,7 @@ namespace NsLib.ApkUpdate
             string url = ApkUpdateMonitor.GetInstance().Https_CurApkVer;
             if (string.IsNullOrEmpty(url))
             {
-                target.OnError(this.Id);
+                target.OnError(this.Id, ApkUpdateError.Get_Server_Version_Url_Error);
                 return;
             }
             url = HttpHelper.AddTimeStamp(url);
