@@ -532,7 +532,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		sprite.material = null;
 	}
 	
-	public GameObject InstantiateGameObj(GameObject orgObj)
+	public static GameObject InstantiateGameObj(GameObject orgObj)
     {
         return ResourceMgr.Instance.InstantiateGameObj(orgObj);
     }
@@ -865,7 +865,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		return ret;
 	}
 
-	public T CreateGameObject<T>(string fileName) where T: UnityEngine.Component
+	public static T CreateGameObject<T>(string fileName) where T: UnityEngine.Component
 	{
 		GameObject obj = ResourceMgr.Instance.CreateGameObject(fileName);
 		if (obj == null)
