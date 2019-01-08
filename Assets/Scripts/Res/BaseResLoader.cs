@@ -531,6 +531,11 @@ public class BaseResLoader: CachedMonoBehaviour
 		sprite.sharedMaterial = null;
 		sprite.material = null;
 	}
+	
+	public GameObject InstantiateGameObj(GameObject orgObj)
+    {
+        return ResourceMgr.Instance.InstantiateGameObj(orgObj);
+    }
 
 	public bool LoadSprite(SpriteRenderer sprite, string fileName)
 	{
