@@ -114,7 +114,7 @@ namespace NsLib.ApkUpdate
 
         internal void SaveLocalDiffZipInfo(string fileName, localDiffZipInfo info)
         {
-            return m_Jsons.SaveLocalDiffZipInfo(fileName, info);
+            m_Jsons.SaveLocalDiffZipInfo(fileName, info);
         }
 
         internal bool LoadApkDiff(string str)
