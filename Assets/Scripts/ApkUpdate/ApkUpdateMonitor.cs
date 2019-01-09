@@ -16,15 +16,22 @@ namespace NsLib.ApkUpdate
         Get_Server_Version_Error,
         Get_Server_Version_Url_Error,
         Get_Local_ApkSavePath_Error,
+        Get_Local_DiffZipSavePath_Error,
         FILE_APK_ERROR,
         Get_Server_ApkDiff_Url_Error,
         Get_Server_ApkDiff_Error,
+        // 没有对应的APK DIFF描述
+        Get_Server_NoApkDiffInfo,
+        Get_Server_DiffZip_Url_Error,
+       Get_Server_DiffZip_Down_Error,
     }
 
     public interface IApkUpdateMonitor
     {
         string Get_Https_CurApkVer();
         string Get_Https_ApkDiffs();
+
+        string Get_Http_DiffZipUrl();
 
         int GetLocalVersionCode();
         // 新APK保存路径
@@ -100,6 +107,16 @@ namespace NsLib.ApkUpdate
             return m_Jsons.LoadCurrApkVersionJson(str);
         }
 
+        internal localDiffZipInfo LoadLocalDiffZipInfo(string fileName)
+        {
+            return m_Jsons.LoadLocalDiffZipInfo(fileName);
+        }
+
+        internal void SaveLocalDiffZipInfo(string fileName, localDiffZipInfo info)
+        {
+            return m_Jsons.SaveLocalDiffZipInfo(fileName, info);
+        }
+
         internal bool LoadApkDiff(string str)
         {
             return m_Jsons.LoadDiffApkJson(str);
@@ -124,6 +141,17 @@ namespace NsLib.ApkUpdate
             if (info == null)
                 return string.Empty;
             return info.DiffZipMd5;
+        }
+
+        internal DiffApkInfo GetDiffApkInfo(int oldVer, int newVer)
+        {
+            var info = m_Jsons.GetDiffApkInfo(oldVer, newVer);
+            return info;
+        }
+
+        internal DiffApkInfo GetDiffApkInfo()
+        {
+            return GetDiffApkInfo(m_Jsons.CurApkVer.VersionCode, ServerVersionCode);
         }
 
         internal string GetNewZipDiffMd5()
@@ -194,11 +222,31 @@ namespace NsLib.ApkUpdate
             Debug.LogErrorFormat(fmt, objs);
         }
 
+        static internal long GetFileSize(string fileName)
+        {
+            if (!File.Exists(fileName))
+                return 0;
+            try
+            {
+                FileInfo info = new FileInfo(fileName);
+                if (!info.Exists)
+                    return 0;
+                return info.Length;
+            } catch(Exception e)
+            {
+#if DEBUG
+                Debug.LogError(e.ToString());
+#endif
+            }
+
+            return 0;
+        }
+
         // 获得大文件MD5
         static internal string GetFileMd5(string fileName)
         {
             FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
-            int bufferSize = 1024 * 4; // 缓冲区大小
+            int bufferSize = 1024; // 缓冲区大小
             byte[] buff = new byte[bufferSize];
 
             MD5CryptoServiceProvider md5 = new MD5CryptoServiceProvider();
@@ -266,7 +314,12 @@ namespace NsLib.ApkUpdate
                         }
                     }
                     if (isDelete)
+                    {
                         File.Delete(fileName);
+                        string jsonFileName = Path.ChangeExtension(fileName, ".json");
+                        if (File.Exists(jsonFileName))
+                            File.Delete(jsonFileName);
+                    }
                 }
                 catch (Exception e)
                 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using LitJson;
 
@@ -24,6 +25,22 @@ namespace NsLib.ApkUpdate
         }
     }
 
+    // 本地产生的文件
+    internal class localDiffZipInfo
+    {
+        public string Name
+        {
+            get;
+            set;
+        }
+
+        public string Md5
+        {
+            get;
+            set;
+        }
+    }
+
     // APK差异信息
     internal class DiffApkInfo
     {
@@ -36,6 +53,13 @@ namespace NsLib.ApkUpdate
 
         // 差异化的ZIP包的MD5
         public string DiffZipMd5
+        {
+            get;
+            set;
+        }
+
+        // 获得ZIP包大小
+        public int DiffZipSize
         {
             get;
             set;
@@ -56,6 +80,71 @@ namespace NsLib.ApkUpdate
         private CurrentApkVersion m_CurrApkVer = null;
         // 比较APK的MAP
         private Dictionary<string, DiffApkInfo> m_DiffApkMap = null;
+
+        public void SaveLocalDiffZipInfo(string fileName, localDiffZipInfo info)
+        {
+            if (string.IsNullOrEmpty(fileName) || info == null)
+                return;
+            try
+            {
+                FileStream stream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+                try
+                {
+                    string str = JsonMapper.ToJson(info);
+                    if (!string.IsNullOrEmpty(str))
+                    {
+                        byte[] buf = System.Text.Encoding.UTF8.GetBytes(str);
+                        if (buf != null && buf.Length > 0)
+                        {
+                            stream.Write(buf, 0, buf.Length);
+                        }
+                    }
+                }finally
+                {
+                    stream.Close();
+                    stream.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+#if DEBUG
+                Debug.LogError(e.ToString());
+#endif
+            }
+        }
+
+        public localDiffZipInfo LoadLocalDiffZipInfo(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName) || !File.Exists(fileName))
+                return null;
+            try
+            {
+                FileStream stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+                try
+                {
+                    int size = (int)stream.Length;
+                    if (size > 0)
+                    {
+                        byte[] buf = new byte[size];
+                        stream.Read(buf, 0, size);
+                        string str = System.Text.Encoding.UTF8.GetString(buf);
+                        localDiffZipInfo info = JsonMapper.ToObject<localDiffZipInfo>(str);
+                        return info;
+                    }
+                } finally
+                {
+                    stream.Close();
+                    stream.Dispose();
+                }
+            } catch (Exception e)
+            {
+#if DEBUG
+                Debug.LogError(e.ToString());
+#endif
+            }
+
+            return null;
+        }
 
         public bool LoadCurrApkVersionJson(string str)
         {
