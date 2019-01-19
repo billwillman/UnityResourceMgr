@@ -45,6 +45,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\LuaFrameWork\DownloadCheck.cs" />
+     <Compile Include="Assets\LuaFrameWork\LuaGameMgr.cs" />
+     <Compile Include="Assets\LuaFrameWork\LuaLoader.cs" />
+     <Compile Include="Assets\LuaFrameWork\LuaMain.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\EquipItems.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\EquipRandomItem.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Game\UICursor.cs" />
@@ -182,6 +186,14 @@
      <Compile Include="Assets\NGUI\Scripts\UI\UITexture.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UITooltip.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
+     <Compile Include="Assets\Scripts\ApkUpdate\ApkNative.cs" />
+     <Compile Include="Assets\Scripts\ApkUpdate\ApkUpdateMgr.cs" />
+     <Compile Include="Assets\Scripts\ApkUpdate\ApkUpdateMonitor.cs" />
+     <Compile Include="Assets\Scripts\ApkUpdate\ApkVersionJson.cs" />
+     <Compile Include="Assets\Scripts\ApkUpdate\Apk_CheckApkDiff.cs" />
+     <Compile Include="Assets\Scripts\ApkUpdate\Apk_CheckLocalNewApk.cs" />
+     <Compile Include="Assets\Scripts\ApkUpdate\Apk_CheckLocalNewZip.cs" />
+     <Compile Include="Assets\Scripts\ApkUpdate\Apk_CheckVersionState.cs" />
      <Compile Include="Assets\Scripts\AssetBundleFlatBuffer\AssetBundleFileHeader.cs" />
      <Compile Include="Assets\Scripts\AssetBundleFlatBuffer\AssetBundleInfo.cs" />
      <Compile Include="Assets\Scripts\AssetBundleFlatBuffer\AssetBundleTree.cs" />
@@ -215,6 +227,16 @@
      <Compile Include="Assets\Scripts\FlatBuffers\Struct.cs" />
      <Compile Include="Assets\Scripts\FlatBuffers\Table.cs" />
      <Compile Include="Assets\Scripts\GameMgr.cs" />
+     <Compile Include="Assets\Scripts\LitJson\IJsonWrapper.cs" />
+     <Compile Include="Assets\Scripts\LitJson\JsonData.cs" />
+     <Compile Include="Assets\Scripts\LitJson\JsonException.cs" />
+     <Compile Include="Assets\Scripts\LitJson\JsonExtend.cs" />
+     <Compile Include="Assets\Scripts\LitJson\JsonMapper.cs" />
+     <Compile Include="Assets\Scripts\LitJson\JsonMockWrapper.cs" />
+     <Compile Include="Assets\Scripts\LitJson\JsonReader.cs" />
+     <Compile Include="Assets\Scripts\LitJson\JsonWriter.cs" />
+     <Compile Include="Assets\Scripts\LitJson\Lexer.cs" />
+     <Compile Include="Assets\Scripts\LitJson\ParserToken.cs" />
      <Compile Include="Assets\Scripts\Main.cs" />
      <Compile Include="Assets\Scripts\Res\AssetCache.cs" />
      <Compile Include="Assets\Scripts\Res\AssetLoader.cs" />
@@ -249,13 +271,75 @@
      <Compile Include="Assets\Scripts\Utils\DisposeObject.cs" />
      <Compile Include="Assets\Scripts\Utils\EventManager.cs" />
      <Compile Include="Assets\Scripts\Utils\LogMgr.cs" />
+     <Compile Include="Assets\Scripts\Utils\Loom.cs" />
      <Compile Include="Assets\Scripts\Utils\ObjectPool.cs" />
      <Compile Include="Assets\Scripts\Utils\ObjectTimePool.cs" />
      <Compile Include="Assets\Scripts\Utils\Singleton.cs" />
      <Compile Include="Assets\Scripts\Utils\State.cs" />
      <Compile Include="Assets\Scripts\Utils\StructComparser.cs" />
+     <Compile Include="Assets\Scripts\Utils\ThreadPool.cs" />
      <Compile Include="Assets\Scripts\Utils\TimerMgr.cs" />
      <Compile Include="Assets\Scripts\Utils\UnZipThread.cs" />
+     <Compile Include="Assets\ToLua\BaseType\LuaInterface_EventObjectWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\LuaInterface_LuaConstructorWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\LuaInterface_LuaFieldWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\LuaInterface_LuaMethodWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\LuaInterface_LuaOutWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\LuaInterface_LuaPropertyWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_ArrayWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_Collections_Generic_DictionaryWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_Collections_Generic_Dictionary_KeyCollectionWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_Collections_Generic_Dictionary_ValueCollectionWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_Collections_Generic_KeyValuePairWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_Collections_Generic_ListWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_Collections_IEnumeratorWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_Collections_ObjectModel_ReadOnlyCollectionWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_DelegateWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_EnumWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_NullObjectWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_ObjectWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_StringWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\System_TypeWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\UnityEngine_CoroutineWrap.cs" />
+     <Compile Include="Assets\ToLua\BaseType\UnityEngine_ObjectWrap.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaAttributes.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaBaseRef.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaBeatEvent.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaDLL.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaEvent.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaException.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaFileUtils.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaFunction.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaMatchType.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaMethodCache.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaMisc.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaStackOp.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaState.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaStatePtr.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaStatic.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaTable.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaThread.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaUnityLibs.cs" />
+     <Compile Include="Assets\ToLua\Core\LuaValueType.cs" />
+     <Compile Include="Assets\ToLua\Core\ObjectPool.cs" />
+     <Compile Include="Assets\ToLua\Core\ObjectTranslator.cs" />
+     <Compile Include="Assets\ToLua\Core\ToLua.cs" />
+     <Compile Include="Assets\ToLua\Core\TypeChecker.cs" />
+     <Compile Include="Assets\ToLua\Core\TypeTraits.cs" />
+     <Compile Include="Assets\ToLua\Injection\LuaInjectionStation.cs" />
+     <Compile Include="Assets\ToLua\Misc\LuaClient.cs" />
+     <Compile Include="Assets\ToLua\Misc\LuaCoroutine.cs" />
+     <Compile Include="Assets\ToLua\Misc\LuaLooper.cs" />
+     <Compile Include="Assets\ToLua\Misc\LuaProfiler.cs" />
+     <Compile Include="Assets\ToLua\Misc\LuaResLoader.cs" />
+     <Compile Include="Assets\ToLua\Reflection\LuaConstructor.cs" />
+     <Compile Include="Assets\ToLua\Reflection\LuaField.cs" />
+     <Compile Include="Assets\ToLua\Reflection\LuaMethod.cs" />
+     <Compile Include="Assets\ToLua\Reflection\LuaProperty.cs" />
+     <Compile Include="Assets\ToLua\Reflection\LuaReflection.cs" />
+     <Compile Include="Assets\ToLua\Source\Generate\DelegateFactory.cs" />
+     <Compile Include="Assets\ToLua\Source\Generate\LuaBinder.cs" />
+     <Compile Include="Assets\ToLua\Source\LuaConst.cs" />
      <None Include="Assets\NGUI\Examples\Shaders\Unlit - Depth Cutout.shader" />
      <None Include="Assets\NGUI\ReadMe - 3.9.4.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Masked 1.shader" />
@@ -265,7 +349,6 @@
      <None Include="Assets\NGUI\Examples\Atlases\Wooden\Arimo20.txt" />
      <None Include="Assets\NGUI\Examples\Atlases\Wooden\Arimo14.txt" />
      <None Include="Assets\Plugins\Android\res\values\styles.xml" />
-     <None Include="Assets\StreamingAssets\Mac\version.txt" />
      <None Include="Assets\Resources\@Shaders\Lightmap-Unlit-Wind.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Text 1.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored (TextureClip).shader" />
@@ -274,10 +357,10 @@
      <None Include="Assets\NGUI\Examples\Shaders\Unlit - Masked Colored.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored 3.shader" />
      <None Include="Assets\NGUI\Examples\Atlases\Wooden\Arimo18.txt" />
+     <None Include="Assets\Resources\@apkver\apkdiff.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored (TextureClip).shader" />
      <None Include="Assets\NGUI\Examples\Atlases\SciFi\SciFi Font - Header.txt" />
      <None Include="Assets\Resources\@Shaders\SkyBox-Alpha Blend.shader" />
-     <None Include="Assets\StreamingAssets\Mac\fileList.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Masked 3.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored 1.shader" />
      <None Include="Assets\NGUI\Examples\Atlases\Fantasy\Fantasy Font - Normal.txt" />
@@ -288,25 +371,26 @@
      <None Include="Assets\Plugins\Android\res\values\strings.xml" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Text 3.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed 2.shader" />
-     <None Include="Assets\StreamingAssets\Windows\version.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed 1.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored 1.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Text.shader" />
-     <None Include="Assets\StreamingAssets\Windows\fileList.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed 3.shader" />
+     <None Include="Assets\Resources\@apkver\apkver.txt" />
      <None Include="Assets\NGUI\Examples\Shaders\Unlit - Additive Colored.shader" />
+     <None Include="Assets\ToLua\Injection\InjectionBridgeEditorInfo.xml" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Masked.shader" />
      <None Include="Assets\NGUI\Examples\Atlases\Refractive\Refractive Font - Header.txt" />
      <None Include="Assets\NGUI\Examples\Shaders\Refractive.shader" />
+     <None Include="Assets\ToLua\readme.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Text (TextureClip).shader" />
      <None Include="Assets\NGUI\Examples\Shaders\Unlit - Depth.shader" />
      <None Include="Assets\NGUI\Examples\Atlases\SciFi\SciFi Font - Normal.txt" />
-     <None Include="Assets\StreamingAssets\Windows\AssetBundles.xml" />
+     <None Include="Assets\ToLua\Injection\LuaInjectionSkipPaths.txt" />
+     <None Include="Assets\ToLua\Injection\InjectionBlackList.txt" />
      <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
-     <None Include="Assets\StreamingAssets\Mac\AssetBundles.xml" />
      <None Include="Assets\NGUI\Examples\Models\Orc Armor\Orc Armor.shader" />
      <None Include="Assets\NGUI\Examples\Resources\Localization.txt" />
      <None Include="Assets\Plugins\Android\res\values-v14\styles.xml" />
@@ -315,6 +399,12 @@
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ </Reference>
+ <Reference Include="CString">
+ <HintPath>/Users/yizeng/UnityResourceMgr/Assets/Plugins/CString.dll</HintPath>
+ </Reference>
+ <Reference Include="Debugger">
+ <HintPath>/Users/yizeng/UnityResourceMgr/Assets/Plugins/Debugger.dll</HintPath>
  </Reference>
  <Reference Include="ICSharpCode.SharpZipLib">
  <HintPath>/Users/yizeng/UnityResourceMgr/Assets/Plugins/ICSharpCode.SharpZipLib.dll</HintPath>

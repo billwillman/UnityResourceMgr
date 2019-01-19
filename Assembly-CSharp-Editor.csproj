@@ -46,6 +46,9 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Editor\ABBuild.cs" />
+     <Compile Include="Assets\Editor\AssetBundleRongYu.cs" />
+     <Compile Include="Assets\Editor\BuildSOMap.cs" />
+     <Compile Include="Assets\LuaFrameWork\Editor\CustomSettings.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Editor\InvDatabaseInspector.cs" />
      <Compile Include="Assets\NGUI\Examples\Scripts\InventorySystem\Editor\InvFindItem.cs" />
      <Compile Include="Assets\NGUI\Scripts\Editor\ActiveAnimationEditor.cs" />
@@ -134,6 +137,27 @@
      <Compile Include="Assets\Scripts\Res\Editor\ABLinkFile.cs" />
      <Compile Include="Assets\Scripts\Res\Editor\BuildPkg.cs" />
      <Compile Include="Assets\Scripts\Res\Editor\ResourceMgrMonitorEditor.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_LuaInterface_EventObject.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_LuaInterface_LuaConstructor.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_LuaInterface_LuaField.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_LuaInterface_LuaMethod.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_LuaInterface_LuaProperty.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_System_Delegate.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_System_Enum.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_System_Object.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_System_String.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_System_Type.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_UnityEngine_GameObject.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_UnityEngine_Input.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_UnityEngine_Object.cs" />
+     <Compile Include="Assets\ToLua\Editor\Extend\ToLua_UnityEngine_RectTransform.cs" />
+     <Compile Include="Assets\ToLua\Editor\ToLuaExport.cs" />
+     <Compile Include="Assets\ToLua\Editor\ToLuaMenu.cs" />
+     <Compile Include="Assets\ToLua\Editor\ToLuaTree.cs" />
+     <Compile Include="Assets\ToLua\Injection\Editor\ToLuaInjection.cs" />
+     <Compile Include="Assets\ToLua\Injection\Editor\ToLuaInjectionHelper.cs" />
+     <Compile Include="Assets\ToLua\Injection\Editor\ToLuaText.cs" />
+     <Compile Include="Assets\ToLua\Injection\Editor\ToluaInjectionBlackListPanel.cs" />
      <None Include="Assets\NGUI\Examples\Shaders\Unlit - Depth Cutout.shader" />
      <None Include="Assets\NGUI\ReadMe - 3.9.4.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Masked 1.shader" />
@@ -143,7 +167,6 @@
      <None Include="Assets\NGUI\Examples\Atlases\Wooden\Arimo20.txt" />
      <None Include="Assets\NGUI\Examples\Atlases\Wooden\Arimo14.txt" />
      <None Include="Assets\Plugins\Android\res\values\styles.xml" />
-     <None Include="Assets\StreamingAssets\Mac\version.txt" />
      <None Include="Assets\Resources\@Shaders\Lightmap-Unlit-Wind.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Text 1.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored (TextureClip).shader" />
@@ -152,10 +175,10 @@
      <None Include="Assets\NGUI\Examples\Shaders\Unlit - Masked Colored.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored 3.shader" />
      <None Include="Assets\NGUI\Examples\Atlases\Wooden\Arimo18.txt" />
+     <None Include="Assets\Resources\@apkver\apkdiff.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored (TextureClip).shader" />
      <None Include="Assets\NGUI\Examples\Atlases\SciFi\SciFi Font - Header.txt" />
      <None Include="Assets\Resources\@Shaders\SkyBox-Alpha Blend.shader" />
-     <None Include="Assets\StreamingAssets\Mac\fileList.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Masked 3.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored 1.shader" />
      <None Include="Assets\NGUI\Examples\Atlases\Fantasy\Fantasy Font - Normal.txt" />
@@ -166,25 +189,26 @@
      <None Include="Assets\Plugins\Android\res\values\strings.xml" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Text 3.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed 2.shader" />
-     <None Include="Assets\StreamingAssets\Windows\version.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed 1.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored 1.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Premultiplied Colored.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Colored.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Text.shader" />
-     <None Include="Assets\StreamingAssets\Windows\fileList.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed.shader" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Packed 3.shader" />
+     <None Include="Assets\Resources\@apkver\apkver.txt" />
      <None Include="Assets\NGUI\Examples\Shaders\Unlit - Additive Colored.shader" />
+     <None Include="Assets\ToLua\Injection\InjectionBridgeEditorInfo.xml" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Transparent Masked.shader" />
      <None Include="Assets\NGUI\Examples\Atlases\Refractive\Refractive Font - Header.txt" />
      <None Include="Assets\NGUI\Examples\Shaders\Refractive.shader" />
+     <None Include="Assets\ToLua\readme.txt" />
      <None Include="Assets\NGUI\Resources\Shaders\Unlit - Text (TextureClip).shader" />
      <None Include="Assets\NGUI\Examples\Shaders\Unlit - Depth.shader" />
      <None Include="Assets\NGUI\Examples\Atlases\SciFi\SciFi Font - Normal.txt" />
-     <None Include="Assets\StreamingAssets\Windows\AssetBundles.xml" />
+     <None Include="Assets\ToLua\Injection\LuaInjectionSkipPaths.txt" />
+     <None Include="Assets\ToLua\Injection\InjectionBlackList.txt" />
      <None Include="Assets\Plugins\Android\AndroidManifest.xml" />
-     <None Include="Assets\StreamingAssets\Mac\AssetBundles.xml" />
      <None Include="Assets\NGUI\Examples\Models\Orc Armor\Orc Armor.shader" />
      <None Include="Assets\NGUI\Examples\Resources\Localization.txt" />
      <None Include="Assets\Plugins\Android\res\values-v14\styles.xml" />
@@ -211,6 +235,12 @@
  </Reference>
  <Reference Include="UnityEditor.TreeEditor">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TreeEditor/Editor/UnityEditor.TreeEditor.dll</HintPath>
+ </Reference>
+ <Reference Include="CString">
+ <HintPath>/Users/yizeng/UnityResourceMgr/Assets/Plugins/CString.dll</HintPath>
+ </Reference>
+ <Reference Include="Debugger">
+ <HintPath>/Users/yizeng/UnityResourceMgr/Assets/Plugins/Debugger.dll</HintPath>
  </Reference>
  <Reference Include="ICSharpCode.SharpZipLib">
  <HintPath>/Users/yizeng/UnityResourceMgr/Assets/Plugins/ICSharpCode.SharpZipLib.dll</HintPath>
