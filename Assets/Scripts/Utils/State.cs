@@ -46,10 +46,12 @@ namespace Utils
 
             if (now != null)
                 now.Exit(m_Target);
-            news.Enter(m_Target);
 
             m_CurrKey = id;
             m_CurrStatus = news;
+
+			news.Enter(m_Target);
+
             return true;
         }
 
