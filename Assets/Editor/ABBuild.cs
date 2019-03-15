@@ -2450,7 +2450,7 @@ class AssetBundleMgr
 			// 处理一下没有用的编译指令
 			cmdDefines = string.Format(" /p:DefineConstants=\"{0}\"", defines);
 		}
-		string cmd = string.Format("{0} {1} {2} /p:Configuration=Release{3}", preCmd, buildExe, ProjFileName, cmdDefines);
+		string cmd = string.Format("{0} {1} /property:AllowUnsafeBlocks=true {2} /p:Configuration=Release{3}", preCmd, buildExe, ProjFileName, cmdDefines);
 		AssetBundleBuild.RunCmd(cmd);
 		return true;
 #else
