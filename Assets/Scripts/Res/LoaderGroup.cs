@@ -108,7 +108,7 @@ namespace NsLib.ResMgr {
                 return target as MeshRenderer;
             }
         }
-
+		#if _USE_NGUI
         public UITexture uiTexture {
             get {
                 if (target == null)
@@ -132,6 +132,7 @@ namespace NsLib.ResMgr {
                 return target as UI2DSprite;
             }
         }
+		#endif
 
         public TextMesh textMesh {
             get {
@@ -247,10 +248,14 @@ namespace NsLib.ResMgr {
             var target = node.Value.target;
             if (target == null)
                 return int.MaxValue;
+			#if _USE_NGUI
             var ngui = target as UIWidget;
             if (ngui == null)
                 return int.MaxValue;
             return ngui.depth;
+			#else
+			return int.MaxValue;
+			#endif
         }
 
         private bool IsLoadAllMustLoad(LoaderGroupSubNodeType currentType, LoaderGroupSubNodeType nextType) {
@@ -390,7 +395,8 @@ namespace NsLib.ResMgr {
                 return m_LoaderGroupNodeType;
             }
         }
-		
+
+		#if _USE_NGUI
 		protected void RefreshSpriteAnimiate(UISprite sp) {
             if (sp == null)
                 return;
@@ -399,6 +405,7 @@ namespace NsLib.ResMgr {
                 ani.RebuildSpriteList();
             }
         }
+		#endif
 
         protected bool DoNGUILoad(BaseResLoader loader, LoaderGroupSubNode node) {
             if (loader == null || node == null || !node.IsVaild)
@@ -407,7 +414,7 @@ namespace NsLib.ResMgr {
             string fileName = this.FileName;
             if (string.IsNullOrEmpty(fileName))
                 return false;
-
+			#if _USE_NGUI
             var nguiLoader = loader as NGUIResLoader;
             if (nguiLoader == null)
                 return false;
@@ -487,6 +494,9 @@ namespace NsLib.ResMgr {
                     break;
             }
             return ret;
+			#else 
+			return false;
+			#endif
         }
 
         // 加载
@@ -687,6 +697,8 @@ namespace NsLib.ResMgr {
             get;
             private set;
         }
+
+		#if _USE_NGUI
         /* UISprite */
         // 注册加载Atals
         public void RegisterUISprite_LoadAtlas(UISprite target, string fileName) {
@@ -722,6 +734,61 @@ namespace NsLib.ResMgr {
             CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UISprite_MainTexture);
         }
 
+		/* UITexture */
+		public void RegisteUITexture_LoadMainTexture(UITexture target, string fileName) {
+		if (target == null || string.IsNullOrEmpty(fileName))
+		return;
+
+		CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UITexture_MainTexture);
+		}
+
+		public void RegisterUITexture_LoadTexture(UITexture target, string fileName, string texShaderName) {
+		if (target == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(texShaderName))
+		return;
+
+		CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UITexture_Texture, texShaderName);
+		}
+
+		public void RegisteUITexture_LoadMaterial(UITexture target, string fileName) {
+		if (target == null || string.IsNullOrEmpty(fileName))
+		return;
+
+		CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UITexture_Material);
+		}
+
+		/* ------------------------------------------------- */
+
+		/* UI2DSprite */
+
+		public void RegisterUI2DSprite_MainTexture(UI2DSprite target, string fileName) {
+		if (target == null || string.IsNullOrEmpty(fileName))
+		return;
+
+		CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UI2DSprite_MainTexture);
+		}
+
+		public void RegisterUI2DSprite_Material(UI2DSprite target, string fileName) {
+		if (target == null || string.IsNullOrEmpty(fileName))
+		return;
+
+		CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UI2DSprite_Material);
+		}
+
+		public void RegisterUI2DSprite_SpriteData(UI2DSprite target, string fileName, string spriteName) {
+		if (target == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(spriteName))
+		return;
+
+		CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UI2DSprite_SpriteData, spriteName);
+		}
+
+		/* ------------------------------------------------- */
+
+		protected void CreateNGUIGroupNode(UIWidget target, string fileName,
+		LoaderGroupSubNodeType type, System.Object param = null) {
+		CreateLoaderGroupNode(target, fileName, type, param);
+		}
+		#endif
+
         /*---------------------------------------------------------*/
 
         /*TextMesh*/
@@ -731,55 +798,6 @@ namespace NsLib.ResMgr {
             CreateLoaderGroupNode(target, fileName, LoaderGroupSubNodeType.TextMesh_Font);
         }
         /*---------------------------------------------------------*/
-
-        /* UITexture */
-        public void RegisteUITexture_LoadMainTexture(UITexture target, string fileName) {
-            if (target == null || string.IsNullOrEmpty(fileName))
-                return;
-
-            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UITexture_MainTexture);
-        }
-
-        public void RegisterUITexture_LoadTexture(UITexture target, string fileName, string texShaderName) {
-            if (target == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(texShaderName))
-                return;
-
-            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UITexture_Texture, texShaderName);
-        }
-
-        public void RegisteUITexture_LoadMaterial(UITexture target, string fileName) {
-            if (target == null || string.IsNullOrEmpty(fileName))
-                return;
-
-            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UITexture_Material);
-        }
-
-        /* ------------------------------------------------- */
-
-        /* UI2DSprite */
-
-        public void RegisterUI2DSprite_MainTexture(UI2DSprite target, string fileName) {
-            if (target == null || string.IsNullOrEmpty(fileName))
-                return;
-
-            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UI2DSprite_MainTexture);
-        }
-
-        public void RegisterUI2DSprite_Material(UI2DSprite target, string fileName) {
-            if (target == null || string.IsNullOrEmpty(fileName))
-                return;
-
-            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UI2DSprite_Material);
-        }
-
-        public void RegisterUI2DSprite_SpriteData(UI2DSprite target, string fileName, string spriteName) {
-            if (target == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(spriteName))
-                return;
-
-            CreateNGUIGroupNode(target, fileName, LoaderGroupSubNodeType.UI2DSprite_SpriteData, spriteName);
-        }
-
-        /* ------------------------------------------------- */
 
         /* SpriteRenderer */
         public void RegisterSpriteRenderer_SpriteData(SpriteRenderer target, string fileName) {
@@ -889,11 +907,6 @@ namespace NsLib.ResMgr {
             }
 
             return ret;
-        }
-
-        protected void CreateNGUIGroupNode(UIWidget target, string fileName,
-             LoaderGroupSubNodeType type, System.Object param = null) {
-            CreateLoaderGroupNode(target, fileName, type, param);
         }
 		
 		private void AddLoadNode(LoaderGroupKey key, LoaderGroupNode node) {

@@ -3,7 +3,7 @@ using System.Collections;
 using AutoUpdate;
 
 public class TestDownload : MonoBehaviour {
-
+	#if _USE_NGUI
     public UIButton m_BtnDownload = null;
     public UISlider m_Progress = null;
 	public UILabel m_LbDown = null;
@@ -122,4 +122,5 @@ public class TestDownload : MonoBehaviour {
 	{
 		NsHttpClient.HttpHelper.OnAppExit();
 	}
+	#endif
 }

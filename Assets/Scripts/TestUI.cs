@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+#if _USE_NGUI
+
 public class TestUI : NGUIResLoader {
 
 	public UITexture uiTexture = null;
@@ -39,3 +41,5 @@ public class TestUI : NGUIResLoader {
 
 	private bool m_IsConfigLoaded = false;
 }
+
+#endif

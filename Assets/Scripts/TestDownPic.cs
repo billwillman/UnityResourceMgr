@@ -3,8 +3,10 @@ using UnityEngine;
 using System.Collections;
 using NsHttpClient;
 
-public class TestDownPic : MonoBehaviour {
 
+
+public class TestDownPic : MonoBehaviour {
+	#if _USE_NGUI
     private Texture2D m_Tex = null;
 
     void OnDestroy() {
@@ -58,4 +60,7 @@ public class TestDownPic : MonoBehaviour {
         //url = string.Format("{0}?time={1}", url, DateTime.Now.Ticks.ToString());
 		var client = HttpHelper.OpenUrl<HttpClientPicResponse>(url, new HttpClientPicResponse(270, 129, false, 4 * 1024), OnHttpEnd, OnHttpProcess);
     }
+#endif
 }
+
+

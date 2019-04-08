@@ -1,4 +1,4 @@
-﻿#define _USE_NGUI
+﻿//#define _USE_NGUI
 
 #if _USE_NGUI
 
