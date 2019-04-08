@@ -89,14 +89,16 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if (isLoadedActive)
 			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt, onProcess) != null;
 		else {
+			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt, onProcess) != null;
+			/*
 			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt,
 				delegate(AsyncOperation obj, bool isDone) {
 					if (onProcess != null)
 						onProcess(obj, isDone);
-					if (obj.progress >= 0.9f) {
+					if (isDone && obj.progress >= 0.9f) {
 						AsyncOperationMgr.Instance.RemoveAsyncOperation(obj);
 					}
-				}) != null;
+				}) != null;*/
 		}
 	}
 
