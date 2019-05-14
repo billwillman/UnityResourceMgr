@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Utils;
+using System.Security.Cryptography.X509Certificates;
 
 namespace NsHttpClient
 {
@@ -133,7 +134,7 @@ namespace NsHttpClient
 
 		// 保证OpenUrl在主线程调用
 		public static HttpClient OpenUrl<T>(string url, T listener, long filePos,  Action<HttpClient, HttpListenerStatus> OnEnd = null, 
-            Action<HttpClient> OnProcess = null, float connectTimeOut = 5.0f, float readTimeOut = 5.0f, string postStr = "") where T: HttpClientResponse
+            Action<HttpClient> OnProcess = null, float connectTimeOut = 5.0f, float readTimeOut = 5.0f, string postStr = "", List<X509Certificate> certs = null) where T: HttpClientResponse
 		{
 			if (string.IsNullOrEmpty(url) || listener == null || filePos < 0)
 				return null;
@@ -157,7 +158,7 @@ namespace NsHttpClient
 
             HttpClientType clientType = postBuf != null ? HttpClientType.httpPost : HttpClientType.httpGet;
 
-            ret.Init(url, listener, filePos, connectTimeOut, readTimeOut, clientType, postBuf);
+            ret.Init(url, listener, filePos, connectTimeOut, readTimeOut, clientType, postBuf, certs);
 			m_LinkList.AddLast(ret.LinkNode);
 
 			return ret;
@@ -213,12 +214,12 @@ namespace NsHttpClient
 
         // 保证OpenUrl在主线程调用
         public static HttpClient OpenUrl<T>(string url, T listener, Action<HttpClient, HttpListenerStatus> OnEnd = null, 
-			Action<HttpClient> OnProcess = null, float connectTimeOut = 5.0f, float readTimeOut = 5.0f, string postStr = "") where T: HttpClientResponse
+			Action<HttpClient> OnProcess = null, float connectTimeOut = 5.0f, float readTimeOut = 5.0f, string postStr = "", List<X509Certificate> certs = null) where T: HttpClientResponse
 		{
 			if (string.IsNullOrEmpty(url) || listener == null)
 				return null;
 
-			return OpenUrl<T>(url, listener, 0, OnEnd, OnProcess, connectTimeOut, readTimeOut, postStr);
+			return OpenUrl<T>(url, listener, 0, OnEnd, OnProcess, connectTimeOut, readTimeOut, postStr, certs);
 		}
 
 	}

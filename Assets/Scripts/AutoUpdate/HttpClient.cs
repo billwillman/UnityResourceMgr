@@ -360,9 +360,9 @@ namespace NsHttpClient
 		{}
 
 		public HttpClient(string url, IHttpClientListener listener, float connectTimeOut, float readTimeOut = 5.0f,
-            HttpClientType clientType = HttpClientType.httpGet, string postStr = "")
+            HttpClientType clientType = HttpClientType.httpGet, string postStr = "", List<X509Certificate> certs = null)
 		{
-			Init(url, listener, 0, connectTimeOut, readTimeOut, clientType, GeneratorPostBuf(clientType, postStr));
+			Init(url, listener, 0, connectTimeOut, readTimeOut, clientType, GeneratorPostBuf(clientType, postStr), certs);
 		}
 
         public HttpClient(string url, IHttpClientListener listener, long filePos, float connectTimeOut, float readTimeOut = 5.0f)
@@ -378,7 +378,7 @@ namespace NsHttpClient
         }
 
         public void Init(string url, IHttpClientListener listener, long filePos, float connectTimeOut, float readTimeOut = 5.0f,
-            HttpClientType clientType = HttpClientType.httpGet, byte[] postBuf = null)
+            HttpClientType clientType = HttpClientType.httpGet, byte[] postBuf = null, List<X509Certificate> certs = null)
 		{
 			m_Url = url;
 			m_TimeOut = connectTimeOut;
@@ -387,6 +387,7 @@ namespace NsHttpClient
 			m_FilePos = filePos;
             m_ClientType = clientType;
             m_PostBuf = postBuf;
+            m_Certs = certs;
             ResetReadTimeOut();
             ResetConnectTimeOut();
 
@@ -524,6 +525,7 @@ namespace NsHttpClient
 			m_Listener = null;
 			m_FilePos = 0;
             m_PostBuf = null;
+            m_Certs = null;
             // 重置为GET
             m_ClientType = HttpClientType.httpGet;
             m_Url = string.Empty;
@@ -678,6 +680,15 @@ namespace NsHttpClient
             m_Req = WebRequest.Create(m_Url) as HttpWebRequest;
             m_Req.AllowAutoRedirect = true;
             m_Req.KeepAlive = false;
+            // 增加证书
+            if ((m_Certs != null) && (m_Certs.Count > 0)) {
+                for (int i = 0; i < m_Certs.Count; ++i) {
+                    var cert = m_Certs[i];
+                    if (cert != null) {
+                        m_Req.ClientCertificates.Add(cert);
+                    }
+                }
+            }
 
             var serverPoint = m_Req.ServicePoint;
             if (serverPoint != null) {
@@ -773,6 +784,7 @@ namespace NsHttpClient
         private float m_CurConnectTime = 5.0f;
 		private ITimer m_TimeOutTimer = null;
         private ITimer m_ReadOutTimer = null;
+        private List<X509Certificate> m_Certs = null;
         // 默认采用GET模式
         private HttpClientType m_ClientType = HttpClientType.httpGet;
         //	private static System.Object m_TimerLock = new object();
