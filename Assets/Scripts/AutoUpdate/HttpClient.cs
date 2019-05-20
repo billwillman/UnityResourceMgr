@@ -679,7 +679,7 @@ namespace NsHttpClient
 		{
             m_Req = WebRequest.Create(m_Url) as HttpWebRequest;
             m_Req.AllowAutoRedirect = true;
-            m_Req.KeepAlive = false;
+            m_Req.KeepAlive = true;
             // 增加证书
             if ((m_Certs != null) && (m_Certs.Count > 0)) {
                 for (int i = 0; i < m_Certs.Count; ++i) {
