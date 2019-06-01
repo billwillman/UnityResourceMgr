@@ -33,9 +33,6 @@ public class Test : CachedMonoBehaviour {
 				  delegate (float process, bool isDone, Object[] objs) {
 					if (isDone)
 					{
-								ResourceMgr.Instance.ABUnloadFalse(objs, true);
-								ResourceMgr.Instance.DestroyObjects(objs, true);
-								return;
 						m_IsSpritesLoading = false;
 						if (m_SpriteList != null)
 						{
@@ -68,47 +65,13 @@ public class Test : CachedMonoBehaviour {
 		{
 			ChangeScene(true);
 		}
-
-		/*
-			if (GUI.Button(new Rect(100, 160, 150, 50), "(同步)创建Prefab物体"))
-			{
-				GameObject obj = ResourceMgr.Instance.CreateGameObject("resources/prefabs/flag.prefab");
-				if (obj != null)
-					m_ObjList.Add(obj);
-			}
-			*/
+			
 
 			if (GUI.Button(new Rect(260, 160, 150, 50), "(异步)创建Prefab物体"))
 			{
-
-			ResourceMgr.Instance.CreateGameObjectAsync("resources/@prefab/cube.prefab",
-				delegate (float process, bool isDone, GameObject obj){
-					if (isDone && obj != null)
-					{
-						ResourceMgr.Instance.ABUnloadFalse(obj);
-					}
-				});
-
-			ResourceMgr.Instance.CreateGameObjectAsync("resources/@prefab/flag.prefab",
-				delegate (float process, bool isDone, GameObject obj){
-					if (isDone && obj != null)
-						{
-						ResourceMgr.Instance.ABUnloadFalse(obj);
-						}
-				}
-				);
-
+				ResourceMgr.Instance.CreateGameObjectAsync("resources/@prefab/cube.prefab", null);
+				ResourceMgr.Instance.CreateGameObjectAsync("resources/@prefab/flag.prefab", null);
 			}
-
-		if (m_ObjList.Count > 0)
-		{
-			if (GUI.Button(new Rect(100, 160, 150, 50), "删除Prefab物体"))
-			{
-				var obj = m_ObjList[m_ObjList.Count - 1];
-				ResourceMgr.Instance.DestroyObject(obj);
-				m_ObjList.RemoveAt(m_ObjList.Count - 1);
-			}
-		}
 	}
 
 	void ChangeScene(bool isAsync)
@@ -122,8 +85,7 @@ public class Test : CachedMonoBehaviour {
 			ResourceMgr.Instance.LoadScene(m_CurScene, false);
 
 	}
-
-	private System.Collections.Generic.List<GameObject> m_ObjList = new System.Collections.Generic.List<GameObject>();
+		
 	private string m_CurScene = string.Empty;
 	private bool m_IsSpritesLoading = false;
 	private Sprite[] m_SpriteList = null;
