@@ -2463,7 +2463,7 @@ class AssetBundleMgr
         }
         msbuildPath = msbuildPath.Replace('/', '\\');
 
-        string preCmd = string.Format("start /D \"{0}\\Data\\MonoBleedingEdge\\bin\" /B", msbuildPath);
+        string preCmd = string.Format("start /D \"{0}\" /B", msbuildPath);
 #else
         string unityEditorPath = GetUnityEditorPath();
 		if (string.IsNullOrEmpty(unityEditorPath))
@@ -2485,17 +2485,18 @@ class AssetBundleMgr
 		string cmdDefines = string.Empty;
 		if (defines != null && defines.Length > 0)
 		{
-			defines = defines.Replace(';', ',');
+            defines = defines.Replace(';', ',');
 			// 处理一下没有用的编译指令
 			cmdDefines = string.Format(" /p:DefineConstants=\"{0}\"", defines);
 		}
 		string cmd = string.Format("{0} {1} /property:AllowUnsafeBlocks=true {2} /p:Configuration=Release{3}", preCmd, buildExe, ProjFileName, cmdDefines);
 		AssetBundleBuild.RunCmd(cmd);
+        Debug.LogError(cmd);
 		return true;
 #else
 		return false;
 #endif
-    }
+        }
 
 	public void BuildCSharpProjectUpdateFile(string streamAssetsPath, string outPath, string version)
 	{
