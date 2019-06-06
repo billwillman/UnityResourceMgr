@@ -2387,7 +2387,35 @@ class AssetBundleMgr
 #endif
 	}
 
-	public static string GetUnityEditorPath()
+    public static string GetMSBuildPath() {
+#if UNITY_EDITOR_WIN
+        string pathList = System.Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
+        if (string.IsNullOrEmpty(pathList))
+            return string.Empty;
+
+        char[] split = new char[1];
+        split[0] = ';';
+        string[] paths = pathList.Split(split, StringSplitOptions.RemoveEmptyEntries);
+        if (paths == null || paths.Length <= 0)
+            return string.Empty;
+        for (int i = 0; i < paths.Length; ++i) {
+            string p = paths[i];
+            if (string.IsNullOrEmpty(p))
+                continue;
+            int unityIdx = p.IndexOf("Microsoft Visual Studio", StringComparison.CurrentCultureIgnoreCase);
+            if (unityIdx < 0)
+                continue;
+            p = p.Replace('\\', '/');
+            int editorIdx = p.IndexOf("/MSBuild", StringComparison.CurrentCultureIgnoreCase);
+            if (editorIdx < 0 || editorIdx <= unityIdx)
+                continue;
+            return p;
+        }
+#endif
+        return string.Empty;
+    }
+
+    public static string GetUnityEditorPath()
 	{
 #if UNITY_EDITOR_WIN
 			string pathList = System.Environment.GetEnvironmentVariable("Path", EnvironmentVariableTarget.Machine);
@@ -2427,7 +2455,17 @@ class AssetBundleMgr
 			return false;
 		}
 
-		string unityEditorPath = GetUnityEditorPath();
+#if UNITY_2018
+        string msbuildPath = GetMSBuildPath();
+        if (string.IsNullOrEmpty(msbuildPath)) {
+            Debug.LogError("请增加msbuild环境变量Path");
+            return false;
+        }
+        msbuildPath = msbuildPath.Replace('/', '\\');
+
+        string preCmd = string.Format("start /D \"{0}\\Data\\MonoBleedingEdge\\bin\" /B", msbuildPath);
+#else
+        string unityEditorPath = GetUnityEditorPath();
 		if (string.IsNullOrEmpty(unityEditorPath))
 		{
 			Debug.LogError("请增加UnityEditor环境变量Path");
@@ -2438,8 +2476,9 @@ class AssetBundleMgr
 
 		string preCmd = string.Format("start /D \"{0}\\Data\\MonoBleedingEdge\\bin\" /B", unityEditorPath);
 		//string preCmd = "start /B";
+#endif
 
-		 ProjFileName = ProjFileName.Replace('/' , '\\');
+        ProjFileName = ProjFileName.Replace('/' , '\\');
 		 buildExe = buildExe.Replace('/', '\\');
 		// DefineConstants=""
 		string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
@@ -2456,7 +2495,7 @@ class AssetBundleMgr
 #else
 		return false;
 #endif
-	}
+    }
 
 	public void BuildCSharpProjectUpdateFile(string streamAssetsPath, string outPath, string version)
 	{
@@ -4634,7 +4673,11 @@ public static class AssetBundleBuild
 
 		string buildExe = unityEditorPath + "/Data/MonoBleedingEdge/lib/mono/unity/xbuild.exe";
 		*/
+#if UNITY_2018
+        string buildExe = "msbuild.exe";
+#else
         string buildExe = "xbuild.bat";
+#endif
 
         string rootPath = System.IO.Directory.GetCurrentDirectory();
         rootPath = rootPath.Replace('\\', '/');
