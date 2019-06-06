@@ -2491,7 +2491,7 @@ class AssetBundleMgr
 		}
 		string cmd = string.Format("{0} {1} /property:AllowUnsafeBlocks=true {2} /p:Configuration=Release{3}", preCmd, buildExe, ProjFileName, cmdDefines);
 		AssetBundleBuild.RunCmd(cmd);
-        Debug.LogError(cmd);
+      //  Debug.LogError(cmd);
 		return true;
 #else
 		return false;
