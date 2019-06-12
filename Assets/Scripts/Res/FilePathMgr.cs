@@ -158,78 +158,99 @@ namespace Utils
 			return b != 0;
 		}
 
-        public float ReadSingle(Stream stream) {
+        public unsafe float ReadSingle(Stream stream) {
             if (stream == null)
                 return 0f;
             float ret;
-            lock (m_Lock) {
-                m_TempStrBuf[0] = (byte)stream.ReadByte();
-                m_TempStrBuf[1] = (byte)stream.ReadByte();
-                m_TempStrBuf[2] = (byte)stream.ReadByte();
-                m_TempStrBuf[3] = (byte)stream.ReadByte();
-                ret = BitConverter.ToSingle(m_TempStrBuf, 0);
+            // lock (m_Lock) {
+            //     m_TempStrBuf[0] = (byte)stream.ReadByte();
+            //     m_TempStrBuf[1] = (byte)stream.ReadByte();
+            //     m_TempStrBuf[2] = (byte)stream.ReadByte();
+            //      m_TempStrBuf[3] = (byte)stream.ReadByte();
+            //      ret = BitConverter.ToSingle(m_TempStrBuf, 0);
+            //  }
+            byte* dst = (byte*)(&ret);
+            for (int i = 0; i < 4; ++i) {
+                *dst = (byte)stream.ReadByte();
+                ++dst;
             }
             return ret;
         }
 
         ///   <summary>   
-        ///   写入Single,尽量游戏内部减少使用这个函数，原因
-        ///   会new byte[]，编辑器中无所谓
+        ///   写入Single
         ///   </summary> 
         ///   <param name="stream">写入的流</param>
         ///   <param name="value">需要写入的值</param> 
         /// <returns>是否写入</returns>
-        public bool WriteSingle(Stream stream, float value) {
+        public unsafe bool WriteSingle(Stream stream, float value) {
             if (stream == null)
                 return false;
-            byte[] buffer = BitConverter.GetBytes(value);
-            if (buffer == null || buffer.Length <= 0)
-                return false;
-            for (int i = 0; i < buffer.Length; ++i) {
-                stream.WriteByte(buffer[i]);
+
+            //byte[] buffer = BitConverter.GetBytes(value);
+            //if (buffer == null || buffer.Length <= 0)
+            //    return false;
+            //for (int i = 0; i < buffer.Length; ++i) {
+            //     stream.WriteByte(buffer[i]);
+            // }
+            byte* src = (byte*)(&value);
+            for (int i = 0; i < 4; ++i) {
+                stream.WriteByte(*src);
+                ++src;
             }
             return true;
         }
 
-        public Double ReadDouble(Stream stream) {
+        public unsafe Double ReadDouble(Stream stream) {
             if (stream == null)
                 return 0f;
             double ret;
-            lock (m_Lock) {
-                m_TempStrBuf[0] = (byte)stream.ReadByte();
-                m_TempStrBuf[1] = (byte)stream.ReadByte();
-                m_TempStrBuf[2] = (byte)stream.ReadByte();
-                m_TempStrBuf[3] = (byte)stream.ReadByte();
-                m_TempStrBuf[4] = (byte)stream.ReadByte();
-                m_TempStrBuf[5] = (byte)stream.ReadByte();
-                m_TempStrBuf[6] = (byte)stream.ReadByte();
-                m_TempStrBuf[7] = (byte)stream.ReadByte();
+            // lock (m_Lock) {
+            //      m_TempStrBuf[0] = (byte)stream.ReadByte();
+            //      m_TempStrBuf[1] = (byte)stream.ReadByte();
+            //     m_TempStrBuf[2] = (byte)stream.ReadByte();
+            //     m_TempStrBuf[3] = (byte)stream.ReadByte();
+            //     m_TempStrBuf[4] = (byte)stream.ReadByte();
+            //      m_TempStrBuf[5] = (byte)stream.ReadByte();
+            //     m_TempStrBuf[6] = (byte)stream.ReadByte();
+            //     m_TempStrBuf[7] = (byte)stream.ReadByte();
 
-                ret = BitConverter.ToDouble(m_TempStrBuf, 0);
+            //     ret = BitConverter.ToDouble(m_TempStrBuf, 0);
+            // }
+
+            byte* dst = (byte*)(&ret);
+            for (int i = 0; i < 8; ++i) {
+                *dst = (byte)stream.ReadByte();
+                ++dst;
             }
+
             return ret;
         }
 
         ///   <summary>   
-        ///   写入Double,尽量游戏内部减少使用这个函数，原因
-        ///   会new byte[]，编辑器中无所谓
+        ///   写入Double
         ///   </summary> 
         ///   <param name="stream">写入的流</param>
         ///   <param name="value">需要写入的值</param> 
         /// <returns>是否写入</returns>
-        public bool WriteDouble(Stream stream, double value) {
+        public unsafe bool WriteDouble(Stream stream, double value) {
             if (stream == null)
                 return false;
-            byte[] buffer = BitConverter.GetBytes(value);
-            if (buffer == null || buffer.Length <= 0)
-                return false;
-            for (int i = 0; i < buffer.Length; ++i) {
-                stream.WriteByte(buffer[i]);
+            //byte[] buffer = BitConverter.GetBytes(value);
+            // if (buffer == null || buffer.Length <= 0)
+            //    return false;
+            //for (int i = 0; i < buffer.Length; ++i) {
+            //    stream.WriteByte(buffer[i]);
+            // }
+            byte* src = (byte*)(&value);
+            for (int i = 0; i < 8; ++i) {
+                stream.WriteByte(*src);
+                ++src;
             }
             return true;
         }
-		
-		public System.Object ReadObject(Stream stream, System.Type type) {
+
+        public System.Object ReadObject(Stream stream, System.Type type) {
             if (type == null)
                 return null;
             System.Object value;
