@@ -105,10 +105,10 @@ public class DownloadCheck : MonoBehaviour {
 		}
 
 		//float process = AutoUpdateMgr.Instance.DownProcess * 100f;
-		GUI.Label(new Rect(100, 150, 100, 20), string.Format("下载进度: {0:D}", (int)process));
+		GUI.Label(new Rect(100, 150, 100, 20), StringHelper.Format("下载进度: {0:D}", (int)process));
 
-		//string downStr = string.Format("{0}/{1}", AutoUpdateMgr.Instance.CurDownM, AutoUpdateMgr.Instance.CurDownM, AutoUpdateMgr.Instance.TotalDownM);
-		string downStr = string.Format("{0}/{1}", read, maxRead);
+        //string downStr = StringHelper.Format("{0}/{1}", AutoUpdateMgr.Instance.CurDownM, AutoUpdateMgr.Instance.CurDownM, AutoUpdateMgr.Instance.TotalDownM);
+        string downStr = StringHelper.Format("{0}/{1}", read, maxRead);
 		GUI.Label(new Rect(100, 170, 100, 20), downStr);
 	}
 	

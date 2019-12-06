@@ -106,9 +106,9 @@ namespace AutoUpdate
 				return;
 			}
 			
-			m_FileListName = string.Format("{0}/{1}", writePath, AutoUpdateMgr._cFileListTxt);
-			m_VersionName = string.Format("{0}/{1}", writePath, AutoUpdateMgr._cVersionTxt);
-			m_UpdateName = string.Format("{0}/{1}", writePath, AutoUpdateMgr._cUpdateTxt);
+			m_FileListName = StringHelper.Format("{0}/{1}", writePath, AutoUpdateMgr._cFileListTxt);
+			m_VersionName = StringHelper.Format("{0}/{1}", writePath, AutoUpdateMgr._cVersionTxt);
+			m_UpdateName = StringHelper.Format("{0}/{1}", writePath, AutoUpdateMgr._cUpdateTxt);
 
 			DoNextCopyVersion();
 		}

@@ -97,7 +97,7 @@ namespace AutoUpdate
                         // 新文件
 
                         ResetLocalFile();
-                        string fileName = string.Format("{0}/{1}", m_WritePath, m_CurEntry.Name);
+                        string fileName = StringHelper.Format("{0}/{1}", m_WritePath, m_CurEntry.Name);
                         m_localFileStream = new FileStream(fileName, FileMode.Create);
                     }
                 }
@@ -200,7 +200,7 @@ namespace AutoUpdate
 
 		public static string GetZipFileName(string oldVersion, string newVersion)
 		{
-			string ret = string.Format("{0}-{1}", oldVersion, newVersion);
+			string ret = StringHelper.Format("{0}-{1}", oldVersion, newVersion);
 			return ret;
 		}
 
@@ -223,11 +223,11 @@ namespace AutoUpdate
 				diffFileList.Add(fileListFileName);
 			}
 
-			string zipFileName = string.Format("{0}/{1}.zip", outDir, GetZipFileName(oldVersion, newVersion));
+			string zipFileName = StringHelper.Format("{0}/{1}.zip", outDir, GetZipFileName(oldVersion, newVersion));
 
 			for (int i = 0; i < diffFileList.Count; ++i)
 			{
-				string fileName = string.Format("{0}/{1}/{2}", outDir, newVersion, diffFileList[i]);
+				string fileName = StringHelper.Format("{0}/{1}/{2}", outDir, newVersion, diffFileList[i]);
 				diffFileList[i] = Path.GetFullPath(fileName);
 			}
 

@@ -83,11 +83,11 @@ namespace AutoUpdate
 			bool isHttps = resAddr.StartsWith("https://", StringComparison.CurrentCultureIgnoreCase);
 			string url;
 			if (isHttps)
-				url = string.Format("{0}/{1}", resAddr, AutoUpdateMgr._cVersionTxt);
+				url = StringHelper.Format("{0}/{1}", resAddr, AutoUpdateMgr._cVersionTxt);
 			else
 			{
 				long t = DateTime.UtcNow.Ticks;
-				url = string.Format("{0}/{1}?time={2}", resAddr, AutoUpdateMgr._cVersionTxt, t.ToString());
+				url = StringHelper.Format("{0}/{1}?time={2}", resAddr, AutoUpdateMgr._cVersionTxt, t.ToString());
 			}
 
 			target.CreateHttpTxt(url, OnEnd);

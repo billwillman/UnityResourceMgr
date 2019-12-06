@@ -381,7 +381,7 @@ public sealed class ResourcesLoader: IResourceLoader
 			T orgObj = request.asset as T;
 			if (orgObj == null)
 			{
-				string err = string.Format("LoadObjectAsync: ({0}) error!", fileName);
+				string err = StringHelper.Format("LoadObjectAsync: ({0}) error!", fileName);
 				LogMgr.Instance.LogError(err);
 				return false;
 			}
@@ -406,7 +406,7 @@ public sealed class ResourcesLoader: IResourceLoader
 				T orgObj = req.asset as T;
 				if (orgObj == null)
 				{
-					string err = string.Format("LoadObjectAsync: ({0}) error!", fileName);
+					string err = StringHelper.Format("LoadObjectAsync: ({0}) error!", fileName);
 					LogMgr.Instance.LogError(err);
 					return;
 				}

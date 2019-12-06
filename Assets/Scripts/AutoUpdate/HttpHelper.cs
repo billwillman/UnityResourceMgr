@@ -186,9 +186,9 @@ namespace NsHttpClient
             if (!isHttps) {
                 string timeStampStr = GetTimeStampStr();
                 if (url.IndexOf('?') > 0)
-                    url += string.Format("&t={0}", timeStampStr);
+                    url = StringHelper.Concat(url, StringHelper.Format("&t={0}", timeStampStr));
                 else
-                    url += string.Format("?t={0}", timeStampStr);
+                    url = StringHelper.Concat(url, StringHelper.Format("?t={0}", timeStampStr));
             }
             return url;
         }

@@ -55,7 +55,7 @@ namespace AutoUpdate
 			Dictionary<string, AutoUpdateCfgItem>.Enumerator iter = m_Dict.GetEnumerator();
 			while (iter.MoveNext())
 			{
-				string fileName = string.Format("{0}/{1}", writePath, iter.Current.Value.fileContentMd5);
+				string fileName = StringHelper.Format("{0}/{1}", writePath, iter.Current.Value.fileContentMd5);
 				if (File.Exists(fileName))
 					File.Delete(fileName);
 			}
@@ -83,7 +83,7 @@ namespace AutoUpdate
 				if (string.Compare(iter.Current.Value.fileContentMd5, noDeleteZipFile) == 0)
 					continue;
 				
-				string fileName = string.Format("{0}/{1}", writePath, iter.Current.Value.fileContentMd5);
+				string fileName = StringHelper.Format("{0}/{1}", writePath, iter.Current.Value.fileContentMd5);
 				if (File.Exists(fileName))
 					File.Delete(fileName);
 
@@ -301,7 +301,7 @@ namespace AutoUpdate
 				{
 					string contentMd5 = delMd5List[i];
 					m_Dict.Remove(contentMd5);
-					string fileName = string.Format("{0}/{1}", writePath, contentMd5);
+					string fileName = StringHelper.Format("{0}/{1}", writePath, contentMd5);
 					if (File.Exists(fileName))
 						File.Delete(fileName);
 				}
@@ -360,12 +360,12 @@ namespace AutoUpdate
 					}
 				}
 				iter.Dispose();
-				#else
+#else
 				int writeBytes = 0;
 				Dictionary<string, AutoUpdateCfgItem>.Enumerator iter = m_Dict.GetEnumerator();
 				while (iter.MoveNext())
 				{
-					string s = string.Format("{0}={1:D};{2}\r\n", iter.Current.Value.fileContentMd5,
+					string s = StringHelper.Format("{0}={1:D};{2}\r\n", iter.Current.Value.fileContentMd5,
 					                         iter.Current.Value.readBytes, 
 					                         iter.Current.Value.isDone.ToString());
 					byte[] dst = System.Text.Encoding.ASCII.GetBytes(s);
@@ -378,8 +378,8 @@ namespace AutoUpdate
 					}
 				}
 				iter.Dispose();
-				#endif
-			} finally
+#endif
+            } finally
 			{
 				stream.Close();
 				stream.Dispose();

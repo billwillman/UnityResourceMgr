@@ -180,7 +180,7 @@ public class ResListFile
 			int writeBytes = 0;
 			for (int i = 0; i < infos.Length; ++i)
 			{
-				string s = string.Format("{0}=0;false\r\n", infos[i].fileContentMd5);
+				string s = StringHelper.Format("{0}=0;false\r\n", infos[i].fileContentMd5);
 				byte[] bytes = System.Text.Encoding.ASCII.GetBytes(s);
 				if (bytes != null)
 				{
@@ -215,7 +215,7 @@ public class ResListFile
 			int writeBytes = 0;
 			while (iter.MoveNext())
 			{
-				string s = string.Format("{0}=0;false\r\n", iter.Current.Value.fileContentMd5);
+				string s = StringHelper.Format("{0}=0;false\r\n", iter.Current.Value.fileContentMd5);
 				byte[] dst = System.Text.Encoding.ASCII.GetBytes(s);
 				stream.Write(dst, 0, dst.Length);
 				writeBytes += dst.Length;
@@ -249,7 +249,7 @@ public class ResListFile
 			int writeBytes = 0;
 			while (iter.MoveNext())
 			{
-				string keyValue = string.Format("{0}={1};{2};{3}\r\n", iter.Current.Key, 
+				string keyValue = StringHelper.Format("{0}={1};{2};{3}\r\n", iter.Current.Key, 
 				                                iter.Current.Value.fileContentMd5,
 												iter.Current.Value.fileSize.ToString(),
 				                                iter.Current.Value.isFirstDown.ToString());
@@ -306,8 +306,8 @@ public class ResListFile
 
 		for (int i = 0; i < diffList.Length; ++i)
 		{
-			string fileName = string.Format("{0}/{1}", writePath, diffList[i].fileContentMd5);
-			string srcFileName = string.Format("{0}/{1}", writePath, diffList[i].fileName);
+			string fileName = StringHelper.Format("{0}/{1}", writePath, diffList[i].fileContentMd5);
+			string srcFileName = StringHelper.Format("{0}/{1}", writePath, diffList[i].fileName);
 			if (File.Exists(fileName))
 			{
 				// change fileName
@@ -326,7 +326,7 @@ public class ResListFile
 
 		for (int i = 0; i < diffList.Length; ++i)
 		{
-			string fileName = string.Format("{0}/{1}", writePath, diffList[i].fileName);
+			string fileName = StringHelper.Format("{0}/{1}", writePath, diffList[i].fileName);
 			if (File.Exists(fileName))
 				File.Delete(fileName);
 		}
@@ -341,10 +341,10 @@ public class ResListFile
 		var iter = m_ContentMd5ToNameMd5Map.GetEnumerator();
 		while (iter.MoveNext())
 		{
-			string fileName = string.Format("{0}/{1}", writePath, iter.Current.Key);
+			string fileName = StringHelper.Format("{0}/{1}", writePath, iter.Current.Key);
 			if (File.Exists(fileName))
 				File.Delete(fileName);
-			fileName = string.Format("{0}/{1}", writePath, iter.Current.Value);
+			fileName = StringHelper.Format("{0}/{1}", writePath, iter.Current.Value);
 			if (File.Exists(fileName))
 				File.Delete(fileName);
 		}
@@ -422,17 +422,17 @@ public class ResListFile
 					if (string.Compare(srcMd5, otherIter.Current.Value.fileContentMd5, StringComparison.CurrentCultureIgnoreCase) != 0)
 					{
 						isDiff = true;
-					} 
-					/*
+					}
+                    /*
 					else
 					{
-						string fileName = string.Format("{0}/{1}", writePath, otherIter.Current.Key);
+						string fileName = StringHelper.Format("{0}/{1}", writePath, otherIter.Current.Key);
 						if (!File.Exists(fileName))
 						{
 							isDiff = true;
 						}
 					}*/
-				} else
+                } else
 					isDiff = true;
 
 				if (isDiff)

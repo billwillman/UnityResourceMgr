@@ -40,7 +40,7 @@ namespace NsLib.ApkUpdate
                  target.OnError(ApkUpdateState.CheckLocalNewZip, ApkUpdateError.Get_Server_DiffZip_Url_Error);
                  return;
              }
-             url = string.Format("{0}/{1}.zip", url, serverInfo.DiffZipMd5);
+             url = StringHelper.Format("{0}/{1}.zip", url, serverInfo.DiffZipMd5);
              HttpClientFileStream stream = new HttpClientFileStream(zipFileName, offset, 1024 * 4);
              m_Http = HttpHelper.OpenUrl<HttpClientFileStream>(url, stream, OnHttpEnd);
          }
@@ -125,7 +125,7 @@ namespace NsLib.ApkUpdate
 
             string md5Zip = target.GetNewZipDiffMd5();
             target.ClearZip(md5Zip);
-            string diffZipFileName = string.Format("{0}/{1}.zip", savePath, md5Zip);
+            string diffZipFileName = StringHelper.Format("{0}/{1}.zip", savePath, md5Zip);
             if (File.Exists(diffZipFileName))
             {
                 CheckDiffZip(diffZipFileName);

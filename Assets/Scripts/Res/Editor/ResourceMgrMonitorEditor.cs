@@ -97,7 +97,7 @@ public class ResourceMgrMonitorEditor: Editor
 					ResourceAssetCache resCache = cache as ResourceAssetCache;
 					if ((resCache != null) && (resCache.Target != null))
 					{
-						string key = string.Format("Res:{0}", resCache.Target.name);
+						string key = StringHelper.Format("Res:{0}", resCache.Target.name);
 						hash.Add(key);
 						if (mUsedAssetRefMap.ContainsKey(key))
 						{
@@ -168,7 +168,7 @@ public class ResourceMgrMonitorEditor: Editor
 					ResourceAssetCache resCache = cache as ResourceAssetCache;
 					if ((resCache != null) && (resCache.Target != null))
 					{
-						string key = string.Format("Res:{0}", resCache.Target.name);
+						string key = StringHelper.Format("Res:{0}", resCache.Target.name);
 						hash.Add(key);
 						if (mNotUsedAssetRefMap.ContainsKey(key))
 						{
@@ -384,7 +384,7 @@ public class ResourceMgrMonitorEditor: Editor
                 fileName = realFileName;
         }
 
-		return string.Format("Bundle:{0}", fileName);
+		return StringHelper.Format("Bundle:{0}", fileName);
 	}
 
 	private void DrawSearchTarget()

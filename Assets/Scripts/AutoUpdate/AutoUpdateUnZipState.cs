@@ -21,7 +21,7 @@ namespace AutoUpdate
 			string writePath = target.WritePath;
 			if (string.IsNullOrEmpty(zipFileMd5) || string.IsNullOrEmpty(writePath))
 				AutoUpdateMgr.Instance.EndAutoUpdate();
-			string zipFileName = string.Format("{0}/{1}", writePath, zipFileMd5);
+			string zipFileName = StringHelper.Format("{0}/{1}", writePath, zipFileMd5);
 			if (!File.Exists(zipFileName))
 			{
 				target.Error(AutoUpdateErrorType.auError_ResZipVerReq, 0);

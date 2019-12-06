@@ -161,7 +161,7 @@ namespace AutoUpdate
 					{
 						node.Value.item = item;
 						// Get Http
-						string url = string.Format("{0}/{1}/{2}", AutoUpdateMgr.Instance.ResServerAddr, 
+						string url = StringHelper.Format("{0}/{1}/{2}", AutoUpdateMgr.Instance.ResServerAddr, 
 							AutoUpdateMgr.Instance.CurrServeResrVersion,
 							item.fileContentMd5);
 
@@ -175,7 +175,7 @@ namespace AutoUpdate
 
 						//AutoUpdateMgr.Instance.CreateHttpFile(url, item.readBytes, OnHttpRead, OnHttpError);
 						int bufSize = AutoUpdateMgr.Instance.HttpFileBufSize;
-						string fileName = string.Format("{0}/{1}", AutoUpdateMgr.Instance.WritePath, item.fileContentMd5);
+						string fileName = StringHelper.Format("{0}/{1}", AutoUpdateMgr.Instance.WritePath, item.fileContentMd5);
 						var listener = new HttpClientFileStream(fileName, item.readBytes, bufSize);
 						listener.UserData = node.Value;
 						var http = HttpHelper.OpenUrl<HttpClientFileStream>(url, listener, OnItemHttpEnd, OnItemHttpProcess);

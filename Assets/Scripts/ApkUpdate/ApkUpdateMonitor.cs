@@ -210,7 +210,7 @@ namespace NsLib.ApkUpdate
         {
             if (string.IsNullOrEmpty(fmt))
                 return;
-            fmt = string.Format("[ApkUpdate] {0}", fmt);
+            fmt = StringHelper.Format("[ApkUpdate] {0}", fmt);
             Debug.LogFormat(fmt, objs);
         }
 
@@ -218,7 +218,7 @@ namespace NsLib.ApkUpdate
         {
             if (string.IsNullOrEmpty(fmt))
                 return;
-            fmt = string.Format("[ApkUpdate] {0}", fmt);
+            fmt = StringHelper.Format("[ApkUpdate] {0}", fmt);
             Debug.LogErrorFormat(fmt, objs);
         }
 

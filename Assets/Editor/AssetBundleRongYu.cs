@@ -177,7 +177,7 @@ namespace NsLib.ResMgr {
                         }
                         bundleNameIter.Dispose();
                     }
-                    string itemStr = string.Format(itemFmt, name, EditorUtility.FormatBytes(memSize), iter.Current.Value.refCount, bundleNames);
+                    string itemStr = StringHelper.Format(itemFmt, name, EditorUtility.FormatBytes(memSize), iter.Current.Value.refCount, bundleNames);
                     if (string.IsNullOrEmpty(ret))
                         ret = itemStr;
                     else
@@ -188,7 +188,7 @@ namespace NsLib.ResMgr {
                 }
                 iter.Dispose();
 
-                string errSumStr = string.Format(itemFmt, "冗余总计", EditorUtility.FormatBytes(errSumNum), errCnt, string.Empty);
+                string errSumStr = StringHelper.Format(itemFmt, "冗余总计", EditorUtility.FormatBytes(errSumNum), errCnt, string.Empty);
                 if (string.IsNullOrEmpty(ret))
                     ret = errSumStr;
                 else
@@ -248,7 +248,7 @@ namespace NsLib.ResMgr {
         private void PrintHtmlFile(Dictionary<string, ArtRes> rongyuMap) {
             try {
                 string gridStr = GetHtmlGridStr(rongyuMap);
-                string str = string.Format(_cHtmlFmt, gridStr);
+                string str = StringHelper.Format(_cHtmlFmt, gridStr);
 
                 if (!string.IsNullOrEmpty(str)) {
                     FileStream outFileStream = new FileStream("ErrorRongYu.html", FileMode.Create, FileAccess.Write);

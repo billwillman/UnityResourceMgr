@@ -78,7 +78,7 @@ namespace AutoUpdate
 
 			string resAddr = target.ResServerAddr;
 			// 已经是内容MD5，所以不需要加时间戳
-			string url = string.Format("{0}/{1}.txt", resAddr, verMd5);
+			string url = StringHelper.Format("{0}/{1}.txt", resAddr, verMd5);
 			target.CurrUpdateZipFileMd5 = string.Empty;
 			target.CreateHttpTxt(url, OnReadEvent, OnError);
 		}

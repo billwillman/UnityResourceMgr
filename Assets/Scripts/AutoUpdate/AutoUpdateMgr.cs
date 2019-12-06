@@ -75,7 +75,7 @@ namespace AutoUpdate
 			m_StateMgr = new AutoUpdateStateMgr (this);
 			m_UpdateFile = new AutoUpdateCfgFile ();
 			if (!string.IsNullOrEmpty (m_WritePath)) {
-				m_UpdateFile.SaveFileName = string.Format ("{0}/{1}", m_WritePath, _cUpdateTxt);
+				m_UpdateFile.SaveFileName = StringHelper.Format ("{0}/{1}", m_WritePath, _cUpdateTxt);
 			}
 			RegisterStates ();
 		}
@@ -191,7 +191,7 @@ namespace AutoUpdate
 				{
 					string key = removeKeys[i];
 					m_LocalResListFile.RemoveKey(key);
-					string fileName = string.Format("{0}/{1}", m_WritePath, key);
+					string fileName = StringHelper.Format("{0}/{1}", m_WritePath, key);
 					if (File.Exists(fileName))
 						File.Delete(fileName);
 				}
@@ -203,7 +203,7 @@ namespace AutoUpdate
 			if (!string.IsNullOrEmpty (m_WritePath)) {
 				m_LocalResListFile.Load (m_ServerResListFile);
 				m_ServerResListFile.Clear ();
-				string fileName = string.Format ("{0}/{1}", m_WritePath, AutoUpdateMgr._cFileListTxt);
+				string fileName = StringHelper.Format ("{0}/{1}", m_WritePath, AutoUpdateMgr._cFileListTxt);
 				m_LocalResListFile.SaveToFile (fileName);
 			}
 		}
@@ -215,13 +215,13 @@ namespace AutoUpdate
 
 			if (string.IsNullOrEmpty (m_WritePath))
 				return;
-			string fileName = string.Format ("{0}/{1}", m_WritePath, _cVersionTxt);
+			string fileName = StringHelper.Format ("{0}/{1}", m_WritePath, _cVersionTxt);
 			LocalResVersion = CurrServeResrVersion;
 			LocalFileListContentMd5 = ServerFileListContentMd5;
 
 			FileStream stream = new FileStream (fileName, FileMode.Create, FileAccess.Write);
 			try {
-				string s = string.Format ("res={0}\r\nfileList={1}", LocalResVersion, LocalFileListContentMd5);
+				string s = StringHelper.Format ("res={0}\r\nfileList={1}", LocalResVersion, LocalFileListContentMd5);
 				byte[] bytes = System.Text.Encoding.ASCII.GetBytes (s);
 				stream.Write (bytes, 0, bytes.Length);
 			} finally {
@@ -238,11 +238,11 @@ namespace AutoUpdate
 
 			var iter = m_UpdateFile.GetIter ();
 			while (iter.MoveNext ()) {
-				string fileName = string.Format ("{0}/{1}", m_WritePath, iter.Current.Key);
+				string fileName = StringHelper.Format ("{0}/{1}", m_WritePath, iter.Current.Key);
 				if (File.Exists (fileName)) {
 					string fileNameMd5 = m_LocalResListFile.FindFileNameMd5 (iter.Current.Key);
 					if (!string.IsNullOrEmpty (fileNameMd5)) {
-						string newFileName = string.Format ("{0}/{1}", m_WritePath, fileNameMd5);
+						string newFileName = StringHelper.Format ("{0}/{1}", m_WritePath, fileNameMd5);
 						if (File.Exists (newFileName))
 							File.Delete (newFileName);
 						File.Move (fileName, newFileName);
@@ -252,7 +252,7 @@ namespace AutoUpdate
 			iter.Dispose ();
 
 			m_UpdateFile.Clear ();
-			string updateFileName = string.Format ("{0}/{1}", m_WritePath, _cUpdateTxt);
+			string updateFileName = StringHelper.Format ("{0}/{1}", m_WritePath, _cUpdateTxt);
 			if (File.Exists (updateFileName))
 				File.Delete (updateFileName);
 		}
@@ -369,7 +369,7 @@ namespace AutoUpdate
 			if (string.IsNullOrEmpty(m_WritePath) || string.IsNullOrEmpty(url))
 				return;
 			string fileName = Path.GetFileName (url);
-			string dstFileName = string.Format ("{0}/{1}", m_WritePath, fileName);
+			string dstFileName = StringHelper.Format ("{0}/{1}", m_WritePath, fileName);
 			HttpRelease ();
 			HttpClientFileStream response = new HttpClientFileStream (dstFileName, process, m_HttpFileBufSize);
 			lock (m_Lock)
@@ -384,7 +384,7 @@ namespace AutoUpdate
 			if (string.IsNullOrEmpty (m_WritePath))
 				return null;
 			string fileName = Path.GetFileName (url);
-			string dstFileName = string.Format ("{0}/{1}", m_WritePath, fileName);
+			string dstFileName = StringHelper.Format ("{0}/{1}", m_WritePath, fileName);
 			HttpRelease ();
 			HttpClientFileStream response = new HttpClientFileStream (dstFileName, process, m_HttpFileBufSize);
 			response.OnReadEvt = OnReadEvt;

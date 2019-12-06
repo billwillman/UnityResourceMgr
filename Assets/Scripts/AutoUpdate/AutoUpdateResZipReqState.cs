@@ -99,7 +99,7 @@ namespace AutoUpdate
 
 			string resAddr = target.ResServerAddr;
 			// m_ZipFileName是内容MD5所以不用加时间戳
-			string url = string.Format("{0}/{1}", resAddr, m_ZipFileName);
+			string url = StringHelper.Format("{0}/{1}", resAddr, m_ZipFileName);
 			target.CreateHttpFile(url, read, OnHttpRead, OnHttpError); 
 		}
 	}

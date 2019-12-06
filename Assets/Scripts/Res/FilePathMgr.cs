@@ -281,7 +281,7 @@ namespace Utils
 			} else if (type.IsEnum) {
                 value = ReadInt(stream);
             } else {
-                throw new Exception(string.Format("not support convert: {0}", type.Name));
+                throw new Exception(StringHelper.Format("not support convert: {0}", type.Name));
             }
 
             return value;
@@ -338,7 +338,7 @@ namespace Utils
                 int v = value != null ? (int)value : 0;
                 WriteInt(stream, v);
             } else {
-                throw new Exception(string.Format("not support convert: {0}", type.Name));
+                throw new Exception(StringHelper.Format("not support convert: {0}", type.Name));
             }
 
             return true;

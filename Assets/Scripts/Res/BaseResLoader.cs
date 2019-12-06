@@ -127,7 +127,7 @@ public class BaseResLoader: CachedMonoBehaviour
 	{
 		if (matIdx < 0)
 			return string.Empty;
-		string ret = string.Format("_Mat_{0:D}", matIdx);
+		string ret = StringHelper.Format("_Mat_{0:D}", matIdx);
 		return ret;
 	}
 

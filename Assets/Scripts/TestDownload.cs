@@ -112,7 +112,7 @@ public class TestDownload : MonoBehaviour {
 			{
 				m_LastM = AutoUpdateMgr.Instance.CurDownM;
 				m_LastTotalM = AutoUpdateMgr.Instance.TotalDownM;
-				string s = string.Format("{0}/{1} M", m_LastM.ToString("F2"), m_LastTotalM.ToString("F2"));
+				string s = StringHelper.Format("{0}/{1} M", m_LastM.ToString("F2"), m_LastTotalM.ToString("F2"));
 				m_LbDown.text = s;
 			}
 		}

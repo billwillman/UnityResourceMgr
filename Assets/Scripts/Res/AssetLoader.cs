@@ -936,7 +936,7 @@ public class AssetInfo {
         //	if (/*IsVaild() &&*/ !IsUsing) {
         bool isVaild = IsVaild();
         m_OrgResMap.Clear();
-        // LogMgr.Instance.Log(string.Format("Bundle unload=>{0}", Path.GetFileNameWithoutExtension(mFileName)));
+        // LogMgr.Instance.Log(StringHelper.Format("Bundle unload=>{0}", Path.GetFileNameWithoutExtension(mFileName)));
         m_AsyncLoadDict.Clear();
         ClearUsingCnt();
         if (isVaild) {
@@ -1927,7 +1927,7 @@ public sealed class AssetLoader : IResourceLoader {
         if (!string.IsNullOrEmpty(ret))
             return ret;
 
-        ret = string.Format("{0}/{1}", WWWFileLoadTask.GetStreamingAssetsPath(true, isUseABCreateFromFile), fileName);
+        ret = StringHelper.Format("{0}/{1}", WWWFileLoadTask.GetStreamingAssetsPath(true, isUseABCreateFromFile), fileName);
 
         if (isWWW) {
             ret = WWWFileLoadTask.ConvertToWWWFileName(ret);
@@ -1942,7 +1942,7 @@ public sealed class AssetLoader : IResourceLoader {
             return ret;
         string writePath = Utils.FilePathMgr.Instance.WritePath;
         if (!string.IsNullOrEmpty(writePath)) {
-            string realFileName = string.Format("{0}/{1}", writePath, fileName);
+            string realFileName = StringHelper.Format("{0}/{1}", writePath, fileName);
             if (File.Exists(realFileName)) {
                 ret = realFileName;
                 if (isWWW)
@@ -2576,7 +2576,7 @@ public sealed class AssetLoader : IResourceLoader {
             // 1.Attribe
             string localFileName = node.GetValue("@fileName");
 
-            //string assetBundleFileName = string.Format("{0}/{1}", assetFilePath, localFileName);
+            //string assetBundleFileName = StringHelper.Format("{0}/{1}", assetFilePath, localFileName);
 
             string compressTypeStr = node.GetValue("@compressType");
             AssetCompressType compressType = AssetCompressType.astNone;
@@ -2651,7 +2651,7 @@ public sealed class AssetLoader : IResourceLoader {
                                 return;
                             }
 
-                            //string dependFileName = string.Format("{0}/{1}", assetFilePath, dependFile.GetValue("@fileName"));
+                            //string dependFileName = StringHelper.Format("{0}/{1}", assetFilePath, dependFile.GetValue("@fileName"));
                             string localDependFileName = dependFile.GetValue("@fileName");
                             string dependFileName = GetCheckFileName(ref fileRealMap, localDependFileName, false, isUseCreateFromFile);
 
@@ -2850,7 +2850,7 @@ private string GetCheckFileName(ref Dictionary<string, string> fileRealMap, stri
                 mAssetFileNameMap[fileName] = asset;
             else {
                 if (find != asset) {
-                    string err = string.Format("[AssetBundle: {0}] not compare!!!", fileName);
+                    string err = StringHelper.Format("[AssetBundle: {0}] not compare!!!", fileName);
                     LogMgr.Instance.LogError(err);
                 }
 

@@ -326,18 +326,18 @@ class AssetBunbleInfo: IDependBinary
 			bool b = (string.Compare (ext, ".unity", true) == 0);
 			if ((i > 0) && (isSceneFiles != b))
 			{
-				// string errStr = string.Format("AssetBundle [{0}] don't has Scene and other type files", Path);
-				// Debug.LogError(errStr);
-				// FileType = AssetBundleFileType.abError;
-				// return;
-				isRemoveScene = true;
+                // string errStr = StringHelper.Format("AssetBundle [{0}] don't has Scene and other type files", Path);
+                // Debug.LogError(errStr);
+                // FileType = AssetBundleFileType.abError;
+                // return;
+                isRemoveScene = true;
 			}
 
 			isSceneFiles = b;
 		}
 
 		if (isRemoveScene) {
-			string errStr = string.Format("AssetBundle [{0}] don't has Scene and other type files(so remove Scene)", Path);
+			string errStr = StringHelper.Format("AssetBundle [{0}] don't has Scene and other type files(so remove Scene)", Path);
 			Debug.LogWarning(errStr);
 
 			isSceneFiles = false;
@@ -731,7 +731,7 @@ class AssetBunbleInfo: IDependBinary
 			Debug.Log("\t\t[子文件名] " + fileName);
 		}
 
-		Debug.Log (string.Format("\t[依赖数量: {0}] [总依赖数量: {1}] ", System.Convert.ToString (DependFileCount),
+		Debug.Log (StringHelper.Format("\t[依赖数量: {0}] [总依赖数量: {1}] ", System.Convert.ToString (DependFileCount),
 		                         									   System.Convert.ToString (AllDependCount)));
 		for (int i = 0; i < DependFileCount; ++i) {
 			string depend = GetDependFiles(i);
@@ -1376,7 +1376,7 @@ class AssetBundleMgr
 		int curIdx = 0;
 		while (true)
 		{
-			string dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
+			string dstDir = StringHelper.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
 			int curCnt;
 			if (cfg.GetDstDirCnt(dstDir, out curCnt))
 			{
@@ -1398,7 +1398,7 @@ class AssetBundleMgr
 			if (cfg.ContainsLink(srcFileName))
 				continue;
 
-			string dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
+			string dstDir = StringHelper.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
 			int curCnt;
 
 			while (true)
@@ -1411,13 +1411,13 @@ class AssetBundleMgr
 				if (curCnt + 1 > maxCnt)
 				{
 					++curIdx;
-					dstDir = string.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
+					dstDir = StringHelper.Format("{0}/@{1}{2:D}", splitDir, subDir, curIdx);
 				} else
 					break;
 			}
 
 
-			string dstFileName = string.Format("{0}/{1}", dstDir, Path.GetFileName(srcFileName));
+			string dstFileName = StringHelper.Format("{0}/{1}", dstDir, Path.GetFileName(srcFileName));
 			cfg.AddLink(srcFileName, dstFileName);
 			++curCnt;
 		}
@@ -1554,7 +1554,7 @@ class AssetBundleMgr
 						info.BundleFileName, depFileName);
 
 					if (fileList != null) {
-						string key = string.Format("{0}=>has contains: {1}", subFileName, depFileName);
+						string key = StringHelper.Format("{0}=>has contains: {1}", subFileName, depFileName);
                             if (!fileList.Contains(key))
                                 fileList.Add(key);
                     }
@@ -1594,7 +1594,7 @@ class AssetBundleMgr
 				{
 					if (!string.IsNullOrEmpty(iter.Current))
 					{
-						string s = string.Format("{0}\r\n", iter.Current);
+						string s = StringHelper.Format("{0}\r\n", iter.Current);
 						byte[] buf = System.Text.Encoding.ASCII.GetBytes(s);
 						if (buf != null && buf.Length > 0)
 						{
@@ -1826,7 +1826,7 @@ class AssetBundleMgr
                 return;
 
             // 删除原来的数据
-            string outPath = string.Format("{0}/Assets/StreamingAssets", outPrjRootPath);
+            string outPath = StringHelper.Format("{0}/Assets/StreamingAssets", outPrjRootPath);
             outPath = CreateAssetBundleDir(platform, outPath);
             if (System.IO.Directory.Exists(outPath)) {
                 string[] localFiles = Directory.GetFiles(outPath, "*.*", SearchOption.TopDirectoryOnly);
@@ -1846,7 +1846,7 @@ class AssetBundleMgr
                 for (int i = 0; i < files.Length; ++i) {
                     string file = files[i];
                     string fileName = Path.GetFileName(file);
-                    string dstFile = string.Format("{0}/{1}", outPath, fileName);
+                    string dstFile = StringHelper.Format("{0}/{1}", outPath, fileName);
                     File.Copy(file, dstFile, true);
                 }
             }
@@ -2078,14 +2078,14 @@ class AssetBundleMgr
 					AssetBunbleInfo depInfo;
 					if ((!mAssetBundleMap.TryGetValue(fileName, out depInfo)) || (depInfo == null))
 					{
-						string errStr = string.Format("AssetBundle [{0}] depend file: {1} is not exists", info.Path, fileName);
+						string errStr = StringHelper.Format("AssetBundle [{0}] depend file: {1} is not exists", info.Path, fileName);
 						Debug.LogError(errStr);
 						return;
 					}
 				    
 					if ((!depInfo.IsBuilded) && (depInfo.AllDependCount != info.AllDependCount))
 					{
-						string errStr = string.Format("AssetBundle [{0}] depend file: {1} is not build first", info.Path, fileName);
+						string errStr = StringHelper.Format("AssetBundle [{0}] depend file: {1} is not build first", info.Path, fileName);
 						Debug.LogError(errStr);
 						return;
 					}
@@ -2096,11 +2096,11 @@ class AssetBundleMgr
 
 		// Create AssetBundle
 		string localOutFileName = info.BundleFileName;
-		string outFileName = string.Format("{0}/{1}", exportDir, localOutFileName);
+		string outFileName = StringHelper.Format("{0}/{1}", exportDir, localOutFileName);
 		if (info.IsScene) {
 			string[] fileArr = info.GetSubFiles ();
 			if (fileArr == null) {
-				string errStr = string.Format ("AssetBundle [{0}] Subfiles is empty", info.Path);
+				string errStr = StringHelper.Format ("AssetBundle [{0}] Subfiles is empty", info.Path);
 				Debug.LogError (errStr);
 				return;
 			}
@@ -2129,7 +2129,7 @@ class AssetBundleMgr
 				UnityEngine.Object mainAsset = AssetDatabase.LoadMainAssetAtPath(mainFileName);
 				if (mainAsset == null)
 				{
-					string errStr = string.Format ("AssetBundle [{0}] Subfiles has null UnityObject", info.Path);
+					string errStr = StringHelper.Format ("AssetBundle [{0}] Subfiles has null UnityObject", info.Path);
 					Debug.LogError (errStr);
 					return;
 				}
@@ -2137,7 +2137,7 @@ class AssetBundleMgr
 				bool ret = BuildPipeline.BuildAssetBundle(mainAsset, null, outFileName, buildOpts, target);
 				if (!ret)
 				{
-					string errStr = string.Format ("AssetBundle [{0}] build not ok", info.Path);
+					string errStr = StringHelper.Format ("AssetBundle [{0}] build not ok", info.Path);
 					Debug.LogError (errStr);
 					return;
 				}
@@ -2158,7 +2158,7 @@ class AssetBundleMgr
 
 					if (t == null)
 					{
-						string errStr = string.Format ("AssetBundle [{0}] Subfile [{1}] has null Type", info.Path, subFileName);
+						string errStr = StringHelper.Format ("AssetBundle [{0}] Subfile [{1}] has null Type", info.Path, subFileName);
 						Debug.LogError (errStr);
 						return;
 					}
@@ -2166,7 +2166,7 @@ class AssetBundleMgr
 					UnityEngine.Object asset = AssetDatabase.LoadAssetAtPath(subFileName, t);
 					if (asset == null)
 					{
-						string errStr = string.Format ("AssetBundle [{0}] Subfile [{1}] has null UnityObject", info.Path, subFileName);
+						string errStr = StringHelper.Format ("AssetBundle [{0}] Subfile [{1}] has null UnityObject", info.Path, subFileName);
 						Debug.LogError (errStr);
 						return;
 					}
@@ -2177,7 +2177,7 @@ class AssetBundleMgr
 				bool ret = BuildPipeline.BuildAssetBundle(null, assetObjs.ToArray(), outFileName, buildOpts, target);
 				if (!ret)
 				{
-					string errStr = string.Format ("AssetBundle [{0}] build not ok", info.Path);
+					string errStr = StringHelper.Format ("AssetBundle [{0}] build not ok", info.Path);
 					Debug.LogError (errStr);
 					return;
 				}
@@ -2187,9 +2187,9 @@ class AssetBundleMgr
 			}
 		}
 #endif
-	}
+    }
 
-	private void ResetAssetBundleInfo ()
+    private void ResetAssetBundleInfo ()
 	{
 		for (int i = 0; i < mAssetBundleList.Count; ++i) {
 			AssetBunbleInfo info = mAssetBundleList[i];
@@ -2225,7 +2225,7 @@ class AssetBundleMgr
 #if USE_DEP_BINARY_AB
         string fileName = "Assets/AssetBundles.xml";
 #else
-		string fileName = string.Format ("{0}/AssetBundles.xml", fullPath);
+		string fileName = StringHelper.Format ("{0}/AssetBundles.xml", fullPath);
 #endif
         if (System.IO.File.Exists(fileName)) {
             System.IO.File.Delete(fileName);
@@ -2263,8 +2263,8 @@ class AssetBundleMgr
     }
 #endif
 
-	// 导出二进制
-	private void ExportBinarys(string exportPath, bool isMd5)
+    // 导出二进制
+    private void ExportBinarys(string exportPath, bool isMd5)
 	{
 		if (string.IsNullOrEmpty (exportPath))
 			return;
@@ -2274,9 +2274,9 @@ class AssetBundleMgr
 #if USE_DEP_BINARY_AB
 		string fileName = "Assets/AssetBundles.xml";
 #else
-		string fileName = string.Format ("{0}/AssetBundles.xml", fullPath);
+		string fileName = StringHelper.Format ("{0}/AssetBundles.xml", fullPath);
 #endif
-		if (System.IO.File.Exists (fileName)) {
+        if (System.IO.File.Exists (fileName)) {
 			System.IO.File.Delete(fileName);
 		}
 
@@ -2334,7 +2334,7 @@ class AssetBundleMgr
 		string fullPath = Path.GetFullPath (exportPath);
 		if (string.IsNullOrEmpty (fullPath))
 			return;
-		string fileName = string.Format ("{0}/AssetBundles.xml", fullPath);
+		string fileName = StringHelper.Format ("{0}/AssetBundles.xml", fullPath);
 		if (System.IO.File.Exists (fileName)) {
 			System.IO.File.Delete(fileName);
 		}
@@ -2370,7 +2370,7 @@ class AssetBundleMgr
         for (int i = 0; i < files.Length; ++i)
         {
             string fileName = Path.GetFileName(files[i]);
-            fileName = string.Format("{0}/{1}", outPath, fileName);
+            fileName = StringHelper.Format("{0}/{1}", outPath, fileName);
             File.Copy(files[i], fileName, true);
         }
 #endif
@@ -2463,7 +2463,7 @@ class AssetBundleMgr
         }
         msbuildPath = msbuildPath.Replace('/', '\\');
 
-        string preCmd = string.Format("start /D \"{0}\" /B", msbuildPath);
+        string preCmd = StringHelper.Format("start /D \"{0}\" /B", msbuildPath);
 #else
         string unityEditorPath = GetUnityEditorPath();
 		if (string.IsNullOrEmpty(unityEditorPath))
@@ -2474,7 +2474,7 @@ class AssetBundleMgr
 
 		unityEditorPath = unityEditorPath.Replace('/', '\\');
 
-		string preCmd = string.Format("start /D \"{0}\\Data\\MonoBleedingEdge\\bin\" /B", unityEditorPath);
+		string preCmd = StringHelper.Format("start /D \"{0}\\Data\\MonoBleedingEdge\\bin\" /B", unityEditorPath);
 		//string preCmd = "start /B";
 #endif
 
@@ -2487,9 +2487,9 @@ class AssetBundleMgr
 		{
             defines = defines.Replace(';', ',');
 			// 处理一下没有用的编译指令
-			cmdDefines = string.Format(" /p:DefineConstants=\"{0}\"", defines);
+			cmdDefines = StringHelper.Format(" /p:DefineConstants=\"{0}\"", defines);
 		}
-		string cmd = string.Format("{0} {1} /property:AllowUnsafeBlocks=true {2} /p:Configuration=Release{3}", preCmd, buildExe, ProjFileName, cmdDefines);
+		string cmd = StringHelper.Format("{0} {1} /property:AllowUnsafeBlocks=true {2} /p:Configuration=Release{3}", preCmd, buildExe, ProjFileName, cmdDefines);
 		AssetBundleBuild.RunCmd(cmd);
       //  Debug.LogError(cmd);
 		return true;
@@ -2536,7 +2536,7 @@ class AssetBundleMgr
 			string s = csharpFiles[i];
 
 			string dllFileName = System.IO.Path.GetFileNameWithoutExtension(s) + ".dll";
-			string f = string.Format("{0}/Temp/bin/Release/{1}", rootPath, dllFileName);
+			string f = StringHelper.Format("{0}/Temp/bin/Release/{1}", rootPath, dllFileName);
 
 			if (File.Exists(f))
 			{
@@ -2649,7 +2649,7 @@ class AssetBundleMgr
 		if (!AutoUpdateMgr.GetResVerByFileName(fileListFileName1, out ver, out myFileListMd5, out zz))
 			return;
 
-		fileListFileName1 = string.Format("{0}/{1}.txt", resDir, myFileListMd5);
+		fileListFileName1 = StringHelper.Format("{0}/{1}.txt", resDir, myFileListMd5);
 
 		// 生成个版本ZIP包
 		// 写入ZIP版本位置(只写在更新的version里)
@@ -2675,7 +2675,7 @@ class AssetBundleMgr
 					if (string.Compare(version, subName) == 0)
 						continue;
 
-					string ff = string.Format("{0}/version.txt", subDir);
+					string ff = StringHelper.Format("{0}/version.txt", subDir);
 					if (!File.Exists(ff))
 						continue;
 
@@ -2684,7 +2684,7 @@ class AssetBundleMgr
 					if (!AutoUpdateMgr.GetResVerByFileName(ff, out ver, out oflMd5, out ozz))
 						continue;
 
-					string ofl = string.Format("{0}/{1}.txt", subDir, oflMd5);
+					string ofl = StringHelper.Format("{0}/{1}.txt", subDir, oflMd5);
 					if (!File.Exists(ofl))
 						continue;
 
@@ -2693,18 +2693,18 @@ class AssetBundleMgr
 						continue;
 
 					// 要生成两个ZIP包
-					string zipFileName = string.Format("{0}/{1}.zip", outPath, ZipTools.GetZipFileName(version, subName));
+					string zipFileName = StringHelper.Format("{0}/{1}.zip", outPath, ZipTools.GetZipFileName(version, subName));
 					if (File.Exists(zipFileName))
 						File.Delete(zipFileName);
 
-					zipFileName = string.Format("{0}/{1}.zip", outPath, ZipTools.GetZipFileName(subName, version));
+					zipFileName = StringHelper.Format("{0}/{1}.zip", outPath, ZipTools.GetZipFileName(subName, version));
 					if (File.Exists(zipFileName))
 						File.Delete(zipFileName);
 
 					if (ZipTools.BuildVersionZip(outPath, version, subName, myResFileList, otherFileList, oflMd5))
 					{
 						string zipName = ZipTools.GetZipFileName(version, subName);
-						string fileName = string.Format("{0}/{1}.zip", outPath, zipName);
+						string fileName = StringHelper.Format("{0}/{1}.zip", outPath, zipName);
 
 						// 根据ZIP内容生成MD5
 						string md5Str = string.Empty;
@@ -2727,16 +2727,16 @@ class AssetBundleMgr
 						if (!string.IsNullOrEmpty(md5Str))
 						{
 							if (string.IsNullOrEmpty(zipStr))
-								zipStr = string.Format("{0}={1}.zip", zipName, md5Str);
+								zipStr = StringHelper.Format("{0}={1}.zip", zipName, md5Str);
 							else
-								zipStr += string.Format("\r\n{0}={1}.zip", zipName, md5Str);
+								zipStr += StringHelper.Format("\r\n{0}={1}.zip", zipName, md5Str);
 						}
 					}
 
 					if (ZipTools.BuildVersionZip(outPath, subName, version, otherFileList, myResFileList, myFileListMd5))
 					{
 						string zipName = ZipTools.GetZipFileName(subName, version);
-						string fileName = string.Format("{0}/{1}.zip", outPath, zipName);
+						string fileName = StringHelper.Format("{0}/{1}.zip", outPath, zipName);
 
 						// 根据ZIP内容生成MD5
 						string md5Str = string.Empty;
@@ -2759,9 +2759,9 @@ class AssetBundleMgr
 						if (!string.IsNullOrEmpty(md5Str))
 						{
 							if (string.IsNullOrEmpty(zipStr))
-								zipStr = string.Format("{0}={1}.zip", zipName, md5Str);
+								zipStr = StringHelper.Format("{0}={1}.zip", zipName, md5Str);
 							else
-								zipStr += string.Format("\r\n{0}={1}.zip", zipName, md5Str);
+								zipStr += StringHelper.Format("\r\n{0}={1}.zip", zipName, md5Str);
 						}
 					}
 				}
@@ -2777,7 +2777,7 @@ class AssetBundleMgr
 					}
 					zipVerMd5 = zipVerMd5.ToLower();
 
-					string zipVerStr = string.Format("\r\nzip={0}", zipVerMd5);
+					string zipVerStr = StringHelper.Format("\r\nzip={0}", zipVerMd5);
 					byte[] zipVerBytes = System.Text.Encoding.ASCII.GetBytes(zipVerStr);
 
 					// 写入version.txt
@@ -2805,7 +2805,7 @@ class AssetBundleMgr
 		{
 			if (File.Exists(zipVerFileName))
 			{
-				string zipVerMd5FileName = string.Format("{0}/{1}.txt", outPath, zipVerMd5);
+				string zipVerMd5FileName = StringHelper.Format("{0}/{1}.txt", outPath, zipVerMd5);
 				if (File.Exists(zipVerMd5FileName))
 					File.Delete(zipVerMd5FileName);
 				File.Move(zipVerFileName, zipVerMd5FileName);
@@ -2836,7 +2836,7 @@ class AssetBundleMgr
                 manifestFileName = streamAssetsPath + '/' + manifestFileName + ".manifest";
                 if (File.Exists(manifestFileName)) {
                     string targetManifestFileName = Path.GetFileName(manifestFileName);
-                    targetManifestFileName = string.Format("{0}/{1}", resDir, targetManifestFileName);
+                    targetManifestFileName = StringHelper.Format("{0}/{1}", resDir, targetManifestFileName);
                     File.Copy(manifestFileName, targetManifestFileName, true);
                 }
             }
@@ -2888,7 +2888,7 @@ class AssetBundleMgr
 				string bundleFileName = info.BundleFileName;
 				if (string.IsNullOrEmpty(bundleFileName) || string.IsNullOrEmpty(md5FileName) || string.IsNullOrEmpty(newMd5FileName))
 					continue;
-				string fileCompareStr = string.Format("{0}={1}", md5FileName, newMd5FileName);
+				string fileCompareStr = StringHelper.Format("{0}={1}", md5FileName, newMd5FileName);
 
 				bundleFileName = streamAssetsPath + '/' + bundleFileName;
                 if (!File.Exists(bundleFileName))
@@ -2898,7 +2898,7 @@ class AssetBundleMgr
 				{
 					FileInfo fileInfo = new FileInfo(bundleFileName);
 					long fileSize = fileInfo.Length;
-					fileCompareStr += string.Format(";{0}", fileSize.ToString());
+					fileCompareStr += StringHelper.Format(";{0}", fileSize.ToString());
 
 					fileList.Add(fileCompareStr);
 					if (!File.Exists(newMd5FileName))
@@ -2956,7 +2956,7 @@ class AssetBundleMgr
 		try
 		{
 			string fileListMd5 = AssetBunbleInfo.Md5(fileListFileName, false);
-			string versionStr = string.Format("res={0}\r\nfileList={1}", version, fileListMd5);
+			string versionStr = StringHelper.Format("res={0}\r\nfileList={1}", version, fileListMd5);
 			byte[] versionBytes = System.Text.Encoding.ASCII.GetBytes(versionStr);
 			fileStream.Write(versionBytes, 0, versionBytes.Length);
 		}
@@ -2978,7 +2978,7 @@ class AssetBundleMgr
 		outPath = outPath.Replace('\\', '/');
 
 		// 修改FileList文件名为MD5，来自version.txt
-		string versionFileName = string.Format("{0}/version.txt", outPath);
+		string versionFileName = StringHelper.Format("{0}/version.txt", outPath);
 		if (File.Exists(versionFileName))
 		{
 			// 读取version.txt中fileList的MD5信息
@@ -3012,10 +3012,10 @@ class AssetBundleMgr
 
 								if (!string.IsNullOrEmpty(fileListMd5))
 								{
-									string oldFileListFileName = string.Format("{0}/fileList.txt", outPath);
+									string oldFileListFileName = StringHelper.Format("{0}/fileList.txt", outPath);
 									if (File.Exists(oldFileListFileName))
 									{
-										string newFileListFileName = string.Format("{0}/{1}.txt", outPath, fileListMd5);
+										string newFileListFileName = StringHelper.Format("{0}/{1}.txt", outPath, fileListMd5);
 										File.Copy(oldFileListFileName, newFileListFileName, true);
 										File.Delete(oldFileListFileName);
 									}
@@ -3077,7 +3077,7 @@ class AssetBundleMgr
         var iter = md5FindFileName.GetEnumerator();
         FileStream md5FindStream = new FileStream("Assets/md5Find.txt", FileMode.Create);
         while (iter.MoveNext()) {
-            string s = string.Format("{0}={1}\r\n", iter.Current.Key, iter.Current.Value);
+            string s = StringHelper.Format("{0}={1}\r\n", iter.Current.Key, iter.Current.Value);
             byte[] buf = System.Text.Encoding.ASCII.GetBytes(s);
             if (buf != null && buf.Length > 0) {
                 md5FindStream.Write(buf, 0, buf.Length);
@@ -3157,14 +3157,14 @@ class AssetBundleMgr
 
         // 2.读取需要差异化的版本
         string rootDir = outPath;
-        string fileName = Path.GetFullPath(string.Format("{0}/{1}/version.txt", rootDir, lastVersion));
+        string fileName = Path.GetFullPath(StringHelper.Format("{0}/{1}/version.txt", rootDir, lastVersion));
         if (!File.Exists(fileName))
             return;
 
         string ver, zipMd5, fileListMd5;
         if (!AutoUpdateMgr.GetResVerByFileName(fileName, out ver, out fileListMd5, out zipMd5))
             return;
-        fileName = Path.GetFullPath(string.Format("{0}/{1}/{2}.txt", rootDir, lastVersion, fileListMd5));
+        fileName = Path.GetFullPath(StringHelper.Format("{0}/{1}/{2}.txt", rootDir, lastVersion, fileListMd5));
         if (!File.Exists(fileName))
             return;
 
@@ -3174,16 +3174,16 @@ class AssetBundleMgr
         // 3.转换拷贝名字
         var fileContentIter = resFile.GetFileContentMd5Iter();
         while (fileContentIter.MoveNext()) {
-            fileName = Path.GetFullPath(string.Format("{0}/{1}/{2}", rootDir, lastVersion, fileContentIter.Current.Key));
+            fileName = Path.GetFullPath(StringHelper.Format("{0}/{1}/{2}", rootDir, lastVersion, fileContentIter.Current.Key));
             if (File.Exists(fileName)) {
-                string dstFileName = string.Format("{0}/{1}", dstRoot, fileContentIter.Current.Value);
+                string dstFileName = StringHelper.Format("{0}/{1}", dstRoot, fileContentIter.Current.Value);
                 File.Copy(fileName, dstFileName, true);
             }
         }
         fileContentIter.Dispose();
 
         // Copy Mainfest
-        rootDir = string.Format("{0}/.manifest_{1}", rootDir, lastVersion);
+        rootDir = StringHelper.Format("{0}/.manifest_{1}", rootDir, lastVersion);
         if (Directory.Exists(rootDir)) {
             CopyBundleManifestFiles_5_x(rootDir, dstRoot);
         }
@@ -3275,10 +3275,10 @@ class AssetBundleMgr
 
 					AssetDatabase.Refresh();
 
-					string xmlSrcFile = string.Format("{0}/assetbundles.xml", exportDir);
+					string xmlSrcFile = StringHelper.Format("{0}/assetbundles.xml", exportDir);
 					if (File.Exists(xmlSrcFile))
 					{
-						string xmlDstFile = string.Format("{0}/AssetBundles.xml", exportDir);
+						string xmlDstFile = StringHelper.Format("{0}/AssetBundles.xml", exportDir);
 						File.Move(xmlSrcFile, xmlDstFile);
 						AssetDatabase.Refresh();
 					}
@@ -3314,7 +3314,7 @@ class AssetBundleMgr
         
         if (!Directory.Exists (streamingAssets))
             return;
-        string fileListFileName = Path.GetFullPath(string.Format("{0}/fileList.txt", streamingAssets));
+        string fileListFileName = Path.GetFullPath(StringHelper.Format("{0}/fileList.txt", streamingAssets));
         if (!File.Exists(fileListFileName))
             return;
         ResListFile resFile = new ResListFile();
@@ -3364,7 +3364,7 @@ class AssetBundleMgr
         if (string.IsNullOrEmpty(rootDir) || string.IsNullOrEmpty(version))
             return;
         
-        string fileName = Path.GetFullPath(string.Format("{0}/{1}/version.txt", rootDir, version));
+        string fileName = Path.GetFullPath(StringHelper.Format("{0}/{1}/version.txt", rootDir, version));
         if (!File.Exists(fileName))
             return;
         string ver, fileListMd5, zipMd5;
@@ -3372,7 +3372,7 @@ class AssetBundleMgr
             return;
 
         
-        string fileListMd5FileName = Path.GetFullPath(string.Format("{0}/{1}/{2}.txt", rootDir, version, fileListMd5));
+        string fileListMd5FileName = Path.GetFullPath(StringHelper.Format("{0}/{1}/{2}.txt", rootDir, version, fileListMd5));
         if (!File.Exists(fileListMd5FileName))
             return;
         ResListFile resFile = new ResListFile();
@@ -3380,7 +3380,7 @@ class AssetBundleMgr
             return;
 
         fileListMd5FileName = Path.GetFileName(fileListMd5FileName);
-        string dir = Path.GetFullPath(string.Format("{0}/{1}", rootDir, version));
+        string dir = Path.GetFullPath(StringHelper.Format("{0}/{1}", rootDir, version));
         string[] files = Directory.GetFiles(dir, "*.*", SearchOption.TopDirectoryOnly);
         if (files != null && files.Length > 0) {
             for (int i = 0; i < files.Length; ++i) {
@@ -3410,7 +3410,7 @@ class AssetBundleMgr
             // Copy CSharp的Dll
             BuildCSharpProjectUpdateFile(streamAssetsPath, "outPath", versionDir);
 			// 修改fileList的文件名为MD5
-			string fileListRootPath = string.Format("outPath/{0}", versionDir);
+			string fileListRootPath = StringHelper.Format("outPath/{0}", versionDir);
 			ChangeFileListFileNameToMd5(fileListRootPath);
             // 删除先打包目录下的冗余AB，以减少大小
             RemoveFilelistFileNameMd5NoContainsRes (platform, streamAssetsPath);
@@ -4758,7 +4758,7 @@ public static class AssetBundleBuild
 			break;
 		}
 
-		/*
+        /*
         if (isAppendBuild) {
             if (!Directory.Exists (copyManifest))
                 Directory.CreateDirectory (copyManifest);
@@ -4766,13 +4766,13 @@ public static class AssetBundleBuild
             if (files != null) {
                 for (int i = 0; i < files.Length; ++i) {
                     string fileName = Path.GetFileName (files [i]);
-                    string newFilePath = string.Format ("{0}/{1}", copyManifest, fileName);
+                    string newFilePath = StringHelper.Format ("{0}/{1}", copyManifest, fileName);
                     File.Copy (files [i], newFilePath, true);
                 }
             }
         }*/
 
-		mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
+        mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
 	}
 
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018
@@ -4867,7 +4867,7 @@ public static class AssetBundleBuild
 			break;
 		}
 
-		/*
+        /*
         if (isAppendBuild) {
             if (!Directory.Exists (copyManifest))
                 Directory.CreateDirectory (copyManifest);
@@ -4875,13 +4875,13 @@ public static class AssetBundleBuild
             if (files != null) {
                 for (int i = 0; i < files.Length; ++i) {
                     string fileName = Path.GetFileName (files [i]);
-                    string newFilePath = string.Format ("{0}/{1}", copyManifest, fileName);
+                    string newFilePath = StringHelper.Format ("{0}/{1}", copyManifest, fileName);
                     File.Copy (files [i], newFilePath, true);
                 }
             }
         }*/
 
-		mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
+        mMgr.RemoveBundleManifestFiles_5_x (rootManifest);
 
 		string logFileName = string.Empty;
 		string funcName = string.Empty;
@@ -4905,7 +4905,7 @@ public static class AssetBundleBuild
 		if (!string.IsNullOrEmpty(funcName))
 		{
 #if UNITY_EDITOR_WIN
-			string cmdApk = string.Format("Unity.exe -quit -batchmode -nographics -executeMethod {0} -logFile {1} -projectPath {2}", 
+			string cmdApk = StringHelper.Format("Unity.exe -quit -batchmode -nographics -executeMethod {0} -logFile {1} -projectPath {2}", 
 			                              funcName, logFileName, searchProjPath);
 			RunCmd(cmdApk);
 #endif
@@ -5051,18 +5051,18 @@ public static class AssetBundleBuild
 			
 			// SVN更新
 			for (int i = 1; i < resPaths.Count; ++i) {
-				string path = string.Format ("{0}/{1}", outPath, resPaths [i]);
+				string path = StringHelper.Format ("{0}/{1}", outPath, resPaths [i]);
 				path = Path.GetFullPath (path);
 				if (Directory.Exists (path)) {
 					// svn update
 #if UNITY_EDITOR_WIN
-					string cmd = string.Format("TortoiseProc.exe /command:update /path:\"{0}\" /closeonend:3", path);
+					string cmd = StringHelper.Format("TortoiseProc.exe /command:update /path:\"{0}\" /closeonend:3", path);
 					RunCmd(cmd);
 #endif
 				} else {
 					// svn checkout
 #if UNITY_EDITOR_WIN
-					string cmd = string.Format("TortoiseProc.exe /command:checkout /path:\"{0}\" /url:\"{1}/{2}\"", path, url, resPaths[i]);
+					string cmd = StringHelper.Format("TortoiseProc.exe /command:checkout /path:\"{0}\" /url:\"{1}/{2}\"", path, url, resPaths[i]);
 					RunCmd(cmd);
 #endif
 				}
@@ -5316,7 +5316,7 @@ public static class AssetBundleBuild
 
     // 打开文件夹对话框
     public static void InternalOpenFolder(string folder) {
-        folder = string.Format("\"{0}\"", folder);
+        folder = StringHelper.Format("\"{0}\"", folder);
         switch (Application.platform) {
             case RuntimePlatform.WindowsEditor:
                 System.Diagnostics.Process.Start("Explorer.exe", folder.Replace('/', '\\'));
@@ -5327,7 +5327,7 @@ public static class AssetBundleBuild
                 break;
 
             default:
-                throw new Exception(string.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
+                throw new Exception(StringHelper.Format("Not support open folder on '{0}' platform.", Application.platform.ToString()));
         }
     }
 

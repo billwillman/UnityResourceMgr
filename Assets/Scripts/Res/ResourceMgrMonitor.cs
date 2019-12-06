@@ -12,7 +12,7 @@ public class ResourceMgrMonitor: MonoBehaviour
 			UsedAssetCount = AssetCacheManager.Instance.UsedCacheCount;
 			NotUsedAssetCount = AssetCacheManager.Instance.NotUsedCacheList.Count;
 			float mem = (float)AssetCacheManager.Instance.GetCheckMemorySize () / (1024 * 1024);
-			CurrentMemory = string.Format ("{0}M", mem.ToString ());
+			CurrentMemory = StringHelper.Format ("{0}M", mem.ToString ());
 		}
 	} 
 

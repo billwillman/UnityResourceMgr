@@ -21,7 +21,7 @@ namespace AutoUpdate
 			}
 
 			string writePath = AutoUpdateMgr.Instance.WritePath;
-			string srcFileName = string.Format("{0}/{1}", writePath, AutoUpdateMgr._cFileListTxt);
+			string srcFileName = StringHelper.Format("{0}/{1}", writePath, AutoUpdateMgr._cFileListTxt);
 			if (!File.Exists(srcFileName))
 			{
 				// 直接生成写到update.txt里
@@ -86,7 +86,7 @@ namespace AutoUpdate
 			string ver = AutoUpdateMgr.Instance.CurrServeResrVersion;
 			// use fileList ContentMD5
 			string serverFileListMd5 = AutoUpdateMgr.Instance.ServerFileListContentMd5;
-			string url = string.Format("{0}/{1}/{2}.txt", resAddr, ver, serverFileListMd5);
+			string url = StringHelper.Format("{0}/{1}/{2}.txt", resAddr, ver, serverFileListMd5);
 			//AutoUpdateMgr.Instance.CreateHttpTxt(url, OnReadEvent, OnError);
 			AutoUpdateMgr.Instance.CreateHttpTxt(url, OnEnd); 
 		}

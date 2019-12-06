@@ -20,11 +20,11 @@ public class LuaLoader: LuaFileUtils
 		bool isLuaExt = fileName.EndsWith(_cResLuaExt);
 		if (!isLuaExt)
 			fileName = Path.ChangeExtension(fileName, _cResLuaExt);
-		string resFileName = string.Format("{0}/{1}", LuaConst.resToLuaDir, fileName);
+		string resFileName = StringHelper.Format("{0}/{1}", LuaConst.resToLuaDir, fileName);
 		byte[] ret = ResourceMgr.Instance.LoadBytes(resFileName);
 		if (ret == null)
 		{
-			resFileName = string.Format("{0}/{1}", LuaConst.resLuaDir, fileName);
+			resFileName = StringHelper.Format("{0}/{1}", LuaConst.resLuaDir, fileName);
 			ret = ResourceMgr.Instance.LoadBytes(resFileName);
 		}
 		#if DEBUG

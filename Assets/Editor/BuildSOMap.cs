@@ -67,7 +67,7 @@ namespace NsLib {
             }
 
 #if UNITY_EDITOR_WIN
-            string dirPath = string.Format("{0}/Data/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Symbols/armeabi-v7a", unityEditorPath);
+            string dirPath = StringHelper.Format("{0}/Data/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Symbols/armeabi-v7a", unityEditorPath);
             if (Directory.Exists(dirPath)) {
                 string[] soFiles = Directory.GetFiles(dirPath, "*.so", SearchOption.AllDirectories);
 
@@ -79,7 +79,7 @@ namespace NsLib {
                 soFileNameList.AddRange(soFiles);
             }
 
-            dirPath = string.Format("{0}/Data/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Symbols/x86", unityEditorPath);
+            dirPath = StringHelper.Format("{0}/Data/PlaybackEngines/AndroidPlayer/Variations/mono/Release/Symbols/x86", unityEditorPath);
             if (Directory.Exists(dirPath)) {
                 string[] soFiles = Directory.GetFiles(dirPath, "*.so", SearchOption.AllDirectories);
 
@@ -112,7 +112,7 @@ namespace NsLib {
                     Debug.LogErrorFormat("没有找到SO根路径{0}", m_UnZipSoDir);
                 return;
             }
-            string libDir = string.Format("{0}/lib", m_UnZipSoDir);
+            string libDir = StringHelper.Format("{0}/lib", m_UnZipSoDir);
             if (!Directory.Exists(libDir)) {
                 if (m_IsDebugLog) {
                     Debug.LogErrorFormat("没有找到SO lib路径{0}", libDir);
@@ -159,19 +159,19 @@ namespace NsLib {
                 return;
             }
 
-            string newBuildSODir = string.Format("{0}/so_map", m_UnZipSoDir).Replace('\\', '/');
+            string newBuildSODir = StringHelper.Format("{0}/so_map", m_UnZipSoDir).Replace('\\', '/');
             try {
                 // 再将所有的SO拷贝到一个目录下，用工具生成
                 if (!Directory.Exists(newBuildSODir)) {
                     Directory.CreateDirectory(newBuildSODir);
                     // 生成三个Directory
-                    string newDir = string.Format("{0}/armeabi-v7a", newBuildSODir);
+                    string newDir = StringHelper.Format("{0}/armeabi-v7a", newBuildSODir);
                     Directory.CreateDirectory(newDir);
 
-                    newDir = string.Format("{0}/x86", newBuildSODir);
+                    newDir = StringHelper.Format("{0}/x86", newBuildSODir);
                     Directory.CreateDirectory(newDir);
 
-                    newDir = string.Format("{0}/armeabi", newBuildSODir);
+                    newDir = StringHelper.Format("{0}/armeabi", newBuildSODir);
                     Directory.CreateDirectory(newDir);
                 }
             } catch {
@@ -185,11 +185,11 @@ namespace NsLib {
                     string srcFileName = soFileNameList[i];
                     string dstFileName;
                     if (srcFileName.IndexOf("/armeabi/", StringComparison.CurrentCultureIgnoreCase) >= 0)
-                        dstFileName = string.Format("{0}/armeabi/{1}", newBuildSODir, Path.GetFileName(srcFileName));
+                        dstFileName = StringHelper.Format("{0}/armeabi/{1}", newBuildSODir, Path.GetFileName(srcFileName));
                     else if (srcFileName.IndexOf("/x86/", StringComparison.CurrentCultureIgnoreCase) >= 0)
-                        dstFileName = string.Format("{0}/x86/{1}", newBuildSODir, Path.GetFileName(srcFileName));
+                        dstFileName = StringHelper.Format("{0}/x86/{1}", newBuildSODir, Path.GetFileName(srcFileName));
                     else if (srcFileName.IndexOf("/armeabi-v7a/", StringComparison.CurrentCultureIgnoreCase) >= 0)
-                        dstFileName = string.Format("{0}/armeabi-v7a/{1}", newBuildSODir, Path.GetFileName(srcFileName));
+                        dstFileName = StringHelper.Format("{0}/armeabi-v7a/{1}", newBuildSODir, Path.GetFileName(srcFileName));
                     else {
                         if (m_IsDebugLog)
                             Debug.LogErrorFormat("This so file not Copy: {0}", srcFileName);
@@ -211,7 +211,7 @@ namespace NsLib {
             // WINDOWS平台
 			// Proj工程目录
             string cmdToolPath = "../../../符号表工具/buglySymbolAndroid";
-            string cmd = string.Format("java -jar {0}/buglySymbolAndroid.jar -i {1}", cmdToolPath, newBuildSODir);
+            string cmd = StringHelper.Format("java -jar {0}/buglySymbolAndroid.jar -i {1}", cmdToolPath, newBuildSODir);
             AssetBundleBuild.RunCmd(cmd);
 #elif UNITY_EDITOR_OSX
             // MAC平台, 暂时还没写
@@ -262,7 +262,7 @@ namespace NsLib {
                 Debug.Log("=========>>>>>>开始解压APK>>>>>>>>======");
             }
 
-            string exportDir = string.Format("{0}/{1}", Path.GetDirectoryName(apkFileName), Path.GetFileNameWithoutExtension(apkFileName));
+            string exportDir = StringHelper.Format("{0}/{1}", Path.GetDirectoryName(apkFileName), Path.GetFileNameWithoutExtension(apkFileName));
             m_UnZipSoDir = exportDir.Replace('\\', '/');
 
             try {

@@ -41,7 +41,7 @@ namespace NsLib.ApkUpdate
             string diffMd5 = target.GetNewApkDiffMd5();
             // 删除其他APK
             target.ClearApk(diffMd5);
-            string apkFileName = string.Format("{0}/{1}.apk", SavePath, diffMd5);
+            string apkFileName = StringHelper.Format("{0}/{1}.apk", SavePath, diffMd5);
             if (File.Exists(apkFileName))
             {
                 // 文件存在

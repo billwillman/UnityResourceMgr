@@ -176,7 +176,7 @@ namespace NsLib.ApkUpdate
         {
             if (m_DiffApkMap == null)
                 return null;
-            string key = string.Format("%d-%d", oldVerCode, newVerCode);
+            string key = StringHelper.Format("%d-%d", oldVerCode, newVerCode);
             DiffApkInfo ret;
             if (!m_DiffApkMap.TryGetValue(key, out ret))
                 ret = null;

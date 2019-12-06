@@ -97,7 +97,7 @@ public class BuildPkg
 	{
         if (string.IsNullOrEmpty(str) || string.IsNullOrEmpty(section))
             return null;
-        section = string.Format("[{0}]", section);
+        section = StringHelper.Format("[{0}]", section);
         int idx = str.IndexOf(section, StringComparison.CurrentCultureIgnoreCase);
         if (idx < 0)
             return null;

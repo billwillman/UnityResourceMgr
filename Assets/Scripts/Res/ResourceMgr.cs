@@ -30,14 +30,14 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			return false;*/
 
 		if (mAssetLoader.OnSceneLoad (sceneName)) {
-			LogMgr.Instance.Log (string.Format ("Loading AssetBundle Scene: {0}", sceneName));
+			LogMgr.Instance.Log (StringHelper.Format ("Loading AssetBundle Scene: {0}", sceneName));
 		} else {
 #if UNITY_EDITOR
 			if (!Application.CanStreamedLevelBeLoaded (sceneName))
 				return false;
 #endif
 			if (mResLoader.OnSceneLoad(sceneName))
-				LogMgr.Instance.Log(string.Format("Loading Resources Scene: {0}", sceneName));
+				LogMgr.Instance.Log(StringHelper.Format("Loading Resources Scene: {0}", sceneName));
 			else
 				return false;
 		}
@@ -110,7 +110,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		                                   delegate {
 												DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive, priority);
 										}, priority)) {
-			LogMgr.Instance.Log (string.Format ("Loading AssetBundle Scene: {0}", sceneName));
+			LogMgr.Instance.Log (StringHelper.Format ("Loading AssetBundle Scene: {0}", sceneName));
 		} else {
 #if UNITY_EDITOR
 			if (!Application.CanStreamedLevelBeLoaded (sceneName))
@@ -120,7 +120,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			                                delegate {
 												DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive, priority);
 											}, priority))
-				LogMgr.Instance.Log(string.Format("Loading Resources Scene: {0}", sceneName));
+				LogMgr.Instance.Log(StringHelper.Format("Loading Resources Scene: {0}", sceneName));
 			else
 				return false;
 		}
