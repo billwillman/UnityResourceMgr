@@ -1102,7 +1102,8 @@ public sealed class AssetLoader : IResourceLoader {
 #if USE_LOWERCHAR
 		sceneName = sceneName.ToLower();
 #endif
-        sceneName += ".unity";
+        //sceneName += ".unity";
+        sceneName = StringHelper.Concat(sceneName, ".unity");
         AssetInfo asset = FindAssetInfo(sceneName);
         if (asset == null)
             return false;
@@ -1122,7 +1123,8 @@ public sealed class AssetLoader : IResourceLoader {
 #if USE_LOWERCHAR
 		sceneName = sceneName.ToLower();
 #endif
-        sceneName += ".unity";
+        //sceneName += ".unity";
+        sceneName = StringHelper.Concat(sceneName, ".unity");
         AssetInfo asset = FindAssetInfo(sceneName);
         if (asset == null)
             return false;
@@ -1177,7 +1179,8 @@ public sealed class AssetLoader : IResourceLoader {
 #if USE_LOWERCHAR
 		sceneName = sceneName.ToLower();
 #endif
-        sceneName += ".unity";
+        //sceneName += ".unity";
+        sceneName = StringHelper.Concat(sceneName, ".unity");
         AssetInfo asset = FindAssetInfo(sceneName);
         if (asset == null)
             return false;
