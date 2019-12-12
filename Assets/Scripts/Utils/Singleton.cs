@@ -47,6 +47,9 @@ public class SingetonMono<T> : CachedMonoBehaviour where T : CachedMonoBehaviour
     {
         get
         {
+            if (m_IsDestroy)
+                return null;
+
             if (m_Instance == null)
             {
                 GameObject gameObj = new GameObject();
@@ -64,11 +67,16 @@ public class SingetonMono<T> : CachedMonoBehaviour where T : CachedMonoBehaviour
 
     public static void DestroyInstance()
     {
-        if (m_Instance == null)
+        if (m_Instance == null || m_IsDestroy)
             return;
         GameObject gameObj = m_Instance.CachedGameObject;
         ResourceMgr.Instance.DestroyObject(gameObj);
     }
 
+    void OnDestroy() {
+        m_IsDestroy = true;
+    }
+
     protected static T m_Instance = null;
+    protected static bool m_IsDestroy = false;
 }
