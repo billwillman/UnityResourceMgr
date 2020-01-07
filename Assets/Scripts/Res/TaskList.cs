@@ -146,14 +146,14 @@ public class BundleCreateAsyncTask: ITask
 
 	public AssetBundle StartLoad()
 	{
-		if (m_Req == null)
-		{
-			m_Req = AssetBundle.LoadFromFileAsync(m_FileName);
+        if (m_Req == null) {
+            m_Req = AssetBundle.LoadFromFileAsync(m_FileName);
             if (m_Req != null) {
                 m_Req.priority = m_Priority;
                 return m_Req.assetBundle;
             }
-		}
+        } else
+            return m_Req.assetBundle;
 
         return null;
 	}
@@ -168,7 +168,7 @@ public class BundleCreateAsyncTask: ITask
 	public override void Process()
 	{
 		// 可以加载后面的LOAD
-		//StartLoad();
+		StartLoad();
 
 		if (m_Req == null)
 		{
@@ -540,18 +540,25 @@ public class WWWFileLoadTask: ITask
 		InPool(this);
 	}
 
-	public override void Process()
-	{
-		if (mLoader == null) {
+    // 手动Load, 可以调也可以不调
+    public AssetBundle StartLoad() {
+        if (mLoader == null) {
             if (IsUsedCached)
                 mLoader = WWW.LoadFromCacheOrDownload(mWWWFileName, 0);
             else
-			    mLoader = new WWW (mWWWFileName);
+                mLoader = new WWW(mWWWFileName);
 
-			mLoader.threadPriority = mPriority;
-		}
+            mLoader.threadPriority = mPriority;
+            return mLoader.assetBundle;
+        } else
+            return mLoader.assetBundle;
+    }
 
-		if (mLoader == null) {
+	public override void Process()
+	{
+        StartLoad();
+
+        if (mLoader == null) {
 			TaskFail();
 			return;
 		}

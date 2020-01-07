@@ -537,6 +537,11 @@ public class AssetInfo {
 #if USE_WWWCACHE
             m_WWWTask.IsUsedCached = true;
 #endif
+            //------------------ 手动加载一下
+            AssetBundle bd = m_WWWTask.StartLoad();
+            if (bd != null)
+                mBundle = bd;
+            //--------------------
             m_WWWTask.UserData = this;
             taskList.AddTask(m_WWWTask, true);
             if (taskList.UserData != null) {
