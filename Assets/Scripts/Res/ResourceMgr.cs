@@ -318,6 +318,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			if (clip.loadState == AudioDataLoadState.Loading || clip.loadState == AudioDataLoadState.Unloaded)
 				yield return null;
 			else {
+				if (!clip.UnloadAudioData ())
+					yield return null;
 				ABUnloadFalse (clip, true);
 				break;
 			}
