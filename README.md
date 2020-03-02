@@ -41,7 +41,7 @@
    
 具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
 
-### 已经支持5.3和5.6版本UNITY, UNITY 2018也做了兼容。
+### 已经支持5.3和5.6版本UNITY, UNITY 2018也做了兼容。Unity 2019打AB以及运行加载是没有问题已测试。
 
 发现Unity 2018更改底层后导致的一个问题：就是AsyncOperation的isDone属性的赋值，貌似UNITY底层放到子线程赋值了，导致主线程同步执行两个函数，isDone的判断不一致，第一个为false, 另外一个为true, 导致有概率资源加载不出来，此问题已经修正。在5.3中，没有此问题。
 
