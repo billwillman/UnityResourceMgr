@@ -28,7 +28,7 @@ public static class CustomSettings  {
 		typeof(UnityEngine.Resources),
 		typeof(UnityEngine.Physics),
 		typeof(UnityEngine.RenderSettings),
-#if !UNITY_2018
+#if !UNITY_2018 && !UNITY_2019
         typeof(UnityEngine.QualitySettings),
 #endif
 		typeof(UnityEngine.GL),
