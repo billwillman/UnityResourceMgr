@@ -3200,7 +3200,7 @@ class AssetBundleMgr
 #if UNITY_2018 || UNITY_2019
         Caching.ClearCache();
 #else
-        Caching.ClearCache();
+        Caching.CleanCache();
 #endif
         string abOutPath;
         if (isForceAppend || string.IsNullOrEmpty(outPath))

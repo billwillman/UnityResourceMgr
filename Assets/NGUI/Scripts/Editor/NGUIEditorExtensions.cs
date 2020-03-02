@@ -35,7 +35,7 @@ public static class NGUIEditorExtensions
 #if UNITY_2018 || UNITY_2019
             rt.autoGenerateMips = false;
 #else
-		rt.autoGenerateMips = false;
+		rt.generateMips = false;
 #endif
 			rt.format = RenderTextureFormat.ARGB32;
 			rt.filterMode = FilterMode.Trilinear;
