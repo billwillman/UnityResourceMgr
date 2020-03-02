@@ -64,20 +64,23 @@ public static class CustomSettings  {
 
 	//在这里添加你要导出注册到lua的类型列表
 	public static BindType[] customTypeList =
-	{                
-		//------------------------为例子导出--------------------------------
-		//_GT(typeof(TestEventListener)),
-		//_GT(typeof(TestProtol)),
-		//_GT(typeof(TestAccount)),
-		//_GT(typeof(Dictionary<int, TestAccount>)).SetLibName("AccountMap"),
-		//_GT(typeof(KeyValuePair<int, TestAccount>)),
-		//_GT(typeof(Dictionary<int, TestAccount>.KeyCollection)),
-		//_GT(typeof(Dictionary<int, TestAccount>.ValueCollection)),
-		//_GT(typeof(TestExport)),
-		//_GT(typeof(TestExport.Space)),
-		//-------------------------------------------------------------------        
+	{
+        //------------------------为例子导出--------------------------------
+        //_GT(typeof(TestEventListener)),
+        //_GT(typeof(TestProtol)),
+        //_GT(typeof(TestAccount)),
+        //_GT(typeof(Dictionary<int, TestAccount>)).SetLibName("AccountMap"),
+        //_GT(typeof(KeyValuePair<int, TestAccount>)),
+        //_GT(typeof(Dictionary<int, TestAccount>.KeyCollection)),
+        //_GT(typeof(Dictionary<int, TestAccount>.ValueCollection)),
+        //_GT(typeof(TestExport)),
+        //_GT(typeof(TestExport.Space)),
+        //-------------------------------------------------------------------        
 
-		_GT(typeof(LuaInjectionStation)),
+#if UNITY_2019
+        _GT(typeof(ReceiveGI)),
+#endif
+        _GT(typeof(LuaInjectionStation)),
 		_GT(typeof(InjectType)),
 		_GT(typeof(Debugger)).SetNameSpace(null),          
 
@@ -104,7 +107,6 @@ public static class CustomSettings  {
 		_GT(typeof(Component)),
 		_GT(typeof(Transform)),
 		_GT(typeof(Material)),
-		_GT(typeof(Light)),
 		_GT(typeof(Rigidbody)),
 		_GT(typeof(Camera)),
 		_GT(typeof(AudioSource)),
@@ -142,8 +144,6 @@ public static class CustomSettings  {
 		_GT(typeof(SkinnedMeshRenderer)),
 		_GT(typeof(Space)),      
 
-
-		_GT(typeof(MeshRenderer)),
 #if !UNITY_5_4_OR_NEWER
 		_GT(typeof(ParticleEmitter)),
 		_GT(typeof(ParticleRenderer)),
@@ -163,14 +163,18 @@ public static class CustomSettings  {
 		_GT(typeof(QueueMode)),  
 		_GT(typeof(PlayMode)),
 		_GT(typeof(WrapMode)),
-#if !UNITY_2018
+#if !UNITY_2018 && !UNITY_2019
         _GT(typeof(QualitySettings)),
 #endif
 		_GT(typeof(RenderSettings)),
 #if !UNITY_2019
-        _GT(typeof(BlendWeights)), 
+		_GT(typeof(MeshRenderer)),
+        _GT(typeof(BlendWeights)),   
+#if !USING_DOTWEENING
+        _GT(typeof(Light)),
 #endif
-		_GT(typeof(RenderTexture)), 
+#endif
+        _GT(typeof(RenderTexture)), 
 		_GT(typeof(Resources)),      
 		_GT(typeof(LuaProfiler)),
 
