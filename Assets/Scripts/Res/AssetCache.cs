@@ -229,8 +229,8 @@ public class AssetCacheManager : Singleton<AssetCacheManager> {
 
     private ulong GetTotalReservedMemory()
     {
-#if UNITY_5_6 || UNITY_2018
-       return (ulong)UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong();
+#if UNITY_5_6 || UNITY_2018 || UNITY_2019
+        return (ulong)UnityEngine.Profiling.Profiler.GetTotalReservedMemoryLong();
 #else
        return (ulong)Profiler.GetTotalReservedMemory();
 #endif

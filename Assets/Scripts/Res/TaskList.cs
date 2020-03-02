@@ -429,7 +429,7 @@ public class WWWFileLoadTask: ITask
                     var target = UnityEditor.EditorUserBuildSettings.activeBuildTarget;
                         if (target == UnityEditor.BuildTarget.StandaloneOSXIntel ||
                             target == UnityEditor.BuildTarget.StandaloneOSXIntel64 ||
-#if UNITY_2018
+#if UNITY_2018 || UNITY_2019
                             target == UnityEditor.BuildTarget.StandaloneOSX)
 #else
 							target == UnityEditor.BuildTarget.StandaloneOSXUniversal)

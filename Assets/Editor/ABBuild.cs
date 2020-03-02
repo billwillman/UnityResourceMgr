@@ -2847,7 +2847,7 @@ class AssetBundleMgr
     static public void SetUnityPackageVersion(string apkVersion) {
         PlayerSettings.bundleVersion = apkVersion;
         // 立即保存设置
-#if UNITY_5_6  || UNITY_2018
+#if UNITY_5_6  || UNITY_2018 || UNITY_2019
         AssetDatabase.SaveAssets();
 #else
         EditorApplication.SaveAssets();

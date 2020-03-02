@@ -166,8 +166,10 @@ public static class CustomSettings  {
 #if !UNITY_2018
         _GT(typeof(QualitySettings)),
 #endif
-		_GT(typeof(RenderSettings)),                                                   
-		_GT(typeof(BlendWeights)),           
+		_GT(typeof(RenderSettings)),
+#if !UNITY_2019
+        _GT(typeof(BlendWeights)), 
+#endif
 		_GT(typeof(RenderTexture)), 
 		_GT(typeof(Resources)),      
 		_GT(typeof(LuaProfiler)),
@@ -215,8 +217,9 @@ public static class CustomSettings  {
 		typeof(Animation),
 		typeof(AnimationClip),
 		typeof(AnimationState),
-
-		typeof(BlendWeights),
+#if !UNITY_2019
+        typeof(BlendWeights),
+#endif
 		typeof(RenderTexture),
 		typeof(Rigidbody),
 	};
