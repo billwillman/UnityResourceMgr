@@ -2429,7 +2429,7 @@ public sealed class AssetLoader : IResourceLoader {
                     DependBinaryFile.ABFileHeader abHeader = DependBinaryFile.LoadABFileHeader(stream);
                     AssetCompressType compressType = (AssetCompressType)abHeader.compressType;
                     bool isUseCreateFromFile = compressType == AssetCompressType.astNone || compressType == AssetCompressType.astUnityLzo
-#if UNITY_5_3 || UNITY_5_4
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019
                     || compressType == AssetCompressType.astUnityZip
 #endif
                     ;
