@@ -894,7 +894,7 @@ public class BaseResLoader: CachedMonoBehaviour
 	}
 
 	/*------------------------------------------ 异步方法 ---------------------------------------------*/
-	/*
+
 	private Dictionary<Delegate, Coroutine> m_EvtCoroutineMap = null;
 
 	protected void StopAllLoadCoroutines()
@@ -912,7 +912,7 @@ public class BaseResLoader: CachedMonoBehaviour
 			m_EvtCoroutineMap.Clear();
 		}
 	}
-
+	/*
 	protected void StopLoadCoroutine(Delegate key)
 	{
 		if (key == null || m_EvtCoroutineMap == null)
