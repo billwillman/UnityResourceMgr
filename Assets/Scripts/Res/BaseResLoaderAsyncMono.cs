@@ -167,7 +167,7 @@ namespace NsLib.ResMgr {
         }
 
         private BaseResLoaderAsyncType GetSubType(long subID) {
-            BaseResLoaderAsyncType ret = (BaseResLoaderAsyncType)((subID >> 48) & 0xFFFF);
+            BaseResLoaderAsyncType ret = (BaseResLoaderAsyncType)((subID >> 32) & 0xFFFF);
             return ret;
         }
 
