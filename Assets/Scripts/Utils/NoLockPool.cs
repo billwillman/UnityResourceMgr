@@ -56,14 +56,12 @@ namespace Utils
 			if (node != null) {
 				var n = node.PPoolNode;
 				if (n.List != m_NodePool) {
-					lock (m_NodePool) {
 						var list = n.List;
 						if (list != m_NodePool) {
 							if (list != null)
 								list.Remove (n);
 							m_NodePool.AddLast (n);
 						}
-					}
 				}
 			}
 		}
@@ -71,13 +69,11 @@ namespace Utils
 		public static INoLockPoolNode<T> GetNode()
 		{
 			INoLockPoolNode<T> ret = null;
-			lock (m_NodePool) {
 				LinkedListNode<INoLockPoolNode<T>> n = m_NodePool.First;
 				if (n != null) {
 					m_NodePool.Remove (n);
 					ret = n.Value;
 				}
-			}
 			if (ret != null)
 				return ret;
 
