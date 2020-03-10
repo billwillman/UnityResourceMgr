@@ -237,7 +237,7 @@ namespace NsLib.ResMgr {
             var mgr = BaseResLoaderAsyncMgr.GetInstance();
             if (mgr != null) {
                 long id;
-				int rk = ReMake (fileName, renderer, BaseResLoaderAsyncType.SpriteRenderMainTexture, isMatInst, out id);
+				int rk = ReMake (fileName, renderer, BaseResLoaderAsyncType.SpriteRenderMainTexture, isMatInst, out id, _cMainTex);
 				if (rk < 0)
                     return false;
 				if (rk == 0)
