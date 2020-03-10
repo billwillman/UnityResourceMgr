@@ -32,6 +32,11 @@ namespace NsLib.ResMgr {
             protected set;
         }
 
+		public string fileName {
+			get;
+			protected set;
+		}
+
 		public string resName {
 			get;
 			protected set;
@@ -42,13 +47,14 @@ namespace NsLib.ResMgr {
 			protected set;
 		}
 
-		public static ListenerLoaderNode CreateNode (long id, UnityEngine.Object obj, bool isMatInst = false, string resName = "", string tag = "") {
+		public static ListenerLoaderNode CreateNode (string fileName, long id, UnityEngine.Object obj, bool isMatInst = false, string resName = "", string tag = "") {
             ListenerLoaderNode ret = AbstractNoLockPool<ListenerLoaderNode>.GetNode() as ListenerLoaderNode;
             ret.SubID = id;
             ret.obj = obj;
             ret.isMatInst = isMatInst;
 			ret.resName = resName;
 			ret.tag = tag;
+			ret.fileName = fileName;
             return ret;
         }
 
@@ -58,6 +64,7 @@ namespace NsLib.ResMgr {
 			isMatInst = false;
 			resName = string.Empty;
 			tag = string.Empty;
+			fileName = string.Empty;
         }
     }
     

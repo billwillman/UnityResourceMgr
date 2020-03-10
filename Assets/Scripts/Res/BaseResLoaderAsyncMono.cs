@@ -22,10 +22,10 @@ namespace NsLib.ResMgr {
             return ++m_GlobalSubID;
         }
 
-		private bool AddLoadingNode(long subID, UnityEngine.Object obj, bool isMatInst, string resName = "", string tag = "") {
+		private bool AddLoadingNode(string fileName, long subID, UnityEngine.Object obj, bool isMatInst, string resName = "", string tag = "") {
             if (obj == null)
                 return false;
-			var node = ListenerLoaderNode.CreateNode(subID, obj, isMatInst, resName, tag);
+			var node = ListenerLoaderNode.CreateNode(fileName, subID, obj, isMatInst, resName, tag);
             if (node != null) {
                 if (m_LoadingList == null)
                     m_LoadingList = new LinkedList<INoLockPoolNode<ListenerLoaderNode>>();
@@ -102,7 +102,8 @@ namespace NsLib.ResMgr {
 
         }
 
-        private bool RemoveSUBID(int subID, BaseResLoaderAsyncType asyncType) {
+		private bool RemoveSUBID(string fileName, int subID, BaseResLoaderAsyncType asyncType, out bool isSame) {
+			isSame = false;
             if (m_LoadingList == null)
                 return false;
             var node = m_LoadingList.First;
@@ -113,6 +114,10 @@ namespace NsLib.ResMgr {
                     long ID = n.SubID;
 
                     if (GetIntSubID(ID) == subID && GetSubType(ID) == asyncType) {
+						isSame = string.Compare (fileName, n.fileName, true) == 0;
+						if (isSame)
+							return false;
+						
                         n.Dispose();
                         return true;
                     }
@@ -208,14 +213,18 @@ namespace NsLib.ResMgr {
             return obj != null;
         }
 
-		private bool ReMake(UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, out long id, string resName = "", string tag = "") {
+		private bool ReMake(string fileName, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, out long id, string resName = "", string tag = "") {
             id = 0;
             if (obj == null)
                 return false;
             int subID = obj.GetInstanceID();
-            RemoveSUBID(subID, asyncType);
-            id = MakeLongSubID(subID, asyncType);
-			return AddLoadingNode(id, obj, isMatInst, resName, tag);
+			bool isSame;
+			RemoveSUBID(fileName, subID, asyncType, out isSame);
+			if (!isSame) {
+				id = MakeLongSubID (subID, asyncType);
+				return AddLoadingNode (fileName, id, obj, isMatInst, resName, tag);
+			} else
+				return true;
         }
 
         // 加载
@@ -226,7 +235,7 @@ namespace NsLib.ResMgr {
             var mgr = BaseResLoaderAsyncMgr.GetInstance();
             if (mgr != null) {
                 long id;
-                if (!ReMake(renderer, BaseResLoaderAsyncType.SpriteRenderMainTexture, isMatInst, out id))
+                if (!ReMake(fileName, renderer, BaseResLoaderAsyncType.SpriteRenderMainTexture, isMatInst, out id))
                     return false;
                 return mgr.LoadTextureAsync(fileName, this, id, loadPriority);
             }
@@ -240,7 +249,7 @@ namespace NsLib.ResMgr {
             var mgr = BaseResLoaderAsyncMgr.GetInstance();
             if (mgr != null) {
                 long id;
-				if (!ReMake(renderer, BaseResLoaderAsyncType.MeshRenderMainTexture, isMatInst, out id, _cMainTex))
+				if (!ReMake(fileName, renderer, BaseResLoaderAsyncType.MeshRenderMainTexture, isMatInst, out id, _cMainTex))
                     return false;
 
                 return mgr.LoadTextureAsync(fileName, this, id, loadPriority);
