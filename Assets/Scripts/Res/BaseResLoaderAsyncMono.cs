@@ -120,8 +120,10 @@ namespace NsLib.ResMgr {
             return false;
         }
 
-        private UnityEngine.Object RemoveSubID(long subID, out bool isMatInst) {
+		private UnityEngine.Object RemoveSubID(long subID, out bool isMatInst, out string resName, out string tag) {
             isMatInst = false;
+			resName = string.Empty;
+			tag = string.Empty;
             if (m_LoadingList == null)
                 return null;
             var node = m_LoadingList.First;
@@ -132,6 +134,8 @@ namespace NsLib.ResMgr {
                     if (n.SubID == subID) {
                         UnityEngine.Object ret = n.obj;
                         isMatInst = n.isMatInst;
+						resName = n.resName;
+						tag = n.tag;
                         n.Dispose();
                         return ret;
                     }
@@ -157,12 +161,12 @@ namespace NsLib.ResMgr {
             return ret;
         }
 
-        protected bool OnTextureLoaded(Texture target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst) {
+		protected bool OnTextureLoaded(Texture target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
             if (target != null && obj != null) {
 		
                 switch (asyncType) {
                     case BaseResLoaderAsyncType.SpriteRenderMainTexture: {
-							SetResource(obj, target, typeof(Texture), _cMainTex);
+							SetResource(obj, target, typeof(Texture), resName, tag);
                             SpriteRenderer r1 = obj as SpriteRenderer;
                             var m1 = GetRealMaterial(r1, isMatInst);
                             if (m1 == null)
@@ -171,7 +175,7 @@ namespace NsLib.ResMgr {
                             break;
                         }
                     case BaseResLoaderAsyncType.MeshRenderMainTexture:
-						SetResource(obj, target, typeof(Texture), _cMainTex);
+						SetResource(obj, target, typeof(Texture), resName, tag);
                         MeshRenderer r2 = obj as MeshRenderer;
                         var m2 = GetRealMaterial(r2, isMatInst);
                         if (m2 == null)
@@ -191,9 +195,11 @@ namespace NsLib.ResMgr {
 
         public bool _OnTextureLoaded(Texture target, long subID) {
             bool isMatInst;
-            UnityEngine.Object obj = RemoveSubID(subID, out isMatInst);
+			string resName, tag;
+			UnityEngine.Object obj = RemoveSubID(subID, out isMatInst, out resName, out tag);
             if (obj != null) {
-                if (!OnTextureLoaded(target, obj, GetSubType(subID), isMatInst))
+				
+				if (!OnTextureLoaded(target, obj, GetSubType(subID), isMatInst, resName, tag))
                     return false;
             }
             return obj != null;
@@ -231,7 +237,7 @@ namespace NsLib.ResMgr {
             var mgr = BaseResLoaderAsyncMgr.GetInstance();
             if (mgr != null) {
                 long id;
-                if (!ReMake(renderer, BaseResLoaderAsyncType.MeshRenderMainTexture, isMatInst, out id))
+				if (!ReMake(renderer, BaseResLoaderAsyncType.MeshRenderMainTexture, isMatInst, out id, _cMainTex))
                     return false;
 
                 return mgr.LoadTextureAsync(fileName, this, id, loadPriority);
