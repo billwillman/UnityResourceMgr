@@ -213,18 +213,20 @@ namespace NsLib.ResMgr {
             return obj != null;
         }
 
-		private bool ReMake(string fileName, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, out long id, string resName = "", string tag = "") {
+		private int ReMake(string fileName, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, out long id, string resName = "", string tag = "") {
             id = 0;
             if (obj == null)
-                return false;
+                return -1;
             int subID = obj.GetInstanceID();
 			bool isSame;
 			RemoveSUBID(fileName, subID, asyncType, out isSame);
 			if (!isSame) {
 				id = MakeLongSubID (subID, asyncType);
-				return AddLoadingNode (fileName, id, obj, isMatInst, resName, tag);
+				if (AddLoadingNode (fileName, id, obj, isMatInst, resName, tag))
+					return 1;
+				return -1;
 			} else
-				return true;
+				return 0;
         }
 
         // 加载
@@ -235,8 +237,12 @@ namespace NsLib.ResMgr {
             var mgr = BaseResLoaderAsyncMgr.GetInstance();
             if (mgr != null) {
                 long id;
-                if (!ReMake(fileName, renderer, BaseResLoaderAsyncType.SpriteRenderMainTexture, isMatInst, out id))
+				int rk = ReMake (fileName, renderer, BaseResLoaderAsyncType.SpriteRenderMainTexture, isMatInst, out id);
+				if (rk < 0)
                     return false;
+				if (rk == 0)
+					return true;
+				
                 return mgr.LoadTextureAsync(fileName, this, id, loadPriority);
             }
             return false;
@@ -249,8 +255,11 @@ namespace NsLib.ResMgr {
             var mgr = BaseResLoaderAsyncMgr.GetInstance();
             if (mgr != null) {
                 long id;
-				if (!ReMake(fileName, renderer, BaseResLoaderAsyncType.MeshRenderMainTexture, isMatInst, out id, _cMainTex))
+				int rk = ReMake (fileName, renderer, BaseResLoaderAsyncType.MeshRenderMainTexture, isMatInst, out id, _cMainTex);
+				if (rk < 0)
                     return false;
+				if (rk == 0)
+					return true;
 
                 return mgr.LoadTextureAsync(fileName, this, id, loadPriority);
             }
