@@ -214,12 +214,26 @@ namespace NsLib.ResMgr {
             if (renderer == null)
                 return false;
 
-            long id;
-            if (!ReMake(renderer,  BaseResLoaderAsyncType.SpriteRenderMainTexture, isMatInst, out id))
+            var mgr = BaseResLoaderAsyncMgr.GetInstance();
+            if (mgr != null) {
+                long id;
+                if (!ReMake(renderer, BaseResLoaderAsyncType.SpriteRenderMainTexture, isMatInst, out id))
+                    return false;
+                return mgr.LoadTextureAsync(fileName, this, id, loadPriority);
+            }
+            return false;
+        }
+
+        public bool LoadMainTextureAsync(string fileName, MeshRenderer renderer, bool isMatInst = false, int loadPriority = 0) {
+            if (renderer == null)
                 return false;
 
             var mgr = BaseResLoaderAsyncMgr.GetInstance();
             if (mgr != null) {
+                long id;
+                if (!ReMake(renderer, BaseResLoaderAsyncType.MeshRenderMainTexture, isMatInst, out id))
+                    return false;
+
                 return mgr.LoadTextureAsync(fileName, this, id, loadPriority);
             }
             return false;
