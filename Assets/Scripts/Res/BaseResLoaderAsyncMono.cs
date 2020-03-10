@@ -159,19 +159,19 @@ namespace NsLib.ResMgr {
 
         protected bool OnTextureLoaded(Texture target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst) {
             if (target != null && obj != null) {
-                SetResource<Texture>(obj, target);
-
+		
                 switch (asyncType) {
                     case BaseResLoaderAsyncType.SpriteRenderMainTexture: {
+							SetResource(obj, target, typeof(Texture), _cMainTex);
                             SpriteRenderer r1 = obj as SpriteRenderer;
                             var m1 = GetRealMaterial(r1, isMatInst);
                             if (m1 == null)
                                 return false;
                             m1.mainTexture = target;
-                            m1.SetTexture("_MainTex", target);
                             break;
                         }
                     case BaseResLoaderAsyncType.MeshRenderMainTexture:
+						SetResource(obj, target, typeof(Texture), _cMainTex);
                         MeshRenderer r2 = obj as MeshRenderer;
                         var m2 = GetRealMaterial(r2, isMatInst);
                         if (m2 == null)
