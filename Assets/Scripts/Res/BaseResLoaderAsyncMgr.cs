@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Utils;
@@ -9,8 +10,41 @@ namespace NsLib.ResMgr {
         int UUID {
             get;
         }
+
+        bool _OnTextureLoaded(Texture target, long subID);
     }
 
+
+    public class ListenerLoaderNode: NoLockPoolNode<ListenerLoaderNode> {
+        
+        public long SubID {
+            get;
+            protected set;
+        }
+
+        public bool isMatInst {
+            get;
+            protected set;
+        }
+
+        public UnityEngine.Object obj {
+            get;
+            protected set;
+        }
+
+        public static ListenerLoaderNode CreateNode (long id, UnityEngine.Object obj, bool isMatInst = false) {
+            ListenerLoaderNode ret = AbstractNoLockPool<ListenerLoaderNode>.GetNode() as ListenerLoaderNode;
+            ret.SubID = id;
+            ret.obj = obj;
+            ret.isMatInst = isMatInst;
+            return ret;
+        }
+
+        protected override void OnFree() {
+            SubID = 0;
+            obj = null;
+        }
+    }
     
 
     public class BaseResLoaderAsyncMgr : SingetonMono<BaseResLoaderAsyncMgr> {
@@ -31,8 +65,27 @@ namespace NsLib.ResMgr {
                 m_ListernMap.Remove(uuid);
         }
 
-        public bool LoadTextureAsync(string fileName, IBaseResLoaderAsyncListener listener, int subID) {
+        public bool LoadTextureAsync(string fileName, IBaseResLoaderAsyncListener listener, long subID, int loadPriority = 0) {
+            if (listener == null || string.IsNullOrEmpty(fileName))
+                return false;
 
+            int uuid = listener.UUID;
+            listener = null;
+
+            return ResourceMgr.Instance.LoadTextureAsync(fileName, 
+                (float process, bool isDone, Texture target)=>
+                {
+                    if (isDone && target != null) {
+                        var listen = m_ListernMap[uuid];
+                        if (listen != null) {
+                            if (!listen._OnTextureLoaded(target, subID))
+                                ResourceMgr.Instance.DestroyObject(target);
+                        } else {
+                            ResourceMgr.Instance.DestroyObject(target);
+                        }
+                    }
+                }
+                , ResourceCacheType.rctRefAdd, loadPriority);
         }
     }
 }

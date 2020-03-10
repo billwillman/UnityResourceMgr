@@ -399,7 +399,7 @@ public class NGUIResLoader: BaseResLoader  {
 	}
 
 	/*------------------------------------------ 异步方法 ---------------------------------------------*/
-
+    /*
 	public void LoadMainTextureAsync(int start, int end, OnGetItem<UITexture> onGetItem, float delayTime = 0)
 	{
 		StartLoadCoroutine(onGetItem, LoadAsync<UITexture>(start, end, onGetItem, LoadMainTexture, delayTime));
@@ -463,7 +463,7 @@ public class NGUIResLoader: BaseResLoader  {
 	public void LoadSpriteAsync(int start, int end, OnGetItem1<UI2DSprite> onGetItem, float delayTime = 0)
 	{
 		StartLoadCoroutine(onGetItem, LoadAsync<UI2DSprite>(start, end, onGetItem, LoadSprite, delayTime));
-	}
+	}*/
 }
 
 #endif

@@ -23,6 +23,23 @@ public class BaseResLoader: CachedMonoBehaviour
     // 记录实例化的材质Map
     private Dictionary<int, Material> m_InstanceMaterialMap = null;
 
+
+    protected Material GetRealMaterial(Renderer render, bool isMatInst) {
+        if (render == null)
+            return null;
+        int instId = render.GetInstanceID();
+        Material ret = GetInstanceMaterialMap(instId);
+        if (ret == null) {
+            ret = render.sharedMaterial;
+            if (isMatInst && ret != null) {
+                ret = GameObject.Instantiate(ret);
+                AddOrSetInstanceMaterialMap(instId, ret);
+                render.sharedMaterial = ret;
+            }
+        }
+        return ret;
+    }
+
     protected Material GetInstanceMaterialMap(int instanceId) {
         if (m_InstanceMaterialMap != null && m_InstanceMaterialMap.Count > 0) {
             Material ret;
@@ -410,6 +427,7 @@ public class BaseResLoader: CachedMonoBehaviour
 
 	private static readonly WaitForEndOfFrame m_EndOfFrame = new WaitForEndOfFrame();
 
+    /*
 	protected IEnumerator LoadAsync<T>(int start, int end, OnGetItem<T> onGetItem, Func<T, string, bool> onLoad, float delayTime = 0) where T: UnityEngine.Object
 	{
 		if (start < 0 || end < 0 || end < start || onGetItem == null || onLoad == null)
@@ -473,7 +491,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		}
 			
 		StopLoadCoroutine(key);
-	}
+	}*/
 
 	public bool LoadMaterial(MeshRenderer renderer, string fileName)
 	{
@@ -485,9 +503,9 @@ public class BaseResLoader: CachedMonoBehaviour
 			return false;
 		}
 
-		if (result == 2)
-			renderer.sharedMaterial = mat;
-        else if (result == 1) {
+        if (result == 2) {
+            renderer.sharedMaterial = mat;
+        } else if (result == 1) {
             if (renderer.sharedMaterial == null)
                 renderer.sharedMaterial = mat;
         }
@@ -686,11 +704,11 @@ public class BaseResLoader: CachedMonoBehaviour
 		return target != null;
 	}
 	
-	public bool LoadTexture(MeshRenderer renderer, string fileName, string matName) {
+	public bool LoadTexture(MeshRenderer renderer, string fileName, string matName, bool isMatInst = false) {
             if (renderer == null || string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(matName))
                 return false;
 
-            Material mat = renderer.material;
+            Material mat = GetRealMaterial(renderer, isMatInst);
             if (mat == null)
                 return false;
 
@@ -706,7 +724,7 @@ public class BaseResLoader: CachedMonoBehaviour
             return;
 
         ClearResource<Texture>(renderer, matName);
-        Material mat = renderer.material;
+        Material mat = GetRealMaterial(renderer, false);
         if (mat != null)
           mat.SetTexture(matName, null);
     }
@@ -848,14 +866,15 @@ public class BaseResLoader: CachedMonoBehaviour
 			ClearResource<Texture> (renderer, _cMainTex);
 		}
 			
-		public bool LoadMainTexture(MeshRenderer renderer, string fileName)
+		public bool LoadMainTexture(MeshRenderer renderer, string fileName, bool isMatInst = false)
 		{
 			if (renderer == null || string.IsNullOrEmpty (fileName) || renderer.sharedMaterial == null)
 				return false;
 			ClearMainTexture (renderer);
 			Texture tex = ResourceMgr.Instance.LoadTexture (fileName, ResourceCacheType.rctRefAdd);
 			SetResource(renderer, tex, typeof(Texture), _cMainTex);
-			renderer.material.mainTexture = tex;
+            var mat = GetRealMaterial(renderer, isMatInst);
+            mat.mainTexture = tex;
 			return tex != null;
 		}
 
@@ -940,6 +959,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		return StartLoadCoroutine(key, iter);
 	}
 
+    /*
 	protected Coroutine StartLoadCoroutine<T>(OnGetItem1<T> evtKey, IEnumerator iter) where T: UnityEngine.Object
 	{
 		if (evtKey == null || iter == null)
@@ -981,8 +1001,9 @@ public class BaseResLoader: CachedMonoBehaviour
 	{
 		StartLoadCoroutine(onGetItem, LoadAsync<SpriteRenderer>(start, end, onGetItem, LoadSprite, delayTime));
 	}
-	
-	/*
+    */
+
+    /*
 		protected bool LoadAllLoaderGroupBegin(UnityEngine.Object target, LoaderGroupSubNodeType subType) {
             if (target == null || !IsCheckLoaderGroup)
                 return false;
