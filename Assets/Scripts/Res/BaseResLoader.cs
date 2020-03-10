@@ -894,6 +894,7 @@ public class BaseResLoader: CachedMonoBehaviour
 	}
 
 	/*------------------------------------------ 异步方法 ---------------------------------------------*/
+	/*
 	private Dictionary<Delegate, Coroutine> m_EvtCoroutineMap = null;
 
 	protected void StopAllLoadCoroutines()
@@ -959,7 +960,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		return StartLoadCoroutine(key, iter);
 	}
 
-    /*
+    
 	protected Coroutine StartLoadCoroutine<T>(OnGetItem1<T> evtKey, IEnumerator iter) where T: UnityEngine.Object
 	{
 		if (evtKey == null || iter == null)
