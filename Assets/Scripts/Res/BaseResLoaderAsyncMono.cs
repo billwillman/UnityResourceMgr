@@ -22,10 +22,10 @@ namespace NsLib.ResMgr {
             return ++m_GlobalSubID;
         }
 
-        private bool AddLoadingNode(long subID, UnityEngine.Object obj, bool isMatInst) {
+		private bool AddLoadingNode(long subID, UnityEngine.Object obj, bool isMatInst, string resName = "", string tag = "") {
             if (obj == null)
                 return false;
-            var node = ListenerLoaderNode.CreateNode(subID, obj, isMatInst);
+			var node = ListenerLoaderNode.CreateNode(subID, obj, isMatInst, resName, tag);
             if (node != null) {
                 if (m_LoadingList == null)
                     m_LoadingList = new LinkedList<INoLockPoolNode<ListenerLoaderNode>>();
@@ -199,14 +199,14 @@ namespace NsLib.ResMgr {
             return obj != null;
         }
 
-        private bool ReMake(UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, out long id) {
+		private bool ReMake(UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, out long id, string resName = "", string tag = "") {
             id = 0;
             if (obj == null)
                 return false;
             int subID = obj.GetInstanceID();
             RemoveSUBID(subID, asyncType);
             id = MakeLongSubID(subID, asyncType);
-            return AddLoadingNode(id, obj, isMatInst);
+			return AddLoadingNode(id, obj, isMatInst, resName, tag);
         }
 
         // 加载

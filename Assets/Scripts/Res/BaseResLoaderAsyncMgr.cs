@@ -32,17 +32,32 @@ namespace NsLib.ResMgr {
             protected set;
         }
 
-        public static ListenerLoaderNode CreateNode (long id, UnityEngine.Object obj, bool isMatInst = false) {
+		public string resName {
+			get;
+			protected set;
+		}
+
+		public string tag {
+			get;
+			protected set;
+		}
+
+		public static ListenerLoaderNode CreateNode (long id, UnityEngine.Object obj, bool isMatInst = false, string resName = "", string tag = "") {
             ListenerLoaderNode ret = AbstractNoLockPool<ListenerLoaderNode>.GetNode() as ListenerLoaderNode;
             ret.SubID = id;
             ret.obj = obj;
             ret.isMatInst = isMatInst;
+			ret.resName = resName;
+			ret.tag = tag;
             return ret;
         }
 
         protected override void OnFree() {
             SubID = 0;
             obj = null;
+			isMatInst = false;
+			resName = string.Empty;
+			tag = string.Empty;
         }
     }
     
