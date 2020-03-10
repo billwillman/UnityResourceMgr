@@ -169,7 +169,6 @@ namespace NsLib.ResMgr {
 		
                 switch (asyncType) {
                     case BaseResLoaderAsyncType.SpriteRenderMainTexture: {
-							SetResource(obj, target, typeof(Texture), resName, tag);
                             SpriteRenderer r1 = obj as SpriteRenderer;
                             var m1 = GetRealMaterial(r1, isMatInst);
                             if (m1 == null)
@@ -178,7 +177,6 @@ namespace NsLib.ResMgr {
                             break;
                         }
                     case BaseResLoaderAsyncType.MeshRenderMainTexture:
-						SetResource(obj, target, typeof(Texture), resName, tag);
                         MeshRenderer r2 = obj as MeshRenderer;
                         var m2 = GetRealMaterial(r2, isMatInst);
                         if (m2 == null)
@@ -189,6 +187,8 @@ namespace NsLib.ResMgr {
                     default:
                         return false;
                 }
+
+				SetResource<Texture> (obj, target, resName, tag);
 
                 return true;
             }
