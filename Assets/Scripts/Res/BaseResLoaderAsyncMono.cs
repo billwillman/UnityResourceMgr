@@ -37,6 +37,9 @@ namespace NsLib.ResMgr {
 
         void Awake() {
             m_UUID = ++m_GlobalUUID;
+			var mgr = BaseResLoaderAsyncMgr.GetInstance ();
+			if (mgr != null)
+				mgr.RegListener (this);
         }
 
         public int UUID {
