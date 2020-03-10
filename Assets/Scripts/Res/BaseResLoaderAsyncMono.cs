@@ -128,6 +128,13 @@ namespace NsLib.ResMgr {
             return false;
         }
 
+		public void _RemoveSubID (long subID)
+		{
+			bool isMatInst;
+			string resName, tag;
+			RemoveSubID (subID, out isMatInst, out resName, out tag);
+		}
+
 		private UnityEngine.Object RemoveSubID(long subID, out bool isMatInst, out string resName, out string tag) {
             isMatInst = false;
 			resName = string.Empty;

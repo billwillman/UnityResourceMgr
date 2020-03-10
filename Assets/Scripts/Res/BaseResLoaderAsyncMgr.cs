@@ -12,6 +12,8 @@ namespace NsLib.ResMgr {
         }
 
         bool _OnTextureLoaded(Texture target, long subID);
+
+		void _RemoveSubID (long subID);
     }
 
 
@@ -97,15 +99,23 @@ namespace NsLib.ResMgr {
             return ResourceMgr.Instance.LoadTextureAsync(fileName, 
                 (float process, bool isDone, Texture target)=>
                 {
-                    if (isDone && target != null) {
-                        var listen = m_ListernMap[uuid];
-                        if (listen != null) {
-                            if (!listen._OnTextureLoaded(target, subID))
-                                ResourceMgr.Instance.DestroyObject(target);
-                        } else {
-                            ResourceMgr.Instance.DestroyObject(target);
-                        }
-                    }
+                    if (isDone) {
+						if (target != null)
+						{
+                        	var listen = m_ListernMap[uuid];
+                        	if (listen != null) {
+                            	if (!listen._OnTextureLoaded(target, subID))
+                                	ResourceMgr.Instance.DestroyObject(target);
+                        	} else {
+                            	ResourceMgr.Instance.DestroyObject(target);
+                        	}
+						} else
+						{
+							var listen = m_ListernMap[uuid];
+							if (listen != null)
+								listen._RemoveSubID(subID);
+						}
+					}
                 }
                 , ResourceCacheType.rctRefAdd, loadPriority);
         }
