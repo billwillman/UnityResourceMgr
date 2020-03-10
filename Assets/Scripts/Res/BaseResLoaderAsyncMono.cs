@@ -48,29 +48,29 @@ namespace NsLib.ResMgr {
             }
         }
 
-        protected override void OnDestroy() {
-            if (!m_IsAppQuit) {
-                var mgr = BaseResLoaderAsyncMgr.GetInstance();
-                if (mgr == null)
-                    return;
-                mgr.RemoveListener(this);
+		public override void ClearAllResources()
+		{
+			if (!m_IsAppQuit) {
+				var mgr = BaseResLoaderAsyncMgr.GetInstance();
+				if (mgr != null)
+					mgr.RemoveListener(this);
 
-                // 回池
-                if (m_LoadingList != null) {
-                    var node = m_LoadingList.First;
-                    while (node != null) {
-                        var next = node.Next;
-                        if (node.Value != null)
-                            node.Value.Dispose();
-                        node = next;
-                    }
+				// 回池
+				if (m_LoadingList != null) {
+					var node = m_LoadingList.First;
+					while (node != null) {
+						var next = node.Next;
+						if (node.Value != null)
+							node.Value.Dispose();
+						node = next;
+					}
 
-                    m_LoadingList.Clear();
-                }
-            }
+					m_LoadingList.Clear();
+				}
+			}
 
-            base.OnDestroy();
-        }
+			base.ClearAllResources ();
+		}
 
         // 外面释放控件的时候要通知，否则会出现列表Obj为NULL情况，特别注意。。。。需要手动回调一下
         public bool OnDestroyObj(UnityEngine.Object obj) {

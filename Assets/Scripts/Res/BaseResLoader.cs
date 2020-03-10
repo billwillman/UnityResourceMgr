@@ -354,7 +354,7 @@ public class BaseResLoader: CachedMonoBehaviour
 		SetResources(target.GetInstanceID(), res, resType, resName, tag);
 	}
 
-	public void ClearAllResources()
+	public virtual void ClearAllResources()
 	{
 
 		// 关闭所有携程
