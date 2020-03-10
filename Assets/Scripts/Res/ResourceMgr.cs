@@ -142,7 +142,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 #if UNITY_5_2
 		Application.UnloadLevel(sceneName);
-#elif UNITY_5_3 || UNITY_5_4 || UNITY_5_5
+#elif UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019
         SceneManager.UnloadScene(sceneName);
 #endif
 		// 清除
