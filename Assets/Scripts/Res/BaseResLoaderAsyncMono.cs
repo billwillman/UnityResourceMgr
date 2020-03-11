@@ -22,7 +22,7 @@ namespace NsLib.ResMgr {
             return ++m_GlobalSubID;
         }
 
-		private bool AddLoadingNode(string fileName, long subID, UnityEngine.Object obj, bool isMatInst, string resName = "", string tag = "") {
+		private bool AddLoadingNode(string fileName, ulong subID, UnityEngine.Object obj, bool isMatInst, string resName = "", string tag = "") {
             if (obj == null)
                 return false;
 			var node = ListenerLoaderNode.CreateNode(fileName, subID, obj, isMatInst, resName, tag);
@@ -88,7 +88,7 @@ namespace NsLib.ResMgr {
                 var next = node.Next;
                 if (node.Value != null) {
                     var n = node.Value as ListenerLoaderNode;
-                    long ID = n.SubID;
+					ulong ID = n.SubID;
                     
                     if (GetIntSubID(ID) == subID) {
                         n.Dispose();
@@ -111,7 +111,7 @@ namespace NsLib.ResMgr {
                 var next = node.Next;
                 if (node.Value != null) {
                     var n = node.Value as ListenerLoaderNode;
-                    long ID = n.SubID;
+					ulong ID = n.SubID;
 
                     if (GetIntSubID(ID) == subID && GetSubType(ID) == asyncType) {
 						isSame = string.Compare (fileName, n.fileName, true) == 0;
@@ -128,14 +128,14 @@ namespace NsLib.ResMgr {
             return false;
         }
 
-		public void _RemoveSubID (long subID)
+		public void _RemoveSubID (ulong subID)
 		{
 			bool isMatInst;
 			string resName, tag;
 			RemoveSubID (subID, out isMatInst, out resName, out tag);
 		}
 
-		private UnityEngine.Object RemoveSubID(long subID, out bool isMatInst, out string resName, out string tag) {
+		private UnityEngine.Object RemoveSubID(ulong subID, out bool isMatInst, out string resName, out string tag) {
             isMatInst = false;
 			resName = string.Empty;
 			tag = string.Empty;
@@ -161,19 +161,22 @@ namespace NsLib.ResMgr {
             return null;
         }
 
-        private int GetIntSubID(long subID) {
+        private int GetIntSubID(ulong subID) {
             int ret = (int)(subID & 0x00000000FFFFFFFF);
             return ret;
         }
 
-        private BaseResLoaderAsyncType GetSubType(long subID) {
+		private BaseResLoaderAsyncType GetSubType(ulong subID) {
             BaseResLoaderAsyncType ret = (BaseResLoaderAsyncType)((subID >> 32) & 0xFFFF);
             return ret;
         }
 
-        private long MakeLongSubID(int subID, BaseResLoaderAsyncType asyncType) {
-            long ret = ((long)subID) & ((long)asyncType << 32) & ((long)MakeGlobalSubID() << 48);
-            return ret;
+        private ulong MakeLongSubID(int subID, BaseResLoaderAsyncType asyncType) {
+			ulong v1 = (ulong)subID & 0xFFFFFFFF;
+			ulong v2 = ((ulong)asyncType & 0xFFFF) << 32;
+			ulong v3 = ((ulong)MakeGlobalSubID () & 0xFFFF) << 48;
+			ulong ret = (v1 | v2 | v3);
+			return ret;
         }
 
 		protected bool OnTextureLoaded(Texture target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
@@ -208,7 +211,7 @@ namespace NsLib.ResMgr {
             return false;
         }
 
-        public bool _OnTextureLoaded(Texture target, long subID) {
+        public bool _OnTextureLoaded(Texture target, ulong subID) {
             bool isMatInst;
 			string resName, tag;
 			UnityEngine.Object obj = RemoveSubID(subID, out isMatInst, out resName, out tag);
@@ -220,7 +223,7 @@ namespace NsLib.ResMgr {
             return obj != null;
         }
 
-		private int ReMake(string fileName, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, out long id, string resName = "", string tag = "") {
+		private int ReMake(string fileName, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, out ulong id, string resName = "", string tag = "") {
             id = 0;
             if (obj == null)
                 return -1;
@@ -243,7 +246,7 @@ namespace NsLib.ResMgr {
 
             var mgr = BaseResLoaderAsyncMgr.GetInstance();
             if (mgr != null) {
-                long id;
+				ulong id;
 				int rk = ReMake (fileName, renderer, BaseResLoaderAsyncType.SpriteRenderMainTexture, isMatInst, out id, _cMainTex);
 				if (rk < 0)
                     return false;
@@ -261,7 +264,7 @@ namespace NsLib.ResMgr {
 
             var mgr = BaseResLoaderAsyncMgr.GetInstance();
             if (mgr != null) {
-                long id;
+				ulong id;
 				int rk = ReMake (fileName, renderer, BaseResLoaderAsyncType.MeshRenderMainTexture, isMatInst, out id, _cMainTex);
 				if (rk < 0)
                     return false;

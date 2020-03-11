@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using NsLib.ResMgr;
 using Utils;
 
 public class Test : CachedMonoBehaviour {
@@ -72,6 +73,15 @@ public class Test : CachedMonoBehaviour {
 				ResourceMgr.Instance.CreateGameObjectAsync("resources/@prefab/cube.prefab", null);
 				ResourceMgr.Instance.CreateGameObjectAsync("resources/@prefab/flag.prefab", null);
 			}
+
+		if (GUI.Button (new Rect (260, 220, 150, 50), "(异步)BaseAsyncLoad")) {
+			var gameObj = GameObject.CreatePrimitive (PrimitiveType.Sphere);
+			var loader = gameObj.AddComponent<BaseResLoaderAsyncMono>();
+			var meshRender = gameObj.GetComponent<MeshRenderer> ();
+			loader.LoadMainTextureAsync ("resources/@spirtes/spirtes.png", meshRender, true);
+			//loader.LoadMainTextureAsync ("resources/@spirtes/spirtes.png", meshRender, true);
+			//GameObject.Destroy (gameObj);
+		}
 	}
 
 	void ChangeScene(bool isAsync)

@@ -11,15 +11,15 @@ namespace NsLib.ResMgr {
             get;
         }
 
-        bool _OnTextureLoaded(Texture target, long subID);
+		bool _OnTextureLoaded(Texture target, ulong subID);
 
-		void _RemoveSubID (long subID);
+		void _RemoveSubID (ulong subID);
     }
 
 
     public class ListenerLoaderNode: NoLockPoolNode<ListenerLoaderNode> {
         
-        public long SubID {
+		public ulong SubID {
             get;
             protected set;
         }
@@ -49,7 +49,7 @@ namespace NsLib.ResMgr {
 			protected set;
 		}
 
-		public static ListenerLoaderNode CreateNode (string fileName, long id, UnityEngine.Object obj, bool isMatInst = false, string resName = "", string tag = "") {
+		public static ListenerLoaderNode CreateNode (string fileName, ulong id, UnityEngine.Object obj, bool isMatInst = false, string resName = "", string tag = "") {
             ListenerLoaderNode ret = AbstractNoLockPool<ListenerLoaderNode>.GetNode() as ListenerLoaderNode;
             ret.SubID = id;
             ret.obj = obj;
@@ -89,7 +89,7 @@ namespace NsLib.ResMgr {
                 m_ListernMap.Remove(uuid);
         }
 
-        public bool LoadTextureAsync(string fileName, IBaseResLoaderAsyncListener listener, long subID, int loadPriority = 0) {
+		public bool LoadTextureAsync(string fileName, IBaseResLoaderAsyncListener listener, ulong subID, int loadPriority = 0) {
             if (listener == null || string.IsNullOrEmpty(fileName))
                 return false;
 
@@ -102,8 +102,9 @@ namespace NsLib.ResMgr {
                     if (isDone) {
 						if (target != null)
 						{
-                        	var listen = m_ListernMap[uuid];
-                        	if (listen != null) {
+							IBaseResLoaderAsyncListener listen;
+
+							if (m_ListernMap.TryGetValue(uuid, out listen) && listen != null) {
                             	if (!listen._OnTextureLoaded(target, subID))
                                 	ResourceMgr.Instance.DestroyObject(target);
                         	} else {
@@ -111,8 +112,8 @@ namespace NsLib.ResMgr {
                         	}
 						} else
 						{
-							var listen = m_ListernMap[uuid];
-							if (listen != null)
+							IBaseResLoaderAsyncListener listen;
+							if (m_ListernMap.TryGetValue(uuid, out listen) && listen != null)
 								listen._RemoveSubID(subID);
 						}
 					}
