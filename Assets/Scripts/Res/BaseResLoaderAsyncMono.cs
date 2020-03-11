@@ -73,13 +73,6 @@ namespace NsLib.ResMgr {
 			base.ClearAllResources ();
 		}
 
-        // 外面释放控件的时候要通知，否则会出现列表Obj为NULL情况，特别注意。。。。需要手动回调一下
-        public bool OnDestroyObj(UnityEngine.Object obj) {
-            if (obj == null)
-                return false;
-            return RemoveSUBID(obj.GetInstanceID());
-        }
-
         private bool RemoveSUBID(int subID) {
             if (m_LoadingList == null)
                 return false;
@@ -195,7 +188,16 @@ namespace NsLib.ResMgr {
 			} else
 				return 0;
         }
-/*----------------------------------- 主动触发异步加载 -------------------------------------------------------------*/
+
+   /*----------------------------------- 归属负责这些控件异步的，在这些控件被外部删除，请调用这个 ---------------------------*/
+        // 外面释放控件的时候要通知，否则会出现列表Obj为NULL情况，特别注意。。。。需要手动回调一下
+        public bool OnDestroyObj(UnityEngine.Object obj) {
+            if (obj == null)
+                return false;
+            return RemoveSUBID(obj.GetInstanceID());
+        }
+
+        /*----------------------------------- 主动触发异步加载 -------------------------------------------------------------*/
 
         public bool LoadAniControllerAsync(string fileName, Animator obj, int loadPriority = 0) {
             if (obj == null)
