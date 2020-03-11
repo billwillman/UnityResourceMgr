@@ -7,9 +7,12 @@ namespace NsLib.ResMgr {
 
     public enum BaseResLoaderAsyncType {
         SpriteRenderMainTexture = 0,
-        MeshRenderMainTexture = 1,
-        AnimatorController = 2,
-        TextMeshFont = 3,
+        MeshRenderMainTexture,
+        UITextureMainTexture,
+        UISpriteMainTexture,
+        UI2DSpriteMainTexture,
+        AnimatorController,
+        TextMeshFont,
     }
 
     public class BaseResLoaderAsyncMono : BaseResLoader, IBaseResLoaderAsyncListener {
@@ -74,7 +77,14 @@ namespace NsLib.ResMgr {
 			base.ClearAllResources ();
 		}
 
-        private bool RemoveSUBID(int subID) {
+        // 清除所有OBJ的正在异步加载的队列
+        public bool ClearAllLoadingAsync(UnityEngine.Object obj) {
+            if (obj == null)
+                return false;
+            return RemoveSUBID(obj.GetInstanceID());
+        }
+
+        protected bool RemoveSUBID(int subID) {
             if (m_LoadingList == null)
                 return false;
             bool ret = false;
@@ -197,9 +207,7 @@ namespace NsLib.ResMgr {
         /*----------------------------------- 归属负责这些控件异步的，在这些控件被外部删除，请调用这个 ---------------------------*/
         // 外面释放控件的时候要通知，否则会出现列表Obj为NULL情况，特别注意。。。。需要手动回调一下
         public bool OnDestroyObj(UnityEngine.Object obj) {
-            if (obj == null)
-                return false;
-            return RemoveSUBID(obj.GetInstanceID());
+            return ClearAllLoadingAsync(obj);
         }
 
         /*----------------------------------- 主动触发异步加载 -------------------------------------------------------------*/

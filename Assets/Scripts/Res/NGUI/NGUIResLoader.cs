@@ -6,8 +6,9 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Utils;
+using NsLib.ResMgr;
 
-public class NGUIResLoader: BaseResLoader  {
+public class NGUIResLoader: BaseResLoaderAsyncMono {
 
     private void ClearInstanceMaterialMap(UITexture target) {
         if (target == null)
@@ -43,10 +44,57 @@ public class NGUIResLoader: BaseResLoader  {
 		return tex != null;
 	}
 
+    protected override bool OnTextureLoaded(Texture target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
+        bool ret = base.OnTextureLoaded(target, obj, asyncType, isMatInst, resName, tag);
+        if (!ret) {
+            switch (asyncType) {
+                case BaseResLoaderAsyncType.UITextureMainTexture:
+                    UITexture ui1 = obj as UITexture;
+                    ui1.mainTexture = target;
+                    var m1 = ui1.material;
+                    if (m1 != null)
+                        m1.mainTexture = target;
+                    break;
+                case BaseResLoaderAsyncType.UISpriteMainTexture:
+                    UISprite ui2 = obj as UISprite;
+                    ui2.mainTexture = target;
+                    break;
+                case BaseResLoaderAsyncType.UI2DSpriteMainTexture:
+                    UI2DSprite ui3 = obj as UI2DSprite;
+                    ui3.mainTexture = target;
+                    break;
+                default:
+                    return false;
+            }
+
+            SetResource<Texture>(obj, target, resName, tag);
+            return true;
+        }
+
+        return false;
+    }
+    public bool LoadMainTextureAsync(UITexture uiTexture, string fileName, int loadPriority = 0) {
+        if (uiTexture == null || string.IsNullOrEmpty(fileName))
+            return false;
+        var mgr = BaseResLoaderAsyncMgr.GetInstance();
+        if (mgr != null) {
+            ulong id;
+            int rk = ReMake(fileName, uiTexture, BaseResLoaderAsyncType.UITextureMainTexture, false, out id, _cMainTex);
+            if (rk < 0)
+                return false;
+            if (rk == 0)
+                return true;
+
+            return mgr.LoadTextureAsync(fileName, this, id, loadPriority);
+        }
+        return false;
+    }
+
 	public void ClearMainTexture(UITexture uiTexture)
 	{
 		if (uiTexture == null)
 			return;
+        
 		ClearTexture(uiTexture, _cMainTex);
 		uiTexture.mainTexture = null;
 	}
@@ -200,7 +248,24 @@ public class NGUIResLoader: BaseResLoader  {
 			mat.SetTexture(matName, null);
 	}
 
-	public bool LoadMainTexture(UISprite uiSprite, string fileName)
+    public bool LoadMainTextureAsync(UISprite uiSprite, string fileName, int loadPriority = 0) {
+        if (uiSprite == null || string.IsNullOrEmpty(fileName))
+            return false;
+        var mgr = BaseResLoaderAsyncMgr.GetInstance();
+        if (mgr != null) {
+            ulong id;
+            int rk = ReMake(fileName, uiSprite, BaseResLoaderAsyncType.UISpriteMainTexture, false, out id, _cMainTex);
+            if (rk < 0)
+                return false;
+            if (rk == 0)
+                return true;
+
+            return mgr.LoadTextureAsync(fileName, this, id, loadPriority);
+        }
+        return false;
+    }
+
+    public bool LoadMainTexture(UISprite uiSprite, string fileName)
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName))
 			return false;
@@ -212,7 +277,24 @@ public class NGUIResLoader: BaseResLoader  {
 		return tex != null;
 	}
 
-	public bool LoadMainTexture(UI2DSprite uiSprite, string fileName)
+    public bool LoadMainTextureAsync(UI2DSprite uiSprite, string fileName, int loadPriority = 0) {
+        if (uiSprite == null || string.IsNullOrEmpty(fileName))
+            return false;
+        var mgr = BaseResLoaderAsyncMgr.GetInstance();
+        if (mgr != null) {
+            ulong id;
+            int rk = ReMake(fileName, uiSprite, BaseResLoaderAsyncType.UI2DSpriteMainTexture, false, out id, _cMainTex);
+            if (rk < 0)
+                return false;
+            if (rk == 0)
+                return true;
+
+            return mgr.LoadTextureAsync(fileName, this, id, loadPriority);
+        }
+        return false;
+    }
+
+    public bool LoadMainTexture(UI2DSprite uiSprite, string fileName)
 	{
 		if (uiSprite == null || string.IsNullOrEmpty(fileName))
 			return false;
