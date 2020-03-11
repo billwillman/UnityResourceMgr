@@ -12,6 +12,7 @@ namespace NsLib.ResMgr {
         }
 
 		bool _OnTextureLoaded(Texture target, ulong subID);
+        bool _OnAniControlLoaded(RuntimeAnimatorController target, ulong subID);
 
 		void _RemoveSubID (ulong subID);
     }
@@ -89,7 +90,37 @@ namespace NsLib.ResMgr {
                 m_ListernMap.Remove(uuid);
         }
 
-		public bool LoadTextureAsync(string fileName, IBaseResLoaderAsyncListener listener, ulong subID, int loadPriority = 0) {
+        public bool LoadAniControllerAsync(string fileName, IBaseResLoaderAsyncListener listener, ulong subID, int loadPriority = 0) {
+            if (listener == null || string.IsNullOrEmpty(fileName))
+                return false;
+            int uuid = listener.UUID;
+            listener = null;
+
+            return ResourceMgr.Instance.LoadAniControllerAsync(fileName,
+                (float process, bool isDone, RuntimeAnimatorController target) =>
+                {
+                    if (isDone) {
+                        if (target != null) {
+                            IBaseResLoaderAsyncListener listen;
+
+                            if (m_ListernMap.TryGetValue(uuid, out listen) && listen != null) {
+                                if (!listen._OnAniControlLoaded(target, subID))
+                                    ResourceMgr.Instance.DestroyObject(target);
+                            } else {
+                                ResourceMgr.Instance.DestroyObject(target);
+                            }
+                        } else {
+                            IBaseResLoaderAsyncListener listen;
+                            if (m_ListernMap.TryGetValue(uuid, out listen) && listen != null)
+                                listen._RemoveSubID(subID);
+                        }
+                    }
+                },
+                ResourceCacheType.rctRefAdd, loadPriority);
+        }
+
+
+        public bool LoadTextureAsync(string fileName, IBaseResLoaderAsyncListener listener, ulong subID, int loadPriority = 0) {
             if (listener == null || string.IsNullOrEmpty(fileName))
                 return false;
 

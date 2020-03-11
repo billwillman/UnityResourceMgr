@@ -8,6 +8,7 @@ namespace NsLib.ResMgr {
     public enum BaseResLoaderAsyncType {
         SpriteRenderMainTexture = 0,
         MeshRenderMainTexture = 1,
+        AnimatorController = 2,
     }
 
     public class BaseResLoaderAsyncMono : BaseResLoader, IBaseResLoaderAsyncListener {
@@ -179,50 +180,6 @@ namespace NsLib.ResMgr {
 			return ret;
         }
 
-		protected virtual bool OnTextureLoaded(Texture target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
-            if (target != null && obj != null) {
-		
-                switch (asyncType) {
-                    case BaseResLoaderAsyncType.SpriteRenderMainTexture: {
-                            SpriteRenderer r1 = obj as SpriteRenderer;
-                            var m1 = GetRealMaterial(r1, isMatInst);
-                            if (m1 == null)
-                                return false;
-                            m1.mainTexture = target;
-                            break;
-                        }
-                    case BaseResLoaderAsyncType.MeshRenderMainTexture:
-                        MeshRenderer r2 = obj as MeshRenderer;
-                        var m2 = GetRealMaterial(r2, isMatInst);
-                        if (m2 == null)
-                            return false;
-                        m2.mainTexture = target;
-
-                        break;
-                    default:
-                        return false;
-                }
-
-				SetResource<Texture> (obj, target, resName, tag);
-
-                return true;
-            }
-         
-            return false;
-        }
-
-        public bool _OnTextureLoaded(Texture target, ulong subID) {
-            bool isMatInst;
-			string resName, tag;
-			UnityEngine.Object obj = RemoveSubID(subID, out isMatInst, out resName, out tag);
-            if (obj != null) {
-				
-				if (!OnTextureLoaded(target, obj, GetSubType(subID), isMatInst, resName, tag))
-                    return false;
-            }
-            return obj != null;
-        }
-
 		protected int ReMake(string fileName, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, out ulong id, string resName = "", string tag = "") {
             id = 0;
             if (obj == null)
@@ -237,6 +194,25 @@ namespace NsLib.ResMgr {
 				return -1;
 			} else
 				return 0;
+        }
+/*----------------------------------- 主动触发异步加载 -------------------------------------------------------------*/
+
+        public bool LoadAniControllerAsync(string fileName, Animator obj, int loadPriority = 0) {
+            if (obj == null)
+                return false;
+            var mgr = BaseResLoaderAsyncMgr.GetInstance();
+            if (mgr != null) {
+                ulong id;
+                int rk = ReMake(fileName, obj, BaseResLoaderAsyncType.AnimatorController, false, out id);
+                if (rk < 0)
+                    return false;
+                if (rk == 0)
+                    return true;
+
+                return mgr.LoadAniControllerAsync(fileName, this, id, loadPriority);
+            }
+
+            return false;
         }
 
         // 加载
@@ -278,6 +254,84 @@ namespace NsLib.ResMgr {
 
         void OnApplicationQuit() {
             m_IsAppQuit = true;
+        }
+
+/*---------------------------------------------------- 异步加载回调 --------------------------------------------------------------*/
+
+        protected virtual bool OnTextureLoaded(Texture target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
+            if (target != null && obj != null) {
+
+                switch (asyncType) {
+                    case BaseResLoaderAsyncType.SpriteRenderMainTexture: {
+                            SpriteRenderer r1 = obj as SpriteRenderer;
+                            var m1 = GetRealMaterial(r1, isMatInst);
+                            if (m1 == null)
+                                return false;
+                            m1.mainTexture = target;
+                            break;
+                        }
+                    case BaseResLoaderAsyncType.MeshRenderMainTexture:
+                        MeshRenderer r2 = obj as MeshRenderer;
+                        var m2 = GetRealMaterial(r2, isMatInst);
+                        if (m2 == null)
+                            return false;
+                        m2.mainTexture = target;
+
+                        break;
+                    default:
+                        return false;
+                }
+
+                SetResource<Texture>(obj, target, resName, tag);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool _OnTextureLoaded(Texture target, ulong subID) {
+            bool isMatInst;
+            string resName, tag;
+            UnityEngine.Object obj = RemoveSubID(subID, out isMatInst, out resName, out tag);
+            if (obj != null) {
+
+                if (!OnTextureLoaded(target, obj, GetSubType(subID), isMatInst, resName, tag))
+                    return false;
+            }
+            return obj != null;
+        }
+
+        protected virtual bool OnAniControlLoaded(RuntimeAnimatorController target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, string resName, string tag) {
+            if (target != null && obj != null) {
+                switch (asyncType) {
+                    case BaseResLoaderAsyncType.AnimatorController:
+                        Animator ani = obj as Animator;
+                        ani.runtimeAnimatorController = target;
+                        break;
+                    default:
+                        return false;
+
+                }
+
+                SetResource<RuntimeAnimatorController>(obj, target, resName, tag);
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool _OnAniControlLoaded(RuntimeAnimatorController target, ulong subID) {
+            bool isMatInst;
+            string resName, tag;
+            UnityEngine.Object obj = RemoveSubID(subID, out isMatInst, out resName, out tag);
+
+            if (obj != null) {
+
+                if (!OnAniControlLoaded(target, obj, GetSubType(subID), resName, tag))
+                    return false;
+            }
+            return obj != null;
         }
     }
 
