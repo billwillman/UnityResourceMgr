@@ -13,6 +13,7 @@ namespace NsLib.ResMgr {
 
 		bool _OnTextureLoaded(Texture target, ulong subID);
         bool _OnAniControlLoaded(RuntimeAnimatorController target, ulong subID);
+        bool _OnFontLoaded(Font target, ulong subID);
 
 		void _RemoveSubID (ulong subID);
     }
@@ -88,6 +89,36 @@ namespace NsLib.ResMgr {
             var uuid = listener.UUID;
             if (m_ListernMap.ContainsKey(uuid))
                 m_ListernMap.Remove(uuid);
+        }
+
+        public bool LoadFontAsync(string fileName, IBaseResLoaderAsyncListener listener, ulong subID, int loadPriority = 0) {
+            if (listener == null || string.IsNullOrEmpty(fileName))
+                return false;
+            int uuid = listener.UUID;
+            listener = null;
+
+            return ResourceMgr.Instance.LoadFontAsync(fileName,
+                (float process, bool isDone, Font target) =>
+                {
+                    if (isDone) {
+                        if (target != null) {
+                            IBaseResLoaderAsyncListener listen;
+
+                            if (m_ListernMap.TryGetValue(uuid, out listen) && listen != null) {
+                                if (!listen._OnFontLoaded(target, subID))
+                                    ResourceMgr.Instance.DestroyObject(target);
+                            } else {
+                                ResourceMgr.Instance.DestroyObject(target);
+                            }
+                        } else {
+                            IBaseResLoaderAsyncListener listen;
+                            if (m_ListernMap.TryGetValue(uuid, out listen) && listen != null)
+                                listen._RemoveSubID(subID);
+                        }
+                    }
+                },
+                ResourceCacheType.rctRefAdd, loadPriority
+                );
         }
 
         public bool LoadAniControllerAsync(string fileName, IBaseResLoaderAsyncListener listener, ulong subID, int loadPriority = 0) {

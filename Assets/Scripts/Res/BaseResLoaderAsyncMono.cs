@@ -9,6 +9,7 @@ namespace NsLib.ResMgr {
         SpriteRenderMainTexture = 0,
         MeshRenderMainTexture = 1,
         AnimatorController = 2,
+        TextMeshFont = 3,
     }
 
     public class BaseResLoaderAsyncMono : BaseResLoader, IBaseResLoaderAsyncListener {
@@ -189,7 +190,11 @@ namespace NsLib.ResMgr {
 				return 0;
         }
 
-   /*----------------------------------- 归属负责这些控件异步的，在这些控件被外部删除，请调用这个 ---------------------------*/
+        void OnApplicationQuit() {
+            m_IsAppQuit = true;
+        }
+
+        /*----------------------------------- 归属负责这些控件异步的，在这些控件被外部删除，请调用这个 ---------------------------*/
         // 外面释放控件的时候要通知，否则会出现列表Obj为NULL情况，特别注意。。。。需要手动回调一下
         public bool OnDestroyObj(UnityEngine.Object obj) {
             if (obj == null)
@@ -198,6 +203,24 @@ namespace NsLib.ResMgr {
         }
 
         /*----------------------------------- 主动触发异步加载 -------------------------------------------------------------*/
+
+        public bool LoadFontAsync(string fileName, TextMesh obj, int loadPriority = 0) {
+            if (obj == null)
+                return false;
+            var mgr = BaseResLoaderAsyncMgr.GetInstance();
+            if (mgr != null) {
+                ulong id;
+                int rk = ReMake(fileName, obj, BaseResLoaderAsyncType.TextMeshFont, false, out id);
+                if (rk < 0)
+                    return false;
+                if (rk == 0)
+                    return true;
+
+                return mgr.LoadFontAsync(fileName, this, id, loadPriority);
+            }
+
+            return false;
+        }
 
         public bool LoadAniControllerAsync(string fileName, Animator obj, int loadPriority = 0) {
             if (obj == null)
@@ -252,10 +275,6 @@ namespace NsLib.ResMgr {
                 return mgr.LoadTextureAsync(fileName, this, id, loadPriority);
             }
             return false;
-        }
-
-        void OnApplicationQuit() {
-            m_IsAppQuit = true;
         }
 
 /*---------------------------------------------------- 异步加载回调 --------------------------------------------------------------*/
@@ -331,6 +350,36 @@ namespace NsLib.ResMgr {
             if (obj != null) {
 
                 if (!OnAniControlLoaded(target, obj, GetSubType(subID), resName, tag))
+                    return false;
+            }
+            return obj != null;
+        }
+
+        protected virtual bool OnFontLoaded(Font target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, string resName, string tag) {
+            if (target != null && obj != null) {
+                switch (asyncType) {
+                    case BaseResLoaderAsyncType.TextMeshFont:
+                        TextMesh text = obj as TextMesh;
+                        text.font = target;
+                        break;
+                    default:
+                        return false;
+
+                }
+
+                SetResource<Font>(obj, target, resName, tag);
+                return true;
+            }
+
+            return false;
+        }
+
+        public bool _OnFontLoaded(Font target, ulong subID) {
+            bool isMatInst;
+            string resName, tag;
+            UnityEngine.Object obj = RemoveSubID(subID, out isMatInst, out resName, out tag);
+            if (obj != null) {
+                if (!OnFontLoaded(target, obj, GetSubType(subID), resName, tag))
                     return false;
             }
             return obj != null;
