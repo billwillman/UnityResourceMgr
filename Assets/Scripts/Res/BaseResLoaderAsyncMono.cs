@@ -22,7 +22,7 @@ namespace NsLib.ResMgr {
             return ++m_GlobalSubID;
         }
 
-		private bool AddLoadingNode(string fileName, ulong subID, UnityEngine.Object obj, bool isMatInst, string resName = "", string tag = "") {
+		protected bool AddLoadingNode(string fileName, ulong subID, UnityEngine.Object obj, bool isMatInst, string resName = "", string tag = "") {
             if (obj == null)
                 return false;
 			var node = ListenerLoaderNode.CreateNode(fileName, subID, obj, isMatInst, resName, tag);
@@ -35,7 +35,7 @@ namespace NsLib.ResMgr {
             return false;
         }
 
-        void Awake() {
+        protected virtual void Awake() {
             m_UUID = ++m_GlobalUUID;
 			var mgr = BaseResLoaderAsyncMgr.GetInstance ();
 			if (mgr != null)
@@ -135,7 +135,7 @@ namespace NsLib.ResMgr {
 			RemoveSubID (subID, out isMatInst, out resName, out tag);
 		}
 
-		private UnityEngine.Object RemoveSubID(ulong subID, out bool isMatInst, out string resName, out string tag) {
+		protected UnityEngine.Object RemoveSubID(ulong subID, out bool isMatInst, out string resName, out string tag) {
             isMatInst = false;
 			resName = string.Empty;
 			tag = string.Empty;
@@ -179,7 +179,7 @@ namespace NsLib.ResMgr {
 			return ret;
         }
 
-		protected bool OnTextureLoaded(Texture target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
+		protected virtual bool OnTextureLoaded(Texture target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
             if (target != null && obj != null) {
 		
                 switch (asyncType) {
@@ -223,7 +223,7 @@ namespace NsLib.ResMgr {
             return obj != null;
         }
 
-		private int ReMake(string fileName, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, out ulong id, string resName = "", string tag = "") {
+		protected int ReMake(string fileName, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, out ulong id, string resName = "", string tag = "") {
             id = 0;
             if (obj == null)
                 return -1;
