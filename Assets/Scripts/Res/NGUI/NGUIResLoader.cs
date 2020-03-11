@@ -73,6 +73,29 @@ public class NGUIResLoader: BaseResLoaderAsyncMono {
 
         return false;
     }
+
+    protected override bool OnShaderLoaded(Shader target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
+        bool ret = base.OnShaderLoaded(target, obj, asyncType, isMatInst, resName, tag);
+        if (!ret) {
+            switch (asyncType) {
+                case BaseResLoaderAsyncType.UITextureShader:
+                    UITexture ui1 = obj as UITexture;
+                    ui1.shader = target;
+                    break;
+                case BaseResLoaderAsyncType.UI2DSpriteShader:
+                    UI2DSprite ui2 = obj as UI2DSprite;
+                    ui2.shader = target;
+                    break;
+                default:
+                    return false;
+            }
+
+            SetResource<Shader>(obj, target, resName, tag);
+            return true;
+        }
+        return false;
+    }
+
     public bool LoadMainTextureAsync(UITexture uiTexture, string fileName, int loadPriority = 0) {
         if (uiTexture == null || string.IsNullOrEmpty(fileName))
             return false;
@@ -109,6 +132,24 @@ public class NGUIResLoader: BaseResLoaderAsyncMono {
 		if (mat != null)
 			mat.SetTexture(matName, null);
 	}
+
+    public bool LoadShaderAsync(UITexture uiTexture, string fileName, int loadPriority = 0) {
+        if (uiTexture == null || string.IsNullOrEmpty(fileName))
+            return false;
+
+        var mgr = BaseResLoaderAsyncMgr.GetInstance();
+        if (mgr != null) {
+            ulong id;
+            int rk = ReMake(fileName, uiTexture, BaseResLoaderAsyncType.UITextureShader, false, out id);
+            if (rk < 0)
+                return false;
+            if (rk == 0)
+                return true;
+
+            return mgr.LoadShaderAsync(fileName, this, id, loadPriority);
+        }
+        return false;
+    }
 
 	public bool LoadShader(UITexture uiTexture, string fileName)
 	{
@@ -305,6 +346,23 @@ public class NGUIResLoader: BaseResLoaderAsyncMono {
 
 		return tex != null;
 	}
+
+    public bool LoadShaderAsync(UI2DSprite uiSprite, string fileName, int loadPriority = 0) {
+        if (uiSprite == null || string.IsNullOrEmpty(fileName))
+            return false;
+        var mgr = BaseResLoaderAsyncMgr.GetInstance();
+        if (mgr != null) {
+            ulong id;
+            int rk = ReMake(fileName, uiSprite, BaseResLoaderAsyncType.UI2DSpriteShader, false, out id);
+            if (rk < 0)
+                return false;
+            if (rk == 0)
+                return true;
+
+            return mgr.LoadShaderAsync(fileName, this, id, loadPriority);
+        }
+        return false;
+    }
 
 	public bool LoadShader(UI2DSprite uiSprite, string fileName)
 	{

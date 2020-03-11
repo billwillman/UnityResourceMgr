@@ -9,8 +9,10 @@ namespace NsLib.ResMgr {
         SpriteRenderMainTexture = 0,
         MeshRenderMainTexture,
         UITextureMainTexture,
+        UITextureShader,
         UISpriteMainTexture,
         UI2DSpriteMainTexture,
+        UI2DSpriteShader,
         AnimatorController,
         TextMeshFont,
     }
@@ -317,6 +319,21 @@ namespace NsLib.ResMgr {
             }
 
             return false;
+        }
+
+        protected virtual bool OnShaderLoaded(Shader target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
+                return false;
+        }
+
+        public bool _OnShaderLoaded(Shader target, ulong subID) {
+            bool isMatInst;
+            string resName, tag;
+            UnityEngine.Object obj = RemoveSubID(subID, out isMatInst, out resName, out tag);
+            if (obj != null) {
+                if (!OnShaderLoaded(target, obj, GetSubType(subID), isMatInst, resName, tag))
+                    return false;
+            }
+            return obj != null;
         }
 
         public bool _OnTextureLoaded(Texture target, ulong subID) {
