@@ -43,6 +43,11 @@ public class Singleton<T> where T : class, new()
 public class SingetonMono<T> : CachedMonoBehaviour where T : CachedMonoBehaviour
 {
 
+	protected virtual void Awake()
+	{
+		m_Instance = this as T;
+	}
+
     public static T Instance
     {
         get

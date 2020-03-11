@@ -71,7 +71,7 @@ namespace NsLib.ResMgr {
     }
     
 
-    public class BaseResLoaderAsyncMgr : SingetonMono<BaseResLoaderAsyncMgr> {
+	public class BaseResLoaderAsyncMgr : Singleton<BaseResLoaderAsyncMgr> {
         private Dictionary<int, IBaseResLoaderAsyncListener> m_ListernMap = new Dictionary<int, IBaseResLoaderAsyncListener>();
 
         public bool RegListener(IBaseResLoaderAsyncListener listener) {
