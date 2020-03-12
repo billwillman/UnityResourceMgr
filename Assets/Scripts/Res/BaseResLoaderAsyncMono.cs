@@ -7,7 +7,9 @@ namespace NsLib.ResMgr {
 
     public enum BaseResLoaderAsyncType {
         SpriteRenderMainTexture = 0,
+		SpriteRenderMaterial,
         MeshRenderMainTexture,
+		MeshRenderMaterial,
         UITextureMainTexture,
         UITextureShader,
         UISpriteMainTexture,
@@ -135,7 +137,7 @@ namespace NsLib.ResMgr {
             return false;
         }
 
-		public void _RemoveSubID (ulong subID)
+		public void _OnLoadFail (ulong subID)
 		{
 			bool isMatInst;
 			string resName, tag;
@@ -287,6 +289,64 @@ namespace NsLib.ResMgr {
             return false;
         }
 
+		public bool LoadMaterialAsync(string fileName, SpriteRenderer renderer, int loadPriority = 0)
+		{
+			if (renderer == null)
+				return false;
+
+			var mgr = BaseResLoaderAsyncMgr.GetInstance();
+			if (mgr != null) {
+
+				Material target;
+				if (ExitsResKeyTag<Material> (renderer, fileName, out target)) {
+					if (renderer.sharedMaterial == null) {
+						renderer.sharedMaterial = target;
+						ClearInstanceMaterialMap (renderer);
+					}
+					return true;
+				}
+
+				ulong id;
+				int rk = ReMake (fileName, renderer, BaseResLoaderAsyncType.SpriteRenderMaterial, false, out id);
+				if (rk < 0)
+					return false;
+				if (rk == 0)
+					return true;
+
+				return mgr.LoadMaterialAsync(fileName, this, id, loadPriority);
+			}
+			return false;
+		}
+
+		public bool LoadMaterialAsync(string fileName, MeshRenderer renderer, int loadPriority = 0)
+		{
+			if (renderer == null)
+				return false;
+
+			var mgr = BaseResLoaderAsyncMgr.GetInstance();
+			if (mgr != null) {
+
+				Material target;
+				if (ExitsResKeyTag<Material> (renderer, fileName, out target)) {
+					if (renderer.sharedMaterial == null) {
+						renderer.sharedMaterial = target;
+						ClearInstanceMaterialMap (renderer);
+					}
+					return true;
+				}
+
+				ulong id;
+				int rk = ReMake (fileName, renderer, BaseResLoaderAsyncType.MeshRenderMaterial, false, out id);
+				if (rk < 0)
+					return false;
+				if (rk == 0)
+					return true;
+
+				return mgr.LoadMaterialAsync(fileName, this, id, loadPriority);
+			}
+			return false;
+		}
+
 /*---------------------------------------------------- 异步加载回调 --------------------------------------------------------------*/
 
         protected virtual bool OnTextureLoaded(Texture target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
@@ -321,7 +381,7 @@ namespace NsLib.ResMgr {
             return false;
         }
 
-        protected virtual bool OnShaderLoaded(Shader target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
+		protected virtual bool OnShaderLoaded(Shader target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
                 return false;
         }
 
@@ -330,7 +390,7 @@ namespace NsLib.ResMgr {
             string resName, tag;
             UnityEngine.Object obj = RemoveSubID(subID, out isMatInst, out resName, out tag);
             if (obj != null) {
-                if (!OnShaderLoaded(target, obj, GetSubType(subID), isMatInst, resName, tag))
+				if (!OnShaderLoaded(target, obj, GetSubType(subID), isMatInst, resName, tag))
                     return false;
             }
             return obj != null;
@@ -379,6 +439,47 @@ namespace NsLib.ResMgr {
             }
             return obj != null;
         }
+
+		protected virtual bool OnMaterialLoaded(Material target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, string resName, string tag)
+		{
+			if (target != null && obj != null) {
+				switch (asyncType) {
+				case BaseResLoaderAsyncType.MeshRenderMaterial:
+					MeshRenderer o1 = obj as MeshRenderer;
+					o1.sharedMaterial = target;
+					ClearInstanceMaterialMap (o1);
+					break;
+				case BaseResLoaderAsyncType.SpriteRenderMaterial:
+					SpriteRenderer o2 = obj as SpriteRenderer;
+					o2.sharedMaterial = target;
+					ClearInstanceMaterialMap (o2);
+					break;
+				default:
+					return false;
+
+				}
+
+				SetResources(target, null, typeof(Material[]));
+				SetResource<Material>(obj, target, resName, tag);
+				return true;
+			}
+
+			return false;
+		}
+
+		public bool _OnMaterialLoaded (Material target, ulong subID)
+		{
+			bool isMatInst;
+			string resName, tag;
+			UnityEngine.Object obj = RemoveSubID(subID, out isMatInst, out resName, out tag);
+
+			if (obj != null) {
+
+				if (!OnMaterialLoaded(target, obj, GetSubType(subID), resName, tag))
+					return false;
+			}
+			return obj != null;
+		}
 
         protected virtual bool OnFontLoaded(Font target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, string resName, string tag) {
             if (target != null && obj != null) {

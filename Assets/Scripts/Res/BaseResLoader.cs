@@ -87,6 +87,14 @@ public class BaseResLoader: CachedMonoBehaviour
     protected void ClearInstanceMaterialMap(int instanceId) {
         AddOrSetInstanceMaterialMap(instanceId, null);
     }
+
+	protected void ClearInstanceMaterialMap(UnityEngine.Object target)
+	{
+		if (target == null)
+			return;
+		ClearInstanceMaterialMap (target.GetInstanceID ());
+	}
+
     #endregion
 	
     private void CheckVisible()
@@ -398,6 +406,22 @@ public class BaseResLoader: CachedMonoBehaviour
 		ResourceMgr.Instance.DestroyObject(sp);
 	}
 
+	protected bool ExitsResKeyTag<T>(UnityEngine.Object target, string fileName, out T obj) where T: UnityEngine.Object
+	{
+		obj = default(T);
+		if (target == null || string.IsNullOrEmpty (fileName))
+			return false;
+		ResKey key = CreateKey (target.GetInstanceID (), typeof(T));
+		ResValue value;
+		if (FindResValue (key, out value)) {
+			if (string.Compare (value.tag, fileName) == 0) {
+				obj = value.obj as T;
+				return true;
+			}
+		}
+		return false;
+	}
+
 	protected int SetMaterialResource(UnityEngine.Object target, string fileName, out Material mat)
 	{
 		mat = null;
@@ -500,14 +524,18 @@ public class BaseResLoader: CachedMonoBehaviour
 		int result = SetMaterialResource (renderer, fileName, out mat);
 		if (result == 0) {
 			renderer.sharedMaterial = null;
+			ClearInstanceMaterialMap (renderer);
 			return false;
 		}
 
         if (result == 2) {
             renderer.sharedMaterial = mat;
+			ClearInstanceMaterialMap (renderer);
         } else if (result == 1) {
-            if (renderer.sharedMaterial == null)
-                renderer.sharedMaterial = mat;
+			if (renderer.sharedMaterial == null) {
+				renderer.sharedMaterial = mat;
+				ClearInstanceMaterialMap (renderer);
+			}
         }
 		return mat != null;
 	}
@@ -528,14 +556,19 @@ public class BaseResLoader: CachedMonoBehaviour
 		int result = SetMaterialResource (sprite, fileName, out mat);
 		if (result == 0) {
 			sprite.sharedMaterial = null;
+			ClearInstanceMaterialMap (sprite);
 			return false;
 		}
 
-		if (result == 2)
+		if (result == 2) {
 			sprite.sharedMaterial = mat;
+			ClearInstanceMaterialMap (sprite);
+		}
         else if (result == 1) {
-            if (sprite.sharedMaterial == null)
-                sprite.sharedMaterial = mat;
+			if (sprite.sharedMaterial == null) {
+				sprite.sharedMaterial = mat;
+				ClearInstanceMaterialMap (sprite);
+			}
         }
 
         return mat != null;

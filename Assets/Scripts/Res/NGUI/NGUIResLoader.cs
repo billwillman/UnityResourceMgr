@@ -74,8 +74,8 @@ public class NGUIResLoader: BaseResLoaderAsyncMono {
         return false;
     }
 
-    protected override bool OnShaderLoaded(Shader target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
-        bool ret = base.OnShaderLoaded(target, obj, asyncType, isMatInst, resName, tag);
+	protected override bool OnShaderLoaded(Shader target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, bool isMatInst, string resName, string tag) {
+		bool ret = base.OnShaderLoaded(target, obj, asyncType, isMatInst, resName, tag);
         if (!ret) {
             switch (asyncType) {
                 case BaseResLoaderAsyncType.UITextureShader:
