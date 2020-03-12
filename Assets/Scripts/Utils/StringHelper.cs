@@ -29,6 +29,16 @@ public static class StringHelper {
         return m_Builder.Append(s1).Append(s2).Append(s3).ToString();
     }
 
+    public static string Concat(string s1, string s2, string s3, string s4) {
+        Clear();
+        return m_Builder.Append(s1).Append(s2).Append(s3).Append(s4).ToString();
+    }
+
+    public static string Concat(string s1, string s2, string s3, string s4, string s5) {
+        Clear();
+        return m_Builder.Append(s1).Append(s2).Append(s3).Append(s4).Append(s5).ToString();
+    }
+
     public static void Clear() {
         m_Builder.Remove(0, m_Builder.Length);
     }
