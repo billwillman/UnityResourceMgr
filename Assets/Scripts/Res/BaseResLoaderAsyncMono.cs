@@ -17,6 +17,7 @@ namespace NsLib.ResMgr {
         UI2DSpriteShader,
         AnimatorController,
         TextMeshFont,
+		NGUIUIFontFont,
     }
 
     public class BaseResLoaderAsyncMono : BaseResLoader, IBaseResLoaderAsyncListener {
