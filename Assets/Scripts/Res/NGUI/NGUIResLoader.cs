@@ -488,6 +488,51 @@ public class NGUIResLoader: BaseResLoaderAsyncMono {
         return mat != null;
 	}
 
+	protected override bool OnPrefabLoaded(GameObject target, UnityEngine.Object obj, BaseResLoaderAsyncType asyncType, string resName, string tag)
+	{
+		bool ret = base.OnPrefabLoaded (target, obj, asyncType, resName, tag);
+		if (!ret) {
+			switch (asyncType) {
+			case BaseResLoaderAsyncType.NGUIUISpriteAtlas:
+				UISprite o1 = obj as UISprite;
+				UIAtlas altas = target.GetComponent<UIAtlas> ();
+				if (altas == null) {
+					ClearResource<UIAtlas> (o1);
+					o1.atlas = null;
+					return false;
+				}
+
+				o1.atlas = altas;
+				SetResource (obj, target, typeof(UIAtlas));
+				break;
+			default:
+				return false;
+			}
+
+
+			return true;
+		}
+		return ret;
+	}
+
+	public bool LoadAtlasAsync(UISprite obj, string fileName, int loadPriority = 0)
+	{
+		if (obj == null || string.IsNullOrEmpty (fileName))
+			return false;
+		var mgr = BaseResLoaderAsyncMgr.GetInstance ();
+		if (mgr != null) {
+			ulong id;
+			int rk = ReMake(fileName, obj, BaseResLoaderAsyncType.NGUIUISpriteAtlas, false, out id);
+			if (rk < 0)
+				return false;
+			if (rk == 0)
+				return true;
+
+			return mgr.LoadPrefabAsync(fileName, this, id, loadPriority);
+		}
+		return false;
+	}
+
 	public bool LoadAltas(UISprite uiSprite, string fileName)
 	{
 			if (uiSprite == null || string.IsNullOrEmpty (fileName))
