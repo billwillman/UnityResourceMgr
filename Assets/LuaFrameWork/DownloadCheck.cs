@@ -93,15 +93,17 @@ public class DownloadCheck : MonoBehaviour {
 	{
 		if (GUI.Button(new Rect(100, 100, 100, 50), "检查更新"))
 		{
-			//AutoUpdateMgr.Instance.StartAutoUpdate(m_downloadUrl, 10, 64 * 1024);
-			//AutoUpdateMgr.Instance.OnError = OnDownError;
-			//AutoUpdateMgr.Instance.OnStateChanged = OnDownStateChanged;
+		    AutoUpdateMgr.Instance.StartAutoUpdate(m_downloadUrl, 10, 64 * 1024);
+			AutoUpdateMgr.Instance.OnError = OnDownError;
+			AutoUpdateMgr.Instance.OnStateChanged = OnDownStateChanged;
+          /*
 			var stream = new HttpClientFileStream(Utils.FilePathMgr.GetInstance().WritePath + "/Android-1.5.0.0.zip", 0, 64 * 1024);
 			if (m_Client != null) {
 				m_Client.Dispose();
 				m_Client = null;
 			}
 			m_Client = HttpHelper.OpenUrl ("https://patch.cgm.beanfun.com/cgm/update/Android/Android-1.5.0.0.zip", stream, OnDownEnd, OnDownProcess, 30, 30);
+            */
 		}
 
 		//float process = AutoUpdateMgr.Instance.DownProcess * 100f;
