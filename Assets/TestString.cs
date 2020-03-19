@@ -5,6 +5,7 @@ using UnityEngine;
 public class TestString : MonoBehaviour
 {
     private void OnGUI() {
+		#if !UNITY_5_3
         int v1 = Random.Range(0, 9);
         int v2 = Random.Range(0, 9);
         int v3 = Random.Range(0, 9);
@@ -25,5 +26,6 @@ public class TestString : MonoBehaviour
             UnityEngine.Profiling.Profiler.EndSample();
             Debug.Log(s3);
         }
+		#endif
     }
 }

@@ -16,6 +16,7 @@ namespace NsLib.ResMgr {
         bool _OnAniControlLoaded(RuntimeAnimatorController target, ulong subID);
         bool _OnFontLoaded(Font target, ulong subID);
 		bool _OnMaterialLoaded (Material target, ulong subID);
+		bool _OnPrefabLoaded (GameObject target, ulong subID);
 
 		void _OnLoadFail (ulong subID);
     }
@@ -120,6 +121,36 @@ namespace NsLib.ResMgr {
 					}
 				},
 				ResourceCacheType.rctRefAdd, loadPriority
+			);
+		}
+
+		public bool LoadPrefabAsync(string fileName, IBaseResLoaderAsyncListener listener, ulong subID, int loadPriority = 0)
+		{
+			if (listener == null || string.IsNullOrEmpty(fileName))
+				return false;
+			int uuid = listener.UUID;
+			listener = null;
+
+			return ResourceMgr.Instance.LoadPrefabAsync (fileName,
+				(float process, bool isDone, GameObject target) => {
+					if (isDone) {
+						if (target != null) {
+							IBaseResLoaderAsyncListener listen;
+
+							if (m_ListernMap.TryGetValue(uuid, out listen) && listen != null) {
+								if (!listen._OnPrefabLoaded(target, subID))
+									ResourceMgr.Instance.DestroyObject(target);
+							} else {
+								ResourceMgr.Instance.DestroyObject(target);
+							}
+						} else {
+							IBaseResLoaderAsyncListener listen;
+							if (m_ListernMap.TryGetValue(uuid, out listen) && listen != null)
+								listen._OnLoadFail(subID);
+						}
+					}
+				}
+				, ResourceCacheType.rctRefAdd, loadPriority
 			);
 		}
 
