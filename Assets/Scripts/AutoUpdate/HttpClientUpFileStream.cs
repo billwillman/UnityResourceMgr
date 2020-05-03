@@ -26,13 +26,14 @@ namespace NsHttpClient {
             FileClose();
         }
 
-        public override void OnRequested() {
-            base.OnRequested();
-
+        public override bool MainThreadOnRequestEnd() {
             FileClose();
+            return false;
         }
 
         public override bool WritePostStream(Stream stream) {
+            base.WritePostStream(stream);
+
             long curProcess = this.Process;
             if (curProcess < m_FileLength) {
                 int readSize;

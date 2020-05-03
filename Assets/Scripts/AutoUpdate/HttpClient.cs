@@ -36,7 +36,7 @@ namespace NsHttpClient
         // 流写入
         void OnRequesting();
         void OnRequested();
-
+        bool MainThreadOnRequestEnd();
         // Post相关
         long GetPostContentLength();
         // Post上传文件
@@ -70,6 +70,10 @@ namespace NsHttpClient
 			m_Buf = new byte[bufSize];
 		}
 
+        public virtual bool MainThreadOnRequestEnd() {
+            return true;
+        }
+
         public virtual string GetContentType() {
             return string.Empty;
         }
@@ -93,7 +97,7 @@ namespace NsHttpClient
             Status = HttpListenerStatus.hsRequesting;
         }
 
-        public virtual void OnRequested() {
+        public void OnRequested() {
             Status = HttpListenerStatus.hsRequested;
         }
 
@@ -499,8 +503,11 @@ namespace NsHttpClient
                 // 上传文件:
                 if (m_Listener != null) {
                     // 暂时这样。。。
-                    while (m_Listener.WritePostStream(stream))
-                        ;
+                    while (m_Listener.WritePostStream(stream)) {
+                        // 这里要处理下，不然超时了，Post用的是ConnectTime定时器
+                        ResetConnectTimeOut();
+                        System.Threading.Thread.Sleep(1);
+                    }
                 }
 
                 if (m_PostBuf != null && m_PostBuf.Length > 0) {
@@ -689,7 +696,12 @@ namespace NsHttpClient
                     if (status == HttpListenerStatus.hsRequested) {
                         // 处理一下状态
                         ResetConnectTimeOut();
-                        StartResponse();
+                        // 返回True表示需要继续监听回包，否则直接Dispose
+                        if (m_Listener.MainThreadOnRequestEnd()) {
+                            StartResponse();
+                        } else {
+                            Dispose();
+                        }
                         return;
                     }
                 }
