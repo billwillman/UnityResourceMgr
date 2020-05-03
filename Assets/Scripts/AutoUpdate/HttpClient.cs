@@ -851,6 +851,8 @@ namespace NsHttpClient
                 m_BoundaryBytes = null;
                 m_PostHeaderBytes = null;
                 m_ClientType = HttpClientType.httpGet;
+            } else {
+                m_ClientType = HttpClientType.httpPost;
             }
 
             if (m_ClientType == HttpClientType.httpGet) {

@@ -91,6 +91,15 @@ public class DownloadCheck : MonoBehaviour {
 
 	void OnGUI()
 	{
+        if (GUI.Button(new Rect(300, 100, 100, 50), "上传文件")) {
+            HttpHelper.OpenUrl<HttpClientUpFileStream>("http://10.246.54.43/upload/", new HttpClientUpFileStream("Assets/Main.unity"),
+                (HttpClient client, HttpListenerStatus status) =>
+                {
+                    Debug.LogError("上传文件完成");
+                }
+                );
+        }
+
 		if (GUI.Button(new Rect(100, 100, 100, 50), "检查更新"))
 		{
 		    AutoUpdateMgr.Instance.StartAutoUpdate(m_downloadUrl, 10, 64 * 1024);

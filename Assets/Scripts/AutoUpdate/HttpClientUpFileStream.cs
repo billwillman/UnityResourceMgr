@@ -3,7 +3,7 @@ using System.IO;
 
 namespace NsHttpClient {
     public class HttpClientUpFileStream: HttpClientResponse {
-        public HttpClientUpFileStream(string fileName, int bufSize): base(bufSize) {
+        public HttpClientUpFileStream(string fileName, int bufSize = 1024): base(bufSize) {
             m_FilePath = fileName;
             m_Process = 0;
             m_FileStream = null;
