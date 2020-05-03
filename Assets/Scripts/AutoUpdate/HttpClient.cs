@@ -37,6 +37,14 @@ namespace NsHttpClient
         void OnRequesting();
         void OnRequested();
 
+        // Post相关
+        int GetPostContentLength();
+        // Post上传文件
+        string GetPostFileName();
+        // Post上传文件写入，返回false则全部传完了，true则还要继续写入文件没有写完
+        bool WritePostStream(Stream stream);
+        //-----
+
         HttpListenerStatus Status
 		{
 			get;
@@ -65,6 +73,14 @@ namespace NsHttpClient
 			DownProcess = 0;
 			Status = HttpListenerStatus.hsWating;
 		}
+
+        public virtual int GetPostContentLength() {
+            return 0;
+        }
+
+        public virtual string GetPostFileName() {
+            return string.Empty;
+        }
 
         public void OnRequesting() {
             Status = HttpListenerStatus.hsRequesting;
@@ -137,7 +153,12 @@ namespace NsHttpClient
 			}
 		}
 
-		private HttpListenerStatus m_Status = HttpListenerStatus.hsNone;
+        public bool WritePostStream(Stream stream) {
+            return false;
+        }
+
+
+        private HttpListenerStatus m_Status = HttpListenerStatus.hsNone;
 
 		protected virtual void DoClose()
 		{
@@ -460,12 +481,34 @@ namespace NsHttpClient
                         m_Listener.OnError(-1);
                     return;
                 }
+
+                // 发送消息头
+                if (m_PostHeaderBytes != null && m_PostHeaderBytes.Length > 0) {
+                    stream.Write(m_PostHeaderBytes, 0, m_PostHeaderBytes.Length);
+                    m_PostHeaderBytes = null;
+                    stream.Flush();
+                }
+
+                // 上传文件:
+                if (m_Listener != null) {
+                    // 暂时这样。。。
+                    while (m_Listener.WritePostStream(stream))
+                        System.Threading.Thread.Sleep(1);
+                }
+
                 if (m_PostBuf != null && m_PostBuf.Length > 0) {
                     stream.Write(m_PostBuf, 0, m_PostBuf.Length);
                     // 置空
                     m_PostBuf = null;
                     stream.Flush();
                 }
+
+                if (m_BoundaryBytes != null && m_BoundaryBytes.Length > 0) {
+                    stream.Write(m_BoundaryBytes, 0, m_BoundaryBytes.Length);
+                    m_BoundaryBytes = null;
+                    stream.Flush();
+                }
+
                 stream.Close();
                 stream.Dispose();
 
@@ -526,6 +569,8 @@ namespace NsHttpClient
 			m_Listener = null;
 			m_FilePos = 0;
             m_PostBuf = null;
+            m_PostHeaderBytes = null;
+            m_BoundaryBytes = null;
             m_IsKeppAlive = false;
             m_Certs = null;
             // 重置为GET
@@ -677,6 +722,74 @@ namespace NsHttpClient
             }
         }
 
+        private string GetPostContentType(out string NowTicks) {
+            string ret = GetPostDefaultContentType();
+            NowTicks = string.Empty;
+            if (m_Listener != null) {
+                string r = m_Listener.GetPostFileName();
+                if (!string.IsNullOrEmpty(r)) {
+                    ret = GetPostUpFileContentType(ref NowTicks);
+                }
+            }
+            return ret;
+        }
+
+        private int GetPostContentLength() {
+            // m_PostBuf上传和m_Listener只会有一个，优先m_PostBuf
+            int ret = m_PostBuf != null ? m_PostBuf.Length: 0;
+            if (ret <= 0 && m_Listener != null) {
+                int r = m_Listener.GetPostContentLength();
+                if (r > 0)
+                    ret = r;
+            }
+            return ret;
+        }
+
+        private static string GetBoundary(string NowTicks) {
+            string ret = StringHelper.Format("----------{0}", NowTicks);
+            return ret;
+        }
+
+        // 获得上传文件ContentType
+        public static string GetPostUpFileContentType(ref string NowTicks) {
+            if (string.IsNullOrEmpty(NowTicks))
+                NowTicks = DateTime.Now.Ticks.ToString("x");
+            string boundary = GetBoundary(NowTicks);
+            string ret = StringHelper.Format("multipart/form-data; boundary={0}", boundary);
+            return ret;
+        }
+
+        public static string GetPostDefaultContentType() {
+            return "application/x-www-form-urlencoded";
+        }
+
+        // 上传文件会要用到的
+        private string BuildPostMessageHeader(string boundary, string upFileName, string contentType) {
+            string fileName = Path.GetFileName(upFileName);
+            string name = Path.GetFileNameWithoutExtension(fileName);
+            string ret = StringHelper.Format("--{0} Content-Disposition: form-data; name=\"{1}\"; filename=\"{2}\" Content-Type: {3}  ",
+                   boundary, name, fileName, contentType);
+            return ret;
+        }
+
+        private byte[] m_PostHeaderBytes = null;
+        private byte[] m_BoundaryBytes = null;
+        private void BuildPostMessageHeader(string NowTicks) {
+            if (m_Listener != null && m_Req != null && !string.IsNullOrEmpty(NowTicks)) {
+                // NowTicks有值说明是UpFile
+                string upFileName = m_Listener.GetPostFileName();
+                if (!string.IsNullOrEmpty(upFileName)) {
+                    string boundary = GetBoundary(NowTicks);
+                    string messageHeader = BuildPostMessageHeader(upFileName, NowTicks, m_Req.ContentType);
+
+                    m_PostHeaderBytes = System.Text.Encoding.UTF8.GetBytes(messageHeader);
+                    m_BoundaryBytes = System.Text.Encoding.UTF8.GetBytes(boundary);
+
+                    m_Req.ContentLength = m_PostHeaderBytes.LongLength + m_Req.ContentLength + m_BoundaryBytes.LongLength;
+                }
+            }
+        }
+
         private void Start()
 		{
             m_Req = WebRequest.Create(m_Url) as HttpWebRequest;
@@ -707,8 +820,11 @@ namespace NsHttpClient
             }
 
             // Post判断安全, 必须要有PostBuf
-            if (m_PostBuf == null || m_PostBuf.Length <= 0) {
+            int postContentLen = GetPostContentLength();
+            if (postContentLen <= 0) {
                 m_PostBuf = null;
+                m_BoundaryBytes = null;
+                m_PostHeaderBytes = null;
                 m_ClientType = HttpClientType.httpGet;
             }
 
@@ -717,8 +833,10 @@ namespace NsHttpClient
                 StartResponse();
             } else {
                 m_Req.Method = "POST";
-                m_Req.ContentType = "application/x-www-form-urlencoded";
-                m_Req.ContentLength = m_PostBuf.Length;
+                string NowTicks;
+                m_Req.ContentType = GetPostContentType(out NowTicks);
+                m_Req.ContentLength = postContentLen; // 还需要增加MessageHeader大小
+                BuildPostMessageHeader(NowTicks);
                 StartRequest();
             }
 
