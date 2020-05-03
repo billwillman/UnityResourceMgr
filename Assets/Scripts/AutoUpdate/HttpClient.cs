@@ -782,11 +782,13 @@ namespace NsHttpClient
         }
 
         // 上传文件会要用到的
-        private string BuildPostMessageHeader(string boundary, string upFileName) {
-            if (m_Listener == null)
+        private string BuildPostMessageHeader(string boundary, string upFileName, out string name) {
+            if (m_Listener == null) {
+                name = string.Empty;
                 return string.Empty;
+            }
             string fileName = Path.GetFileName(upFileName);
-            string name = Path.GetFileNameWithoutExtension(fileName);
+            name = Path.GetFileNameWithoutExtension(fileName);
             string contentType = m_Listener.GetContentType();
             if (string.IsNullOrEmpty(contentType))
                 contentType = "application/octet-stream";
@@ -802,8 +804,9 @@ namespace NsHttpClient
                 // NowTicks有值说明是UpFile
                 string upFileName = m_Listener.GetPostFileName();
                 if (!string.IsNullOrEmpty(upFileName)) {
-                    string messageHeader = BuildPostMessageHeader(boundary, upFileName);
-                    if (string.IsNullOrEmpty(messageHeader))
+                    string name;
+                    string messageHeader = BuildPostMessageHeader(boundary, upFileName, out name);
+                    if (string.IsNullOrEmpty(messageHeader) || string.IsNullOrEmpty(name))
                         return;
                     
                     m_PostHeaderBytes = System.Text.Encoding.UTF8.GetBytes(messageHeader);
