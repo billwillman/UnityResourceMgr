@@ -41,7 +41,7 @@ namespace NsHttpClient
         long GetPostContentLength();
         // Post上传文件
         string GetPostFileName();
-        // 
+        // 例如： image/jpeg
         string GetContentType();
         // Post上传文件写入，返回false则全部传完了，true则还要继续写入文件没有写完
         bool WritePostStream(Stream stream);
@@ -792,7 +792,7 @@ namespace NsHttpClient
             string contentType = m_Listener.GetContentType();
             if (string.IsNullOrEmpty(contentType))
                 contentType = "application/octet-stream";
-            string ret = StringHelper.Format("--{0} Content-Disposition: form-data; name=\"{1}\"; filename=\"{2}\" Content-Type: {3}  ",
+            string ret = StringHelper.Format("--{0}\r\nContent-Disposition: form-data; name=\"{1}\"; filename=\"{2}\"\r\nContent-Type: {3}\r\n\r\n",
                    boundary, name, fileName, contentType);
             return ret;
         }
