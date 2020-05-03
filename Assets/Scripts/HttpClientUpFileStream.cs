@@ -41,7 +41,9 @@ namespace NsHttpClient {
                 }
                 if (readSize > 0) {
                     stream.Write(m_Buf, 0, readSize);
-                }
+                } else
+                    return false;
+
                 curProcess += readSize;
                 this.Process = curProcess;
 

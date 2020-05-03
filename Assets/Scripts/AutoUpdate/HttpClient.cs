@@ -38,7 +38,7 @@ namespace NsHttpClient
         void OnRequested();
 
         // Post相关
-        int GetPostContentLength();
+        long GetPostContentLength();
         // Post上传文件
         string GetPostFileName();
         // Post上传文件写入，返回false则全部传完了，true则还要继续写入文件没有写完
@@ -74,7 +74,7 @@ namespace NsHttpClient
 			Status = HttpListenerStatus.hsWating;
 		}
 
-        public virtual int GetPostContentLength() {
+        public virtual long GetPostContentLength() {
             return 0;
         }
 
@@ -86,7 +86,7 @@ namespace NsHttpClient
             Status = HttpListenerStatus.hsRequesting;
         }
 
-        public void OnRequested() {
+        public virtual void OnRequested() {
             Status = HttpListenerStatus.hsRequested;
         }
 
@@ -153,7 +153,7 @@ namespace NsHttpClient
 			}
 		}
 
-        public bool WritePostStream(Stream stream) {
+        public virtual bool WritePostStream(Stream stream) {
             return false;
         }
 
