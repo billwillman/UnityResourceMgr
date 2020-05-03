@@ -741,13 +741,13 @@ namespace NsHttpClient
             }
         }
 
-        private string GetPostContentType(out string NowTicks) {
+        private string GetPostContentType(out string boundary) {
             string ret = GetPostDefaultContentType();
-            NowTicks = string.Empty;
+            boundary = string.Empty;
             if (m_Listener != null) {
                 string r = m_Listener.GetPostFileName();
                 if (!string.IsNullOrEmpty(r)) {
-                    ret = GetPostUpFileContentType(ref NowTicks);
+                    ret = GetPostUpFileContentType(ref boundary);
                 }
             }
             return ret;
@@ -770,10 +770,9 @@ namespace NsHttpClient
         }
 
         // 获得上传文件ContentType
-        public static string GetPostUpFileContentType(ref string NowTicks) {
-            if (string.IsNullOrEmpty(NowTicks))
-                NowTicks = DateTime.Now.Ticks.ToString("x");
-            string boundary = GetBoundary(NowTicks);
+        public static string GetPostUpFileContentType(ref string boundary) {
+            if (string.IsNullOrEmpty(boundary))
+                boundary = GetBoundary(DateTime.Now.Ticks.ToString("x"));
             string ret = StringHelper.Format("multipart/form-data; boundary={0}", boundary);
             return ret;
         }
@@ -798,15 +797,15 @@ namespace NsHttpClient
 
         private byte[] m_PostHeaderBytes = null;
         private byte[] m_BoundaryBytes = null;
-        private void BuildPostMessageHeader(string NowTicks) {
-            if (m_Listener != null && m_Req != null && !string.IsNullOrEmpty(NowTicks)) {
+        private void BuildPostMessageHeader(string boundary) {
+            if (m_Listener != null && m_Req != null && !string.IsNullOrEmpty(boundary)) {
                 // NowTicks有值说明是UpFile
                 string upFileName = m_Listener.GetPostFileName();
                 if (!string.IsNullOrEmpty(upFileName)) {
-                    string messageHeader = BuildPostMessageHeader(NowTicks, upFileName);
+                    string messageHeader = BuildPostMessageHeader(boundary, upFileName);
                     if (string.IsNullOrEmpty(messageHeader))
                         return;
-                    string boundary = GetBoundary(NowTicks);
+                    
                     m_PostHeaderBytes = System.Text.Encoding.UTF8.GetBytes(messageHeader);
                     m_BoundaryBytes = System.Text.Encoding.UTF8.GetBytes(boundary);
 
@@ -860,10 +859,10 @@ namespace NsHttpClient
                 StartResponse();
             } else {
                 m_Req.Method = "POST";
-                string NowTicks;
-                m_Req.ContentType = GetPostContentType(out NowTicks);
+                string boundary;
+                m_Req.ContentType = GetPostContentType(out boundary);
                 m_Req.ContentLength = postContentLen; // 还需要增加MessageHeader大小
-                BuildPostMessageHeader(NowTicks);
+                BuildPostMessageHeader(boundary);
                 StartRequest();
             }
 
