@@ -41,6 +41,8 @@ namespace NsHttpClient
         long GetPostContentLength();
         // Post上传文件
         string GetPostFileName();
+        // 
+        string GetContentType();
         // Post上传文件写入，返回false则全部传完了，true则还要继续写入文件没有写完
         bool WritePostStream(Stream stream);
         //-----
@@ -68,7 +70,12 @@ namespace NsHttpClient
 			m_Buf = new byte[bufSize];
 		}
 
-		public void OnStart()
+        public virtual string GetContentType() {
+            return string.Empty;
+        }
+
+
+        public void OnStart()
 		{
 			DownProcess = 0;
 			Status = HttpListenerStatus.hsWating;
@@ -734,11 +741,11 @@ namespace NsHttpClient
             return ret;
         }
 
-        private int GetPostContentLength() {
+        private long GetPostContentLength() {
             // m_PostBuf上传和m_Listener只会有一个，优先m_PostBuf
-            int ret = m_PostBuf != null ? m_PostBuf.Length: 0;
+            long ret = m_PostBuf != null ? m_PostBuf.Length: 0;
             if (ret <= 0 && m_Listener != null) {
-                int r = m_Listener.GetPostContentLength();
+                long r = m_Listener.GetPostContentLength();
                 if (r > 0)
                     ret = r;
             }
@@ -764,9 +771,14 @@ namespace NsHttpClient
         }
 
         // 上传文件会要用到的
-        private string BuildPostMessageHeader(string boundary, string upFileName, string contentType) {
+        private string BuildPostMessageHeader(string boundary, string upFileName) {
+            if (m_Listener == null)
+                return string.Empty;
             string fileName = Path.GetFileName(upFileName);
             string name = Path.GetFileNameWithoutExtension(fileName);
+            string contentType = m_Listener.GetContentType();
+            if (string.IsNullOrEmpty(contentType))
+                contentType = "application/octet-stream";
             string ret = StringHelper.Format("--{0} Content-Disposition: form-data; name=\"{1}\"; filename=\"{2}\" Content-Type: {3}  ",
                    boundary, name, fileName, contentType);
             return ret;
@@ -779,9 +791,10 @@ namespace NsHttpClient
                 // NowTicks有值说明是UpFile
                 string upFileName = m_Listener.GetPostFileName();
                 if (!string.IsNullOrEmpty(upFileName)) {
+                    string messageHeader = BuildPostMessageHeader(upFileName, NowTicks);
+                    if (string.IsNullOrEmpty(messageHeader))
+                        return;
                     string boundary = GetBoundary(NowTicks);
-                    string messageHeader = BuildPostMessageHeader(upFileName, NowTicks, m_Req.ContentType);
-
                     m_PostHeaderBytes = System.Text.Encoding.UTF8.GetBytes(messageHeader);
                     m_BoundaryBytes = System.Text.Encoding.UTF8.GetBytes(boundary);
 
@@ -820,7 +833,7 @@ namespace NsHttpClient
             }
 
             // Post判断安全, 必须要有PostBuf
-            int postContentLen = GetPostContentLength();
+            long postContentLen = GetPostContentLength();
             if (postContentLen <= 0) {
                 m_PostBuf = null;
                 m_BoundaryBytes = null;
