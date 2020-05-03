@@ -500,7 +500,7 @@ namespace NsHttpClient
                 if (m_Listener != null) {
                     // 暂时这样。。。
                     while (m_Listener.WritePostStream(stream))
-                        System.Threading.Thread.Sleep(1);
+                        ;
                 }
 
                 if (m_PostBuf != null && m_PostBuf.Length > 0) {
