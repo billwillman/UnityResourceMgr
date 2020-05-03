@@ -803,7 +803,7 @@ namespace NsHttpClient
                 // NowTicks有值说明是UpFile
                 string upFileName = m_Listener.GetPostFileName();
                 if (!string.IsNullOrEmpty(upFileName)) {
-                    string messageHeader = BuildPostMessageHeader(upFileName, NowTicks);
+                    string messageHeader = BuildPostMessageHeader(NowTicks, upFileName);
                     if (string.IsNullOrEmpty(messageHeader))
                         return;
                     string boundary = GetBoundary(NowTicks);
