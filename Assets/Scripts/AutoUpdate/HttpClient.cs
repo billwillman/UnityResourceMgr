@@ -45,7 +45,10 @@ namespace NsHttpClient
         string GetContentType();
         // Post上传文件写入，返回false则全部传完了，true则还要继续写入文件没有写完
         bool WritePostStream(Stream stream);
+
         //-----
+        // 用途：例如用户上传文件的时候的账号密码等
+        CredentialCache CreateCredentials();
 
         HttpListenerStatus Status
 		{
@@ -91,6 +94,10 @@ namespace NsHttpClient
 
         public virtual string GetPostFileName() {
             return string.Empty;
+        }
+
+        public virtual CredentialCache CreateCredentials() {
+            return null;
         }
 
         public void OnRequesting() {
@@ -855,6 +862,14 @@ namespace NsHttpClient
                 m_ClientType = HttpClientType.httpGet;
             } else {
                 m_ClientType = HttpClientType.httpPost;
+            }
+
+            // 安全性设置
+            if (m_Listener != null) {
+                CredentialCache credent = m_Listener.CreateCredentials();
+                if (credent != null) {
+                    m_Req.Credentials = credent;
+                }
             }
 
             if (m_ClientType == HttpClientType.httpGet) {
