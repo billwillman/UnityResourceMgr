@@ -513,8 +513,10 @@ namespace NsHttpClient
                     while (m_Listener.WritePostStream(stream)) {
                         // 这里要处理下，不然超时了，Post用的是ConnectTime定时器
                         ResetConnectTimeOut();
+                        stream.Flush();
                         System.Threading.Thread.Sleep(1);
                     }
+                    stream.Flush();
                 }
 
                 if (m_PostBuf != null && m_PostBuf.Length > 0) {
