@@ -38,7 +38,7 @@
    
    10.AB的依赖配置文件支持三种方式加载：1.同步加载。2.多线程加载（基于改造后的LOOM库，不使用系统线程池，系统线程池在5.3.8版本会有几率卡死，申请不到额外线程）。3.协程异步加载。
    
-   11.增加了增加BaseResLoaderAsyncMono，方便业务逻辑程序使用的封装简化，以及扩展也容易。
+   11.增加了增加BaseResLoaderAsyncMono，方便业务逻辑程序使用异步加载的封装简化，以及扩展也容易。
 
    
 具体说明请看WIKI: https://github.com/billwillman/UnityResourceMgr/wiki/%E7%9B%AE%E5%BD%95
