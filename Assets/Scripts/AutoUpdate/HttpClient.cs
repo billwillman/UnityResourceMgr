@@ -819,7 +819,7 @@ namespace NsHttpClient
                         return;
                     
                     m_PostHeaderBytes = System.Text.Encoding.UTF8.GetBytes(messageHeader);
-                    m_BoundaryBytes = System.Text.Encoding.UTF8.GetBytes("--" + boundary);
+                    m_BoundaryBytes = System.Text.Encoding.UTF8.GetBytes(boundary + "--");
 
                     m_Req.ContentLength = m_PostHeaderBytes.LongLength + m_Req.ContentLength + m_BoundaryBytes.LongLength;
                 }
