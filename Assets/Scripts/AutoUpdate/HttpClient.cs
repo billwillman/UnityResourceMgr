@@ -890,18 +890,17 @@ namespace NsHttpClient
         }
 
         private void StartRequest() {
-            AsyncCallback callBack = new AsyncCallback(OnRequest);
-            m_Req.BeginGetRequestStream(callBack, m_Req);
             if (m_Listener != null)
                 m_Listener.OnRequesting();
+            AsyncCallback callBack = new AsyncCallback(OnRequest);
+            m_Req.BeginGetRequestStream(callBack, m_Req);
         }
 
         private void StartResponse() {
-            AsyncCallback callBack = new AsyncCallback(OnResponse);
-            m_Req.BeginGetResponse(callBack, m_Req);
-
             if (m_Listener != null)
                 m_Listener.OnStart();
+            AsyncCallback callBack = new AsyncCallback(OnResponse);
+            m_Req.BeginGetResponse(callBack, m_Req);
         }
 
         private void StartReadTimeoutTime() {
