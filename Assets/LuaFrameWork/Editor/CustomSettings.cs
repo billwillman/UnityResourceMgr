@@ -28,7 +28,7 @@ public static class CustomSettings  {
 		typeof(UnityEngine.Resources),
 		typeof(UnityEngine.Physics),
 		typeof(UnityEngine.RenderSettings),
-#if !UNITY_2018 && !UNITY_2019
+#if !UNITY_2018 && !UNITY_2019 && !UNITY_2017
         typeof(UnityEngine.QualitySettings),
 #endif
 		typeof(UnityEngine.GL),
@@ -163,7 +163,7 @@ public static class CustomSettings  {
 		_GT(typeof(QueueMode)),  
 		_GT(typeof(PlayMode)),
 		_GT(typeof(WrapMode)),
-#if !UNITY_2018 && !UNITY_2019
+#if !UNITY_2018 && !UNITY_2019  && !UNITY_2017
         _GT(typeof(QualitySettings)),
 #endif
 		_GT(typeof(RenderSettings)),

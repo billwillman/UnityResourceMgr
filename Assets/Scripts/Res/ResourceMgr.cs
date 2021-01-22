@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
 using UnityEngine.SceneManagement;
 #endif
 
@@ -43,13 +43,13 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		}
 
 		if (isAdd)
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
             SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
 #else
 			Application.LoadLevelAdditive (sceneName);
 #endif
 		else
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
             SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
 #else
 			Application.LoadLevel (sceneName);
@@ -62,13 +62,13 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	{
 		AsyncOperation opt;
 		if (isAdd) {
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
             opt = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
 #else
 			opt = Application.LoadLevelAdditiveAsync (sceneName);
 #endif
 		} else {
-#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019
+#if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
             opt = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
 #else
 			opt = Application.LoadLevelAsync(sceneName);
@@ -142,7 +142,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
 #if UNITY_5_2
 		Application.UnloadLevel(sceneName);
-#elif UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019
+#elif UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
         SceneManager.UnloadScene(sceneName);
 #endif
 		// 清除

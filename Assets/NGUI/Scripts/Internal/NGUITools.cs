@@ -54,7 +54,7 @@ static public class NGUITools
 	{
 		get
 		{
-#if UNITY_2018 || UNITY_2019
+#if UNITY_2018 || UNITY_2019 || UNITY_2017
             return Application.platform != RuntimePlatform.WebGLPlayer;
 #else
             return Application.platform != RuntimePlatform.WindowsWebPlayer &&

@@ -899,7 +899,7 @@ public class UIPanel : UIRect
 
 		mHalfPixelOffset = (Application.platform == RuntimePlatform.WindowsPlayer ||
 			Application.platform == RuntimePlatform.XBOX360 ||
-#if UNITY_2018 || UNITY_2019
+#if UNITY_2018 || UNITY_2019 || UNITY_2017
             Application.platform == RuntimePlatform.WebGLPlayer ||
 #else
             Application.platform == RuntimePlatform.WindowsWebPlayer ||

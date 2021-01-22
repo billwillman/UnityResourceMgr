@@ -184,7 +184,7 @@ public class BuildPkg
             case PkgPlatformType.pkgPC:
                 if (buildTarget != BuildTarget.StandaloneLinux && buildTarget != BuildTarget.StandaloneLinux64 &&
                     buildTarget != BuildTarget.StandaloneLinuxUniversal && buildTarget != BuildTarget.StandaloneOSXIntel &&
-#if UNITY_2018 || UNITY_2019
+#if UNITY_2018 || UNITY_2019 || UNITY_2017
                     buildTarget != BuildTarget.StandaloneOSXIntel64 && buildTarget != BuildTarget.StandaloneOSX &&
 #else
 					buildTarget != BuildTarget.StandaloneOSXIntel64 && buildTarget != BuildTarget.StandaloneOSXUniversal &&

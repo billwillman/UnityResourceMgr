@@ -886,7 +886,7 @@ public class UIInput : MonoBehaviour
 		bool isMac = (
 			rp == RuntimePlatform.OSXEditor ||
 			rp == RuntimePlatform.OSXPlayer ||
-#if UNITY_2018 || UNITY_2019
+#if UNITY_2018 || UNITY_2019 || UNITY_2017
             rp == RuntimePlatform.WebGLPlayer
 #else
             rp == RuntimePlatform.OSXWebPlayer

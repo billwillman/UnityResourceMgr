@@ -126,7 +126,7 @@ namespace NsLib.ResMgr {
                                  "<td width = \"180\">{2:D}</td>" +
                                  "<td width = \"581\">{3}</td>" +
                                  "</tr>";
-#if UNITY_5_6 || UNITY_2018 || UNITY_2019
+#if UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
                 var type = System.Reflection.Assembly.Load("UnityEditor.dll").GetType("UnityEditor.TextureUtil");
 #else
                 var type = Types.GetType("UnityEditor.TextureUtil", "UnityEditor.dll");
