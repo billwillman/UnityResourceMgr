@@ -30,12 +30,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
 			return false;*/
 
 		if (mAssetLoader.OnSceneLoad (sceneName)) {
-#if UNITY_EDITOR
-            Debug.LogError("【场景加载】注意AB读取模式，SceneName必须大小写一致，但如果未开启USE_LOWERCHAR编译指令，而场景名含有大写，会导致出现：\n" +
-                "【Unity AssetBundle Scene couldn't be loaded...】的提示，是因为LoadScene必须与场景大小写一致。两种修改方法:\n" +
-                "1.底层开启USE_LOWERCHAR，传入大小写对应的SceneName.\n" + 
-                "2.场景名直接全部小写模式，不开启编译指令（推荐，减少GC）");
-#endif
+            DebugSceneLoadInfo();
             LogMgr.Instance.Log (StringHelper.Format ("Loading AssetBundle Scene: {0}", sceneName));
 		} else {
 #if UNITY_EDITOR
@@ -108,13 +103,24 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		}
 	}
 
-	// isLoadedActive: 是否加载完就激活
+    private static void DebugSceneLoadInfo()
+    {
+#if UNITY_EDITOR
+        Debug.LogError("【场景加载】注意AB读取模式，SceneName必须大小写一致，但如果未开启USE_LOWERCHAR编译指令，而场景名含有大写，会导致出现：\n" +
+            "【Unity AssetBundle Scene couldn't be loaded...】的提示，是因为LoadScene必须与场景大小写一致。两种修改方法:\n" +
+            "1.底层开启USE_LOWERCHAR，传入大小写对应的SceneName.\n" +
+            "2.场景名直接全部小写模式，不开启编译指令（推荐，减少GC）");
+#endif
+    }
+
+    // isLoadedActive: 是否加载完就激活
     // bool isDone，是否已经完成
-	public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation, bool> onProcess, bool isLoadedActive = true, int priority = 0)
+    public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation, bool> onProcess, bool isLoadedActive = true, int priority = 0)
 	{
 		if (mAssetLoader.OnSceneLoadAsync (sceneName, 
 		                                   delegate {
-												DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive, priority);
+                                               DebugSceneLoadInfo();
+                                               DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive, priority);
 										}, priority)) {
 			LogMgr.Instance.Log (StringHelper.Format ("Loading AssetBundle Scene: {0}", sceneName));
 		} else {
