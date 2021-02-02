@@ -2506,9 +2506,16 @@ class AssetBundleMgr
 		{
             defines = defines.Replace(';', ',');
             // 处理一下没有用的编译指令
+            AddCustomPlatform(ref defines);
             cmdDefines = StringHelper.Format(" /p:DefineConstants=\"{0}\"", defines);
-		}
-        AddCustomPlatform(ref cmdDefines);
+		} else {
+            defines = string.Empty;
+            AddCustomPlatform(ref defines);
+            if (defines.Length > 0) {
+                cmdDefines = StringHelper.Format(" /p:DefineConstants=\"{0}\"", defines);
+            }
+        }
+        
         string cmd = StringHelper.Format("{0} {1} /property:AllowUnsafeBlocks=true {2} /p:Configuration=Release{3}", preCmd, buildExe, ProjFileName, cmdDefines);
 		AssetBundleBuild.RunCmd(cmd);
       //  Debug.LogError(cmd);
