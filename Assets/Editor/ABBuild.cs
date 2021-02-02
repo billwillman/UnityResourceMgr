@@ -2444,7 +2444,26 @@ class AssetBundleMgr
 			return string.Empty;
 	}
 
-	public bool BuildCSharpProject(string ProjFileName, string buildExe)
+    void AddCustomPlatform(ref string defines) {
+#if UNITY_2018
+        if (defines.Length > 0)
+            defines = "," + "UNITY_2018";
+        else
+            defines = "UNITY_2018";
+#elif UNITY_2017
+        if (defines.Length > 0)
+            defines = "," + "UNITY_2017";
+        else
+            defines = "UNITY_2017";
+#elif UNITY_2019
+        if (defines.Length > 0)
+            defines = "," + "UNITY_2019";
+        else
+            defines = "UNITY_2019";
+#endif
+    }
+
+    public bool BuildCSharpProject(string ProjFileName, string buildExe)
 	{
 #if UNITY_EDITOR_WIN
 		if (string.IsNullOrEmpty(ProjFileName) || string.IsNullOrEmpty(buildExe))
@@ -2483,13 +2502,14 @@ class AssetBundleMgr
 		// DefineConstants=""
 		string defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android);
 		string cmdDefines = string.Empty;
-		if (defines != null && defines.Length > 0)
+        if (defines != null && defines.Length > 0)
 		{
             defines = defines.Replace(';', ',');
-			// 处理一下没有用的编译指令
-			cmdDefines = StringHelper.Format(" /p:DefineConstants=\"{0}\"", defines);
+            // 处理一下没有用的编译指令
+            cmdDefines = StringHelper.Format(" /p:DefineConstants=\"{0}\"", defines);
 		}
-		string cmd = StringHelper.Format("{0} {1} /property:AllowUnsafeBlocks=true {2} /p:Configuration=Release{3}", preCmd, buildExe, ProjFileName, cmdDefines);
+        AddCustomPlatform(ref cmdDefines);
+        string cmd = StringHelper.Format("{0} {1} /property:AllowUnsafeBlocks=true {2} /p:Configuration=Release{3}", preCmd, buildExe, ProjFileName, cmdDefines);
 		AssetBundleBuild.RunCmd(cmd);
       //  Debug.LogError(cmd);
 		return true;
@@ -2847,7 +2867,7 @@ class AssetBundleMgr
     static public void SetUnityPackageVersion(string apkVersion) {
         PlayerSettings.bundleVersion = apkVersion;
         // 立即保存设置
-#if UNITY_5_6  || UNITY_2018 || UNITY_2019 || UNITY_2017
+#if UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
         AssetDatabase.SaveAssets();
 #else
         EditorApplication.SaveAssets();
