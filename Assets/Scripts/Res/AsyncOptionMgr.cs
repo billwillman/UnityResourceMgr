@@ -44,8 +44,8 @@ public class AsyncOperationMgr: Singleton<AsyncOperationMgr>
 		{
 			if ((opt == null))
 				return;
+            this.isDone = opt.isDone;
             if (onProcess != null) {
-                this.isDone = opt.isDone;
                 onProcess(opt, isDone);
             }
         }

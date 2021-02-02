@@ -1,25 +1,26 @@
-using System;
+Ôªøusing System;
 using System.Collections.Generic;
 using UnityEngine;
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
 using UnityEngine.SceneManagement;
 #endif
 
-public class ResourceMgr: Singleton<ResourceMgr>
+public class ResourceMgr : Singleton<ResourceMgr>
 {
 
-    // isThreadMode:  «∑Ò «’Ê∂‡œﬂ≥Ã“Ï≤Ωº”‘ÿ async: ≤…”√–≠≥Ã°£‘⁄∂‡œﬂ≥Ã∫Õ–≠≥ÃÕ¨ ±¥´»Î£¨”≈œ» π”√∂‡œﬂ≥Ã
+    // isThreadMode: ÊòØÂê¶ÊòØÁúüÂ§öÁ∫øÁ®ãÂºÇÊ≠•Âä†ËΩΩ async: ÈááÁî®ÂçèÁ®ã„ÄÇÂú®Â§öÁ∫øÁ®ãÂíåÂçèÁ®ãÂêåÊó∂‰º†ÂÖ•Ôºå‰ºòÂÖà‰ΩøÁî®Â§öÁ∫øÁ®ã
     public void LoadConfigs(Action<bool> OnFinish, MonoBehaviour async = null, bool isThreadMode = false)
-	{
-		AssetLoader loader = mAssetLoader as AssetLoader;
-		if (loader != null) {
-			loader.LoadConfigs(OnFinish, async, isThreadMode);
-		}
-	}
+    {
+        AssetLoader loader = mAssetLoader as AssetLoader;
+        if (loader != null)
+        {
+            loader.LoadConfigs(OnFinish, async, isThreadMode);
+        }
+    }
 
-	public bool LoadScene(string sceneName, bool isAdd)
-	{
-		/*string realSceneName = sceneName;
+    public bool LoadScene(string sceneName, bool isAdd)
+    {
+        /*string realSceneName = sceneName;
 
 
 		IResourceLoader loader = GetLoader (ref realSceneName);
@@ -29,173 +30,195 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		if (!loader.OnSceneLoad (realSceneName))
 			return false;*/
 
-		if (mAssetLoader.OnSceneLoad (sceneName)) {
+        if (mAssetLoader.OnSceneLoad(sceneName))
+        {
+            DebugSceneLoadInfo();
+            LogMgr.Instance.Log(StringHelper.Format("Loading AssetBundle Scene: {0}", sceneName));
+        }
+        else
+        {
 #if UNITY_EDITOR
-            Debug.LogError("°æ≥°æ∞º”‘ÿ°ø◊¢“‚AB∂¡»°ƒ£ Ω£¨SceneName±ÿ–Î¥Û–°–¥“ª÷¬£¨µ´»Áπ˚Œ¥ø™∆ÙUSE_LOWERCHAR±‡“Î÷∏¡Ó£¨∂¯≥°æ∞√˚∫¨”–¥Û–¥£¨ª·µº÷¬≥ˆœ÷£∫\n" +
-                "°æUnity AssetBundle Scene couldn't be loaded...°øµƒÃ· æ£¨ «“ÚŒ™LoadScene±ÿ–Î”Î≥°æ∞¥Û–°–¥“ª÷¬°£¡Ω÷÷–ﬁ∏ƒ∑Ω∑®:\n" +
-                "1.µ◊≤„ø™∆ÙUSE_LOWERCHAR£¨¥´»Î¥Û–°–¥∂‘”¶µƒSceneName.\n" + 
-                "2.≥°æ∞√˚÷±Ω”»´≤ø–°–¥ƒ£ Ω£¨≤ªø™∆Ù±‡“Î÷∏¡Ó£®Õ∆ºˆ£¨ºı…ŸGC£©");
+            if (!Application.CanStreamedLevelBeLoaded(sceneName))
+                return false;
 #endif
-            LogMgr.Instance.Log (StringHelper.Format ("Loading AssetBundle Scene: {0}", sceneName));
-		} else {
-#if UNITY_EDITOR
-			if (!Application.CanStreamedLevelBeLoaded (sceneName))
-				return false;
-#endif
-			if (mResLoader.OnSceneLoad(sceneName))
-				LogMgr.Instance.Log(StringHelper.Format("Loading Resources Scene: {0}", sceneName));
-			else
-				return false;
-		}
+            if (mResLoader.OnSceneLoad(sceneName))
+                LogMgr.Instance.Log(StringHelper.Format("Loading Resources Scene: {0}", sceneName));
+            else
+                return false;
+        }
 
-		if (isAdd)
+        if (isAdd)
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
             SceneManager.LoadScene(sceneName, LoadSceneMode.Additive);
 #else
 			Application.LoadLevelAdditive (sceneName);
 #endif
-		else
+        else
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
             SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
 #else
 			Application.LoadLevel (sceneName);
 #endif
-		
-		return true;
-	}
 
-	private bool DoLoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation, bool> onProcess, bool isLoadedActive, int priority)
-	{
-		AsyncOperation opt;
-		if (isAdd) {
+        return true;
+    }
+
+    private bool DoLoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation, bool> onProcess, bool isLoadedActive, int priority)
+    {
+        AsyncOperation opt;
+        if (isAdd)
+        {
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
             opt = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
 #else
 			opt = Application.LoadLevelAdditiveAsync (sceneName);
 #endif
-		} else {
+        }
+        else
+        {
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
             opt = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
 #else
 			opt = Application.LoadLevelAsync(sceneName);
 #endif
-		}
+        }
 
-		if (opt == null)
-			return false;
+        if (opt == null)
+            return false;
 
-		if (opt.isDone) {
-			if (onProcess != null)
-				onProcess(opt, true);
-			return true;
-		}
+        if (opt.isDone)
+        {
+            if (onProcess != null)
+                onProcess(opt, true);
+            return true;
+        }
 
-		opt.allowSceneActivation = isLoadedActive;
-		opt.priority = priority;
-		if (isLoadedActive)
-			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt, onProcess) != null;
-		else {
-			//return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt, onProcess) != null;
+        opt.allowSceneActivation = isLoadedActive;
+        opt.priority = priority;
+        if (isLoadedActive)
+            return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt, onProcess) != null;
+        else
+        {
+            //return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt, onProcess) != null;
 
-			return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt,
-				delegate(AsyncOperation obj, bool isDone) {
-					if (onProcess != null)
-						onProcess(obj, isDone);
-					if (obj.progress >= 0.9f) {
-						AsyncOperationMgr.Instance.RemoveAsyncOperation(obj);
-					}
-				}) != null;
-		}
-	}
+            return AsyncOperationMgr.Instance.AddAsyncOperation<AsyncOperation, System.Object>(opt,
+                delegate (AsyncOperation obj, bool isDone)
+                {
+                    if (onProcess != null)
+                        onProcess(obj, isDone);
+                    if (obj.progress >= 0.9f)
+                    {
+                        AsyncOperationMgr.Instance.RemoveAsyncOperation(obj);
+                    }
+                }) != null;
+        }
+    }
 
-	// isLoadedActive:  «∑Òº”‘ÿÕÍæÕº§ªÓ
-    // bool isDone£¨ «∑Ò“—æ≠ÕÍ≥…
-	public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation, bool> onProcess, bool isLoadedActive = true, int priority = 0)
-	{
-		if (mAssetLoader.OnSceneLoadAsync (sceneName, 
-		                                   delegate {
-												DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive, priority);
-										}, priority)) {
-			LogMgr.Instance.Log (StringHelper.Format ("Loading AssetBundle Scene: {0}", sceneName));
-		} else {
+    private static void DebugSceneLoadInfo()
+    {
 #if UNITY_EDITOR
-			if (!Application.CanStreamedLevelBeLoaded (sceneName))
-				return false;
+        Debug.LogError("„ÄêÂú∫ÊôØÂä†ËΩΩ„ÄëÊ≥®ÊÑèABËØªÂèñÊ®°ÂºèÔºåSceneNameÂøÖÈ°ªÂ§ßÂ∞èÂÜô‰∏ÄËá¥Ôºå‰ΩÜÂ¶ÇÊûúÊú™ÂºÄÂêØUSE_LOWERCHARÁºñËØëÊåá‰ª§ÔºåËÄåÂú∫ÊôØÂêçÂê´ÊúâÂ§ßÂÜôÔºå‰ºöÂØºËá¥Âá∫Áé∞Ôºö\n" +
+            "„ÄêUnity AssetBundle Scene couldn't be loaded...„ÄëÁöÑÊèêÁ§∫ÔºåÊòØÂõ†‰∏∫LoadSceneÂøÖÈ°ª‰∏éÂú∫ÊôØÂ§ßÂ∞èÂÜô‰∏ÄËá¥„ÄÇ‰∏§Áßç‰øÆÊîπÊñπÊ≥ï:\n" +
+            "1.Â∫ïÂ±ÇÂºÄÂêØUSE_LOWERCHARÔºå‰º†ÂÖ•Â§ßÂ∞èÂÜôÂØπÂ∫îÁöÑSceneName.\n" +
+            "2.Âú∫ÊôØÂêçÁõ¥Êé•ÂÖ®ÈÉ®Â∞èÂÜôÊ®°ÂºèÔºå‰∏çÂºÄÂêØÁºñËØëÊåá‰ª§ÔºàÊé®ËçêÔºåÂáèÂ∞ëGCÔºâ");
 #endif
-			if (mResLoader.OnSceneLoadAsync(sceneName,
-			                                delegate {
-												DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive, priority);
-											}, priority))
-				LogMgr.Instance.Log(StringHelper.Format("Loading Resources Scene: {0}", sceneName));
-			else
-				return false;
-		}
+    }
 
-		//return DoLoadSceneAsync(sceneName, isAdd, onProcess);
-		return true;
-	}
+    // isLoadedActive: ÊòØÂê¶Âä†ËΩΩÂÆåÂ∞±ÊøÄÊ¥ª
+    // bool isDoneÔºåÊòØÂê¶Â∑≤ÁªèÂÆåÊàê
+    public bool LoadSceneAsync(string sceneName, bool isAdd, Action<AsyncOperation, bool> onProcess, bool isLoadedActive = true, int priority = 0)
+    {
+        if (mAssetLoader.OnSceneLoadAsync(sceneName,
+                                           delegate
+                                           {
+                                               DebugSceneLoadInfo();
+                                               DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive, priority);
+                                           }, priority))
+        {
+            LogMgr.Instance.Log(StringHelper.Format("Loading AssetBundle Scene: {0}", sceneName));
+        }
+        else
+        {
+#if UNITY_EDITOR
+            if (!Application.CanStreamedLevelBeLoaded(sceneName))
+                return false;
+#endif
+            if (mResLoader.OnSceneLoadAsync(sceneName,
+                                            delegate
+                                            {
+                                                DoLoadSceneAsync(sceneName, isAdd, onProcess, isLoadedActive, priority);
+                                            }, priority))
+                LogMgr.Instance.Log(StringHelper.Format("Loading Resources Scene: {0}", sceneName));
+            else
+                return false;
+        }
 
-	public void CloseScene(string sceneName)
-	{
-		/*
+        //return DoLoadSceneAsync(sceneName, isAdd, onProcess);
+        return true;
+    }
+
+    public void CloseScene(string sceneName)
+    {
+        /*
 		string realSceneName = sceneName;
 		IResourceLoader loader = GetLoader (ref realSceneName);
 		if (loader == null)
 			return;
 		loader.OnSceneClose (realSceneName);*/
-		if (!mAssetLoader.OnSceneClose (sceneName))
-			mResLoader.OnSceneClose (sceneName);
+        if (!mAssetLoader.OnSceneClose(sceneName))
+            mResLoader.OnSceneClose(sceneName);
 
 #if UNITY_5_2
 		Application.UnloadLevel(sceneName);
 #elif UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017
         SceneManager.UnloadScene(sceneName);
 #endif
-		// Ê∏ÖÈô§
-		AssetCacheManager.Instance.ClearUnUsed ();
-	}
-	 
-	public GameObject CreateGameObject(string fileName)
-	{
-		GameObject ret = CreatePrefab(fileName);
-		if (ret != null)
-		{
-			var script = ret.AddComponent<ResInstDestroy>();
-			script.CheckVisible();
-		}
+        // Â®ìÂë¥Ê´é
+        AssetCacheManager.Instance.ClearUnUsed();
+    }
 
-		return ret;
-	}
+    public GameObject CreateGameObject(string fileName)
+    {
+        GameObject ret = CreatePrefab(fileName);
+        if (ret != null)
+        {
+            var script = ret.AddComponent<ResInstDestroy>();
+            script.CheckVisible();
+        }
 
-	public GameObject CreateGameObject(string fileName, Vector3 position, Quaternion rotation)
-	{
-		GameObject ret = CreatePrefab(fileName);
-		if (ret != null) {
-			Transform trans = ret.transform;
-			trans.position = position;
-			trans.rotation = rotation;
-			var script = ret.AddComponent<ResInstDestroy> ();
-			script.CheckVisible();
-		}
+        return ret;
+    }
 
-		return ret;
-	}
+    public GameObject CreateGameObject(string fileName, Vector3 position, Quaternion rotation)
+    {
+        GameObject ret = CreatePrefab(fileName);
+        if (ret != null)
+        {
+            Transform trans = ret.transform;
+            trans.position = position;
+            trans.rotation = rotation;
+            var script = ret.AddComponent<ResInstDestroy>();
+            script.CheckVisible();
+        }
 
-	public GameObject CreateGameObject(string fileName, Vector3 position, Quaternion rotation, float delayDestroyTime)
-	{
-		GameObject ret = CreatePrefab(fileName);
-		if (ret != null)
-		{
-			Transform trans = ret.transform;
-			trans.position = position;
-			trans.rotation = rotation;
-			ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
-			script.DelayDestroyTime = delayDestroyTime;
-			script.CheckVisible();
-		}
+        return ret;
+    }
 
-		return ret;
-	}
+    public GameObject CreateGameObject(string fileName, Vector3 position, Quaternion rotation, float delayDestroyTime)
+    {
+        GameObject ret = CreatePrefab(fileName);
+        if (ret != null)
+        {
+            Transform trans = ret.transform;
+            trans.position = position;
+            trans.rotation = rotation;
+            ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
+            script.DelayDestroyTime = delayDestroyTime;
+            script.CheckVisible();
+        }
+
+        return ret;
+    }
 
     public GameObject InstantiateGameObj(GameObject orgObj)
     {
@@ -204,12 +227,13 @@ public class ResourceMgr: Singleton<ResourceMgr>
         GameObject ret = GameObject.Instantiate(orgObj);
         if (ret != null)
         {
-			// ”≈ªØGC,÷ª”–‘⁄±ÿ“™µƒµÿ∑Ω≤≈º”Ω≈±æ
-            if (AssetCacheManager.Instance.FindOrgObjCache(orgObj) != null) {
-				AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
-				var script = ret.AddComponent<ResInstDestroy>();
-				script.CheckVisible();
-			}
+            // ‰ºòÂåñGC,Âè™ÊúâÂú®ÂøÖË¶ÅÁöÑÂú∞ÊñπÊâçÂä†ËÑöÊú¨
+            if (AssetCacheManager.Instance.FindOrgObjCache(orgObj) != null)
+            {
+                AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
+                var script = ret.AddComponent<ResInstDestroy>();
+                script.CheckVisible();
+            }
         }
         return ret;
     }
@@ -232,13 +256,14 @@ public class ResourceMgr: Singleton<ResourceMgr>
         GameObject ret = GameObject.Instantiate(orgObj);
         if (ret != null)
         {
-			// ”≈ªØGC,÷ª”–‘⁄±ÿ“™µƒµÿ∑Ω≤≈º”Ω≈±æ
-            if (AssetCacheManager.Instance.FindOrgObjCache(orgObj) != null) {
-				AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
-				ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
-				script.DelayDestroyTime = delayDestroyTime;
-				script.CheckVisible();
-			}
+            // ‰ºòÂåñGC,Âè™ÊúâÂú®ÂøÖË¶ÅÁöÑÂú∞ÊñπÊâçÂä†ËÑöÊú¨
+            if (AssetCacheManager.Instance.FindOrgObjCache(orgObj) != null)
+            {
+                AssetCacheManager.Instance._OnCreateGameObject(ret, orgObj);
+                ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
+                script.DelayDestroyTime = delayDestroyTime;
+                script.CheckVisible();
+            }
         }
         return ret;
     }
@@ -254,200 +279,224 @@ public class ResourceMgr: Singleton<ResourceMgr>
         return ret;
     }
 
-	public GameObject CreateGameObject(string fileName, float delayDestroyTime)
-	{
-		GameObject ret = CreatePrefab(fileName);
-		if (ret != null)
-		{
-			ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
-			script.DelayDestroyTime = delayDestroyTime;
-			script.CheckVisible();
-		}
+    public GameObject CreateGameObject(string fileName, float delayDestroyTime)
+    {
+        GameObject ret = CreatePrefab(fileName);
+        if (ret != null)
+        {
+            ResInstDelayDestroy script = ret.AddComponent<ResInstDelayDestroy>();
+            script.DelayDestroyTime = delayDestroyTime;
+            script.CheckVisible();
+        }
 
-		return ret;
-	}
+        return ret;
+    }
 
-	private GameObject CreateGameObject(GameObject orgObject)
-	{
-		if (orgObject == null)
-			return null;
-		GameObject ret = GameObject.Instantiate (orgObject) as GameObject;
-		if (ret != null) {
-			AssetCacheManager.Instance._OnCreateGameObject (ret, orgObject);
-			// Âä†ÂÖ•‰∏?‰∏?ÑöÊú?			// ret.AddComponent<ResInstDestroy>();
-		}
+    private GameObject CreateGameObject(GameObject orgObject)
+    {
+        if (orgObject == null)
+            return null;
+        GameObject ret = GameObject.Instantiate(orgObject) as GameObject;
+        if (ret != null)
+        {
+            AssetCacheManager.Instance._OnCreateGameObject(ret, orgObject);
+            // ÈçîÁä≤ÂèÜÊ∂ì?Ê∂ì?ÂâºÈèà?			// ret.AddComponent<ResInstDestroy>();
+        }
 
-		return ret;
-	}
+        return ret;
+    }
 
-	public void OnDestroyInstObject(UnityEngine.GameObject instObj)
-	{
-		if (instObj == null)
-			return;
-		OnDestroyInstObject (instObj.GetInstanceID ());
-	}
+    public void OnDestroyInstObject(UnityEngine.GameObject instObj)
+    {
+        if (instObj == null)
+            return;
+        OnDestroyInstObject(instObj.GetInstanceID());
+    }
 
-	public void OnDestroyInstObject(int instID)
-	{
-		AssetCacheManager.Instance._OnDestroyGameObject (instID);
-	}
+    public void OnDestroyInstObject(int instID)
+    {
+        AssetCacheManager.Instance._OnDestroyGameObject(instID);
+    }
 
-	// …æ≥˝ µ¿˝ªØµƒGameObj   isImm:  «∑Ò «¡¢º¥ƒ£ Ω
-	public void DestroyInstGameObj(UnityEngine.GameObject obj, bool isImm = false) 
-	{
-		if (obj == null)
-			return;
-		int instId = obj.GetInstanceID();
-		if (isImm)
-			UnityEngine.GameObject.DestroyImmediate(obj);
-		else
-			UnityEngine.GameObject.Destroy(obj);
+    // Âà†Èô§ÂÆû‰æãÂåñÁöÑGameObj   isImm: ÊòØÂê¶ÊòØÁ´ãÂç≥Ê®°Âºè
+    public void DestroyInstGameObj(UnityEngine.GameObject obj, bool isImm = false)
+    {
+        if (obj == null)
+            return;
+        int instId = obj.GetInstanceID();
+        if (isImm)
+            UnityEngine.GameObject.DestroyImmediate(obj);
+        else
+            UnityEngine.GameObject.Destroy(obj);
 
-		AssetCacheManager.Instance._OnDestroyGameObject(instId);
-	}
+        AssetCacheManager.Instance._OnDestroyGameObject(instId);
+    }
 
-	// AudioClip Unload Falseµƒø”
-	public void CoroutneAudioClipABUnloadFalse(AudioClip clip, MonoBehaviour parent)
-	{
-		if (clip == null || parent == null)
-			return;
-		parent.StartCoroutine (CoroutneAudioClipABUnloadFalse (clip));
-	}
+    // AudioClip Unload FalseÁöÑÂùë
+    public void CoroutneAudioClipABUnloadFalse(AudioClip clip, MonoBehaviour parent)
+    {
+        if (clip == null || parent == null)
+            return;
+        parent.StartCoroutine(CoroutneAudioClipABUnloadFalse(clip));
+    }
 
-	private System.Collections.IEnumerator CoroutneAudioClipABUnloadFalse(AudioClip clip)
-	{
-		while (true) {
-			if (clip == null) {
-				yield break;
-			}
+    private System.Collections.IEnumerator CoroutneAudioClipABUnloadFalse(AudioClip clip)
+    {
+        while (true)
+        {
+            if (clip == null)
+            {
+                yield break;
+            }
 
-			if (clip.loadState == AudioDataLoadState.Loading || clip.loadState == AudioDataLoadState.Unloaded)
-				yield return null;
-			else {
-				if (!clip.UnloadAudioData ())
-					yield return null;
-				ABUnloadFalse (clip, true);
-				break;
-			}
-		}
-	}
+            if (clip.loadState == AudioDataLoadState.Loading || clip.loadState == AudioDataLoadState.Unloaded)
+                yield return null;
+            else
+            {
+                if (!clip.UnloadAudioData())
+                    yield return null;
+                ABUnloadFalse(clip, true);
+                break;
+            }
+        }
+    }
 
-    // NGUI‘⁄Õ¨≤Ωº”‘ÿµƒ ±∫Ú π”√UISprite, AB Unload Falseª·≥ˆœ÷Œ Ã‚(÷˜“™ «“ÚŒ™UIATLAS–Ú¡–ªØŒ Ã‚, UIATLAS¿Ôª·µº÷¬”–≤ø∑÷∂™ ß)
-	public void CoroutineEndFrameABUnloadFalse(UnityEngine.Object obj, MonoBehaviour parent, bool unMySelf = false) {
+    // NGUIÂú®ÂêåÊ≠•Âä†ËΩΩÁöÑÊó∂ÂÄô‰ΩøÁî®UISprite, AB Unload False‰ºöÂá∫Áé∞ÈóÆÈ¢ò(‰∏ªË¶ÅÊòØÂõ†‰∏∫UIATLASÂ∫èÂàóÂåñÈóÆÈ¢ò, UIATLASÈáå‰ºöÂØºËá¥ÊúâÈÉ®ÂàÜ‰∏¢Â§±)
+    public void CoroutineEndFrameABUnloadFalse(UnityEngine.Object obj, MonoBehaviour parent, bool unMySelf = false)
+    {
         if (obj == null || parent == null)
             return;
         parent.StartCoroutine(CoroutineEndFrameABUnloadFalse(obj, unMySelf));
     }
 
-	private WaitForEndOfFrame m_EndFrame = null;
+    private WaitForEndOfFrame m_EndFrame = null;
 
-	private System.Collections.IEnumerator CoroutineEndFrameABUnloadFalse(UnityEngine.Object obj, bool unMySelf) {
+    private System.Collections.IEnumerator CoroutineEndFrameABUnloadFalse(UnityEngine.Object obj, bool unMySelf)
+    {
         if (obj == null)
             yield break;
-		if (m_EndFrame == null)
-			m_EndFrame = new WaitForEndOfFrame ();
-		yield return m_EndFrame;
+        if (m_EndFrame == null)
+            m_EndFrame = new WaitForEndOfFrame();
+        yield return m_EndFrame;
         ABUnloadFalse(obj, unMySelf);
     }
 
-	public void ABUnloadTrue(UnityEngine.Object target)
-	{
-		if (target == null)
-			return;
-		AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(target);
-		if (cache == null) {
-			GameObject gameObj = target as GameObject;
-			if (gameObj != null) {
-				cache = AssetCacheManager.Instance.FindInstGameObjectCache (gameObj);
-				if (cache == null)
-					return;
-			} else
-				return;
-		}
+    public void ABUnloadTrue(UnityEngine.Object target)
+    {
+        if (target == null)
+            return;
+        AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(target);
+        if (cache == null)
+        {
+            GameObject gameObj = target as GameObject;
+            if (gameObj != null)
+            {
+                cache = AssetCacheManager.Instance.FindInstGameObjectCache(gameObj);
+                if (cache == null)
+                    return;
+            }
+            else
+                return;
+        }
 
-		AssetCacheManager.Instance._Unload(cache, true);
-	}
+        AssetCacheManager.Instance._Unload(cache, true);
+    }
 
-	public void ABUnloadFalse(UnityEngine.Object[] targets, bool unMySelf = true)
-	{
-		if (targets == null || targets.Length <= 0)
-			return;
-		for (int i = 0; i < targets.Length; ++i) {
-			ABUnloadFalse (targets [i], unMySelf);
-		}
-	}
+    public void ABUnloadFalse(UnityEngine.Object[] targets, bool unMySelf = true)
+    {
+        if (targets == null || targets.Length <= 0)
+            return;
+        for (int i = 0; i < targets.Length; ++i)
+        {
+            ABUnloadFalse(targets[i], unMySelf);
+        }
+    }
 
     // AssetBundle.Unload(false)
-    //  π”√’‚∏ˆ∫Ø ˝£¨»Áπ˚ «∑« µ¿˝ªØµƒ◊ ‘¥£¨≤ª–Ë“™µ˜”√DestroyObject Õ∑≈À¸
-    // ¿˝»Á£∫LoadPrefab£¨refAdd,»ª∫Ûµ˜”√ABUnloadFalse£¨≤¢«“unMySelf≤Œ ˝ «Trueµƒ ±∫Ú£¨≤ª–Ë“™Ÿµ˜”√ResourceMgr.Instance.Destroy Õ∑≈À¸
-    // ◊‹Ω·¿¥Àµ£∫√ª”–ABUnloadFalseµƒrefAdd◊ ‘¥£¨∂º“™”√ResourceMgr.Instance.Destroy∂‘“˝”√º∆ ˝-1
-    public bool ABUnloadFalse(UnityEngine.Object target, bool unMySelf = true) {
+    // ‰ΩøÁî®Ëøô‰∏™ÂáΩÊï∞ÔºåÂ¶ÇÊûúÊòØÈùûÂÆû‰æãÂåñÁöÑËµÑÊ∫êÔºå‰∏çÈúÄË¶ÅË∞ÉÁî®DestroyObjectÈáäÊîæÂÆÉ
+    // ‰æãÂ¶ÇÔºöLoadPrefabÔºårefAdd,ÁÑ∂ÂêéË∞ÉÁî®ABUnloadFalseÔºåÂπ∂‰∏îunMySelfÂèÇÊï∞ÊòØTrueÁöÑÊó∂ÂÄôÔºå‰∏çÈúÄË¶Å‰øöÈ•îËÇ¶esourceMgr.Instance.DestroyÈáäÊîæÂÆÉ
+    // ÊÄªÁªìÊù•ËØ¥ÔºöÊ≤°ÊúâABUnloadFalseÁöÑrefAddËµÑÊ∫êÔºåÈÉΩË¶ÅÁî®ResourceMgr.Instance.DestroyÂØπÂºïÁî®ËÆ°Êï∞-1
+    public bool ABUnloadFalse(UnityEngine.Object target, bool unMySelf = true)
+    {
 
         if (target == null)
             return false;
 
         AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(target);
 
-		bool isOrgRes = cache != null;
-        if (cache == null) {
+        bool isOrgRes = cache != null;
+        if (cache == null)
+        {
             GameObject gameObj = target as GameObject;
-            if (gameObj != null) {
-                cache = AssetCacheManager.Instance.FindInstGameObjectCache (gameObj);
+            if (gameObj != null)
+            {
+                cache = AssetCacheManager.Instance.FindInstGameObjectCache(gameObj);
                 if (cache == null)
                     return false;
-            } else
+            }
+            else
                 return false;
         }
 
-        if (unMySelf) {
-			bool ret = (!isOrgRes) || AssetCacheManager.Instance.CacheDecRefCount(cache);
-			if (ret) {
-				if (cache.IsNotUsed())
-					ABUnloadFalse (cache);
-				else
-					ABUnloadFalseDepend (cache);
-			}
+        if (unMySelf)
+        {
+            bool ret = (!isOrgRes) || AssetCacheManager.Instance.CacheDecRefCount(cache);
+            if (ret)
+            {
+                if (cache.IsNotUsed())
+                    ABUnloadFalse(cache);
+                else
+                    ABUnloadFalseDepend(cache);
+            }
         }
-		else {
+        else
+        {
             ABUnloadFalseDepend(cache);
         }
 
         return true;
     }
 
-    private void ABUnloadFalseDepend(AssetCache cache) {
-        // ----------------------------’Î∂‘AB¥¶¿Ì----------------------
-        if (cache != null) {
+    private void ABUnloadFalseDepend(AssetCache cache)
+    {
+        // ----------------------------ÈíàÂØπABÂ§ÑÁêÜ----------------------
+        if (cache != null)
+        {
             AssetInfo target = null;
             AssetBundleCache abCache = cache as AssetBundleCache;
             if (abCache != null)
-			{
-				if (!abCache.IsloadDecDepend)
-					return;
-				target = abCache.Target;
-				if (target != null)
-				{
-					if (target.IsUsing)
-						return;
-				}
-			}
-            if (target != null) {
+            {
+                if (!abCache.IsloadDecDepend)
+                    return;
+                target = abCache.Target;
+                if (target != null)
+                {
+                    if (target.IsUsing)
+                        return;
+                }
+            }
+            if (target != null)
+            {
                 AssetLoader loader = mAssetLoader as AssetLoader;
-                if (loader != null) {
+                if (loader != null)
+                {
 
-                    // œ» Õ∑≈◊‘º∫
+                    // ÂÖàÈáäÊîæËá™Â∑±
                     target._BundleUnLoadFalse();
-                    
-                    // ‘Ÿ Õ∑≈“¿¿µ
-                    if (abCache.IsloadDecDepend) {
+
+                    // ÂÜçÈáäÊîæ‰æùËµñ
+                    if (abCache.IsloadDecDepend)
+                    {
                         abCache.IsloadDecDepend = false;
-                        for (int i = 0; i < target.DependFileCount; ++i) {
+                        for (int i = 0; i < target.DependFileCount; ++i)
+                        {
                             string depFileName = target.GetDependFileName(i);
                             if (string.IsNullOrEmpty(depFileName))
                                 continue;
                             int refCnt = target.GetDependFileRef(i);
                             AssetInfo depInfo = loader.FindAssetInfo(depFileName);
-                            if (depInfo != null && depInfo.Cache != null) {
+                            if (depInfo != null && depInfo.Cache != null)
+                            {
                                 bool ret = AssetCacheManager.Instance.CacheDecRefCount(depInfo.Cache, refCnt);
                                 if (ret)
                                     ABUnloadFalse(depInfo.Cache);
@@ -455,7 +504,7 @@ public class ResourceMgr: Singleton<ResourceMgr>
                         }
                     }
 
-                    
+
                 }
 
             }
@@ -463,30 +512,37 @@ public class ResourceMgr: Singleton<ResourceMgr>
         //-------------------------------------------------------------
     }
 
-    private void ABUnloadFalse(AssetCache cache) {
-        if (cache != null && cache.IsNotUsed()) {
+    private void ABUnloadFalse(AssetCache cache)
+    {
+        if (cache != null && cache.IsNotUsed())
+        {
             AssetInfo target = null;
             AssetBundleCache abCache = cache as AssetBundleCache;
             if (abCache != null)
                 target = abCache.Target;
             AssetCacheManager.Instance._Unload(cache, false);
-            // ----------------------------’Î∂‘AB¥¶¿Ì----------------------
-			if (abCache != null && !abCache.IsloadDecDepend)
-				return;
-            if (target != null) {
+            // ----------------------------ÈíàÂØπABÂ§ÑÁêÜ----------------------
+            if (abCache != null && !abCache.IsloadDecDepend)
+                return;
+            if (target != null)
+            {
                 AssetLoader loader = mAssetLoader as AssetLoader;
-                if (loader != null) {
+                if (loader != null)
+                {
 
-                    // œ»∂‘◊‘º∫¥¶¿Ì
-                    if (abCache.IsloadDecDepend) {
+                    // ÂÖàÂØπËá™Â∑±Â§ÑÁêÜ
+                    if (abCache.IsloadDecDepend)
+                    {
                         abCache.IsloadDecDepend = false;
-                        // ‘Ÿ∂‘“¿¿µ¥¶¿Ì
-                        for (int i = 0; i < target.DependFileCount; ++i) {
+                        // ÂÜçÂØπ‰æùËµñÂ§ÑÁêÜ
+                        for (int i = 0; i < target.DependFileCount; ++i)
+                        {
                             string depFileName = target.GetDependFileName(i);
                             if (string.IsNullOrEmpty(depFileName))
                                 continue;
                             AssetInfo depInfo = loader.FindAssetInfo(depFileName);
-                            if (depInfo != null && depInfo.Cache != null) {
+                            if (depInfo != null && depInfo.Cache != null)
+                            {
                                 ABUnloadFalse(depInfo.Cache);
                             }
                         }
@@ -499,251 +555,273 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
     // isUnloadAsset is used by not GameObject
     public void DestroyObject(UnityEngine.Object obj, bool isUnloadAsset = false)
-	{
-		if (obj == null)
-			return;
+    {
+        if (obj == null)
+            return;
 
-		if (obj is Transform)
-			obj = (obj as Transform).gameObject;
+        if (obj is Transform)
+            obj = (obj as Transform).gameObject;
 
-		UnityEngine.Component comp = obj as UnityEngine.Component;
-		if (comp != null) {
+        UnityEngine.Component comp = obj as UnityEngine.Component;
+        if (comp != null)
+        {
 
-			if (Application.isPlaying)
-				UnityEngine.GameObject.Destroy (obj);
-			else
-				UnityEngine.GameObject.DestroyImmediate(obj);
-			//UnityEngine.GameObject.DestroyImmediate(obj);
-			return;
-		}
+            if (Application.isPlaying)
+                UnityEngine.GameObject.Destroy(obj);
+            else
+                UnityEngine.GameObject.DestroyImmediate(obj);
+            //UnityEngine.GameObject.DestroyImmediate(obj);
+            return;
+        }
 
-        if (!UnLoadOrgObject (obj, isUnloadAsset)) {
+        if (!UnLoadOrgObject(obj, isUnloadAsset))
+        {
             bool isGameObj = (obj != null) && (obj is GameObject);
-            if (isGameObj) {
-                if (!isUnloadAsset) {
-                    // …æ≥˝ µ¿˝ªØµƒGameObject
+            if (isGameObj)
+            {
+                if (!isUnloadAsset)
+                {
+                    // Âà†Èô§ÂÆû‰æãÂåñÁöÑGameObject
                     int instId = obj.GetInstanceID();
                     // gameObj.transform.parent = null;
-                    if (Application.isPlaying) {
+                    if (Application.isPlaying)
+                    {
                         if (!IsQuitApp)
                             UnityEngine.GameObject.Destroy(obj);
-                    } else
+                    }
+                    else
                         UnityEngine.GameObject.DestroyImmediate(obj);
                     AssetCacheManager.Instance._OnDestroyGameObject(instId);
                 }
-            } else {
-                if (obj != null) {
-                    if (Application.isPlaying) {
+            }
+            else
+            {
+                if (obj != null)
+                {
+                    if (Application.isPlaying)
+                    {
                         if (!IsQuitApp)
                             UnityEngine.GameObject.Destroy(obj);
-                    } else
+                    }
+                    else
                         UnityEngine.GameObject.DestroyImmediate(obj);
                 }
 
             }
-		}
-	}
-	
-	public GameObject LoadPrefab(string fileName, ResourceCacheType cacheType)
-	{
-		GameObject ret = mAssetLoader.LoadPrefab (fileName, cacheType);
-		if (ret != null)
-			return ret;
+        }
+    }
 
-		/*string realFileName = fileName;
+    public GameObject LoadPrefab(string fileName, ResourceCacheType cacheType)
+    {
+        GameObject ret = mAssetLoader.LoadPrefab(fileName, cacheType);
+        if (ret != null)
+            return ret;
+
+        /*string realFileName = fileName;
 
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return null;
 		return loader.LoadPrefab (realFileName, cacheType);*/
-		return mResLoader.LoadPrefab(fileName, cacheType);
-	}
+        return mResLoader.LoadPrefab(fileName, cacheType);
+    }
 
-	public bool LoadPrefabAsync(string fileName, Action<float, bool, GameObject> onProcess, ResourceCacheType cacheType, int priority = 0)
-	{
-		bool ret = mAssetLoader.LoadPrefabAsync (fileName, cacheType, onProcess, priority);
-		if (ret)
-			return ret;
-		/*
+    public bool LoadPrefabAsync(string fileName, Action<float, bool, GameObject> onProcess, ResourceCacheType cacheType, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadPrefabAsync(fileName, cacheType, onProcess, priority);
+        if (ret)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadPrefabAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadPrefabAsync(fileName, cacheType, onProcess, priority);
-	}
+        return mResLoader.LoadPrefabAsync(fileName, cacheType, onProcess, priority);
+    }
 
-	public bool CreateGameObjectAsync(string fileName, Action<float, bool, GameObject> onProcess, int priority = 0)
-	{
-		bool ret = CreatePrefabAsync(fileName,
-		  delegate (float process, bool isDone, GameObject instObj){
-			if (isDone)
-			{
-				if (instObj != null)
-				{
-					var script = instObj.AddComponent<ResInstDestroy>();
-					script.CheckVisible();
-				}
-				if (onProcess != null)
-					onProcess(process, isDone, instObj);
-				return;
-			}
+    public bool CreateGameObjectAsync(string fileName, Action<float, bool, GameObject> onProcess, int priority = 0)
+    {
+        bool ret = CreatePrefabAsync(fileName,
+          delegate (float process, bool isDone, GameObject instObj)
+          {
+              if (isDone)
+              {
+                  if (instObj != null)
+                  {
+                      var script = instObj.AddComponent<ResInstDestroy>();
+                      script.CheckVisible();
+                  }
+                  if (onProcess != null)
+                      onProcess(process, isDone, instObj);
+                  return;
+              }
 
-			if (onProcess != null)
-				onProcess(process, isDone, instObj);
-			}, priority
-		);
+              if (onProcess != null)
+                  onProcess(process, isDone, instObj);
+          }, priority
+        );
 
-		return ret;
-	}
+        return ret;
+    }
 
-	public bool CreateGameObjectAsync(string fileName, float delayDestroyTime, Action<float, bool, GameObject> onProcess, int priority = 0)
-	{
-		bool ret = CreatePrefabAsync(fileName,
-		                             delegate (float process, bool isDone, GameObject instObj){
-			if (isDone)
-			{
-				if (instObj != null)
-				{
-					ResInstDelayDestroy script = instObj.AddComponent<ResInstDelayDestroy>();
-					script.DelayDestroyTime = delayDestroyTime;
-					script.CheckVisible();
-				}
-				if (onProcess != null)
-					onProcess(process, isDone, instObj);
-				return;
-			}
-			
-			if (onProcess != null)
-				onProcess(process, isDone, instObj);
-			}, priority
-		);
-		
-		return ret;
-	}
+    public bool CreateGameObjectAsync(string fileName, float delayDestroyTime, Action<float, bool, GameObject> onProcess, int priority = 0)
+    {
+        bool ret = CreatePrefabAsync(fileName,
+                                     delegate (float process, bool isDone, GameObject instObj)
+                                     {
+                                         if (isDone)
+                                         {
+                                             if (instObj != null)
+                                             {
+                                                 ResInstDelayDestroy script = instObj.AddComponent<ResInstDelayDestroy>();
+                                                 script.DelayDestroyTime = delayDestroyTime;
+                                                 script.CheckVisible();
+                                             }
+                                             if (onProcess != null)
+                                                 onProcess(process, isDone, instObj);
+                                             return;
+                                         }
 
-	private GameObject CreatePrefab(string fileName)
-	{
-		GameObject orgObj = LoadPrefab (fileName, ResourceCacheType.rctTemp);
-		if (orgObj != null) {
-			return CreateGameObject(orgObj);
-		}
+                                         if (onProcess != null)
+                                             onProcess(process, isDone, instObj);
+                                     }, priority
+        );
 
-		return null;
-	}
+        return ret;
+    }
 
-	private bool CreatePrefabAsync(string fileName, Action<float, bool, GameObject> onProcess, int priority)
-	{
-		bool ret = LoadPrefabAsync (fileName,
-		                           delegate (float t, bool isDone, GameObject orgObj) {
-			if (isDone)
-			{
-				GameObject obj = null;
-				if (orgObj != null)
-				{
-					obj = CreateGameObject(orgObj);
-					ResourceMgr.Instance.DestroyObject(orgObj);
-				}
-				if (onProcess != null)
-					onProcess(t, isDone, obj);
-				return;
-			}
+    private GameObject CreatePrefab(string fileName)
+    {
+        GameObject orgObj = LoadPrefab(fileName, ResourceCacheType.rctTemp);
+        if (orgObj != null)
+        {
+            return CreateGameObject(orgObj);
+        }
 
-			if (onProcess != null)
-				onProcess(t, isDone, null);
-			}, ResourceCacheType.rctRefAdd, priority
-		);
+        return null;
+    }
 
-		return ret;
-	}
+    private bool CreatePrefabAsync(string fileName, Action<float, bool, GameObject> onProcess, int priority)
+    {
+        bool ret = LoadPrefabAsync(fileName,
+                                   delegate (float t, bool isDone, GameObject orgObj)
+                                   {
+                                       if (isDone)
+                                       {
+                                           GameObject obj = null;
+                                           if (orgObj != null)
+                                           {
+                                               obj = CreateGameObject(orgObj);
+                                               ResourceMgr.Instance.DestroyObject(orgObj);
+                                           }
+                                           if (onProcess != null)
+                                               onProcess(t, isDone, obj);
+                                           return;
+                                       }
 
-	// if use addRefCount you must call UnLoadOrgObject
-	public Texture LoadTexture(string fileName, ResourceCacheType cacheType)
-	{
-		Texture ret = mAssetLoader.LoadTexture (fileName, cacheType);
-		if (ret != null)
-			return ret;
-		/*
+                                       if (onProcess != null)
+                                           onProcess(t, isDone, null);
+                                   }, ResourceCacheType.rctRefAdd, priority
+        );
+
+        return ret;
+    }
+
+    // if use addRefCount you must call UnLoadOrgObject
+    public Texture LoadTexture(string fileName, ResourceCacheType cacheType)
+    {
+        Texture ret = mAssetLoader.LoadTexture(fileName, cacheType);
+        if (ret != null)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return null;
 		return loader.LoadTexture (realFileName, cacheType);*/
-	
-		return mResLoader.LoadTexture(fileName, cacheType);
-	}
 
-	// if use addRefCount you must call UnLoadOrgObject
-	public bool LoadTextureAsync(string fileName, Action<float, bool, Texture> onProcess, ResourceCacheType cacheType, int priority = 0)
-	{
-		bool ret = mAssetLoader.LoadTextureAsync (fileName, cacheType, onProcess, priority);
-		if (ret)
-			return ret;
-		/*
+        return mResLoader.LoadTexture(fileName, cacheType);
+    }
+
+    // if use addRefCount you must call UnLoadOrgObject
+    public bool LoadTextureAsync(string fileName, Action<float, bool, Texture> onProcess, ResourceCacheType cacheType, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadTextureAsync(fileName, cacheType, onProcess, priority);
+        if (ret)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadTextureAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadTextureAsync (fileName, cacheType, onProcess, priority);
-	}
+        return mResLoader.LoadTextureAsync(fileName, cacheType, onProcess, priority);
+    }
 
-	// if use addRefCount you must call UnLoadOrgObject
-	public Material LoadMaterial(string fileName, ResourceCacheType cacheType)
-	{
-		Material ret = mAssetLoader.LoadMaterial (fileName, cacheType);
-		if (ret != null)
-			return ret;
-		/*
+    // if use addRefCount you must call UnLoadOrgObject
+    public Material LoadMaterial(string fileName, ResourceCacheType cacheType)
+    {
+        Material ret = mAssetLoader.LoadMaterial(fileName, cacheType);
+        if (ret != null)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return null;
 		return loader.LoadMaterial (realFileName, cacheType);*/
-		return mResLoader.LoadMaterial (fileName, cacheType);
-	}
+        return mResLoader.LoadMaterial(fileName, cacheType);
+    }
 
-	// if use addRefCount you must call UnLoadOrgObject
-	public bool LoadMaterialAsync(string fileName, Action<float, bool, Material> onProcess, ResourceCacheType cacheType, int priority = 0)
-	{
-		bool ret = mAssetLoader.LoadMaterialAsync (fileName, cacheType, onProcess, priority);
-		if (ret)
-			return ret;
-		/*
+    // if use addRefCount you must call UnLoadOrgObject
+    public bool LoadMaterialAsync(string fileName, Action<float, bool, Material> onProcess, ResourceCacheType cacheType, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadMaterialAsync(fileName, cacheType, onProcess, priority);
+        if (ret)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadMaterialAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadMaterialAsync (fileName, cacheType, onProcess, priority);
-	}
+        return mResLoader.LoadMaterialAsync(fileName, cacheType, onProcess, priority);
+    }
 
     // if use ResourceCacheType.rctTempAdd you must call UnLoadOrgObject
-    // isUnloadAsset÷ª’Î∂‘‘≠ º◊ ‘¥
+    // isUnloadAssetÂè™ÈíàÂØπÂéüÂßãËµÑÊ∫ê
     private bool UnLoadOrgObject(UnityEngine.Object orgObj, bool isUnloadAsset)
-	{
-		if (orgObj == null)
-			return false;
-		AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache (orgObj);
-		if (cache == null) {
-			if (isUnloadAsset) {
-				if (!(orgObj is GameObject)) {
-					Sprite sp = orgObj as UnityEngine.Sprite;
-					if (sp != null && sp.texture != null) {
-						Resources.UnloadAsset (sp.texture);
-					}
-					Resources.UnloadAsset(orgObj);
-					return true;
-				} else {
-                    if (!Application.isEditor && cache is AssetBundleCache) {
-                        // ÷ª”–ABµƒ‘≠ ºGAMEOBJECT≤≈÷ß≥÷’‚∏ˆ
+    {
+        if (orgObj == null)
+            return false;
+        AssetCache cache = AssetCacheManager.Instance.FindOrgObjCache(orgObj);
+        if (cache == null)
+        {
+            if (isUnloadAsset)
+            {
+                if (!(orgObj is GameObject))
+                {
+                    Sprite sp = orgObj as UnityEngine.Sprite;
+                    if (sp != null && sp.texture != null)
+                    {
+                        Resources.UnloadAsset(sp.texture);
+                    }
+                    Resources.UnloadAsset(orgObj);
+                    return true;
+                }
+                else
+                {
+                    if (!Application.isEditor && cache is AssetBundleCache)
+                    {
+                        // Âè™ÊúâABÁöÑÂéüÂßãGAMEOBJECTÊâçÊîØÊåÅËøô‰∏™
                         GameObject.DestroyImmediate(orgObj, true);
                         return true;
                     }
                 }
-			}
-			return false;
-		}
+            }
+            return false;
+        }
 
         bool ret = AssetCacheManager.Instance.CacheDecRefCount(cache);
         if (ret && isUnloadAsset)
@@ -753,330 +831,345 @@ public class ResourceMgr: Singleton<ResourceMgr>
 
         return ret;
     }
-	
-	public AudioClip LoadAudioClip(string fileName, ResourceCacheType cacheType)
-	{
-		AudioClip ret = mAssetLoader.LoadAudioClip (fileName, cacheType);
-		if (ret != null)
-			return ret;
-		/*
+
+    public AudioClip LoadAudioClip(string fileName, ResourceCacheType cacheType)
+    {
+        AudioClip ret = mAssetLoader.LoadAudioClip(fileName, cacheType);
+        if (ret != null)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return null;
 		return loader.LoadAudioClip (realFileName, cacheType);*/
-		return mResLoader.LoadAudioClip (fileName, cacheType);
-	}
+        return mResLoader.LoadAudioClip(fileName, cacheType);
+    }
 
-	public bool LoadAudioClipAsync(string fileName, Action<float, bool, AudioClip> onProcess, ResourceCacheType cacheType, int priority = 0)
-	{
-		bool ret = mAssetLoader.LoadAudioClipAsync (fileName, cacheType, onProcess, priority);
-		if (ret)
-			return ret;
-		/*
+    public bool LoadAudioClipAsync(string fileName, Action<float, bool, AudioClip> onProcess, ResourceCacheType cacheType, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadAudioClipAsync(fileName, cacheType, onProcess, priority);
+        if (ret)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadAudioClipAsync (fileName, cacheType, onProcess);*/
-		return mResLoader.LoadAudioClipAsync (fileName, cacheType, onProcess, priority);
-	}
+        return mResLoader.LoadAudioClipAsync(fileName, cacheType, onProcess, priority);
+    }
 
-	public byte[] LoadBytes(string fileName, ResourceCacheType cacheType = ResourceCacheType.rctNone)
-	{
-		byte[] ret = mAssetLoader.LoadBytes (fileName, cacheType);
-		if (ret != null)
-			return ret; 
-		return mResLoader.LoadBytes(fileName, cacheType);
-	}
+    public byte[] LoadBytes(string fileName, ResourceCacheType cacheType = ResourceCacheType.rctNone)
+    {
+        byte[] ret = mAssetLoader.LoadBytes(fileName, cacheType);
+        if (ret != null)
+            return ret;
+        return mResLoader.LoadBytes(fileName, cacheType);
+    }
 
-	public string LoadText(string fileName, ResourceCacheType cacheType = ResourceCacheType.rctNone)
-	{
-		string ret = mAssetLoader.LoadText (fileName, cacheType);
-		if (ret != null)
-			return ret; 
+    public string LoadText(string fileName, ResourceCacheType cacheType = ResourceCacheType.rctNone)
+    {
+        string ret = mAssetLoader.LoadText(fileName, cacheType);
+        if (ret != null)
+            return ret;
 
-		/*
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return null;
 		return loader.LoadText (realFileName, cacheType);*/
-		return mResLoader.LoadText (fileName, cacheType);
-	}
+        return mResLoader.LoadText(fileName, cacheType);
+    }
 
-	public bool LoadTextAsync(string fileName, Action<float, bool, TextAsset> onProcess, ResourceCacheType cacheType = ResourceCacheType.rctNone, int priority = 0)
-	{
-		bool ret = mAssetLoader.LoadTextAsync (fileName, cacheType, onProcess, priority);
-		if (ret)
-			return ret;
-		/*
+    public bool LoadTextAsync(string fileName, Action<float, bool, TextAsset> onProcess, ResourceCacheType cacheType = ResourceCacheType.rctNone, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadTextAsync(fileName, cacheType, onProcess, priority);
+        if (ret)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadTextAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadTextAsync (fileName, cacheType, onProcess, priority);
-	}
+        return mResLoader.LoadTextAsync(fileName, cacheType, onProcess, priority);
+    }
 
-	public AnimationClip LoadAnimationClip(string fileName, ResourceCacheType cacheType)
-	{
-		AnimationClip ret = mAssetLoader.LoadAnimationClip (fileName, cacheType);
-		if (ret != null)
-			return ret;
-		/*
+    public AnimationClip LoadAnimationClip(string fileName, ResourceCacheType cacheType)
+    {
+        AnimationClip ret = mAssetLoader.LoadAnimationClip(fileName, cacheType);
+        if (ret != null)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return null;
 		return loader.LoadAnimationClip (realFileName, cacheType);*/
-		return mResLoader.LoadAnimationClip (fileName, cacheType);
-	}
+        return mResLoader.LoadAnimationClip(fileName, cacheType);
+    }
 
-	public bool LoadAnimationClipAsync(string fileName, Action<float, bool, AnimationClip> onProcess, ResourceCacheType cacheType, int priority = 0)
-	{
-		bool ret = mAssetLoader.LoadAnimationClipAsync (fileName, cacheType, onProcess, priority);
-		if (ret)
-			return ret;
-		/*
+    public bool LoadAnimationClipAsync(string fileName, Action<float, bool, AnimationClip> onProcess, ResourceCacheType cacheType, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadAnimationClipAsync(fileName, cacheType, onProcess, priority);
+        if (ret)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadAnimationClipAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadAnimationClipAsync(fileName, cacheType, onProcess, priority);
-	}
+        return mResLoader.LoadAnimationClipAsync(fileName, cacheType, onProcess, priority);
+    }
 
-	public RuntimeAnimatorController LoadAniController(string fileName, ResourceCacheType cacheType)
-	{
-		RuntimeAnimatorController ret = mAssetLoader.LoadAniController (fileName, cacheType);
-		if (ret != null)
-			return ret;
-		/*
+    public RuntimeAnimatorController LoadAniController(string fileName, ResourceCacheType cacheType)
+    {
+        RuntimeAnimatorController ret = mAssetLoader.LoadAniController(fileName, cacheType);
+        if (ret != null)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return null;
 		return loader.LoadAniController (realFileName, cacheType);*/
-		return mResLoader.LoadAniController (fileName, cacheType);
-	}
+        return mResLoader.LoadAniController(fileName, cacheType);
+    }
 
-	public bool LoadAniControllerAsync(string fileName, Action<float, bool, RuntimeAnimatorController> onProcess, ResourceCacheType cacheType, int priority = 0)
-	{
-		bool ret = mAssetLoader.LoadAniControllerAsync (fileName, cacheType, onProcess, priority);
-		if (ret)
-			return ret;
-		/*
+    public bool LoadAniControllerAsync(string fileName, Action<float, bool, RuntimeAnimatorController> onProcess, ResourceCacheType cacheType, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadAniControllerAsync(fileName, cacheType, onProcess, priority);
+        if (ret)
+            return ret;
+        /*
 		string realFileName = fileName;
 		IResourceLoader loader = GetLoader (ref realFileName);
 		if ((loader == null) || (mAssetLoader == loader))
 			return false;
 		return loader.LoadAniControllerAsync (realFileName, cacheType, onProcess);*/
-		return mResLoader.LoadAniControllerAsync (fileName, cacheType, onProcess, priority);
-	}
+        return mResLoader.LoadAniControllerAsync(fileName, cacheType, onProcess, priority);
+    }
 
-	public Shader LoadShader(string fileName, ResourceCacheType cacheType)
-	{
-		Shader ret = mAssetLoader.LoadShader(fileName, cacheType);
-		if (ret != null)
-			return ret;
-		return mResLoader.LoadShader(fileName, cacheType);
-	}
+    public Shader LoadShader(string fileName, ResourceCacheType cacheType)
+    {
+        Shader ret = mAssetLoader.LoadShader(fileName, cacheType);
+        if (ret != null)
+            return ret;
+        return mResLoader.LoadShader(fileName, cacheType);
+    }
 
-	public bool LoadShaderAsync(string fileName, Action<float, bool, Shader> onProcess, ResourceCacheType cacheType, int priority = 0)
-	{
-		bool ret = mAssetLoader.LoadShaderAsync(fileName, cacheType, onProcess, priority);
-		if (ret)
-			return ret;
-		return mResLoader.LoadShaderAsync(fileName, cacheType, onProcess, priority);
-	}
+    public bool LoadShaderAsync(string fileName, Action<float, bool, Shader> onProcess, ResourceCacheType cacheType, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadShaderAsync(fileName, cacheType, onProcess, priority);
+        if (ret)
+            return ret;
+        return mResLoader.LoadShaderAsync(fileName, cacheType, onProcess, priority);
+    }
 
-	public Font LoadFont(string fileName, ResourceCacheType cacheType)
-	{
-		Font ret = mAssetLoader.LoadFont (fileName, cacheType);
-		if (ret != null)
-			return ret;
-		return mResLoader.LoadFont (fileName, cacheType);
-	}
+    public Font LoadFont(string fileName, ResourceCacheType cacheType)
+    {
+        Font ret = mAssetLoader.LoadFont(fileName, cacheType);
+        if (ret != null)
+            return ret;
+        return mResLoader.LoadFont(fileName, cacheType);
+    }
 
-	public bool LoadFontAsync(string fileName, Action<float, bool, Font> onProcess, ResourceCacheType cacheType, int priority = 0)
-	{
-		bool ret = mAssetLoader.LoadFontAsync (fileName, cacheType, onProcess, priority);
-		if (ret)
-			return ret;
-		return mResLoader.LoadFontAsync (fileName, cacheType, onProcess, priority);
-	}
+    public bool LoadFontAsync(string fileName, Action<float, bool, Font> onProcess, ResourceCacheType cacheType, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadFontAsync(fileName, cacheType, onProcess, priority);
+        if (ret)
+            return ret;
+        return mResLoader.LoadFontAsync(fileName, cacheType, onProcess, priority);
+    }
 
-	public bool PreLoadAndBuildAssetBundleShaders(string abFileName, Action onEnd = null, int priority = 0)
-	{
+    public bool PreLoadAndBuildAssetBundleShaders(string abFileName, Action onEnd = null, int priority = 0)
+    {
 
-		System.Type type = typeof(Shader);
+        System.Type type = typeof(Shader);
 
-        // ‘§œ»º”‘ÿShader
-		if (!PreLoadAssetBundle(abFileName, type, 
-            delegate() {
+        // È¢ÑÂÖàÂä†ËΩΩShader
+        if (!PreLoadAssetBundle(abFileName, type,
+            delegate ()
+            {
                 Shader.WarmupAllShaders();
                 if (onEnd != null)
                     onEnd();
-			}, priority
+            }, priority
             ))
-			return false;
+            return false;
 
-		
-		return true;
-	}
 
-	public bool PreLoadAssetBundle(string abFileName, System.Type type, Action onEnd = null, int priority = 0)
-	{
-		if (mAssetLoader == null || type == null)
-			return false;
+        return true;
+    }
 
-		AssetLoader loader = mAssetLoader as AssetLoader;
-		if (loader == null)
-			return false;
+    public bool PreLoadAssetBundle(string abFileName, System.Type type, Action onEnd = null, int priority = 0)
+    {
+        if (mAssetLoader == null || type == null)
+            return false;
 
-		if (!loader.PreloadAllType(abFileName, type, onEnd, priority))
-			return false;
+        AssetLoader loader = mAssetLoader as AssetLoader;
+        if (loader == null)
+            return false;
 
-		return true;
-	}
+        if (!loader.PreloadAllType(abFileName, type, onEnd, priority))
+            return false;
 
-	private void DestroyObjects<T>(T[] objs, bool isUnloadAsset = false) where T : UnityEngine.Object {
-		if (objs == null || objs.Length <= 0)
-			return;
-		for (int i = 0; i < objs.Length; ++i) {
-			DestroyObject(objs[i], isUnloadAsset);
-		}
-	}
+        return true;
+    }
 
-	public void DestroySprites(Sprite[] sprites, bool isUnloadAsset = false) {
-		DestroyObjects<Sprite>(sprites, isUnloadAsset);
-	}
+    private void DestroyObjects<T>(T[] objs, bool isUnloadAsset = false) where T : UnityEngine.Object
+    {
+        if (objs == null || objs.Length <= 0)
+            return;
+        for (int i = 0; i < objs.Length; ++i)
+        {
+            DestroyObject(objs[i], isUnloadAsset);
+        }
+    }
 
-	public void DestroyObjects(UnityEngine.Object[] objs, bool isUnloadAsset = false)
-	{
-		DestroyObjects<UnityEngine.Object>(objs, isUnloadAsset);
-	}
+    public void DestroySprites(Sprite[] sprites, bool isUnloadAsset = false)
+    {
+        DestroyObjects<Sprite>(sprites, isUnloadAsset);
+    }
 
-	public Sprite[] LoadSprites(string fileName) {
-		Sprite[] ret = mAssetLoader.LoadSprites(fileName);
-		if (ret != null)
-			return ret;
-		return mResLoader.LoadSprites(fileName);
-	}
+    public void DestroyObjects(UnityEngine.Object[] objs, bool isUnloadAsset = false)
+    {
+        DestroyObjects<UnityEngine.Object>(objs, isUnloadAsset);
+    }
 
-	public bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess, int priority = 0) {
-		bool ret = mAssetLoader.LoadSpritesAsync(fileName, onProcess, priority);
-		if (ret)
-			return ret;
-		return mResLoader.LoadSpritesAsync(fileName, onProcess, priority);
-	}
-		
-	public ScriptableObject LoadScriptableObject(string fileName, ResourceCacheType cacheType)
-	{
-		ScriptableObject ret = mAssetLoader.LoadScriptableObject (fileName, cacheType);
-		if (ret != null)
-			return ret;
-		return mResLoader.LoadScriptableObject (fileName, cacheType);
-	}
+    public Sprite[] LoadSprites(string fileName)
+    {
+        Sprite[] ret = mAssetLoader.LoadSprites(fileName);
+        if (ret != null)
+            return ret;
+        return mResLoader.LoadSprites(fileName);
+    }
 
-	public bool LoadScriptableObjectAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, ScriptableObject> onProcess, int priority = 0)
-	{
-		bool ret = mAssetLoader.LoadScriptableObjectAsync (fileName, cacheType, onProcess, priority);
-		if (ret)
-			return ret;
-		return mResLoader.LoadScriptableObjectAsync (fileName, cacheType, onProcess, priority);
-	}
+    public bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadSpritesAsync(fileName, onProcess, priority);
+        if (ret)
+            return ret;
+        return mResLoader.LoadSpritesAsync(fileName, onProcess, priority);
+    }
+
+    public ScriptableObject LoadScriptableObject(string fileName, ResourceCacheType cacheType)
+    {
+        ScriptableObject ret = mAssetLoader.LoadScriptableObject(fileName, cacheType);
+        if (ret != null)
+            return ret;
+        return mResLoader.LoadScriptableObject(fileName, cacheType);
+    }
+
+    public bool LoadScriptableObjectAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, ScriptableObject> onProcess, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadScriptableObjectAsync(fileName, cacheType, onProcess, priority);
+        if (ret)
+            return ret;
+        return mResLoader.LoadScriptableObjectAsync(fileName, cacheType, onProcess, priority);
+    }
 
 #if UNITY_5
 
-	public ShaderVariantCollection LoadShaderVarCollection(string fileName, ResourceCacheType cacheType)
-	{
-		ShaderVariantCollection ret = mAssetLoader.LoadShaderVarCollection(fileName, cacheType);
-		if (ret != null)
-			return ret;
-		return mResLoader.LoadShaderVarCollection(fileName, cacheType);
-	}
+    public ShaderVariantCollection LoadShaderVarCollection(string fileName, ResourceCacheType cacheType)
+    {
+        ShaderVariantCollection ret = mAssetLoader.LoadShaderVarCollection(fileName, cacheType);
+        if (ret != null)
+            return ret;
+        return mResLoader.LoadShaderVarCollection(fileName, cacheType);
+    }
 
-	public bool LoadShaderVarCollectionAsync(string fileName, Action<float, bool, ShaderVariantCollection> onProcess, 
-		ResourceCacheType cacheType, int priority = 0)
-	{
-		bool ret = mAssetLoader.LoadShaderVarCollectionAsync(fileName, cacheType, onProcess, priority);
-		if (ret)
-			return ret;
-		return mResLoader.LoadShaderVarCollectionAsync(fileName, cacheType, onProcess, priority);
-	}
+    public bool LoadShaderVarCollectionAsync(string fileName, Action<float, bool, ShaderVariantCollection> onProcess,
+        ResourceCacheType cacheType, int priority = 0)
+    {
+        bool ret = mAssetLoader.LoadShaderVarCollectionAsync(fileName, cacheType, onProcess, priority);
+        if (ret)
+            return ret;
+        return mResLoader.LoadShaderVarCollectionAsync(fileName, cacheType, onProcess, priority);
+    }
 
 #endif
 
-	private AsyncOperation m_UnUsedOpr = null;
+    private AsyncOperation m_UnUsedOpr = null;
 
-	public void UnloadUnUsed()
-	{
-		// Ê∏ÖÈô§Êâ?ÊúâÊú™‰ΩøÁî®Áö?		AssetCacheManager.Instance.ClearUnUsed ();
-		
-		if (m_UnUsedOpr == null || m_UnUsedOpr.isDone)
-			m_UnUsedOpr = Resources.UnloadUnusedAssets ();
-	}
+    public void UnloadUnUsed()
+    {
+        // Â®ìÂë¥Ê´éÈéµ?ÈèàÂ§ãÊπ≠Êµ£Ë∑®Êï§Èê®?		AssetCacheManager.Instance.ClearUnUsed ();
 
-	public IResourceLoader AssetLoader
-	{
-		get {
-			return mAssetLoader;
-		}
-	}
+        if (m_UnUsedOpr == null || m_UnUsedOpr.isDone)
+            m_UnUsedOpr = Resources.UnloadUnusedAssets();
+    }
 
-	public IResourceLoader ResLoader {
-		get {
-			return mResLoader;
-		}
-	}
+    public IResourceLoader AssetLoader
+    {
+        get
+        {
+            return mAssetLoader;
+        }
+    }
 
-    public bool IsQuitApp {
+    public IResourceLoader ResLoader
+    {
+        get
+        {
+            return mResLoader;
+        }
+    }
+
+    public bool IsQuitApp
+    {
         get;
         private set;
     }
 
-    private void OnAppExit(bool isUnloadTrue = true) {
+    private void OnAppExit(bool isUnloadTrue = true)
+    {
         AsyncOperationMgr.Instance.Clear();
         AssetCacheManager.Instance.AutoUpdateClear(isUnloadTrue);
         AssetLoader loader = mAssetLoader as AssetLoader;
         if (loader != null)
             loader.AutoUpdateClear();
         ResourcesLoader resLoader = mResLoader as ResourcesLoader;
-        if (resLoader != null) {
+        if (resLoader != null)
+        {
             resLoader.AutoUpdateClear();
         }
     }
 
-    // ”¶”√QUITÕ®÷™
-    public void OnApplicationQuit() {
+    // Â∫îÁî®QUITÈÄöÁü•
+    public void OnApplicationQuit()
+    {
         IsQuitApp = true;
         OnAppExit();
     }
 
-    // ◊ ‘¥∏¸–¬«Â¿Ì
-    public void AutoUpdateClear() {
+    // ËµÑÊ∫êÊõ¥Êñ∞Ê∏ÖÁêÜ
+    public void AutoUpdateClear()
+    {
         OnAppExit(false);
         UnloadUnUsed();
     }
 
-    public string GetABShaderFileNameByName(string shaderName) {
+    public string GetABShaderFileNameByName(string shaderName)
+    {
         AssetLoader loader = mAssetLoader as AssetLoader;
         if (loader != null)
             return loader.GetShaderFileNameByName(shaderName);
         return string.Empty;
     }
 
-	public string GetAssetBundleFileName(string fileName)
-	{
-		AssetLoader loader = mAssetLoader as AssetLoader;
-		if (loader != null)
-			return loader.GetAssetBundleFileName(fileName);
-		return string.Empty;
-	}
+    public string GetAssetBundleFileName(string fileName)
+    {
+        AssetLoader loader = mAssetLoader as AssetLoader;
+        if (loader != null)
+            return loader.GetAssetBundleFileName(fileName);
+        return string.Empty;
+    }
 
-	/*
+    /*
 	protected IResourceLoader GetLoader(ref string path)
 	{
 		if (string.IsNullOrEmpty (path))
@@ -1101,8 +1194,8 @@ public class ResourceMgr: Singleton<ResourceMgr>
 		return fileName;
 	}
 	private static readonly string cResourcesStartPath = "Resources/";*/
-		
-	/*
+
+    /*
 	private void RegisterResLoaders()
 	{
 	}
@@ -1111,6 +1204,6 @@ public class ResourceMgr: Singleton<ResourceMgr>
 	private Dictionary<System.Type, OnResLoadEvent> m_ResLoaderMap = new Dictionary<Type, OnResLoadEvent>();
 	*/
 
-	private IResourceLoader mResLoader = new ResourcesLoader();
-	private IResourceLoader mAssetLoader = new AssetLoader();
+    private IResourceLoader mResLoader = new ResourcesLoader();
+    private IResourceLoader mAssetLoader = new AssetLoader();
 }
