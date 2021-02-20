@@ -20,7 +20,7 @@ public class ABRuntimeShow : EditorWindow
 		public string editorTitle {
 			get {
 				if (isNoDepend)
-					return "【冗余】" + name;
+					return "【缓存】" + name;
 				return name;
 			}
 		}
