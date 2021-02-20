@@ -47,6 +47,28 @@ public class ABRuntimeShow : EditorWindow
 			return false;
 		}
 
+		private void AddDepPathList (HashSet<string> lst, string inputPath)
+		{
+			if (lst == null || string.IsNullOrEmpty (inputPath))
+				return;
+			var lowerPath = inputPath.ToLower ();
+			if (lst.Contains (lowerPath))
+				return;
+
+			string[] deps = AssetDatabase.GetDependencies (inputPath, false);
+			if (deps != null && deps.Length > 0) {
+				for (int i = 0; i < deps.Length; ++i) {
+					var dep = deps [i];
+					if (string.IsNullOrEmpty (dep) || AssetBundleBuild.FileIsScript(dep))
+						continue;
+					if (string.Compare(inputPath, dep) != 0)
+						AddDepPathList (lst, dep);
+				}
+			}
+
+			lst.Add (lowerPath);
+		}
+
 		private void AddDepPathList (HashSet<string> lst, UnityEngine.Object obj)
 		{
 			if (lst == null || obj == null)
@@ -54,23 +76,7 @@ public class ABRuntimeShow : EditorWindow
 			string path = AssetDatabase.GetAssetPath (obj);
 			if (string.IsNullOrEmpty (path))
 				return;
-			path = path.ToLower ();
-			if (lst.Contains (path))
-				return;
-			
-			string[] deps = AssetDatabase.GetDependencies (path, true);
-			if (deps != null && deps.Length > 0) {
-				for (int i = 0; i < deps.Length; ++i) {
-					var dep = deps [i];
-					if (string.IsNullOrEmpty (dep) || AssetBundleBuild.FileIsScript(dep))
-						continue;
-					dep = dep.ToLower ();
-					if (!lst.Contains (dep))
-						lst.Add (dep);
-				}
-			}
-
-			lst.Add (path);
+			AddDepPathList (lst, path);
 		}
 
 		private void AddDepPathList (HashSet<string> lst, UnityEngine.GameObject obj)
