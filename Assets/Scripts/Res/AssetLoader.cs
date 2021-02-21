@@ -16,6 +16,7 @@
 // 是否使用LoadFromFile读取压缩AB
 #define USE_LOADFROMFILECOMPRESS
 //#define USE_WWWCACHE
+//#define USE_RECORD_LOADSCENENAME
 
 using System;
 using System.Collections;
@@ -427,8 +428,8 @@ public class AssetInfo {
         if (info == null)
             return;
         if (asycTask.IsDone) {
-            if (asycTask.IsOk)
-                info.mBundle = asycTask.Bundle;
+			if (asycTask.IsOk)
+				info.mBundle = asycTask.Bundle;
 
             if (info.m_AsyncTask != null) {
                 info.m_AsyncTask.Release();
@@ -512,7 +513,9 @@ public class AssetInfo {
             m_AsyncTask.AddResultEvent(OnLocalAsyncResult);
         } else
             return false;
-
+	#if UNITY_EDITOR && UNITY_2017_1_OR_NEWER && USE_RECORD_LOADSCENENAME
+		InitLoadSceneName ();
+	#endif
         return true;
     }
 
@@ -603,12 +606,14 @@ public class AssetInfo {
 #endif
             if (mBundle == null)
                 return false;
-            return true;
+     //       return true;
         } else {
             // zan shi
             return false;
         }
-
+		#if UNITY_EDITOR && UNITY_2017_1_OR_NEWER && USE_RECORD_LOADSCENENAME
+		InitLoadSceneName ();
+#endif
         return true;
     }
 
@@ -1086,6 +1091,21 @@ public class AssetInfo {
     // 依赖的AssetBundle文件名（包含路径）
     private List<DependFileInfo> mDependFileNames = null;
     private AssetBundle mBundle = null;
+	#if UNITY_EDITOR && UNITY_2017_1_OR_NEWER && USE_RECORD_LOADSCENENAME
+	public string LoadSceneName {
+		get;
+		private set;
+	}
+
+	private void InitLoadSceneName()
+	{
+		LoadSceneName = string.Empty;
+		var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene ();
+		if (scene.isLoaded && scene.IsValid ()) {
+			LoadSceneName = scene.name;
+		}
+	}
+	#endif
     // 文件名HashCode
     private string mFileName = string.Empty;
     // 更新时间
