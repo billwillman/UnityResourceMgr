@@ -20,7 +20,7 @@ public class ABRuntimeShow : EditorWindow
 		public string editorTitle {
 			get {
 				if (isNoDepend) {
-					return string.Format ("【缓存】", scene.name) + name;
+					return "【缓存】" + name;
 				}
 				return name;
 			}
