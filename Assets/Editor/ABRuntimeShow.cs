@@ -19,8 +19,9 @@ public class ABRuntimeShow : EditorWindow
 
 		public string editorTitle {
 			get {
-				if (isNoDepend)
-					return "【缓存】" + name;
+				if (isNoDepend) {
+					return string.Format ("【缓存】", scene.name) + name;
+				}
 				return name;
 			}
 		}
@@ -170,7 +171,39 @@ public class ABRuntimeShow : EditorWindow
 		const float h = 600;
 		Rect r = new Rect ((Screen.width - w) / 2.0f, (Screen.height - h) / 2.0f, w, h);
 		ABRuntimeShow wnd = EditorWindow.GetWindowWithRect<ABRuntimeShow> (r, true);
+		wnd.title = "显示运行时AB是否缓存（无法关联Clone后的）";
 		wnd.Init ();
+	}
+
+	void exCludeBaseResLoaders(HashSet<string> map)
+	{
+		if (map == null)
+			return;
+		// 获得BaseResLoader里的数据, 没办法无法获得Clone后的材质等等
+		BaseResLoader[] loaders = GameObject.FindObjectsOfType<BaseResLoader>();
+		if (loaders != null) {
+			for (int i = 0; i < loaders.Length; ++i) {
+				var loader = loaders [i];
+				var resList = loader.GetResList ();
+				if (resList != null) {
+					for (int j = 0; j < resList.Count; ++j)
+					{
+						var obj = resList [j];
+						if (obj != null) {
+							//if (obj is Sprite) {
+							//	obj = (obj as Sprite).texture;
+							//}
+							string path = AssetDatabase.GetAssetOrScenePath (obj);
+							if (!string.IsNullOrEmpty (path)) {
+								path = path.ToLower ();
+								if (!map.Contains (path))
+									map.Add (path);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	void RefreshAssetBundleList ()
@@ -179,6 +212,10 @@ public class ABRuntimeShow : EditorWindow
 		var bundles = AssetBundle.GetAllLoadedAssetBundles ();
 		if (bundles == null)
 			return;
+
+		HashSet<string> exCludePathMap = new HashSet<string> ();
+		exCludeBaseResLoaders (exCludePathMap);
+
 		EditorUtility.ClearProgressBar ();
 		try {
 			float idx = 0;
@@ -207,6 +244,11 @@ public class ABRuntimeShow : EditorWindow
 					for (int i = 0; i < info.assetNames.Length; ++i) {
 						string s = info.assetNames [i];
 						info.assetNames [i] = s.ToLower ();
+						if (info.isNoDepend)
+						{
+							if (exCludePathMap.Contains(info.assetNames[i]))
+								info.isNoDepend = false;
+						}
 					}
 				}
 				info.scenePaths = ab.GetAllScenePaths ();
@@ -214,10 +256,16 @@ public class ABRuntimeShow : EditorWindow
 					for (int i = 0; i < info.scenePaths.Length; ++i) {
 						string s = info.scenePaths [i];
 						info.scenePaths [i] = s.ToLower ();
+						if (info.isNoDepend)
+						{
+							if (exCludePathMap.Contains(info.scenePaths[i]))
+								info.isNoDepend = false;
+						}
 					}
 				}
 
-				info.CheckDep (scenes);
+				if (info.isNoDepend)
+					info.CheckDep (scenes);
 				abList.Add (info);
 			}
 			iter.Dispose ();
