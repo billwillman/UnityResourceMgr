@@ -69,13 +69,23 @@ public class ABRuntimeShow : EditorWindow
 			lst.Add (lowerPath);
 		}
 
+		private void AddDepDynCreate(HashSet<string> lst, UnityEngine.Object dynObj)
+		{
+			if (lst == null || dynObj == null)
+				return;
+			
+		}
+
 		private void AddDepPathList (HashSet<string> lst, UnityEngine.Object obj)
 		{
 			if (lst == null || obj == null)
 				return;
 			string path = AssetDatabase.GetAssetPath (obj);
-			if (string.IsNullOrEmpty (path))
+			if (string.IsNullOrEmpty (path)) {
+				// 处理动态new出来obj的情况
+				AddDepDynCreate(lst, obj);
 				return;
+			}
 			AddDepPathList (lst, path);
 		}
 
