@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Utils
 {
@@ -89,12 +90,17 @@ namespace Utils
             return seed1;
         }
 
-        public static ulong GetFileNameHash(string fileName) {
+       // [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ulong GetFileNameHash(string fileName, MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper) {
             const int /*HASH_OFFSET = 0,*/ HASH_A = 1, HASH_B = 2;
-            uint low = HashString(fileName, HASH_A);
-            uint high = HashString(fileName, HASH_B);
+            uint low = HashString(fileName, HASH_A, hashCharType);
+            uint high = HashString(fileName, HASH_B, hashCharType);
             ulong ret = (high << 32) | low;
             return ret;
+        }
+
+        public static ulong ToHash64(this string fileName, MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper) {
+            return GetFileNameHash(fileName, hashCharType);
         }
     }
 }
