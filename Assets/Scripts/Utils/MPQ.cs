@@ -124,7 +124,8 @@ namespace Utils
 
             uint seed1 = 0x7FED7FED; uint seed2 = 0xEEEEEEEE;
             // 这里注意中文多字符问题，直接取fileName.Length不是真正byte大小
-            int len = System.Text.Encoding.UTF8.GetByteCount(fileName);
+            // int len = System.Text.Encoding.UTF8.GetByteCount(fileName);
+            int len = fileName.Length * sizeof(char);
             fixed (char* ptr = fileName) {
                 byte* pByte = (byte*)ptr;
                 for (int i = 0; i < len; ++i) {
