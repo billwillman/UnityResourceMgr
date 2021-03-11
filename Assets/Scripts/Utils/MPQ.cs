@@ -123,20 +123,21 @@ namespace Utils
             Create();
 
             uint seed1 = 0x7FED7FED; uint seed2 = 0xEEEEEEEE;
-            int len = fileName.Length;
+            // 这里注意中文多字符问题，直接取fileName.Length不是真正byte大小
+            int len = System.Text.Encoding.UTF8.GetByteCount(fileName);
             fixed (char* ptr = fileName) {
-                char* pChar = ptr;
+                byte* pByte = (byte*)ptr;
                 for (int i = 0; i < len; ++i) {
-                    char c = *(pChar++);
+                    byte c = *(pByte++);
                     switch (hashCharType) {
                         case MQP_HASH_CHAR.Low: {
                                 if (c >= 'A' && c <= 'Z')
-                                    c = Char.ToLower(c);
+                                    c = (byte)Char.ToLower((char)c);
                                 break;
                             }
                         case MQP_HASH_CHAR.Upper: {
                                 if (c >= 'a' && c <= 'z')
-                                    c = Char.ToUpper(c);
+                                    c = (byte)Char.ToUpper((char)c);
                                 break;
                             }
                     }
