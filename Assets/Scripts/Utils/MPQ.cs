@@ -5,6 +5,65 @@ using System.Runtime.CompilerServices;
 
 namespace Utils
 {
+    public struct MPQ_FileName : IEquatable<MPQ_FileName>
+    {
+        public uint nHash;
+        public uint nHashA;
+        public uint nHashB;
+
+        public bool Equals(MPQ_FileName other)
+        {
+            return this == other;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null)
+                return false;
+            if (GetType() != obj.GetType())
+                return false;
+
+            if (obj is MPQ_FileName)
+            {
+                MPQ_FileName other = (MPQ_FileName)obj;
+                return Equals(other);
+            }
+            else
+                return false;
+        }
+
+        public static bool operator ==(MPQ_FileName a, MPQ_FileName b)
+        {
+            return (a.nHash == b.nHash) && (a.nHashA == b.nHashA) && (a.nHashB == b.nHashB);
+        }
+
+        public static bool operator !=(MPQ_FileName a, MPQ_FileName b)
+        {
+            return !(a == b);
+        }
+
+        public override int GetHashCode()
+        {
+            int ret = FilePathMgr.InitHashValue();
+            FilePathMgr.HashCode(ref ret, nHash);
+            FilePathMgr.HashCode(ref ret, nHashA);
+            FilePathMgr.HashCode(ref ret, nHashB);
+            return ret;
+        }
+    }
+
+    public class MPQ_FileNameComparser: StructComparser<MPQ_FileName>
+    {}
+
+    public class MPQFileNameMap<T> : Dictionary<MPQ_FileName, T>
+    {
+        public MPQFileNameMap(): base(MPQ_FileNameComparser.Default)
+        {}
+
+        public MPQFileNameMap(int cap) : base(cap, MPQ_FileNameComparser.Default)
+        {}
+    }
+
 
     public enum MQP_HASH_CHAR
     {
@@ -91,15 +150,16 @@ namespace Utils
         }
 
        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static ulong GetFileNameHash(string fileName, MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper) {
-            const int /*HASH_OFFSET = 0,*/ HASH_A = 1, HASH_B = 2;
-            uint low = HashString(fileName, HASH_A, hashCharType);
-            uint high = HashString(fileName, HASH_B, hashCharType);
-            ulong ret = (high << 32) | low;
+        public static MPQ_FileName GetFileNameHash(string fileName, MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper) {
+            const int HASH_OFFSET = 0, HASH_A = 1, HASH_B = 2;
+            MPQ_FileName ret = new MPQ_FileName();
+            ret.nHash = HashString(fileName, HASH_OFFSET);
+            ret.nHashA = HashString(fileName, HASH_A, hashCharType);
+            ret.nHashB = HashString(fileName, HASH_B, hashCharType);
             return ret;
         }
 
-        public static ulong ToHash64(this string fileName, MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper) {
+        public static MPQ_FileName ToMPQHash(this string fileName, MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper) {
             return GetFileNameHash(fileName, hashCharType);
         }
     }
