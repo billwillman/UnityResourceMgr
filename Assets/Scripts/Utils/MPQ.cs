@@ -64,12 +64,13 @@ namespace Utils
         {}
     }
 
-
+#if _MQP_HASH_CHAR
     public enum MQP_HASH_CHAR
     {
         Low,
         Upper
     }
+#endif
 
     public static class MPQ
     {
@@ -116,7 +117,12 @@ namespace Utils
             return ulHash;
         }
 
-        private unsafe static uint HashString(string fileName, int hashType, MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper) {
+        private unsafe static uint HashString(string fileName, int hashType
+#if _MQP_HASH_CHAR
+            , MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper
+#endif
+            
+            ) {
             if (fileName == null)
                 return 0;
 
@@ -130,6 +136,7 @@ namespace Utils
                 byte* pByte = (byte*)ptr;
                 for (int i = 0; i < len; ++i) {
                     byte c = *(pByte++);
+#if _MQP_HASH_CHAR
                     switch (hashCharType) {
                         case MQP_HASH_CHAR.Low: {
                                 if (c >= 'A' && c <= 'Z')
@@ -142,6 +149,7 @@ namespace Utils
                                 break;
                             }
                     }
+#endif
                     int ch = (int)c;
                     seed1 = cryptTable[(hashType << 8) + ch] ^ (seed1 + seed2);
                     seed2 = (uint)ch + seed1 + seed2 + (seed2 << 5) + 3;
@@ -152,17 +160,37 @@ namespace Utils
         }
 
        // [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static MPQ_FileName GetFileNameHash(string fileName, MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper) {
+        public static MPQ_FileName GetFileNameHash(string fileName
+#if _MQP_HASH_CHAR
+            , MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper
+#endif
+            ) {
             const int HASH_OFFSET = 0, HASH_A = 1, HASH_B = 2;
             MPQ_FileName ret = new MPQ_FileName();
             ret.nHash = HashString(fileName, HASH_OFFSET);
-            ret.nHashA = HashString(fileName, HASH_A, hashCharType);
-            ret.nHashB = HashString(fileName, HASH_B, hashCharType);
+            ret.nHashA = HashString(fileName, HASH_A
+#if _MQP_HASH_CHAR
+                , hashCharType
+#endif
+                );
+            ret.nHashB = HashString(fileName, HASH_B
+#if _MQP_HASH_CHAR
+                , hashCharType
+#endif
+                );
             return ret;
         }
 
-        public static MPQ_FileName ToMPQHash(this string fileName, MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper) {
-            return GetFileNameHash(fileName, hashCharType);
+        public static MPQ_FileName ToMPQHash(this string fileName
+#if _MQP_HASH_CHAR
+            , MQP_HASH_CHAR hashCharType = MQP_HASH_CHAR.Upper
+#endif
+            ) {
+            return GetFileNameHash(fileName
+#if _MQP_HASH_CHAR
+                , hashCharType
+#endif
+                );
         }
     }
 }
