@@ -32,6 +32,11 @@ namespace Utils
                 return false;
         }
 
+        public override string ToString() {
+            string ret = string.Format("{0:D}|{1:D}|{2:D}", nHash, nHashA, nHashB);
+            return ret;
+        }
+
         public static bool operator ==(MPQ_FileName a, MPQ_FileName b)
         {
             return (a.nHash == b.nHash) && (a.nHashA == b.nHashA) && (a.nHashB == b.nHashB);
