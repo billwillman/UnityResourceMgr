@@ -7,7 +7,7 @@
 //----------------------------------------------------------------*/
 
 #define USE_UNITY5_X_BUILD
-// #define USE_LOWERCHAR
+#define USE_LOWERCHAR
 #define USE_HAS_EXT
 #define USE_DEP_BINARY
 #define USE_DEP_BINARY_AB
