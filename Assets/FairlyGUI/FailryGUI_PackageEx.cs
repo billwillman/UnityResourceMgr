@@ -108,6 +108,16 @@ namespace FairyGUI
             return AddPackage(assetPath, m_EvtDoLoad);
         }
 
+        public static GObject CreateWindow(string pkgShortName, string resName) {
+            var ret = UIPackage.CreateObject(pkgShortName, resName).asCom;
+            if (ret != null) {
+                ret.SetSize(GRoot.inst.width, GRoot.inst.height);
+                ret.AddRelation(GRoot.inst, RelationType.Size);
+                GRoot.inst.AddChild(ret);
+            }
+            return ret;
+        }
+
         /*
         public static UIPackage AddPackageAsyncEx(string assetPath) {
             if (string.IsNullOrEmpty(assetPath))

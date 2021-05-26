@@ -14,7 +14,11 @@ public class Test : CachedMonoBehaviour {
 		}
 	}
 
-	void DrawSpirtesButtons()
+    private void Awake() {
+		
+	}
+
+    void DrawSpirtesButtons()
 	{
 		if (!m_IsSpritesLoading)
 		{
@@ -82,6 +86,12 @@ public class Test : CachedMonoBehaviour {
 			//loader.LoadMainTextureAsync ("resources/@spirtes/spirtes.png", meshRender, true);
 			//GameObject.Destroy (gameObj);
 		}
+
+		if (GUI.Button(new Rect(260, 280, 150, 50), "加载UI")) {
+			FairyGUI.UIPackage.AddPackageEx("FairlyGUI/Common");
+			FairyGUI.UIPackage.AddPackageEx("FairlyGUI/Main");
+			var ui = FairyGUI.UIPackage.CreateWindow("Main", "MainUI");
+        }
 	}
 
 	void ChangeScene(bool isAsync)
