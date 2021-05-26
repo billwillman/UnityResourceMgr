@@ -243,7 +243,7 @@ namespace FairyGUI
             {
                 foreach (string packagePath in PreloadPackages)
                 {
-                    UIPackage.AddPackage(packagePath);
+                    UIPackage.AddPackageEx(packagePath);
                 }
 
                 Load();

@@ -93,7 +93,7 @@ namespace FairyGUI
                     CreateContainer();
 
                     if (!string.IsNullOrEmpty(packagePath) && UIPackage.GetByName(packageName) == null)
-                        UIPackage.AddPackage(packagePath);
+                        UIPackage.AddPackageEx(packagePath);
                 }
             }
             else
@@ -216,7 +216,7 @@ namespace FairyGUI
                 if (!_created && Application.isPlaying)
                 {
                     if (!string.IsNullOrEmpty(packagePath) && UIPackage.GetByName(packageName) == null)
-                        UIPackage.AddPackage(packagePath);
+                        UIPackage.AddPackageEx(packagePath);
 
                     CreateUI_PlayMode();
                 }

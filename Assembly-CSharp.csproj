@@ -68,6 +68,7 @@
     <Compile Include="Assets\FairlyGUI\Extensions\Spine\SpineLoader.cs" />
     <Compile Include="Assets\FairlyGUI\Extensions\TextMeshPro\TMPFont.cs" />
     <Compile Include="Assets\FairlyGUI\Extensions\TextMeshPro\TMPTextFormat.cs" />
+    <Compile Include="Assets\FairlyGUI\FailryGUI_PackageEx.cs" />
     <Compile Include="Assets\FairlyGUI\Scripts\Core\BlendMode.cs" />
     <Compile Include="Assets\FairlyGUI\Scripts\Core\CaptureCamera.cs" />
     <Compile Include="Assets\FairlyGUI\Scripts\Core\Container.cs" />

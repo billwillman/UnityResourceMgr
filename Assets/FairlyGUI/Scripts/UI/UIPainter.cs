@@ -62,7 +62,7 @@ namespace FairyGUI
                     CreateContainer();
 
                     if (!string.IsNullOrEmpty(packagePath) && UIPackage.GetByName(packageName) == null)
-                        UIPackage.AddPackage(packagePath);
+                        UIPackage.AddPackageEx(packagePath);
                 }
             }
             else
