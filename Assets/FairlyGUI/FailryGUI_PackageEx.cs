@@ -69,13 +69,13 @@ namespace FairyGUI
         }
 
         private static void DoLoadAsync(string name, string extension, System.Type type, PackageItem item) {
-            string fileName = StringHelper.Format("{0}{1}", name, extension);
+            string fileName = StringHelper.Format("resources/{0}{1}", name, extension);
             
         }
 
         private static System.Object DoLoad(string name, string extension, System.Type type, out DestroyMethod destroyMethod) {
             destroyMethod = DestroyMethod.Custom;
-            string fileName = StringHelper.Format("{0}{1}", name, extension);
+            string fileName = StringHelper.Format("resources/{0}{1}", name, extension);
 
             return _CallResLoad(fileName, type, ref destroyMethod);
         }
