@@ -39,19 +39,18 @@ namespace FairyGUI
         }
 
         private static System.Object _LoadBytes(string fileName, ref DestroyMethod method) {
+            method = DestroyMethod.None;
             byte[] buffer = ResourceMgr.Instance.LoadBytes(fileName);
             return buffer;
         }
 
         private static System.Object _LoadTexture(string fileName, ref DestroyMethod method) {
             Texture ret = ResourceMgr.Instance.LoadTexture(fileName, ResourceCacheType.rctRefAdd);
-            method = DestroyMethod.Custom;
             return ret;
         }
 
         private static System.Object _LoadAudioClip(string fileName, ref DestroyMethod method) {
             AudioClip ret = ResourceMgr.Instance.LoadAudioClip(fileName, ResourceCacheType.rctRefAdd);
-            method = DestroyMethod.Custom;
             return ret;
         }
 
@@ -67,7 +66,7 @@ namespace FairyGUI
         }
 
         private static System.Object DoLoad(string name, string extension, System.Type type, out DestroyMethod destroyMethod) {
-            destroyMethod = DestroyMethod.None;
+            destroyMethod = DestroyMethod.Custom;
             string fileName = StringHelper.Format("{0}{1}", name, extension);
 
             return _CallResLoad(fileName, type, ref destroyMethod);
