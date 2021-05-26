@@ -51,6 +51,7 @@ namespace FairyGUI
 
         private static System.Object _LoadAudioClip(string fileName, ref DestroyMethod method) {
             AudioClip ret = ResourceMgr.Instance.LoadAudioClip(fileName, ResourceCacheType.rctRefAdd);
+            method = DestroyMethod.Custom;
             return ret;
         }
 
