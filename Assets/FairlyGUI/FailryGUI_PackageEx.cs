@@ -91,6 +91,16 @@ namespace FairyGUI
             return buffer;
         }
 
+        // 资源全解耦
+        public void DestroyAllResource() {
+            UnloadAssets();
+        }
+
+        // 重新加载资源
+        public void ReloadAllResource() {
+            ReloadAssets();
+        }
+
         public static UIPackage AddPackageEx(string assetPath) {
             if (string.IsNullOrEmpty(assetPath))
                 return null;
