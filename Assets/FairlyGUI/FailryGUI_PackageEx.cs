@@ -9,9 +9,12 @@ namespace FairyGUI
     public partial class UIPackage
     {
         private static LoadResource m_EvtDoLoad = null;
+        private static LoadResourceAsync m_EvtDoLoadAsync = null;
         private static void InitEvents() {
             if (m_EvtDoLoad == null)
                 m_EvtDoLoad = new LoadResource(DoLoad);
+            if (m_EvtDoLoadAsync == null)
+                m_EvtDoLoadAsync = new LoadResourceAsync(DoLoadAsync);
         }
 
         public delegate System.Object _DestroyMethod(string fileName, ref DestroyMethod method);
@@ -39,19 +42,18 @@ namespace FairyGUI
         }
 
         private static System.Object _LoadBytes(string fileName, ref DestroyMethod method) {
+            method = DestroyMethod.None;
             byte[] buffer = ResourceMgr.Instance.LoadBytes(fileName);
             return buffer;
         }
 
         private static System.Object _LoadTexture(string fileName, ref DestroyMethod method) {
             Texture ret = ResourceMgr.Instance.LoadTexture(fileName, ResourceCacheType.rctRefAdd);
-            method = DestroyMethod.Custom;
             return ret;
         }
 
         private static System.Object _LoadAudioClip(string fileName, ref DestroyMethod method) {
             AudioClip ret = ResourceMgr.Instance.LoadAudioClip(fileName, ResourceCacheType.rctRefAdd);
-            method = DestroyMethod.Custom;
             return ret;
         }
 
@@ -66,8 +68,13 @@ namespace FairyGUI
             return null;
         }
 
+        private static void DoLoadAsync(string name, string extension, System.Type type, PackageItem item) {
+            string fileName = StringHelper.Format("{0}{1}", name, extension);
+            
+        }
+
         private static System.Object DoLoad(string name, string extension, System.Type type, out DestroyMethod destroyMethod) {
-            destroyMethod = DestroyMethod.None;
+            destroyMethod = DestroyMethod.Custom;
             string fileName = StringHelper.Format("{0}{1}", name, extension);
 
             return _CallResLoad(fileName, type, ref destroyMethod);
@@ -90,5 +97,15 @@ namespace FairyGUI
             InitEvents();
             return AddPackage(assetPath, m_EvtDoLoad);
         }
+
+        /*
+        public static UIPackage AddPackageAsyncEx(string assetPath) {
+            if (string.IsNullOrEmpty(assetPath))
+                return null;
+            InitEvents();
+            byte[] buffer = ResourceMgr.Instance.LoadBytes(assetPath);
+            return AddPackage(buffer, assetPath, m_EvtDoLoadAsync);
+        }
+        */
     }
 }
