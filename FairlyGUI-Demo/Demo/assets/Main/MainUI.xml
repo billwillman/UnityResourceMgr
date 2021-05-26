@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component size="1280,720">
+  <displayList>
+    <component id="n0_kgx2" name="BtnOK" src="kgx24" fileName="Image/BtnOK.xml" pkg="i8avn6pi" xy="527,359"/>
+  </displayList>
+</component>
