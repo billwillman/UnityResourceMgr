@@ -12,7 +12,7 @@ namespace FairyGUI
     /// <summary>
     /// A UI Package contains a description file and some texture, sound assets.
     /// </summary>
-    public class UIPackage
+    public partial class UIPackage
     {
         /// <summary>
         /// Unload UIAssetBundle by FairyGUI system.
@@ -306,16 +306,14 @@ namespace FairyGUI
                 return _packageInstById[assetPath];
 
             DestroyMethod dm;
-            TextAsset asset = (TextAsset)loadFunc(assetPath + "_fui", ".bytes", typeof(TextAsset), out dm);
-            if (asset == null)
-            {
+            System.Object loadObj = loadFunc(assetPath + "_fui", ".bytes", typeof(TextAsset), out dm);
+            ByteBuffer buffer = _GetByteBuffer(loadObj);
+            if (buffer == null) {
                 if (Application.isPlaying)
                     throw new Exception("FairyGUI: Cannot load ui package in '" + assetPath + "'");
                 else
                     Debug.LogWarning("FairyGUI: Cannot load ui package in '" + assetPath + "'");
             }
-
-            ByteBuffer buffer = new ByteBuffer(asset.bytes);
 
             UIPackage pkg = new UIPackage();
             pkg._loadFunc = loadFunc;
