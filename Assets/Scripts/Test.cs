@@ -90,6 +90,7 @@ public class Test : CachedMonoBehaviour {
 		if (GUI.Button(new Rect(260, 280, 150, 50), "加载UI")) {
 			FairyGUI.UIPackage.AddPackageEx("FairlyGUI/Common");
 			FairyGUI.UIPackage.AddPackageEx("FairlyGUI/Main");
+			
 			var ui = FairyGUI.UIPackage.CreateWindow("Main", "MainUI");
         }
 	}

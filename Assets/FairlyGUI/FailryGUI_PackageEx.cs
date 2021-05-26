@@ -118,7 +118,7 @@ namespace FairyGUI
             return ret;
         }
 
-        /*
+        
         public static UIPackage AddPackageAsyncEx(string assetPath) {
             if (string.IsNullOrEmpty(assetPath))
                 return null;
@@ -126,6 +126,6 @@ namespace FairyGUI
             byte[] buffer = ResourceMgr.Instance.LoadBytes(assetPath);
             return AddPackage(buffer, assetPath, m_EvtDoLoadAsync);
         }
-        */
+       
     }
 }
