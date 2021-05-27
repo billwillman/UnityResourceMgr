@@ -88,6 +88,7 @@ public class Test : CachedMonoBehaviour {
 		}
 
 		if (GUI.Button(new Rect(260, 280, 150, 50), "加载UI")) {
+			FairyGUI.GRoot.inst.SetContentScaleFactor(1280, 720, FairyGUI.UIContentScaler.ScreenMatchMode.MatchHeight);
 			FairyGUI.UIPackage.AddPackageEx("FairlyGUI/Common");
 			FairyGUI.UIPackage.AddPackageEx("FairlyGUI/Main");
 			
