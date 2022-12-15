@@ -49,6 +49,9 @@
 
 #### 脚本sign_obb目录里build.py是用来拆分 APK + obb, 用于上GOOGLE平台等海外需求使用。
 
-### todo: 将读取AssetBundles.xml放在C++层解析，进一步减少MONO堆内存使用量
+### todo: 
+1.将读取AssetBundles.xml放在C++层解析，进一步减少MONO堆内存使用量（已经支持二进制，后续可以改为新版本高性能FlatBuffer Table存储）
+2.MD5作为文件更改标识，后续可以更改为CRC64或者xxHash的低碰撞的标识减少字符串分配。
+
 
 
