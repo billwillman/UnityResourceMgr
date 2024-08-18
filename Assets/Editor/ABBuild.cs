@@ -5117,7 +5117,7 @@ public static class AssetBundleBuild
 			if (string.IsNullOrEmpty(root))
 				root = d;
 			else
-				root = '/' + d;
+				root += '/' + d;
 			if (!Directory.Exists(root))
 				Directory.CreateDirectory(root);
 		}
@@ -5194,6 +5194,7 @@ public static class AssetBundleBuild
 			}
 
 			dstAssets = outPath +  "/ProjectSettings";
+			_CreateDirs(dstAssets);
 			_CopyAllFiles("ProjectSettings", dstAssets, null);
 		}
 
@@ -5258,6 +5259,7 @@ public static class AssetBundleBuild
 	//	_CopyAllFiles("Library", dstAssets, null);
 
 		dstAssets = outPath + '/' + "ProjectSettings";
+		_CreateDirs(dstAssets);
 		_CopyAllFiles("ProjectSettings", dstAssets, null);
     }
 
