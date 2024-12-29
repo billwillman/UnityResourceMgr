@@ -8,8 +8,8 @@ using Utils;
 #if UNITY_WEIXINMINIGAME
 using WeChatWASM;
 using UnityEngine.Networking;
-using Unity.InstantGame;
-using Unity.AutoStreaming;
+//using Unity.InstantGame;
+//using Unity.AutoStreaming;
 #endif
 
 // 任务接口
@@ -166,7 +166,7 @@ public class BundleCreateAsyncTask: ITask
 		} else if (m_Req.isDone)
 			return m_Req.assetBundle;
 
-		return null;
+			return null;
 	}
 
 	public override void QuickLoaded() {
