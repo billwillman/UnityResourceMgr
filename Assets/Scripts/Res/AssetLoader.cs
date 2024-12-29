@@ -956,7 +956,11 @@ public class AssetInfo {
 
     public void _BundleUnLoadFalse() {
         if (IsVaild()) {
+#if UNITY_WEIXINMINIGAME
+            mBundle.WXUnload(false);
+#else
             mBundle.Unload(false);
+#endif
             mBundle = null;
         }
     }
@@ -973,7 +977,11 @@ public class AssetInfo {
         m_AsyncLoadDict.Clear();
         ClearUsingCnt();
         if (isVaild) {
+#if UNITY_WEIXINMINIGAME
+            mBundle.WXUnload(true);
+#else
             mBundle.Unload(true);
+#endif
             mBundle = null;
         }
         ClearTaskData();
@@ -1114,7 +1122,7 @@ public class AssetInfo {
     // 依赖的AssetBundle文件名（包含路径）
     private List<DependFileInfo> mDependFileNames = null;
     private AssetBundle mBundle = null;
-	#if UNITY_EDITOR && UNITY_2017_1_OR_NEWER && USE_RECORD_LOADSCENENAME
+#if UNITY_EDITOR && UNITY_2017_1_OR_NEWER && USE_RECORD_LOADSCENENAME
 	public string LoadSceneName {
 		get;
 		private set;
@@ -1128,7 +1136,7 @@ public class AssetInfo {
 			LoadSceneName = scene.name;
 		}
 	}
-	#endif
+#endif
     // 文件名HashCode
     private string mFileName = string.Empty;
     // 更新时间
@@ -2850,11 +2858,18 @@ private string GetCheckFileName(ref Dictionary<string, string> fileRealMap, stri
 #endif
                 usedTime = Time.realtimeSinceStartup - startTime;
                 Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());
-
+#if UNITY_WEIXINMINIGAME
+                bundle.WXUnload(true);
+#else
                 bundle.Unload(true);
+#endif
             } else {
                 Debug.LogErrorFormat("[LoadConfig]读取TextAsset {0} 失敗", name);
+#if UNITY_WEIXINMINIGAME
+                bundle.WXUnload(true);
+#else
                 bundle.Unload(true);
+#endif
                 LoadConfigProcess = 1f;
                 if (OnFinishEvent != null)
                     OnFinishEvent(false);
@@ -2884,7 +2899,7 @@ private string GetCheckFileName(ref Dictionary<string, string> fileRealMap, stri
 		}
 #endif
 
-    }
+            }
 
     public bool _ExistsFileName(string localFileName) {
         string fileName;
