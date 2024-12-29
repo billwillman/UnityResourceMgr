@@ -580,6 +580,22 @@ public class AssetInfo {
         if (string.IsNullOrEmpty(mFileName))
             return false;
 
+        // 先异步再同步调用打断异步
+        if (m_AsyncTask != null) {
+            m_AsyncTask.QuickLoaded();
+            if (m_AsyncTask.Bundle != null) {
+                mBundle = m_AsyncTask.Bundle;
+                return true;
+            }
+        } else if (m_WWWTask != null) {
+            m_WWWTask.QuickLoaded();
+            if (m_WWWTask.Bundle != null) {
+                mBundle = m_WWWTask.Bundle;
+                return true;
+            }
+        }
+        // -------------------------
+
         //	mIsLoading = false;
         if (mCompressType == AssetCompressType.astNone) {
             //	ClearTaskData();

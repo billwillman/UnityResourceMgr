@@ -88,6 +88,8 @@ public abstract class ITask
 	{
 	}
 
+	public virtual void QuickLoaded() { }
+
 	protected void TaskOk()
 	{
 		mResult = 1;
@@ -150,13 +152,20 @@ public class BundleCreateAsyncTask: ITask
             m_Req = AssetBundle.LoadFromFileAsync(m_FileName);
             if (m_Req != null) {
                 m_Req.priority = m_Priority;
-                return m_Req.assetBundle;
+				if (m_Req.isDone)
+					return m_Req.assetBundle;
             }
-        } else
+        } else if (m_Req.isDone)
             return m_Req.assetBundle;
 
         return null;
 	}
+
+	public override void QuickLoaded() {
+		if (m_Req != null) {
+			m_Bundle = m_Req.assetBundle; // 快速加载下，这样打断异步立马加载
+		}
+    }
 
 	public override void Release()
 	{
@@ -549,9 +558,18 @@ public class WWWFileLoadTask: ITask
                 mLoader = new WWW(mWWWFileName);
 
             mLoader.threadPriority = mPriority;
+			if (mLoader.isDone)
+				return mLoader.assetBundle;
+        } else if (mLoader.isDone)
             return mLoader.assetBundle;
-        } else
-            return mLoader.assetBundle;
+		return null;
+    }
+
+	// 快速打断异步加载
+	public override void QuickLoaded() {
+		if (mLoader != null) {
+			mBundle = mLoader.assetBundle;
+		}
     }
 
 	public override void Process()
