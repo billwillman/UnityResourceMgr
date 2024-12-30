@@ -623,7 +623,11 @@ public class AssetInfo {
             // Lz4 new compressType
             //	ClearTaskData();
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017 || UNITY_2017_1_OR_NEWER
+#if UNITY_WEIXINMINIGAME
+            mBundle = WXAssetBundle.LoadFromFile(mFileName);
+#else
             mBundle = AssetBundle.LoadFromFile(mFileName);
+#endif
 #else
 			mBundle = AssetBundle.CreateFromFile(mFileName);
 #endif
@@ -2830,7 +2834,11 @@ private string GetCheckFileName(ref Dictionary<string, string> fileRealMap, stri
         AssetBundle bundle;
         string fileName = GetXmlFileName();
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017 || UNITY_2017_1_OR_NEWER
+#if UNITY_WEIXINMINIGAME
+        bundle = WXAssetBundle.LoadFromFile(fileName);
+#else
         bundle = AssetBundle.LoadFromFile(fileName);
+#endif
 #else
 		bundle = AssetBundle.CreateFromFile(fileName);
 #endif
