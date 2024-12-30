@@ -111,6 +111,194 @@ public abstract class ITask
 }
 
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017 || UNITY_2017_1_OR_NEWER
+
+#if UNITY_WEIXINMINIGAME
+public class WXAssetBundleAsyncTask: ITask
+{
+	public static string CDN_RootDir = string.Empty; // 设置CDN的地址
+	public WXAssetBundleAsyncTask() {}
+	public WXAssetBundleAsyncTask(string createFileName, int priority = 0) {
+		if (string.IsNullOrEmpty(createFileName)) {
+			TaskFail();
+			return;
+		}
+		m_FileName = createFileName;
+		m_Priority = priority;
+	}
+
+	public static int GetPoolCount() {
+		return m_Pool.Count;
+	}
+
+	public Action<WXAssetBundleAsyncTask> OnProcess {
+		get;
+		set;
+	}
+
+	public string FileName {
+		get {
+			return m_FileName;
+		}
+	}
+
+	private static WXAssetBundleAsyncTask GetNewTask() {
+		if (m_UsePool) {
+			InitPool();
+			WXAssetBundleAsyncTask ret = m_Pool.GetObject();
+			if (ret != null)
+				ret.m_IsInPool = false;
+			return ret;
+		}
+
+		return new WXAssetBundleAsyncTask();
+	}
+
+	public static WXAssetBundleAsyncTask Create(string createFileName, int priority = 0) {
+		if (string.IsNullOrEmpty(createFileName))
+			return null;
+		WXAssetBundleAsyncTask ret = GetNewTask();
+		ret.m_FileName = createFileName;
+		ret.m_Priority = priority;
+		return ret;
+	}
+
+	public AssetBundle Bundle {
+		get {
+			return m_Bundle;
+		}
+	}
+
+	public float Progress {
+		get {
+			return m_Progress;
+		}
+	}
+
+
+
+	public override void QuickLoaded() {
+		if (m_Req != null) {
+			m_Bundle = (m_Req.downloadHandler as DownloadHandlerWXAssetBundle).assetBundle; // 快速加载下，这样打断异步立马加载
+		}
+	}
+
+	public override void Release() {
+		base.Release();
+		ItemPoolReset();
+		InPool(this);
+	}
+
+	public AssetBundle StartLoad() {
+		if (m_Req == null) {
+			if (m_Req != null) {
+				string url = CDN_RootDir;
+				if (string.IsNullOrEmpty(url))
+					url = m_FileName;
+				else {
+					if (url[url.Length - 1] != '/')
+						url += "/";
+					url += m_FileName;
+                }
+				m_Req = WXAssetBundle.GetAssetBundle(url);
+				m_AsyncOpt = m_Req.SendWebRequest();
+				if (m_Req.isDone)
+					return (m_Req.downloadHandler as DownloadHandlerWXAssetBundle).assetBundle;
+				if (m_AsyncOpt != null)
+					m_AsyncOpt.priority = m_Priority;
+			}
+		} else if (m_Req.isDone)
+			return (m_Req.downloadHandler as DownloadHandlerWXAssetBundle).assetBundle;
+
+		return null;
+	}
+
+	public override void Process() {
+		// 可以加载后面的LOAD
+		StartLoad();
+
+		if (m_Req == null) {
+			TaskFail();
+			return;
+		}
+
+		if (m_Req.isDone) {
+			DownloadHandlerWXAssetBundle handler = m_Req.downloadHandler as DownloadHandlerWXAssetBundle;
+			if (handler.assetBundle != null) {
+				m_Progress = 1.0f;
+				TaskOk();
+				m_Bundle = handler.assetBundle;
+			} else
+				TaskFail();
+
+			m_Req = null;
+		} else if (m_Req.isHttpError){
+			TaskFail();
+		} else {
+			if (m_AsyncOpt != null)
+				m_Progress = m_AsyncOpt.progress;
+			else
+				m_Progress = 0;
+		}
+
+		if (OnProcess != null)
+			OnProcess(this);
+
+	}
+
+
+	private static void PoolReset(WXAssetBundleAsyncTask task) {
+		if (task == null)
+			return;
+		task.ItemPoolReset();
+	}
+
+	private static void InitPool() {
+		if (m_PoolInited)
+			return;
+		m_PoolInited = true;
+		m_Pool.Init(0, null, PoolReset);
+	}
+
+	private static void InPool(WXAssetBundleAsyncTask task) {
+		if (!m_UsePool || task == null || task.m_IsInPool)
+			return;
+		InitPool();
+		m_Pool.Store(task);
+		task.m_IsInPool = true;
+	}
+
+	private void ItemPoolReset() {
+		if (m_Req != null) {
+			m_Req = null;
+		}
+
+		m_AsyncOpt = null;
+		m_Priority = 0;
+		OnResult = null;
+		OnProcess = null;
+		m_Bundle = null;
+		m_Progress = 0;
+		m_FileName = string.Empty;
+		mResult = 0;
+		UserData = null;
+		_Owner = null;
+	}
+
+	private string m_FileName = string.Empty;
+	private bool m_IsInPool = false;
+	private UnityWebRequest m_Req = null;
+	private UnityWebRequestAsyncOperation m_AsyncOpt = null;
+	private int m_Priority = 0;
+
+	private float m_Progress = 0;
+	private AssetBundle m_Bundle = null;
+
+	private static bool m_UsePool = true;
+	private static bool m_PoolInited = false;
+	private static Utils.ObjectPool<WXAssetBundleAsyncTask> m_Pool = new Utils.ObjectPool<WXAssetBundleAsyncTask>();
+}
+#endif
+
 // LoadFromFileAsync
 public class BundleCreateAsyncTask: ITask
 {
