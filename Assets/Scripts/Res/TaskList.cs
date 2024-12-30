@@ -449,6 +449,14 @@ public class BundleCreateAsyncTask: ITask
 						ret += "/Linux";
 					break;
             }
+#if UNITY_WEIXINMINIGAME
+			case RuntimePlatform.WeixinMiniGamePlayer: {
+					ret = Application.streamingAssetsPath;
+					if (usePlatform)
+						ret += "/MiniGame";
+					break;
+				}
+#endif
 
 			case RuntimePlatform.OSXEditor:
 			{
@@ -471,10 +479,12 @@ public class BundleCreateAsyncTask: ITask
                             ret += "/IOS";
                         else if (target == UnityEditor.BuildTarget.StandaloneWindows || target == UnityEditor.BuildTarget.StandaloneWindows64)
                             ret += "/Windows";
+						else if (target == UnityEditor.BuildTarget.WeixinMiniGame)
+							ret += "/MiniGame";
 #else
 					ret += "/Mac";
 #endif
-                }
+					}
 				break;
 			}
 
@@ -494,10 +504,12 @@ public class BundleCreateAsyncTask: ITask
                 {
 #if UNITY_EDITOR
                     var target = UnityEditor.EditorUserBuildSettings.activeBuildTarget;
-                    if (target == UnityEditor.BuildTarget.StandaloneWindows || target == UnityEditor.BuildTarget.StandaloneWindows64)
-                        ret += "/Windows";
-                    else if (target == UnityEditor.BuildTarget.Android)
-                        ret += "/Android";
+						if (target == UnityEditor.BuildTarget.StandaloneWindows || target == UnityEditor.BuildTarget.StandaloneWindows64)
+							ret += "/Windows";
+						else if (target == UnityEditor.BuildTarget.Android)
+							ret += "/Android";
+						else if (target == UnityEditor.BuildTarget.WeixinMiniGame)
+							ret += "/MiniGame";
 #else
 					ret += "/Windows";
 #endif
