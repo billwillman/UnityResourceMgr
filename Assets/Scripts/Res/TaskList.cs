@@ -116,11 +116,17 @@ public abstract class ITask
 public class WXAssetBundleAsyncTask: ITask
 {
 	public static string CDN_RootDir = string.Empty; // 设置CDN的地址
+	public static IWXAssetBundleMapper Mapper = null;
 	public WXAssetBundleAsyncTask() {}
 	public WXAssetBundleAsyncTask(string createFileName, int priority = 0) {
 		if (string.IsNullOrEmpty(createFileName)) {
 			TaskFail();
 			return;
+		}
+		if (Mapper != null) {
+			string urlFileName = Mapper.GetCDNFileName(createFileName);
+			if (!string.IsNullOrEmpty(urlFileName))
+				createFileName = urlFileName;
 		}
 		m_FileName = createFileName;
 		m_Priority = priority;
@@ -188,24 +194,41 @@ public class WXAssetBundleAsyncTask: ITask
 		InPool(this);
 	}
 
+	public static string GetCDNFileName(string fileName) {
+		if (string.IsNullOrEmpty(fileName) || string.IsNullOrEmpty(CDN_RootDir))
+			return fileName;
+		if (Mapper != null) {
+			string targetFileName = Mapper.GetCDNFileName(fileName);
+			if (!string.IsNullOrEmpty(targetFileName)) {
+				fileName = targetFileName;
+				string url = CDN_RootDir;
+				if (url[url.Length - 1] != '/')
+					url += "/";
+				fileName = url + fileName;
+			}
+        }
+		return fileName;
+	}
+
 	public AssetBundle StartLoad() {
 		if (m_Req == null) {
-			if (m_Req != null) {
-				string url = CDN_RootDir;
-				if (string.IsNullOrEmpty(url))
-					url = m_FileName;
-				else {
-					if (url[url.Length - 1] != '/')
-						url += "/";
-					url += m_FileName;
-                }
-				m_Req = WXAssetBundle.GetAssetBundle(url);
-				m_AsyncOpt = m_Req.SendWebRequest();
-				if (m_Req.isDone)
-					return (m_Req.downloadHandler as DownloadHandlerWXAssetBundle).assetBundle;
-				if (m_AsyncOpt != null)
-					m_AsyncOpt.priority = m_Priority;
+			string url = GetCDNFileName(m_FileName);
+			/*
+			string url = CDN_RootDir;
+			if (string.IsNullOrEmpty(url))
+				url = m_FileName;
+			else {
+				if (url[url.Length - 1] != '/')
+					url += "/";
+				url += m_FileName;
 			}
+			*/
+			m_Req = WXAssetBundle.GetAssetBundle(url);
+			m_AsyncOpt = m_Req.SendWebRequest();
+			if (m_Req.isDone)
+				return (m_Req.downloadHandler as DownloadHandlerWXAssetBundle).assetBundle;
+			if (m_AsyncOpt != null)
+				m_AsyncOpt.priority = m_Priority;
 		} else if (m_Req.isDone)
 			return (m_Req.downloadHandler as DownloadHandlerWXAssetBundle).assetBundle;
 
@@ -231,7 +254,7 @@ public class WXAssetBundleAsyncTask: ITask
 				TaskFail();
 
 			m_Req = null;
-		} else if (m_Req.isHttpError){
+		} else if (m_Req.isHttpError || m_Req.isNetworkError || m_Req.isNetworkError){
 			TaskFail();
 		} else {
 			if (m_AsyncOpt != null)
