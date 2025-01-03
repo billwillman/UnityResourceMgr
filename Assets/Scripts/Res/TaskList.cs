@@ -690,8 +690,10 @@ public class BundleCreateAsyncTask: ITask
                             ret += "/IOS";
                         else if (target == UnityEditor.BuildTarget.StandaloneWindows || target == UnityEditor.BuildTarget.StandaloneWindows64)
                             ret += "/Windows";
+#if UNITY_WEIXINMINIGAME
 						else if (target == UnityEditor.BuildTarget.WeixinMiniGame)
 							ret += "/MiniGame";
+#endif
 #else
 					ret += "/Mac";
 #endif
@@ -719,12 +721,14 @@ public class BundleCreateAsyncTask: ITask
 							ret += "/Windows";
 						else if (target == UnityEditor.BuildTarget.Android)
 							ret += "/Android";
+#if UNITY_WEIXINMINIGAME
 						else if (target == UnityEditor.BuildTarget.WeixinMiniGame)
 							ret += "/MiniGame";
+#endif
 #else
 					ret += "/Windows";
 #endif
-                }
+					}
 				break;
 			}
 			case RuntimePlatform.Android:

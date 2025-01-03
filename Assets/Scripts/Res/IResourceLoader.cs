@@ -49,6 +49,7 @@ public abstract class IResourceLoader
 	public abstract bool LoadAudioClipAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, AudioClip> onProcess, int priority = 0);
 	public abstract string LoadText(string fileName, ResourceCacheType cacheType);
 	public abstract byte[] LoadBytes(string fileName, ResourceCacheType cacheType);
+	public abstract TextAsset LoadTextAsset(string fileName, ResourceCacheType cacheType);
 	public abstract bool LoadTextAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, TextAsset> onProcess, int priority = 0);
 	public abstract RuntimeAnimatorController LoadAniController(string fileName, ResourceCacheType cacheType);
 	public abstract bool LoadAniControllerAsync(string fileName, ResourceCacheType cacheType, Action<float, bool, RuntimeAnimatorController> onProcess, int priority = 0);
@@ -60,7 +61,7 @@ public abstract class IResourceLoader
 	public abstract bool LoadSpritesAsync(string fileName, Action<float, bool, UnityEngine.Object[]> onProcess, int priority = 0);
 	public abstract ScriptableObject LoadScriptableObject (string fileName, ResourceCacheType cacheType);
 	public abstract bool LoadScriptableObjectAsync (string fileName, ResourceCacheType cacheType, Action<float, bool, UnityEngine.ScriptableObject> onProcess, int priority = 0);
-#if UNITY_5
+#if UNITY_5 || UNITY_2017_1_OR_NEWER
 	public abstract ShaderVariantCollection LoadShaderVarCollection(string fileName, ResourceCacheType cacheType);
 	public abstract bool LoadShaderVarCollectionAsync(string fileName, ResourceCacheType ResourceCacheType, Action<float, bool, ShaderVariantCollection> onProcess, int priority = 0);
 #endif
