@@ -29,6 +29,13 @@ using Utils;
 using WeChatWASM;
 #endif
 
+#if UNITY_WEIXINMINIGAME
+public interface IWXAssetBundleMapper
+{
+    string GetCDNFileName(string oriFileName);
+}
+#endif
+
 public class AsyncLoadKeyComparser : StructComparser<AsyncLoadKey> { }
 
 public struct AsyncLoadKey : IEquatable<AsyncLoadKey> {
@@ -236,7 +243,7 @@ public class AssetInfo {
     }
 
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017 || UNITY_2017_1_OR_NEWER
-    internal BundleCreateAsyncTask AsyncTask {
+    internal IAssetBundleAsyncTask AsyncTask {
         get {
             return m_AsyncTask;
         }
@@ -245,7 +252,7 @@ public class AssetInfo {
 
     private WWWFileLoadTask m_WWWTask = null;
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017 || UNITY_2017_1_OR_NEWER
-    private BundleCreateAsyncTask m_AsyncTask = null;
+    private IAssetBundleAsyncTask m_AsyncTask = null;
 #endif
     private TaskList m_TaskList = null;
     private ITimer m_Timer = null;
@@ -495,8 +502,14 @@ public class AssetInfo {
             AddNoOwnerToTaskList(taskList, m_AsyncTask);
             return true;
         }
-
+#if UNITY_WEIXINMINIGAME
+        if (WXAssetBundleAsyncTask.HasCDNFile(mFileName)) // 远程文件才使用 WXAssetBundleAsyncTask
+            m_AsyncTask = WXAssetBundleAsyncTask.Create(mFileName, priority);
+        else
+            m_AsyncTask = BundleCreateAsyncTask.Create(mFileName, priority);
+#else
         m_AsyncTask = BundleCreateAsyncTask.Create(mFileName, priority);
+#endif
         if (m_AsyncTask != null) {
             // 优化AB加载
             /* 异步UNITY内部已经直接返回了AssetBundle通过AssetBundleRequest */
@@ -516,15 +529,15 @@ public class AssetInfo {
             m_AsyncTask.AddResultEvent(OnLocalAsyncResult);
         } else
             return false;
-	#if UNITY_EDITOR && UNITY_2017_1_OR_NEWER && USE_RECORD_LOADSCENENAME
+#if UNITY_EDITOR && UNITY_2017_1_OR_NEWER && USE_RECORD_LOADSCENENAME
 		InitLoadSceneName ();
-	#endif
+#endif
         return true;
     }
 
 #endif
 
-    public bool LoadWWW(TaskList taskList) {
+        public bool LoadWWW(TaskList taskList) {
         if (IsVaild())
             return true;
         if (string.IsNullOrEmpty(mFileName))
@@ -2817,6 +2830,86 @@ private string GetCheckFileName(ref Dictionary<string, string> fileRealMap, stri
 
         return assetBundleFileName;
     }
+
+#if UNITY_WEIXINMINIGAME
+    IEnumerator DoWxAssetBundleXml(Action<bool> OnFinishEvent, MonoBehaviour async) {
+        LoadConfigProcess = 0f;
+        float startTime = Time.realtimeSinceStartup;
+        string fileName = GetXmlFileName();
+        string transFileName = WXAssetBundleAsyncTask.GetCDNFileName(fileName);
+        bool isLocalFile = transFileName == fileName;
+
+        Action doErrorFunc = () =>
+        {
+            Debug.LogErrorFormat("[LoadConfig]加載 {0} bundle失敗", fileName);
+            LoadConfigProcess = 1f;
+            if (OnFinishEvent != null)
+                OnFinishEvent(false);
+        };
+
+        AssetBundle bundle = null;
+        Action doOkFunc = () =>
+        {
+            if (bundle != null) {
+                float curTime = Time.realtimeSinceStartup;
+                float usedTime = curTime - startTime;
+                Debug.LogFormat("加载XML AB时间：{0}", usedTime.ToString());
+                startTime = curTime;
+#if USE_HAS_EXT
+                string name = Path.GetFileName(fileName);
+#else
+                string name = Path.GetFileNameWithoutExtension(fileName);
+#endif
+                TextAsset asset = bundle.LoadAsset<TextAsset>(name);
+                if (asset != null) {
+                    LoadBinary(asset.bytes, OnFinishEvent, async, false);
+                    usedTime = Time.realtimeSinceStartup - startTime;
+                    Debug.LogFormat("解析XML时间：{0}", usedTime.ToString());
+                    bundle.WXUnload(true);
+                } else {
+                    Debug.LogErrorFormat("[LoadConfig]读取TextAsset {0} 失敗", name);
+                    bundle.WXUnload(true);
+                    LoadConfigProcess = 1f;
+                    if (OnFinishEvent != null)
+                        OnFinishEvent(false);
+                }
+            } else {
+                doErrorFunc();
+            }
+        };
+
+#if USE_DEP_BINARY && USE_DEP_BINARY_AB
+        Debug.Log("[DoWxAssetBundleXml] " + fileName);
+        if (isLocalFile) {
+            bundle = WXAssetBundle.LoadFromFile(fileName);
+            doOkFunc();
+            yield break;
+        }
+        var req = WXAssetBundle.GetAssetBundle(fileName);
+        yield return req.SendWebRequest();
+        if (req.isDone) {
+            bundle = (req.downloadHandler as DownloadHandlerWXAssetBundle).assetBundle;
+            doOkFunc();
+        } else if (req.isHttpError || req.isNetworkError || req.isNetworkError) {
+            doErrorFunc();
+        }
+#else
+        doErrorFunc();
+        yield break;
+#endif
+    }
+
+    // 微信平台专用
+    public void LoadConfigs_WxPlatform(Action<bool> OnFinishEvent, MonoBehaviour async) {
+        if (async == null) {
+            OnFinishEvent(false);
+            return;
+        }
+        async.StopAllCoroutines();
+        async.StartCoroutine(DoWxAssetBundleXml(OnFinishEvent, async));
+    }
+    // ----------------
+#endif
 
     // 手动调用读取配置, isThreadMode: 是否是多线程LOOM库的方式
     public void LoadConfigs(Action<bool> OnFinishEvent, MonoBehaviour async = null, bool isThreadMode = false) {

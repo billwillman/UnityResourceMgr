@@ -99,5 +99,9 @@ namespace NsLib.ResMgr {
         public override AssetCache CreateCache(UnityEngine.Object orgObj, string fileName, System.Type orgType) {
             return null;
         }
+
+        public override TextAsset LoadTextAsset(string fileName, ResourceCacheType cacheType) {
+            return null;
+        }
     }
 }

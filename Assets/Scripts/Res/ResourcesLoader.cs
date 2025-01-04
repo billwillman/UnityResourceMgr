@@ -481,6 +481,10 @@ public sealed class ResourcesLoader: IResourceLoader
 		return LoadObjectAsync<TextAsset> (fileName, cache, priority, onProcess);
 	}
 
+	public override TextAsset LoadTextAsset(string fileName, ResourceCacheType cacheType) {
+		return LoadObject<TextAsset>(fileName, cacheType);
+    }
+
 	// not used addToCache
 	public override Material LoadMaterial(string fileName, ResourceCacheType cacheType)
 	{

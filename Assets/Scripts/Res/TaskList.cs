@@ -112,8 +112,16 @@ public abstract class ITask
 
 #if UNITY_5_3 || UNITY_5_4 || UNITY_5_5 || UNITY_5_6 || UNITY_2018 || UNITY_2019 || UNITY_2017 || UNITY_2017_1_OR_NEWER
 
+public abstract class IAssetBundleAsyncTask: ITask
+{
+	public abstract AssetBundle StartLoad();
+	public abstract AssetBundle Bundle {
+		get;
+    }
+}
+
 #if UNITY_WEIXINMINIGAME
-public class WXAssetBundleAsyncTask: ITask
+public class WXAssetBundleAsyncTask: IAssetBundleAsyncTask
 {
 	public static string CDN_RootDir = string.Empty; // 设置CDN的地址
 	public static IWXAssetBundleMapper Mapper = null;
@@ -168,7 +176,7 @@ public class WXAssetBundleAsyncTask: ITask
 		return ret;
 	}
 
-	public AssetBundle Bundle {
+	public override AssetBundle Bundle {
 		get {
 			return m_Bundle;
 		}
@@ -210,7 +218,18 @@ public class WXAssetBundleAsyncTask: ITask
 		return fileName;
 	}
 
-	public AssetBundle StartLoad() {
+	public static bool HasCDNFile(string fileName) {
+		if (string.IsNullOrEmpty(fileName))
+			return false;
+		if (Mapper != null) {
+			string targetFileName = Mapper.GetCDNFileName(fileName);
+			bool ret = targetFileName != fileName;
+			return ret;
+		}
+		return false;
+    }
+
+	public override AssetBundle StartLoad() {
 		if (m_Req == null) {
 			string url = GetCDNFileName(m_FileName);
 			/*
@@ -323,7 +342,7 @@ public class WXAssetBundleAsyncTask: ITask
 #endif
 
 // LoadFromFileAsync
-public class BundleCreateAsyncTask: ITask
+public class BundleCreateAsyncTask: IAssetBundleAsyncTask
 {
 	public BundleCreateAsyncTask(string createFileName, int priority = 0)
 	{
@@ -362,7 +381,7 @@ public class BundleCreateAsyncTask: ITask
 		return ret;
 	}
 
-	public AssetBundle StartLoad() {
+	public override AssetBundle StartLoad() {
 		if (m_Req == null) {
 #if UNITY_WEIXINMINIGAME
 			m_Req = WXAssetBundle.LoadFromFileAsync(m_FileName);
@@ -423,7 +442,7 @@ public class BundleCreateAsyncTask: ITask
 
 	}
 
-	public AssetBundle Bundle
+	public override AssetBundle Bundle
 	{
 		get {
 			return m_Bundle;
